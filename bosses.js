@@ -1117,3 +1117,75 @@ const ECHO={
 EMPR.mkTrue=function(e){const s=bossSheet(e.di),c=mk(s.c.width,s.c.height,g=>{g.drawImage(s.c,0,0);g.globalCompositeOperation='source-atop';g.fillStyle='rgba(90,10,140,.55)';g.fillRect(0,0,s.c.width,s.c.height);});
  const g=c.getContext('2d');for(let f=0;f<3;f++){const x0=f*s.fw+s.fw/2;g.fillStyle='#14101a';g.fillRect(x0-12,2,4,10);g.fillRect(x0+8,2,4,10);g.fillStyle='#ffd040';g.fillRect(x0-11,3,2,8);g.fillRect(x0+9,3,2,8);g.fillStyle='#ff40ff';g.fillRect(x0-3,18,2,2);g.fillRect(x0+2,18,2,2);}
  return Object.assign({},s,{c,wc:whiteOf(c),sc:(s.sc||1)*1.9});};
+
+// ================================================================ REDRAWN SPRITES
+// filled polygon helper for the art functions (scanline even-odd fill)
+function artPoly(R,pts,col){let y0=1e9,y1=-1e9;for(const p of pts){y0=Math.min(y0,p[1]);y1=Math.max(y1,p[1]);}
+ for(let y=Math.floor(y0);y<=Math.ceil(y1);y++){const xs=[];for(let i=0;i<pts.length;i++){const a=pts[i],b=pts[(i+1)%pts.length];if((a[1]<=y+.5&&b[1]>y+.5)||(b[1]<=y+.5&&a[1]>y+.5))xs.push(a[0]+(y+.5-a[1])/(b[1]-a[1])*(b[0]-a[0]));}
+  xs.sort((a,b)=>a-b);for(let i=0;i+1<xs.length;i+=2){const xa=Math.round(xs[i]),xb=Math.round(xs[i+1]);if(xb>xa)R(xa,y,xb-xa,1,col);}}}
+
+// TSUCHIGUMO: a hulking earth spider. Banded jointed legs arched high over the body, a bristled abdomen carrying an oni
+// face, a cluster of red eyes and venom-wet fangs. Frames: idle, legs shifting, rearing to strike. At half health two legs
+// are gone and an eye is put out.
+BART['TSUCHIGUMO, EARTH SPIDER']=Object.assign(p=>{const {R,E,L,f,atk}=p,b=f===1?1:0,hurt=ARTHURT;
+ const C0='#1a110c',C1='#33221a',C2='#523822',C3='#7a5530',C4='#a8743c',OB='#c89040',OB2='#f0c870';
+ const leg=(hx,hy,kx,ky,fx,fy,near,stub)=>{const c=near?C2:C1,cd=near?C1:C0,cl=near?C3:C2;
+  L(hx,hy,kx,ky,cd,4);L(hx,hy-1,kx,ky-1,c,2);L(hx,hy-2,kx,ky-2,cl,1);
+  if(stub){E(kx,ky,2,2,'#5a0a08');R(kx-1,ky-1,1,1,'#a02018');return;}
+  L(kx,ky,fx,fy,cd,3);L(kx,ky-1,fx-1,fy-1,near?C3:C2,1);
+  // banded joints: knee and mid-shin
+  E(kx,ky,2,2,near?OB:C3);R(kx-1,ky-2,2,1,near?OB2:C4);const mx=Math.round(kx+(fx-kx)*.45),my=Math.round(ky+(fy-ky)*.45);R(mx-1,my-1,3,2,near?OB:C3);
+  // bristles along the upper segment, claw tip
+  for(let i=1;i<4;i++){const x=hx+(kx-hx)*i/4,y=hy+(ky-hy)*i/4;R(x,y-3,1,1,cl);}R(fx-1,fy,3,1,cd);R(fx,fy-1,1,2,'#e8dcc0');};
+ const raise=atk?1:0,sw=k=>(f===1?(k%2?1:-1):0);
+ // far legs (behind the body)
+ leg(70,30,84-raise*2,10-raise*6+sw(0),94+raise*1,44-raise*26,0);leg(66,29,73,5+sw(1),81,50,0,hurt);leg(61,29,49,5+sw(2),45,50,0);leg(57,30,34,9+sw(3),21,48,0);
+ // abdomen: a great bristled sac with an oni face
+ E(32,30+b,23,17,C0);E(32,29+b,22,16,C1);E(31,26+b,19,12,C2);E(28,22+b,11,6,C3);E(26,20+b,4,2,C4);
+ for(let i=0;i<14;i++){const a=Math.PI*(1.05+i/13*.95),x=32+Math.cos(a)*22,y=29+b+Math.sin(a)*16;R(x,y-1,1,2,C4);}
+ for(const s of [-1,1]){artPoly(R,[[32+s*3,26+b],[32+s*13,22+b],[32+s*12,27+b],[32+s*4,30+b]],'#d8c8a0');R(32+s*8-1,24+b,3,2,'#c02018');R(32+s*8,24+b,1,1,'#ffe080');L(32+s*3,21+b,32+s*13,18+b,'#d8c8a0',1);}
+ artPoly(R,[[24,33+b],[40,33+b],[37,40+b],[27,40+b]],'#d8c8a0');R(26,35+b,12,3,'#5a0a08');for(let i=0;i<5;i++){R(26+i*2.5,35+b,1,2,'#f8f0e0');R(27+i*2.5,37+b,1,1,'#f8f0e0');}R(31,28+b,2,4,'#d8c8a0');
+ // waist and the armoured cephalothorax
+ E(51,33,5,4,C1);E(63,35,13,10,C0);E(63,34,12,9,C2);E(61,31,8,5,C3);R(57,29,5,1,C4);for(let i=0;i<4;i++)R(56+i*4,37,2,1,OB);
+ // near legs (in front of the body)
+ leg(68,43,90-raise*2,28-raise*20-sw(0),95,61-raise*34,1,hurt);leg(66,43,77,17-sw(1),83,62,1);leg(61,43,46,17-sw(2),40,62,1);leg(57,42,29,21-sw(3),12,60,1);
+ // head: eight eyes (two great ones), pedipalps, fangs that spread and drip when it strikes
+ E(78,37,10,8,C0);E(78,36,9,7,C1);E(77,33,6,3,C2);R(74,31,6,1,C3);
+ const eye=(x,y,r,out)=>{if(out){R(x-r,y,r*2+1,1,'#5a0a08');R(x,y-r,1,r*2+1,'#5a0a08');return;}E(x,y,r,r,'#7a0a08');E(x,y,Math.max(0,r-1),Math.max(0,r-1),atk?'#ff5030':'#e02018');R(x-1,y-1,1,1,'#ffd0a0');};
+ eye(80,35,3,0);eye(86,36,2,hurt);eye(76,33,1,0);eye(81,31,1,0);eye(85,32,1,0);eye(74,36,1,0);eye(88,33,1,0);
+ L(84,41,91,45-raise*4,C1,2);L(89,45-raise*4,91,48-raise*4,C3,1);
+ const fs=atk?3:0;L(78,42,76-fs,51,C0,4);L(78,42,76-fs,50,C3,1);R(75-fs,51,2,4,'#f0e8d8');L(83,42,85+fs,51,C0,4);L(83,42,85+fs,50,C3,1);R(84+fs,51,2,4,'#f0e8d8');
+ if(atk){R(75-fs,55,1,2,'#90e050');R(85+fs,55,1,3,'#90e050');}
+},{sc:1.1,fw:96,fh:64,raw:1});
+
+// THE MOTH QUEEN: a court lady with the wings of a great atlas moth - rust and ochre wings with eye-spots and pale crescents,
+// a fur ruff, feathered antennae. Frames: wings raised, wings beating down, wings flung wide as she scatters her dust.
+BART['THE MOTH QUEEN']=Object.assign(p=>{const {R,E,L,f,atk}=p,b=f===1?1:0,hurt=ARTHURT,cx=40;
+ const WD='#3a1418',W1='#7a2a20',W2='#b85a2a',W3='#e0a048',WC='#f4ecd8';
+ const dn=atk?-3:f===1?4:0;
+ for(const s of [-1,1]){const X=x=>cx+s*x;
+  // hindwings with long trailing tails
+  artPoly(R,[[X(4),30],[X(26),30+dn*.3],[X(30),40+dn*.3],[X(20),50],[X(14),58],[X(10),48],[X(4),40]],WD);
+  artPoly(R,[[X(5),31],[X(24),31+dn*.3],[X(27),39+dn*.3],[X(19),48],[X(14),55],[X(10),46],[X(5),39]],W1);
+  artPoly(R,[[X(8),35],[X(21),34],[X(22),40],[X(15),45],[X(9),40]],W2);E(X(15),39,3,3,WD);E(X(15),39,2,2,W3);
+  // forewings: big, hooked tips, a pale band, a window crescent and an eye-spot
+  const ty=3+dn,tx=atk?38:34;
+  artPoly(R,[[X(4),26],[X(10),14+dn*.5],[X(22),6+dn*.8],[X(tx),ty],[X(tx+2),ty+5],[X(30),20+dn*.4],[X(26),30],[X(14),32],[X(4),30]],WD);
+  artPoly(R,[[X(5),26],[X(11),15+dn*.5],[X(22),8+dn*.8],[X(tx-1),ty+2],[X(tx),ty+5],[X(29),19+dn*.4],[X(25),29],[X(14),30],[X(5),29]],W1);
+  artPoly(R,[[X(9),24],[X(14),16+dn*.5],[X(24),11+dn*.7],[X(27),17+dn*.5],[X(22),26],[X(12),27]],W2);
+  L(X(8),26,X(28),12+dn*.6,W3,1);L(X(6),29,X(25),27,WC,1);
+  E(X(18),20+dn*.5,3,2,WC);R(X(18),20+dn*.5,1,1,WD);
+  E(X(tx-3),ty+3,3,2,'#e8d8c0');R(X(tx-3),ty+3,1,1,'#3a1418');
+  if(hurt){R(X(20),14+dn*.6,3,3,'rgba(0,0,0,0)');for(const [hx,hy] of [[16,20],[24,12],[13,40]])E(X(hx),hy+dn*.4,2,1,'#14101a');}}
+ // body: a plum kimono with a gold obi, a white fur ruff
+ for(let y=28;y<=57;y++){const w=Math.round(3+(y-28)*.33);R(cx-w,y,w*2,1,y>52?'#2a1438':'#4a2a5a');R(cx-w,y,1,1,'#2a1438');}
+ R(cx-1,30,2,26,'#6a3a7a');R(cx-6,36,12,3,'#d8a840');R(cx-6,37,12,1,'#a07020');
+ for(let i=0;i<7;i++)E(cx-6+i*2,27+(i%2),2,2,i%2?'#f0ecf4':'#ffffff');
+ // arms: one raised scattering glittering dust when she attacks
+ if(atk){L(cx+5,30,cx+12,20,'#4a2a5a',2);E(cx+13,19,1,1,'#f0e0e8');for(let i=0;i<6;i++)R(cx+13+Math.cos(i*1.1)*4,18+Math.sin(i*1.1)*3,1,1,i%2?'#ffe080':'#ffffff');}
+ else{L(cx+5,30,cx+7,40,'#4a2a5a',2);R(cx+6,41,2,2,'#f0e0e8');}L(cx-5,30,cx-7,40,'#4a2a5a',2);R(cx-8,41,2,2,'#f0e0e8');
+ // head: a pale face with great dark eyes, a white bob, gold feathered antennae
+ E(cx,22+b,4,5,'#f4ecf0');R(cx-3,21+b,2,2,'#14101a');R(cx+2,21+b,2,2,'#14101a');R(cx-2,21+b,1,1,'#8060a0');R(cx+3,21+b,1,1,'#8060a0');R(cx,25+b,1,1,'#c04060');
+ E(cx,18+b,6,4,'#2a1438');R(cx-6,18+b,2,8,'#2a1438');R(cx+5,18+b,2,8,'#2a1438');R(cx-3,15+b,5,1,'#5a3a7a');R(cx-5,19+b,10,1,'#2a1438');R(cx+4,14+b,4,1,'#e0b040');R(cx+7,13+b,1,3,'#ff6080');
+ for(const s of [-1,1]){L(cx+s*2,15+b,cx+s*9,4+b,'#c09040',1);for(let i=1;i<6;i++){const x=cx+s*(2+i*1.4),y=15+b-i*2.2;R(x-s*2,y,2,1,'#e0b860');R(x,y-1,1,1,'#e0b860');}}
+},{sc:1.05,fw:80,fh:60,raw:1});
