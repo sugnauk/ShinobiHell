@@ -111,8 +111,10 @@ function bossDirector(e,dt,d){const K=BKIT[e.name];
  kitStart(e,K);const a=aimAt(e);
  if(e.say){e.say.t-=dt;if(e.say.t<=0)e.say=null;}
  if(K.tick&&K.tick(e,dt,d,!!e.EV)===true)return true;
+ tickBarrage(e,dt);
  if(phaseGate(e,K,dt))return true;
  e.lastPh=e.phase;
+ if(K.barrage)barrageTick(e,K,dt);
  if(e.A){e.A.t+=dt;const done=e.A.run(e,e.A,dt,d,a);if(done&&e.A){if(e.A.end)e.A.end(e,e.A);e.gapT=(e.A.gap!=null?e.A.gap:(K.gap||.7))/e.spdK;e.A=null;e.tele=0;}if(!K.noContact)bossContact(e);return true;}
  e.gapT-=dt;
  if(K.move)K.move(e,dt,d,a);else defaultMove(e,dt,d,a,K);
@@ -120,12 +122,27 @@ function bossDirector(e,dt,d){const K=BKIT[e.name];
  if(!K.noContact)bossContact(e);
  return true;}
 // events and the half-health change, shared by every director. true = this frame belongs to them
-function phaseGate(e,K,dt){if(e.EV){runEvent(e,K,dt);return true;}const f=e.hp/e.maxhp;
- // half health first unless the event is due earlier in the fight
- const evDue=K.event&&!e.evDone&&f<K.event.at,halfDue=!e.half&&f<.5&&!K.noHalf;
- if(halfDue&&!(evDue&&K.event.at>.5)){doHalf(e,K);return true;}
- if(evDue){startEvent(e,K);return true;}return false;}
-function kitStart(e,K){if(e.kitOn)return;e.kitOn=1;if(e.r0==null){e.r0=e.r;e.spd0=e.spd;}Object.assign(e,{ph:1,half:0,evDone:0,EV:null,A:null,gapT:1.4,spdK:1,lastA:null,say:null,mins:[]});e.drawAfter=bossDrawAfter;if(K.draw)e.drawFn=K.draw;if(K.init)K.init(e);}
+function phaseGate(e,K,dt){if(e.EV){runEvent(e,K,dt);return true;}const f=e.hp/e.maxhp,L=bossEvents(K);e.evSeen=e.evSeen||{};
+ const due=L.find((ev,i)=>!e.evSeen[i]&&f<ev.at),halfDue=!e.half&&f<.5&&!K.noHalf;
+ // half health first unless an event is due earlier in the fight
+ if(halfDue&&!(due&&due.at>.5)){doHalf(e,K);return true;}
+ if(due){e.evSeen[L.indexOf(due)]=1;startEvent(e,K,due);return true;}return false;}
+// a boss's events: its own (event / events) plus the classic survival storm (storm), highest health threshold first
+function bossEvents(K){if(K._evs)return K._evs;const L=[].concat(K.events||[],K.event?[K.event]:[]);if(K.storm)L.push(stormEvent(K.storm));return K._evs=L.sort((a,b)=>b.at-a.at);}
+// the classic SURVIVAL phase from the original fights: the boss holds the centre, invulnerable, and throws its whole
+// barrage set plus telegraphed rain at you
+function stormEvent(S){return {at:S.at,dur:S.dur||9,name:S.name||'LAST STAND',hint:'SURVIVE THE STORM',storm:1,
+ start(e,E){const A=arenaOf(e);E.home=freeSpot(e,A.cx,A.cy,e.r);E.bt=.6;E.rt=1.2;E.k=0;if(S.start)S.start(e,E);},
+ tick(e,dt,E){e.x+=(E.home.x-e.x)*Math.min(1,dt*3);e.y+=(E.home.y-e.y)*Math.min(1,dt*3);const B=BKIT[e.name].barrage,L=S.patterns||(B&&(B.storm||B.half||B.ph1))||[];
+  E.bt-=dt;if(E.bt<=0&&L.length){E.bt=S.rate||.5;bossBarrage(e,L[E.k++%L.length]);}
+  E.rt-=dt;if(E.rt<=0){E.rt=S.rain||1.5;enemyShoot(e,{pat:'rain',cnt:4,rad:18,col:bsty(e).c,dmg:10,sp:0},0);}
+  if(Math.random()<dt*20)spark(e.x,e.y,bsty(e).c,2,40);if(S.tick)S.tick(e,dt,E);}};}
+// the bullet-hell layer: between (and during some) attacks the boss keeps throwing its signature barrages at you
+// K.barrage = {ph1:[patterns], half:[patterns], rate:[s, s at half], during:[attack names it keeps firing through]}
+function barrageTick(e,K,dt){const B=K.barrage;if(e.A&&!(B.during||[]).includes(e.A.n))return;
+ e.bgT=(e.bgT==null?1.2:e.bgT)-dt;if(e.bgT>0)return;const r=B.rate||[1.1,.8];e.bgT=e.half?r[1]:r[0];
+ const L=(e.half&&B.half)||B.ph1;bossBarrage(e,L[(e.bgN=(e.bgN||0)+1)%L.length]);}
+function kitStart(e,K){if(e.kitOn)return;e.kitOn=1;if(e.r0==null){e.r0=e.r;e.spd0=e.spd;}Object.assign(e,{evSeen:{},bgT:null,bgN:0,brq:[],ph:1,half:0,evDone:0,EV:null,A:null,gapT:1.4,spdK:1,lastA:null,say:null,mins:[]});e.drawAfter=bossDrawAfter;if(K.draw)e.drawFn=K.draw;if(K.init)K.init(e);}
 function defaultMove(e,dt,d,a,K){const pref=K.pref||e.pref||70;if(d>pref+12)steer(e,a,e.spd,dt);else if(d<pref-20)steer(e,a+Math.PI,e.spd*.8,dt);else steer(e,a+Math.PI/2*e.sdir,e.spd*.6,dt);if(Math.random()<dt*.3)e.sdir*=-1;}
 function chooseAtk(e,K,d){let L=K.atks.filter(x=>(x.half==null||(x.half===1)===!!e.half)&&(!x.ok||x.ok(e,d)));if(L.length>1){const L2=L.filter(x=>x.n!==e.lastA);if(L2.length)L=L2;}if(!L.length)return null;return wpick(L);}
 function startAtk(e,at){e.A={n:at.n,t:0,run:at.run,end:at.end,gap:at.gap};e.lastA=at.n;}
@@ -134,11 +151,11 @@ function doHalf(e,K){e.half=1;e.phase=2;e.spdK=K.spdK||1.2;cancelAtk(e);clearEne
  if(!K.keepSpr)e.sprOv=bossHurtSpr(e.di);if(K.onHalf)K.onHalf(e);
  const c=bsty(e).c;sfx('break');sfx('boss');shake=Math.max(shake,9);hitstop=Math.max(hitstop,.12);impact(e.x,e.y,c,10,true);fxRing(e.x,e.y,90,c,.6);fxRing(e.x,e.y,50,'#fff',.4);
  txtFx(e.x,e.y-16,K.halfName||'ENRAGED',c,2);setToast(e.name.split(',')[0]+': '+(K.halfName||'ENRAGED'),c,3);}
-function startEvent(e,K){const ev=K.event;cancelAtk(e);clearEnemyShots(true);e.evDone=1;e.EV={t:0,name:ev.name};e.iv=999;
+function startEvent(e,K,ev){ev=ev||K.event;e.EVdef=ev;cancelAtk(e);e.brq=[];clearEnemyShots(true);e.evDone=1;e.EV={t:0,name:ev.name};e.iv=999;
  // the engine's HUD reads storm/stormMax for the SURVIVE countdown and ev.mins for "defeat the guard"
  e.storm=ev.dur;e.stormMax=ev.dur;e.ev={name:ev.name,mins:[]};if(ev.start)ev.start(e,e.EV);
  const c=bsty(e).c;sfx('boss');shake=Math.max(shake,8);fxRing(e.x,e.y,80,c,.5);txtFx(e.x,e.y-16,ev.name,c,2);setToast(ev.name+' - '+(ev.hint||'SURVIVE!'),c,3.5);}
-function runEvent(e,K,dt){const ev=K.event,E=e.EV;E.t+=dt;e.iv=999;e.storm=Math.max(0,ev.dur-E.t);if(ev.tick)ev.tick(e,dt,E);
+function runEvent(e,K,dt){const ev=e.EVdef||K.event,E=e.EV;E.t+=dt;e.iv=999;e.storm=Math.max(0,ev.dur-E.t);if(ev.tick)ev.tick(e,dt,E);
  if(E.t>=ev.dur||(E.done)){if(ev.end)ev.end(e,E);e.EV=null;e.ev=null;e.storm=0;e.iv=.5;e.gapT=1.2;e.air=false;e.z=0;e.alpha=null;sfx('break');fxRing(e.x,e.y,60,'#fff',.4);setToast(ev.name+' ENDS - STRIKE NOW!','#fff',2.2);}}
 // speech bubble over the boss, and the generic sprite extras
 function bossDrawAfter(e){const K=BKIT[e.name];if(K&&K.drawAfter)K.drawAfter(e);
@@ -170,7 +187,7 @@ function bossWorld(dt){tickMarks(dt);tickFakes(dt);
    for(const q of projs)if(q.from==='e')q.dead=true;}return _od(e);};}
 // HUD: the health bar shows its four damage steps and where the event triggers; the arena hint line
 {const _hud=drawHUD;drawHUD=function(){_hud();const b=boss;if(!b||!b.awake||b.dead)return;const K=BKIT[b.name];if(!K||!K.director)return;
-  const w=150,x=Math.round((W-w)/2)-20;if(!K.noTicks){ctx.fillStyle='#14101a';for(const k of [.25,.5,.75])ctx.fillRect(x+Math.round(w*k),H-22,1,6);if(K.event&&!b.evDone){ctx.fillStyle='#ffd040';ctx.fillRect(x+Math.round(w*K.event.at)-1,H-24,3,2);}}
+  const w=150,x=Math.round((W-w)/2)-20;if(!K.noTicks){ctx.fillStyle='#14101a';for(const k of [.25,.5,.75])ctx.fillRect(x+Math.round(w*k),H-22,1,6);bossEvents(K).forEach((ev,i)=>{if(b.evSeen&&b.evSeen[i])return;ctx.fillStyle='#ffd040';ctx.fillRect(x+Math.round(w*ev.at)-1,H-24,3,2);});}
   if(!b.EV&&K.hud){const s=K.hud(b);if(s)ctxt(s,H-40,K.hudC||'#e0b040');}
   if(K.hudExtra)K.hudExtra(b);};}
 // projectile art for the new bullets
@@ -226,9 +243,17 @@ const AKA={
  mkTroop(e,x,y){const m=bMin(e,'ashigaru',x,y);m.t=Object.assign({},ET.ashigaru,{ai:'dummy'});m.drill=1;m.hp=m.maxhp=m.maxhp*1.4;return m;},
  order(e,s){if(!e.half){say(e,s,'#c02020',.8);sfx('beat');}},
 };
-BKIT['AKAGANE, THE RED OX']={director:bossDirector,pref:85,gap:.75,halfName:'HELMET BROKEN - NO MORE ORDERS',
+BKIT['AKAGANE, THE RED OX']={director:bossDirector,pref:85,gap:1.25,halfName:'HELMET OFF - NO MORE ORDERS',
+ // the bullet-hell layer (from the original fight): war-drum rings, arrow walls with a gap, arrow fans, and at half health
+ // accelerating arrow streams and curtains. He keeps firing through his crescents, charges, rushes and stomps
+ barrage:{rate:[1.15,.8],during:['crescent','charge','rush','stomp'],
+  ph1:[{pat:'gapring',cnt:20,gw:.45,sp:55,spr:'drum',col:'#e0b040'},{pat:'wall',cnt:11,sp:68,spr:'arrow',col:BC.aim},{cnt:5,spread:.6,sp:92,spr:'arrow',col:BC.aim},{pat:'gapring',cnt:16,gw:.5,sp:48,spr:'drum',col:'#e0b040',burst:2,gap:.35}],
+  half:[{pat:'wall',cnt:13,sp:76,spr:'arrow',col:BC.aim},{pat:'stream',cnt:6,sp:105,st:'accel',spr:'arrow',col:BC.aim},{pat:'gapring',cnt:24,gw:.42,sp:58,spr:'drum',col:'#e0b040'},{pat:'curtain',cnt:9,sp:80,spr:'arrow',col:'#ff8040'},{pat:'cross',dirs:6,cnt:3,sp:66,st:'boom',bT:1.4,col:'#ff6040',rot:.2}],
+  storm:[{pat:'gapring',cnt:26,gw:.4,sp:56,spr:'drum',col:'#e0b040'},{pat:'wall',cnt:15,sp:82,spr:'arrow',col:BC.aim},{pat:'cross',dirs:6,cnt:3,sp:70,st:'boom',bT:1.4,col:'#ff6040',rot:.2},{pat:'curtain',cnt:9,sp:85,spr:'arrow',col:'#ff8040'},{pat:'spiral',arms:5,spin:.35,sp:60,spr:'drum',col:'#e0b040',burst:6,gap:.1}]},
+ // the original fight's survival phase, kept as his last stand
+ storm:{at:.3,dur:9,name:'LAST STAND',rate:.45},
  style:{c:'#e04030',t:['DRILL','SQUAD','LAST STAND'],ph:[[],[],[]]},
- guide:['SKILL: READING TELEGRAPHS. HE SHOUTS EVERY ORDER','LOOSE = ARROW GRID. BRACE = SPEAR WALL. CHARGE = OX CHARGE','CUT HIS WAR BANNERS OR FALLEN TROOPS REGROUP','HALF HEALTH: NO MORE SHOUTS, PAIRED CRESCENTS'],
+ guide:['SKILL: READING TELEGRAPHS. HE SHOUTS EVERY ORDER','LOOSE = ARROW GRID. BRACE = SPEAR WALL. CHARGE = OX CHARGE','WAR DRUMS AND ARROW WALLS FILL THE GAPS: FIND THE HOLE','CUT HIS BANNERS OR FALLEN TROOPS REGROUP. 30%: LAST STAND'],
  init(e){const A=arenaOf(e),k=A.R*.62;e.flagsB=[];e.troops=[];
   for(const [sx2,sy2] of [[-1,-1],[1,-1],[-1,1],[1,1]])e.flagsB.push(bProp(e,'warbanner',A.cx+sx2*k,A.cy+sy2*k,{propCol:'#c02020'}));
   e.rack=bProp(e,'rack',A.cx,A.cy+30,{onBreak:r=>{for(let i=0;i<10;i++){const a=i/10*TAU;particles.push({x:r.x,y:r.y,vx:Math.cos(a)*90,vy:Math.sin(a)*90,t:.4,col:'#e8eef6'});}
@@ -236,6 +261,7 @@ BKIT['AKAGANE, THE RED OX']={director:bossDirector,pref:85,gap:.75,halfName:'HEL
   for(const s of AKA.troopSlots(e))e.troops.push(AKA.mkTroop(e,s.x,s.y));e.regroupT=8;},
  // the drill line keeps formation behind him; fallen troops regroup at a standing banner
  tick(e,dt,d,inEv){if(e.half)return;const tr=AKA.troops(e),sl=AKA.troopSlots(e);
+  if(!inEv&&!e.brace)tr.forEach((m,i)=>{m.vt=(m.vt==null?1+i*.8:m.vt)-dt;if(m.vt<=0){m.vt=3.4;bfan(m,m.x,m.y,aimAt(m),3,.45,85,7,{spr:'arrow',col:BC.aim,r:2});}});
   tr.forEach((m,i)=>{if(e.brace)return;const s=sl[i];const a=Math.atan2(s.y-m.y,s.x-m.x),dd=Math.hypot(s.x-m.x,s.y-m.y);if(dd>3)move(m,Math.cos(a)*Math.min(dd,70*dt),Math.sin(a)*Math.min(dd,70*dt),m.r);});
   if(!inEv&&tr.length<4){const b=e.flagsB.filter(x=>!x.dead);if(b.length){e.regroupT-=dt;if(e.regroupT<=0){e.regroupT=8;const s=pick(b);e.troops=tr.concat([AKA.mkTroop(e,s.x,s.y+10)]);txtFx(s.x,s.y-10,'REGROUP!','#e04030');}}}},
  hud:e=>{const n=e.flagsB.filter(b=>!b.dead).length;return n?'WAR BANNERS: '+n+' - FALLEN TROOPS REGROUP AT THEM':null;},
@@ -270,6 +296,14 @@ BKIT['AKAGANE, THE RED OX']={director:bossDirector,pref:85,gap:.75,halfName:'HEL
     for(const q of projs)if(q.from==='p'&&!q.dead)for(const m of tr)if(Math.hypot(q.x-m.x,q.y-m.y)<10){q.dead=true;spark(q.x,q.y,'#c8c8d0',3,40);break;}
     if(at(A,.5*k)){const all=tr.concat([e]);for(const m of all){const q=bsh(e,m.x,m.y,A.a,250,11,{spr:'spear',st:'lance',wait:.55*k,col:BC.aim,r:2,life:2.4});}sfx('tool');}
     if(A.t>2.2*k){e.brace=0;return true;}return false;},end(e){e.brace=0;}},
+  // War rush (the original fight's dash mode): three or four short dashes at you, each telegraphed by a line, spraying
+  // arrows to the sides and ending in a ring of drums
+  {n:'rush',wt:2,run(e,A,dt){const k=1/e.spdK,N=e.half?4:3;if(!A.go){A.go=1;A.n=0;A.ph=0;AKA.order(e,'AT THEM!');}
+    if(A.n>=N)return true;
+    if(A.ph===0){if(!A.m){A.a=aimAt(e);A.m=mark({k:'l',x:e.x,y:e.y,a:A.a,len:Math.min(130,rayLen(e.x,e.y,A.a,130)),w:e.r*2+4,t:.4*k,col:BC.aim,grow:false,follow:m=>{m.x=e.x;m.y=e.y;m.a=A.a=aimAt(e);},lock:.12});e.tele=1;}
+     if(A.m.fired){A.ph=1;A.m=null;A.dt=0;e.tele=0;sfx('dash');}return false;}
+    move(e,Math.cos(A.a)*380*dt,Math.sin(A.a)*380*dt,e.r);A.dt+=dt;if(Math.random()<dt*28)bsh(e,e.x,e.y,A.a+Math.PI/2*(Math.random()<.5?1:-1),32,8,{spr:'arrow',col:BC.fix,r:2,life:1.8});
+    if(A.dt>.3){A.ph=0;A.n++;enemyShoot(e,{pat:'flower',cnt:12+(e.half?4:0),sp:56,spr:'drum',col:'#e0b040',dmg:9},0);shake=Math.max(shake,3);}return false;}},
   // War stomp (half health): two rings with a gap, the second turned
   {n:'stomp',wt:2,half:1,run(e,A){if(!A.go){A.go=1;e.tele=2;mark({k:'c',x:e.x,y:e.y,r:34,t:.5,col:BC.fix,dmg:14*e.dm,src:e});}
     if(at(A,.5)){e.tele=0;shake=Math.max(shake,6);sfx('break');const g=Math.random()*TAU;bring(e,e.x,e.y,26,62,9,{col:BC.fix,r:4},0,g,.42);}
@@ -279,6 +313,7 @@ BKIT['AKAGANE, THE RED OX']={director:bossDirector,pref:85,gap:.75,halfName:'HEL
  event:{at:.7,dur:20,name:'ASHIGARU SQUAD',hint:'CUT THEM DOWN IN 20S OR THEY JOIN HIM',
   start(e,E){const A=arenaOf(e);E.mins=[];for(let i=0;i<7;i++)E.mins.push(bMin(e,i<6?'ashigaru':'archer',A.cx+(i-3)*22,A.y1-24));e.ev.mins=E.mins;E.home=freeSpot(e,A.cx,A.y0+60);E.rt=2.5;},
   tick(e,dt,E){e.x+=(E.home.x-e.x)*Math.min(1,dt*3);e.y+=(E.home.y-e.y)*Math.min(1,dt*3);
+   E.dr=(E.dr==null?1:E.dr)-dt;if(E.dr<=0){E.dr=1.8;enemyShoot(e,{pat:'gapring',cnt:18,gw:.5,sp:50,spr:'drum',col:'#e0b040',dmg:9,pd:6},0);sfx('beat');}
    E.rt-=dt;if(E.rt<=0){E.rt=4.5;say(e,'LOOSE!','#c02020',.8);const cx=P.x,cy=P.y;for(let i=0;i<5;i++){const a=i/5*TAU+Math.random(),r=i?36:0;mark({k:'c',x:cx+Math.cos(a)*r,y:cy+Math.sin(a)*r,r:15,t:1,dmg:12*e.dm,col:'#3a2a20',src:e});}}
    if(E.mins.every(m=>m.dead)&&E.t>2){E.done=1;setToast('SQUAD ROUTED','#ffd040',2);}},
   end(e,E){const left=E.mins.filter(m=>!m.dead).length;if(left)setToast(left+' ASHIGARU JOIN THE FIGHT','#ff8080',2.5);}},
