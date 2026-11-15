@@ -983,7 +983,7 @@ BKIT['LORD KUROGANE']={director:bossDirector,pref:0,gap:.8,halfName:'YAMIKAZE FA
  move(e,dt,d,a){if(!e.mounted){defaultMove(e,dt,d,a,{pref:60});return;}
   // gallop a wide loop round the court; arrows loosed back over his shoulder drift behind his route
   const A=arenaOf(e),R0=A.R*.62;e.loopA+=dt*1.25*e.sdir;const tx=A.cx+Math.cos(e.loopA)*R0,ty=A.cy+Math.sin(e.loopA)*R0*.8,da=Math.atan2(ty-e.y,tx-e.x),dd=Math.hypot(tx-e.x,ty-e.y);
-  move(e,Math.cos(da)*Math.min(dd,e.spd*4.4*dt),Math.sin(da)*Math.min(dd,e.spd*4.4*dt),e.r);dustTrail(e,'#7a6a50');
+  const gs=e.spd*4.4*(e.slow||1)*dt;move(e,Math.cos(da)*Math.min(dd,gs),Math.sin(da)*Math.min(dd,gs),e.r);dustTrail(e,'#7a6a50'); // paddy water bogs the horse down
   e.hat=(e.hat||0)-dt;if(e.hat<=0){e.hat=.28;bsh(e,e.x,e.y,da+Math.PI+rnd(-.35,.35),36,8,{spr:'arrow',col:BC.fix,r:2,life:3.2});}
   // yari sweep as he passes close
   if(d<70&&!(e.ysw>0)){e.ysw=2.5;mark({k:'cone',x:e.x,y:e.y,a:a,r:60,arc:Math.PI,t:.35,col:BC.aim});bfan(e,e.x,e.y,a,9,Math.PI,85,9,{spr:'spear',col:'#c8ccd8',r:2});}if(e.ysw>0)e.ysw-=dt;},
@@ -996,7 +996,7 @@ BKIT['LORD KUROGANE']={director:bossDirector,pref:0,gap:.8,halfName:'YAMIKAZE FA
   // lance pass: the horse rears, a red line across the court, then a gallop straight through leaving a wake of shards
   {n:'lance',wt:4,half:0,gap:1.8,run(e,A,dt){if(!A.go){A.go=1;A.ph=0;e.tele=2;sfx('boss');A.a=aimAt(e);A.m=mark({k:'l',x:e.x,y:e.y,a:A.a,len:rayLen(e.x,e.y,A.a,600),w:e.r*2+10,t:.85,lock:.25,col:BC.aim,follow:m=>{m.x=e.x;m.y=e.y;m.a=A.a=aimAt(e);m.len=rayLen(e.x,e.y,m.a,600);}});}
     if(A.ph===0){if(!A.m.fired)return false;A.ph=1;A.dt=0;A.px=e.x;A.py=e.y;e.tele=0;sfx('dash');}
-    const s=380,ox=e.x,oy=e.y;move(e,Math.cos(A.a)*s*dt,Math.sin(A.a)*s*dt,e.r);A.dt+=dt;dustTrail(e,'#7a6a50');bossContact(e);
+    const s=380*(e.slow||1),ox=e.x,oy=e.y;move(e,Math.cos(A.a)*s*dt,Math.sin(A.a)*s*dt,e.r);A.dt+=dt;dustTrail(e,'#7a6a50');bossContact(e);
     if(Math.hypot(e.x-A.px,e.y-A.py)>22){A.px=e.x;A.py=e.y;for(const sd of [1,-1])bsh(e,e.x,e.y,A.a+sd*Math.PI/2+rnd(-.2,.2),34,8,{col:'#c8b890',r:2,life:2.4});}
     if(Math.hypot(e.x-ox,e.y-oy)<s*dt*.3||A.dt>1.6){// he wheels round: hoof stomp, a fast low ring - dash through it
      shake=Math.max(shake,6);sfx('break');bring(e,e.x,e.y,36,120,9,{col:'#9a7a50',r:3,life:3},Math.random());e.loopA=Math.atan2(e.y-arenaOf(e).cy,e.x-arenaOf(e).cx);return true;}return false;}},
