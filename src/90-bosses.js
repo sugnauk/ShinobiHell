@@ -558,7 +558,7 @@ HOT.snuff=function(e,l){l.lit=0;l.hits=0;sfx('break');fxRing(l.x,l.y-30,24,'#5a5
 const R7=[{id:'JUBEI',type:'samurai',c:'#f0f0f4',sig:'iaido',r:85},{id:'GONZA',type:'ashigaru',c:'#9a9aa8',sig:'thrust',r:65},{id:'HANZO',type:'archer',c:'#ff4a3a',sig:'volley',r:125},
  {id:'OKICHI',type:'assassin',c:'#70d040',sig:'chain',r:75},{id:'TETSUGORO',type:'brute',c:'#4060c0',sig:'cleave',r:55},{id:'TWINS',type:'ninja',c:'#ff9030',sig:'zig',r:95,twins:1},{id:'MURAMASA',type:'samurai',c:'#ff80c0',sig:'blossom',r:85,leader:1}];
 const R7SPR={};
-function r7Spr(d){return R7SPR[d.id]||(R7SPR[d.id]=Object.assign({},foeSprite(d.type,basePal(d.c,shade(d.c,-.45),'#f0e8d8',shade(d.c,-.6))),{sc:d.type==='brute'?1:1.3}));}
+function r7Spr(d){return R7SPR[d.id]||(R7SPR[d.id]=Object.assign({},foeSprite(d.type,basePal(d.c,shade(d.c,-.45),'#f0e8d8',shade(d.c,-.6))),{sc:d.type==='brute'?1:1.1}));}
 const R7K={
  alive:e=>e.r7.filter(m=>!m.dead),
  seg:(e,id)=>e.r7.filter(m=>m.d.id===id),
@@ -1011,7 +1011,7 @@ const KUR={bearers:e=>(e.bearers||[]).filter(m=>!m.dead),
 BKIT['LORD KUROGANE']={director:bossDirector,pref:0,gap:.8,halfName:'YAMIKAZE FALLS - HE FIGHTS ON FOOT',keepSpr:1,
  style:{c:'#c0a040',t:['CAVALRY','CAVALRY WING','ON FOOT'],ph:[[],[],[]]},
  guide:['SKILL: BIG-SPACE POSITIONING. MOUNTED, HE NEVER STOPS','TWO STANDARD-BEARERS RIDE WITH HIM: HALF DAMAGE WHILE EITHER LIVES','STAY AHEAD OF HIS PATH: HIS ARROWS FALL BEHIND IT','ON FOOT: STOP SHOOTING WHILE HIS WAR FAN IS OPEN'],
- init(e){e.mounted=1;e.loopA=0;e.bearers=[0,1].map(i=>{const m=bMin(e,'samurai',e.x,e.y);m.t=Object.assign({},ET.samurai,{ai:'dummy'});m.sprOv=Object.assign({},foeSprite('samurai',basePal('#1e1e28','#0a0a12','#c0a040','#801818')),{sc:1.3});m.label='BEARER';m.labelC='#c0a040';m.hp=m.maxhp=m.maxhp*2.2;m.slot=i;return m;});
+ init(e){e.mounted=1;e.loopA=0;e.bearers=[0,1].map(i=>{const m=bMin(e,'samurai',e.x,e.y);m.t=Object.assign({},ET.samurai,{ai:'dummy'});m.sprOv=Object.assign({},foeSprite('samurai',basePal('#1e1e28','#0a0a12','#c0a040','#801818')),{sc:1.1});m.label='BEARER';m.labelC='#c0a040';m.hp=m.maxhp=m.maxhp*2.2;m.slot=i;return m;});
   e.onHurt=b=>{if(b.fan>0){KUR.reflect(b);return false;}return KUR.bearers(b).length&&b.mounted?.5:1;};},
  tick(e,dt,d,inEv){KUR.corpseBlock(e,dt);if(e.fan>0)e.fan-=dt;
   // the bearers ride in his wake, firing arrows to the side
@@ -1075,7 +1075,7 @@ BKIT['THE CORRUPT EMPEROR']={director:empDirector,noTicks:0,halfName:'HIS ROBES 
   e.shrines=[[-1,-1],[1,-1],[-1,1],[1,1]].map(([a,b],i)=>({x:A.cx+a*A.R*.66,y:A.cy+b*A.R*.66,hold:0,cd:0,i}));
   // corrupted guards: four of the ronin, purple, their health is the first 30% of his bar
   const per=e.maxhp*.3/4;e.guards=['JUBEI','GONZA','HANZO','TETSUGORO'].map((id,i)=>{const d=Object.assign({},R7.find(x=>x.id===id),{c:'#b040ff'});const m=bMin(e,d.type,A.cx-90+i*60,A.cy-40);
-   Object.assign(m,{hp:per,maxhp:per,label:id,labelC:'#e080ff',sprOv:Object.assign({},foeSprite(d.type,basePal('#4a1a6a','#2a0a3a','#e080ff','#1a0a2a')),{sc:d.type==='brute'?1:1.3}),d,sigs:[d.sig],cd:rnd(1,2),ang:i*1.6,fight:1});m.t=Object.assign({},m.t,{ai:'dummy'});return m;});
+   Object.assign(m,{hp:per,maxhp:per,label:id,labelC:'#e080ff',sprOv:Object.assign({},foeSprite(d.type,basePal('#4a1a6a','#2a0a3a','#e080ff','#1a0a2a')),{sc:d.type==='brute'?1:1.1}),d,sigs:[d.sig],cd:rnd(1,2),ang:i*1.6,fight:1});m.t=Object.assign({},m.t,{ai:'dummy'});return m;});
   e.echoT=1;e.E=[];e.lastStand=null;},
  hud:e=>e.ph===1?'HIS GUARD SHIELDS HIM: '+EMPR.guards(e).length+' LEFT':'CORRUPTION DRAINS YOU - STAND ON A SHRINE 2S TO PURIFY',hudC:'#e080ff',
  floor(e){ctx.save();worldXf();for(const s of e.shrines){const on=s.cd<=0||e.lastStand&&!s.done;ctx.globalAlpha=.9;ctx.fillStyle=on?'#e8e0c8':'#5a5060';ctx.fillRect(s.x-11,s.y-11,22,22);ctx.fillStyle=on?'#ffd040':'#3a3040';ctx.fillRect(s.x-6,s.y-6,12,12);
