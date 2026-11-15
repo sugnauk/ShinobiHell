@@ -132,16 +132,17 @@ function bossEvents(K){if(K._evs)return K._evs;const L=[].concat(K.events||[],K.
 // the classic SURVIVAL phase from the original fights: the boss holds the centre, invulnerable, and throws its whole
 // barrage set plus telegraphed rain at you
 function stormEvent(S){return {at:S.at,dur:S.dur||9,name:S.name||'LAST STAND',hint:'SURVIVE THE STORM',storm:1,
- start(e,E){const A=arenaOf(e);E.home=freeSpot(e,A.cx,A.cy,e.r);E.bt=.6;E.rt=1.2;E.k=0;if(S.start)S.start(e,E);},
- tick(e,dt,E){e.x+=(E.home.x-e.x)*Math.min(1,dt*3);e.y+=(E.home.y-e.y)*Math.min(1,dt*3);const B=BKIT[e.name].barrage,L=S.patterns||(B&&(B.storm||B.half||B.ph1))||[];
-  E.bt-=dt;if(E.bt<=0&&L.length){E.bt=S.rate||.5;bossBarrage(e,L[E.k++%L.length]);}
+ start(e,E){const A=arenaOf(e);e.onCeil=0;e.ceil=0;E.home=freeSpot(e,A.cx,A.cy,e.r);E.bt=.6;E.rt=1.2;E.k=0;if(S.start)S.start(e,E);},
+ tick(e,dt,E){e.x+=(E.home.x-e.x)*Math.min(1,dt*3);e.y+=(E.home.y-e.y)*Math.min(1,dt*3);const B=BKIT[e.name].barrage,L=S.patterns||(B&&(B.storm||B.ph1))||[];
+  E.bt-=dt;if(E.bt<=0&&L.length){E.bt=S.rate||.5;if(eShots()<(S.cap||280))bossBarrage(e,L[E.k++%L.length]);}
   E.rt-=dt;if(E.rt<=0){E.rt=S.rain||1.5;enemyShoot(e,{pat:'rain',cnt:4,rad:18,col:bsty(e).c,dmg:10,sp:0},0);}
   if(Math.random()<dt*20)spark(e.x,e.y,bsty(e).c,2,40);if(S.tick)S.tick(e,dt,E);}};}
 // the bullet-hell layer: between (and during some) attacks the boss keeps throwing its signature barrages at you
 // K.barrage = {ph1:[patterns], half:[patterns], rate:[s, s at half], during:[attack names it keeps firing through]}
-function barrageTick(e,K,dt){const B=K.barrage;if(e.A&&!(B.during||[]).includes(e.A.n))return;
- e.bgT=(e.bgT==null?1.2:e.bgT)-dt;if(e.bgT>0)return;const r=B.rate||[1.1,.8];e.bgT=e.half?r[1]:r[0];
- const L=(e.half&&B.half)||B.ph1;bossBarrage(e,L[(e.bgN=(e.bgN||0)+1)%L.length]);}
+const BCAP=240,eShots=()=>{let n=0;for(const q of projs)if(q.from==='e')n++;return n;};
+function barrageTick(e,K,dt){const B=K.barrage;if(e.air)return;if(e.A&&B.during!=='all'&&!(B.during||[]).includes(e.A.n))return;if(e.A&&B.not&&B.not.includes(e.A.n))return;
+ e.bgT=(e.bgT==null?1.2:e.bgT)-dt;if(e.bgT>0)return;const r=B.rate||[1.1,.8];e.bgT=(e.ph===3&&r[2])||(e.half?r[1]:r[0]);if(eShots()>(B.cap||BCAP))return;
+ const L=(B.pick&&B.pick(e))||(e.half&&B.half)||B.ph1;bossBarrage(e,L[(e.bgN=(e.bgN||0)+1)%L.length]);}
 function kitStart(e,K){if(e.kitOn)return;e.kitOn=1;if(e.r0==null){e.r0=e.r;e.spd0=e.spd;}Object.assign(e,{evSeen:{},bgT:null,bgN:0,brq:[],ph:1,half:0,evDone:0,EV:null,A:null,gapT:1.4,spdK:1,lastA:null,say:null,mins:[]});e.drawAfter=bossDrawAfter;if(K.draw)e.drawFn=K.draw;if(K.init)K.init(e);}
 function defaultMove(e,dt,d,a,K){const pref=K.pref||e.pref||70;if(d>pref+12)steer(e,a,e.spd,dt);else if(d<pref-20)steer(e,a+Math.PI,e.spd*.8,dt);else steer(e,a+Math.PI/2*e.sdir,e.spd*.6,dt);if(Math.random()<dt*.3)e.sdir*=-1;}
 function chooseAtk(e,K,d){let L=K.atks.filter(x=>(x.half==null||(x.half===1)===!!e.half)&&(!x.ok||x.ok(e,d)));if(L.length>1){const L2=L.filter(x=>x.n!==e.lastA);if(L2.length)L=L2;}if(!L.length)return null;return wpick(L);}
@@ -156,6 +157,7 @@ function startEvent(e,K,ev){ev=ev||K.event;e.EVdef=ev;cancelAtk(e);e.brq=[];clea
  e.storm=ev.dur;e.stormMax=ev.dur;e.ev={name:ev.name,mins:[]};if(ev.start)ev.start(e,e.EV);
  const c=bsty(e).c;sfx('boss');shake=Math.max(shake,8);fxRing(e.x,e.y,80,c,.5);txtFx(e.x,e.y-16,ev.name,c,2);setToast(ev.name+' - '+(ev.hint||'SURVIVE!'),c,3.5);}
 function runEvent(e,K,dt){const ev=e.EVdef||K.event,E=e.EV;E.t+=dt;e.iv=999;e.storm=Math.max(0,ev.dur-E.t);if(ev.tick)ev.tick(e,dt,E);
+ if(!ev.storm&&K.barrage&&!ev.quiet&&!e.ghost&&!e.air){E.bb=(E.bb==null?1.5:E.bb)-dt;if(E.bb<=0){E.bb=(K.barrage.rate||[1])[0]*1.7;if(eShots()<160){const L=K.barrage.ph1;bossBarrage(e,L[(E.bk=(E.bk||0)+1)%L.length]);}}}
  if(E.t>=ev.dur||(E.done)){if(ev.end)ev.end(e,E);e.EV=null;e.ev=null;e.storm=0;e.iv=.5;e.gapT=1.2;e.air=false;e.z=0;e.alpha=null;sfx('break');fxRing(e.x,e.y,60,'#fff',.4);setToast(ev.name+' ENDS - STRIKE NOW!','#fff',2.2);}}
 // speech bubble over the boss, and the generic sprite extras
 function bossDrawAfter(e){const K=BKIT[e.name];if(K&&K.drawAfter)K.drawAfter(e);
@@ -246,12 +248,14 @@ const AKA={
 BKIT['AKAGANE, THE RED OX']={director:bossDirector,pref:85,gap:1.25,halfName:'HELMET OFF - NO MORE ORDERS',
  // the bullet-hell layer (from the original fight): war-drum rings, arrow walls with a gap, arrow fans, and at half health
  // accelerating arrow streams and curtains. He keeps firing through his crescents, charges, rushes and stomps
- barrage:{rate:[1.15,.8],during:['crescent','charge','rush','stomp'],
-  ph1:[{pat:'gapring',cnt:20,gw:.45,sp:55,spr:'drum',col:'#e0b040'},{pat:'wall',cnt:11,sp:68,spr:'arrow',col:BC.aim},{cnt:5,spread:.6,sp:92,spr:'arrow',col:BC.aim},{pat:'gapring',cnt:16,gw:.5,sp:48,spr:'drum',col:'#e0b040',burst:2,gap:.35}],
-  half:[{pat:'wall',cnt:13,sp:76,spr:'arrow',col:BC.aim},{pat:'stream',cnt:6,sp:105,st:'accel',spr:'arrow',col:BC.aim},{pat:'gapring',cnt:24,gw:.42,sp:58,spr:'drum',col:'#e0b040'},{pat:'curtain',cnt:9,sp:80,spr:'arrow',col:'#ff8040'},{pat:'cross',dirs:6,cnt:3,sp:66,st:'boom',bT:1.4,col:'#ff6040',rot:.2}],
-  storm:[{pat:'gapring',cnt:26,gw:.4,sp:56,spr:'drum',col:'#e0b040'},{pat:'wall',cnt:15,sp:82,spr:'arrow',col:BC.aim},{pat:'cross',dirs:6,cnt:3,sp:70,st:'boom',bT:1.4,col:'#ff6040',rot:.2},{pat:'curtain',cnt:9,sp:85,spr:'arrow',col:'#ff8040'},{pat:'spiral',arms:5,spin:.35,sp:60,spr:'drum',col:'#e0b040',burst:6,gap:.1}]},
+ barrage:{rate:[.5,.38],during:['crescent','charge','rush','stomp','rain','spearwall'],
+  ph1:[{pat:'gapring',cnt:28,gw:.4,sp:56,spr:'drum',col:'#e0b040',burst:2,gap:.3},{pat:'wall',cnt:15,sp:70,r:3,col:BC.aim,burst:2,gap:.45},{cnt:7,spread:.7,sp:95,r:3,col:BC.aim,burst:3,gap:.14},
+   {pat:'spiral',arms:4,spin:.3,sp:58,spr:'drum',col:'#e0b040',burst:8,gap:.09},{pat:'curtain',cnt:9,sp:78,r:3,col:'#ff8040'},{pat:'flower',cnt:20,sp:52,spr:'drum',col:'#e0b040'}],
+  half:[{pat:'wall',cnt:17,sp:80,r:3,col:BC.aim,burst:3,gap:.35},{pat:'stream',cnt:8,sp:110,st:'accel',r:3,col:BC.aim,burst:2,gap:.2},{pat:'gapring',cnt:32,gw:.38,sp:60,spr:'drum',col:'#e0b040',burst:3,gap:.28},
+   {pat:'curtain',cnt:11,sp:84,r:3,col:'#ff8040',burst:2,gap:.3},{pat:'cross',dirs:6,cnt:4,sp:68,st:'boom',bT:1.4,col:'#ff6040',rot:.2},{pat:'spiral',arms:6,spin:.32,sp:62,spr:'drum',col:'#e0b040',burst:10,gap:.08}],
+  storm:[{pat:'gapring',cnt:32,gw:.36,sp:58,spr:'drum',col:'#e0b040'},{pat:'wall',cnt:17,sp:84,r:3,col:BC.aim},{pat:'cross',dirs:8,cnt:3,sp:70,st:'boom',bT:1.4,col:'#ff6040',rot:.2},{pat:'curtain',cnt:11,sp:88,r:3,col:'#ff8040'},{pat:'spiral',arms:6,spin:.35,sp:62,spr:'drum',col:'#e0b040',burst:8,gap:.08}]},
  // the original fight's survival phase, kept as his last stand
- storm:{at:.3,dur:9,name:'LAST STAND',rate:.45},
+ storm:{at:.3,dur:10,name:'LAST STAND',rate:.32,rain:1.1},
  style:{c:'#e04030',t:['DRILL','SQUAD','LAST STAND'],ph:[[],[],[]]},
  guide:['SKILL: READING TELEGRAPHS. HE SHOUTS EVERY ORDER','LOOSE = ARROW GRID. BRACE = SPEAR WALL. CHARGE = OX CHARGE','WAR DRUMS AND ARROW WALLS FILL THE GAPS: FIND THE HOLE','CUT HIS BANNERS OR FALLEN TROOPS REGROUP. 30%: LAST STAND'],
  init(e){const A=arenaOf(e),k=A.R*.62;e.flagsB=[];e.troops=[];
@@ -261,7 +265,7 @@ BKIT['AKAGANE, THE RED OX']={director:bossDirector,pref:85,gap:1.25,halfName:'HE
   for(const s of AKA.troopSlots(e))e.troops.push(AKA.mkTroop(e,s.x,s.y));e.regroupT=8;},
  // the drill line keeps formation behind him; fallen troops regroup at a standing banner
  tick(e,dt,d,inEv){if(e.half)return;const tr=AKA.troops(e),sl=AKA.troopSlots(e);
-  if(!inEv&&!e.brace)tr.forEach((m,i)=>{m.vt=(m.vt==null?1+i*.8:m.vt)-dt;if(m.vt<=0){m.vt=3.4;bfan(m,m.x,m.y,aimAt(m),3,.45,85,7,{spr:'arrow',col:BC.aim,r:2});}});
+  if(!inEv&&!e.brace)tr.forEach((m,i)=>{m.vt=(m.vt==null?1+i*.8:m.vt)-dt;if(m.vt<=0){m.vt=2.2;bfan(m,m.x,m.y,aimAt(m),5,.7,88,7,{spr:'arrow',col:BC.aim,r:2});}});
   tr.forEach((m,i)=>{if(e.brace)return;const s=sl[i];const a=Math.atan2(s.y-m.y,s.x-m.x),dd=Math.hypot(s.x-m.x,s.y-m.y);if(dd>3)move(m,Math.cos(a)*Math.min(dd,70*dt),Math.sin(a)*Math.min(dd,70*dt),m.r);});
   if(!inEv&&tr.length<4){const b=e.flagsB.filter(x=>!x.dead);if(b.length){e.regroupT-=dt;if(e.regroupT<=0){e.regroupT=8;const s=pick(b);e.troops=tr.concat([AKA.mkTroop(e,s.x,s.y+10)]);txtFx(s.x,s.y-10,'REGROUP!','#e04030');}}}},
  hud:e=>{const n=e.flagsB.filter(b=>!b.dead).length;return n?'WAR BANNERS: '+n+' - FALLEN TROOPS REGROUP AT THEM':null;},
@@ -313,7 +317,7 @@ BKIT['AKAGANE, THE RED OX']={director:bossDirector,pref:85,gap:1.25,halfName:'HE
  event:{at:.7,dur:20,name:'ASHIGARU SQUAD',hint:'CUT THEM DOWN IN 20S OR THEY JOIN HIM',
   start(e,E){const A=arenaOf(e);E.mins=[];for(let i=0;i<7;i++)E.mins.push(bMin(e,i<6?'ashigaru':'archer',A.cx+(i-3)*22,A.y1-24));e.ev.mins=E.mins;E.home=freeSpot(e,A.cx,A.y0+60);E.rt=2.5;},
   tick(e,dt,E){e.x+=(E.home.x-e.x)*Math.min(1,dt*3);e.y+=(E.home.y-e.y)*Math.min(1,dt*3);
-   E.dr=(E.dr==null?1:E.dr)-dt;if(E.dr<=0){E.dr=1.8;enemyShoot(e,{pat:'gapring',cnt:18,gw:.5,sp:50,spr:'drum',col:'#e0b040',dmg:9,pd:6},0);sfx('beat');}
+   E.dr=(E.dr==null?1:E.dr)-dt;if(E.dr<=0){E.dr=1.05;E.dk=(E.dk||0)+1;bossBarrage(e,E.dk%2?{pat:'gapring',cnt:26,gw:.42,sp:52,spr:'drum',col:'#e0b040',burst:2,gap:.3}:{pat:'wall',cnt:15,sp:68,r:3,col:BC.aim,burst:2,gap:.4});sfx('beat');}
    E.rt-=dt;if(E.rt<=0){E.rt=4.5;say(e,'LOOSE!','#c02020',.8);const cx=P.x,cy=P.y;for(let i=0;i<5;i++){const a=i/5*TAU+Math.random(),r=i?36:0;mark({k:'c',x:cx+Math.cos(a)*r,y:cy+Math.sin(a)*r,r:15,t:1,dmg:12*e.dm,col:'#3a2a20',src:e});}}
    if(E.mins.every(m=>m.dead)&&E.t>2){E.done=1;setToast('SQUAD ROUTED','#ffd040',2);}},
   end(e,E){const left=E.mins.filter(m=>!m.dead).length;if(left)setToast(left+' ASHIGARU JOIN THE FIGHT','#ff8080',2.5);}},
@@ -457,7 +461,9 @@ BKIT['TSUCHIGUMO, EARTH SPIDER']={director:bossDirector,pref:70,gap:.6,halfName:
   start(e,E){e.air=true;e.ceil=1;e.z=170;e.onCeil=1;for(const g of e.eggs.filter(x=>!x.dead))SPI.hatch(e,g,3);E.sw=1;},
   tick(e,dt,E){e.air=true;e.z=170;const a=aimAt(e),dd=dist(e,P);e.x+=Math.cos(a)*Math.min(dd,40*dt);e.y+=Math.sin(a)*Math.min(dd,40*dt);
    E.sw-=dt;if(E.sw<=0){E.sw=2.4;const A=arenaOf(e);for(let i=0;i<2;i++){const an=Math.random()*TAU;const m=bMin(e,'spiderling',A.cx+Math.cos(an)*A.R*.75,A.cy+Math.sin(an)*A.R*.75);m.hp=m.maxhp*.7;}}
-   E.dr=(E.dr||2)-dt;if(E.dr<=0){E.dr=1.6;mark({k:'c',x:P.x+rnd(-20,20),y:P.y+rnd(-20,20),r:14,t:1,dmg:10*e.dm,col:'#e8e8f0',src:e});}},
+   E.dr=(E.dr||2)-dt;if(E.dr<=0){E.dr=1.6;mark({k:'c',x:P.x+rnd(-20,20),y:P.y+rnd(-20,20),r:14,t:1,dmg:10*e.dm,col:'#e8e8f0',src:e});}
+   // the nest walls spit silk: rings with a gap from where the egg sacs hung
+   E.wr=(E.wr==null?.8:E.wr)-dt;if(E.wr<=0&&eShots()<170){E.wr=1.1;const A=arenaOf(e),a=Math.random()*TAU,x=A.cx+Math.cos(a)*A.R*.72,y=A.cy+Math.sin(a)*A.R*.72;bring(e,x,y,22,50,8,{spr:'silk',col:BC.fix,r:3,life:6},Math.random(),Math.atan2(P.y-y,P.x-x),.38);}},
   end(e){e.segT=3;}},
 };
 SPI.hatch=function(e,g,n){g.dead=true;spark(g.x,g.y,'#e8e0c8',16,80);sfx('break');txtFx(g.x,g.y-8,'HATCHED!','#e8e0c8');for(let i=0;i<n;i++){const m=bMin(e,'spiderling',g.x+rnd(-8,8),g.y+rnd(-8,8));}};
@@ -594,7 +600,8 @@ function r7Director(e,dt,d){const K=BKIT[e.name];kitStart(e,K);
  // formations every so often (not during the gate)
  if(!e.EV){e.formT-=dt;if(e.formT<=0&&act.length>=2&&!e.form){e.formT=14;e.form=R7FORM(e,act);}}
  if(e.form){e.form.t+=dt;if(e.form.run(e,e.form,dt)){e.form=null;for(const m of act)m.cd=rnd(.6,1.2);}return true;}
- for(const m of act){if(m.A){m.A.t+=dt;if(R7SIG[m.A.n](e,m,m.A,dt)){m.A=null;m.tele=0;m.cd=rnd(1.8,2.8)/k/(e.EV?1.3:1);}continue;}
+ for(const m of act){tickBarrage(m,dt);m.bt=(m.bt==null?rnd(.4,1.2):m.bt)-dt;if(m.bt<=0){m.bt=(e.EV?1.5:1.05)/k;const L=R7BAR[m.d.id];if(eShots()<220)bossBarrage(m,Object.assign({dmg:8,pd:6},L[(m.bn=(m.bn||0)+1)%L.length]));}
+  if(m.A){m.A.t+=dt;if(R7SIG[m.A.n](e,m,m.A,dt)){m.A=null;m.tele=0;m.cd=rnd(1.8,2.8)/k/(e.EV?1.3:1);}continue;}
   // circle the player at this ronin's own range
   m.ang+=dt*.5*(m.d.twins&&m===e.r7.find(o=>o.d.twins)?-1:1);let tx=P.x+Math.cos(m.ang)*m.d.r,ty=P.y+Math.sin(m.ang)*m.d.r;
   if(m.d.twins){const tw=e.r7.filter(o=>o.d.twins&&!o.dead);if(tw.length===2&&m===tw[1]){tx=P.x-(tw[0].x-P.x);ty=P.y-(tw[0].y-P.y);}}
@@ -748,8 +755,9 @@ function abbotDirector(e,dt,d){const K=BKIT[e.name];kitStart(e,K);
  for(const s of e.sil){s.r+=dt*170;for(const q of projs)if(q.from==='e'&&!q.peril&&Math.abs(Math.hypot(q.x-s.x,q.y-s.y)-s.r)<8){q.dead=true;spark(q.x,q.y,'#ffd040',2,30);}
   if(!s.hit&&Math.abs(Math.hypot(e.x-s.x,e.y-s.y)-s.r)<10&&!e.EV){s.hit=1;e.downT=2.2;e.A=null;txtFx(e.x,e.y-20,'SILENCED!','#ffd040',2);sfx('break');}}
  e.sil=e.sil.filter(s=>s.r<420);
- if(phaseGate(e,K,dt))return true;
+ tickBarrage(e,dt);if(phaseGate(e,K,dt))return true;
  if(e.downT>0){e.downT-=dt;if(Math.random()<dt*8)spark(e.x,e.y-14,'#ffd040',2,30);return true;}
+ barrageTick(e,K,dt);
  // the beat clock. Every bar: beat 0 he moves, beats 1-3 he strikes. At half health the strikes drift off the beat
  e.bt-=dt;if(e.bt<=0){e.bt+=BEAT;e.bn++;const bb=e.bn%4;tone(bb===0?220:330,.06,'square',.03,-60);
   if(bb===0)ABB.newBar(e);else if(e.A){const j=e.half?rnd(-.3,.3)*BEAT:0;e.A.q.push({t:Math.max(0,BEAT*.0+j),b:bb});}}
@@ -1089,6 +1097,7 @@ function empDirector(e,dt,d){const K=BKIT[e.name];kitStart(e,K);if(e.say){e.say.
  for(const q of projs)if(q.from==='e'&&q.own===e&&q.corP&&q.life<dt*1.5&&!q.pooled){q.pooled=1;EMPR.pool(q.x,q.y);}
  for(const q of projs)if(q.soul&&!q.dead)for(const s of e.shrines)if(s.cd<=0&&Math.hypot(q.x-s.x,q.y-s.y)<16){q.dead=true;spark(q.x,q.y,'#a8d8ff',8,50);}
  // phase 1: the guards are his health; he cannot be touched until they fall
+ tickBarrage(e,dt);if(!e.EV&&!(e.downT>0))barrageTick(e,K,dt);
  if(e.ph===1){const G=EMPR.guards(e);e.hp=e.maxhp*.7+G.reduce((s,m)=>s+Math.max(0,m.hp),0);e.iv=999;
   for(const m of G){if(m.A){m.A.t+=dt;if(R7SIG[m.A.n](e,m,m.A,dt)){m.A=null;m.cd=rnd(2,3);}continue;}m.ang+=dt*.5;const tx=P.x+Math.cos(m.ang)*m.d.r,ty=P.y+Math.sin(m.ang)*m.d.r;steer(m,Math.atan2(ty-m.y,tx-m.x),Math.min(Math.hypot(tx-m.x,ty-m.y)/dt,m.spd*1.5),dt);m.cd-=dt;if(m.cd<=0)m.A={n:m.sigs[0],t:0};}
   e.gapT-=dt;if(!e.A&&e.gapT<=0){e.A={t:0,n:pick(['spiral','edict'])};}
@@ -1310,3 +1319,55 @@ BART['THE NINE-TAILED KITSUNE']=Object.assign(p=>{const {R,E,L,b,atk,f}=p,two=AR
  for(const [x0,y0,x1,y1] of [[20,30,14,36],[28,32,34,40],[22,44,16,50],[27,46,32,52]])L(x0,y0,x1,y1,'#b040ff',1);
  const hy=12+b;R(20,hy+5,1,3,'#b040ff');R(28,hy+6,1,3,'#b040ff');L(19,hy+9,22,hy+11,'#b040ff',1);R(21,hy+4,3,2,'#ff60ff');R(26,hy+4,3,2,'#ff60ff');R(22,hy+4,1,1,'#fff');R(27,hy+4,1,1,'#fff');
  for(let i=0;i<10;i++){const a=i*.7+f*.6;R(24+Math.cos(a)*18,26+Math.sin(a)*16-f*2,2,2,i%2?'#e080ff':'#6a20a0');}},old);}
+
+// ================================================================ THE BULLET-HELL LAYER, BOSS BY BOSS
+// Every guardian keeps firing its own signature barrages between and through its attacks (BKIT.barrage), and gets the
+// classic SURVIVAL storm as a second event (BKIT.storm) at whichever of 70% / 30% its own event does not use.
+// Colours follow the shared language: red aimed, pale fixed, green leaves a hazard, purple the Emperor.
+{const set=(n,b,st)=>{const K=BKIT[n];K.barrage=b;if(st)K.storm=st;K._evs=null;};
+ set('THE WHITE TIGER',{rate:[.62,.45],during:'all',not:['pounce'],
+  ph1:[{pat:'gapring',cnt:26,gw:.42,sp:52,col:'#a8d8ff',burst:2,gap:.35},{cnt:5,spread:.5,sp:100,col:BC.aim,st:'boom',bT:1.5,burst:2,gap:.2},{pat:'cross',dirs:4,cnt:4,sp:70,col:BC.fix,rot:.3},{pat:'flower',cnt:22,sp:50,col:'#d8f0a0'},{pat:'curtain',cnt:9,sp:78,col:BC.aim2}],
+  half:[{pat:'gapring',cnt:32,gw:.38,sp:58,col:'#a8d8ff',burst:3,gap:.3},{cnt:7,spread:.8,sp:110,col:BC.aim,st:'boom',bT:1.4,burst:3,gap:.15},{pat:'spiral',arms:5,spin:.4,sp:62,col:BC.fix,burst:8,gap:.09},{pat:'cross',dirs:8,cnt:3,sp:72,st:'boom',bT:1.5,col:BC.aim2,rot:.25},{pat:'flower',cnt:26,sp:54,col:'#d8f0a0'}]},
+  {at:.7,dur:9,name:'STALKING FURY',rate:.38});
+ set('TSUCHIGUMO, EARTH SPIDER',{rate:[.62,.46],during:'all',not:['climb'],
+  ph1:[{pat:'web',cnt:10,rings:3,sp:55,col:BC.fix},{pat:'spiral',arms:5,spin:.32,sp:56,col:'#e8e8f0',burst:7,gap:.1},{cnt:5,spread:1,sp:55,st:'big',r:4,spr:'venom',col:BC.haz,pool:{r:10,t:2.5,dps:8,col:'#4a9a20'}},{pat:'flower',cnt:20,sp:50,st:'split',splitT:.9,col:'#c89040'},{cnt:7,spread:.6,sp:90,col:BC.aim,burst:2,gap:.18}],
+  half:[{pat:'web',cnt:12,rings:3,sp:58,col:BC.fix,burst:2,gap:.4},{pat:'spiral',arms:7,spin:.36,sp:60,col:'#e8e8f0',burst:9,gap:.08},{cnt:7,spread:1.4,sp:58,st:'big',r:4,spr:'venom',col:BC.haz,pool:{r:10,t:2.5,dps:8,col:'#4a9a20'}},{pat:'flower',cnt:24,sp:52,st:'split',splitT:.9,col:'#c89040'},{pat:'gapring',cnt:30,gw:.4,sp:56,col:'#c89040',burst:2,gap:.3}]},
+  {at:.3,dur:9,name:'HUNGERING DARK',rate:.38});
+ set('LADY HOTARU',{rate:[.66,.48],during:'all',not:['spiral'],
+  ph1:[{pat:'spiral',arms:5,spin:.3,sp:56,spr:'charm',col:BC.fix,burst:7,gap:.1},{cnt:5,spread:1,sp:55,st:'seek',turn:1.2,seekT:1.5,spr:'ember',col:'#ff8030'},{pat:'flower',cnt:20,sp:52,spr:'ember',col:'#ff6020'},{pat:'gapring',cnt:26,gw:.42,sp:54,spr:'charm',col:BC.fix,burst:2,gap:.35}],
+  half:[{pat:'spiral',arms:7,spin:.34,sp:60,spr:'charm',col:BC.fix,burst:9,gap:.09},{cnt:7,spread:1.4,sp:57,st:'seek',turn:1.3,seekT:1.6,spr:'ember',col:'#ff8030'},{pat:'flower',cnt:24,sp:55,spr:'ember',col:'#ff6020',burst:2,gap:.3},{pat:'gapring',cnt:32,gw:.38,sp:58,spr:'charm',col:BC.fix,burst:3,gap:.3}]},
+  {at:.3,dur:9,name:'INFERNO WALTZ',rate:.38});
+ set('TETSUO THE GUNSMITH',{rate:[.5,.38],during:'all',
+  ph1:[{pat:'stream',cnt:6,sp:120,st:'accel',col:BC.aim,burst:2,gap:.25},{cnt:11,spread:1.2,sp:95,st:'decel',col:'#c8c8d0'},{pat:'curtain',cnt:9,sp:85,col:BC.aim2},{pat:'mines',cnt:5,st:'mine',col:'#ff8030'},{pat:'wall',cnt:13,sp:80,col:BC.aim}],
+  half:[{cnt:4,spread:.25,sp:150,col:BC.aim,burst:4,gap:.12},{pat:'stream',cnt:8,sp:130,st:'accel',col:BC.aim,burst:2,gap:.2},{cnt:13,spread:1.4,sp:100,st:'decel',col:'#c8c8d0'},{pat:'mines',cnt:7,st:'mine',col:'#ff8030'},{pat:'cross',dirs:6,cnt:4,sp:80,col:BC.aim2,rot:.25}]},
+  {at:.3,dur:9,name:'FULL BARRAGE',rate:.38});
+ set('THE THOUSAND-BELL ABBOT',{rate:[.75,.55],
+  ph1:[{pat:'gapring',cnt:24,gw:.45,sp:48,st:'curve',curve:.6,col:'#e8e0ff'},{pat:'spiral',arms:4,spin:.35,sp:55,spr:'bead',col:'#7a4a20',burst:7,gap:.11},{pat:'flower',cnt:20,sp:50,st:'split',splitT:1.1,col:'#d8b040'},{cnt:5,spread:.5,sp:90,col:BC.aim,burst:2,gap:.2}],
+  half:[{pat:'gapring',cnt:28,gw:.4,sp:52,st:'curve',curve:-.7,col:'#e8e0ff',burst:2,gap:.35},{pat:'spiral',arms:6,spin:.3,sp:58,spr:'bead',col:'#7a4a20',burst:10,gap:.09},{pat:'flower',cnt:24,sp:54,st:'split',splitT:1,col:'#d8b040'},{pat:'wall',cnt:15,sp:70,col:'#d8b040'}]},
+  {at:.7,dur:9,name:'THOUSAND HANDS',rate:.4});
+ set('ONIKUMA, THE JAILER',{rate:[.66,.48],during:'all',not:['grab'],
+  ph1:[{pat:'flower',cnt:16,sp:46,st:'big',col:'#ff9040'},{pat:'gapring',cnt:24,gw:.45,sp:50,st:'big',col:'#c8c8d0'},{pat:'mines',cnt:5,st:'mine',col:'#ff8030'},{cnt:5,spread:.6,sp:90,col:BC.aim,burst:2,gap:.2},{pat:'stream',cnt:5,sp:75,st:'split',splitT:.8,col:'#ff9040'}],
+  half:[{pat:'flower',cnt:20,sp:50,st:'split',splitT:1,col:'#ff9040'},{pat:'gapring',cnt:30,gw:.4,sp:55,st:'big',col:'#c8c8d0',burst:2,gap:.35},{pat:'mines',cnt:8,st:'mine',col:'#ff8030'},{pat:'cross',dirs:8,cnt:3,sp:70,st:'big',col:'#c8c8d0',rot:.2},{cnt:7,spread:.8,sp:100,col:BC.aim,burst:3,gap:.15}]},
+  {at:.3,dur:9,name:'FORGE FIRE',rate:.38});
+ set('KAGE, THE SHINOBI MASTER',{rate:[.48,.38],during:'all',
+  ph1:[{cnt:5,spread:.6,sp:105,st:'boom',bT:1.5,col:BC.aim,burst:2,gap:.18},{pat:'lance',cnt:5,spread:.8,sp:240,col:'#e8eef6'},{pat:'stream',cnt:6,sp:115,st:'zig',col:BC.aim2},{pat:'gapring',cnt:24,gw:.4,sp:55,col:'#8a8aa0',burst:2,gap:.3},{pat:'curtain',cnt:9,sp:90,col:BC.aim}],
+  half:[{cnt:7,spread:.8,sp:115,st:'boom',bT:1.4,col:BC.aim,burst:3,gap:.14},{pat:'lance',cnt:7,spread:1,sp:260,col:'#e8eef6'},{pat:'spiral',arms:6,spin:.45,sp:66,col:'#8a8aa0',burst:8,gap:.08},{pat:'cross',dirs:8,cnt:3,sp:80,st:'boom',bT:1.3,col:BC.aim2,rot:.3},{pat:'stream',cnt:8,sp:125,st:'zig',col:BC.aim2,burst:2,gap:.2}]},
+  {at:.3,dur:9,name:'SHADOW STORM',rate:.36});
+ set('THE NINE-TAILED KITSUNE',{rate:[.5,.4],during:'all',not:['clones'],
+  ph1:[{pat:'orbitring',cnt:10,ow:3,orv:32,col:'#8080ff'},{cnt:5,spread:1,sp:60,st:'seek',turn:1.4,seekT:1.6,spr:'wisp',col:'#8080ff'},{pat:'spiral',arms:6,spin:.4,sp:60,st:'wave',col:'#c080ff',burst:7,gap:.1},{pat:'gapring',cnt:26,gw:.42,sp:55,col:'#ff9040',burst:2,gap:.35}],
+  half:[{pat:'orbitring',cnt:12,ow:-3.2,orv:36,col:'#8080ff'},{cnt:7,spread:1.4,sp:64,st:'seek',turn:1.6,seekT:1.8,spr:'wisp',col:'#8080ff'},{pat:'spiral',arms:9,spin:.45,sp:64,st:'wave',col:'#c080ff',burst:9,gap:.09},{pat:'lance',cnt:5,spread:.6,sp:230,col:'#ffd060'},{pat:'gapring',cnt:32,gw:.38,sp:60,col:'#ff9040',burst:3,gap:.3}]},
+  {at:.7,dur:9,name:'FOX-FIRE STORM',rate:.38});
+ set('LORD KUROGANE',{rate:[.66,.46],during:'all',
+  ph1:[{pat:'wall',cnt:13,sp:75,col:BC.aim},{cnt:5,spread:.5,sp:110,col:BC.aim,burst:3,gap:.15},{pat:'flower',cnt:20,sp:52,col:'#c8b890'},{pat:'gapring',cnt:24,gw:.42,sp:56,col:'#c0a040',burst:2,gap:.35}],
+  half:[{pat:'wall',cnt:15,sp:82,col:BC.aim,burst:2,gap:.4},{pat:'lance',cnt:5,spread:.9,sp:240,spr:'spear',col:'#e8eef6'},{pat:'cross',dirs:6,cnt:4,sp:74,col:'#c0a040',rot:.25},{pat:'gapring',cnt:30,gw:.38,sp:60,col:'#c0a040',burst:3,gap:.3},{pat:'curtain',cnt:11,sp:88,col:BC.aim2}]},
+  {at:.3,dur:9,name:'THE GENERAL\'S FURY',rate:.38});
+ set('THE CORRUPT EMPEROR',{rate:[.6,.45,.7],during:'all',pick:e=>{const B=BKIT['THE CORRUPT EMPEROR'].barrage;return e.ph===3?B.ph3:e.half?B.half:B.ph1;},
+  ph1:[{pat:'spiral',arms:4,spin:.3,sp:52,spr:'petal',col:'#ffd040',burst:6,gap:.12},{pat:'gapring',cnt:24,gw:.42,sp:52,col:BC.cor,burst:2,gap:.35},{cnt:5,spread:.6,sp:95,col:BC.aim,burst:2,gap:.2}],
+  half:[{pat:'gapring',cnt:30,gw:.38,sp:56,col:BC.cor,burst:2,gap:.3},{pat:'spiral',arms:6,spin:.35,sp:58,spr:'petal',col:'#ffd040',burst:8,gap:.09},{pat:'flower',cnt:24,sp:52,st:'split',splitT:1,col:BC.cor2},{cnt:7,spread:.8,sp:100,col:BC.aim,burst:3,gap:.15}],
+  ph3:[{pat:'gapring',cnt:30,gw:.38,sp:58,spr:'scale',col:BC.cor},{pat:'spiral',arms:6,spin:.4,sp:62,col:BC.cor2,burst:7,gap:.09},{pat:'cross',dirs:8,cnt:3,sp:74,st:'boom',bT:1.4,col:'#ffd040',rot:.25},{pat:'flower',cnt:24,sp:55,col:BC.cor}]});
+}
+// the Ronin Seven each throw their own small barrage while they fight
+const R7BAR={JUBEI:[{pat:'gapring',cnt:14,gw:.5,sp:55,col:'#f0f0f4'},{cnt:3,spread:.3,sp:120,col:BC.aim,burst:2,gap:.15}],GONZA:[{pat:'wall',cnt:9,sp:70,col:'#9a9aa8'},{pat:'stream',cnt:4,sp:110,st:'accel',col:BC.aim}],
+ HANZO:[{cnt:5,spread:.5,sp:120,spr:'arrow',col:BC.aim,burst:2,gap:.18},{pat:'curtain',cnt:7,sp:90,col:BC.aim2}],OKICHI:[{pat:'orbitring',cnt:8,ow:3,orv:34,col:BC.haz},{pat:'flower',cnt:12,sp:50,col:BC.haz}],
+ TETSUGORO:[{pat:'flower',cnt:14,sp:44,st:'big',col:'#4060c0'},{pat:'gapring',cnt:16,gw:.5,sp:48,st:'big',col:'#4060c0'}],TWINS:[{pat:'stream',cnt:5,sp:100,st:'zig',col:'#ff9030'},{cnt:3,spread:.4,sp:100,col:'#ff9030'}],
+ MURAMASA:[{pat:'spiral',arms:4,spin:.4,sp:58,spr:'petal',col:'#ff80c0',burst:6,gap:.1},{pat:'gapring',cnt:20,gw:.42,sp:55,spr:'petal',col:'#ff80c0'}]};
