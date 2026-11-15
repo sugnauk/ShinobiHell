@@ -1,0 +1,29 @@
+'use strict';
+// HELL OF THE EMPEROR - items, abilities, meta progression (part of the former game.js; files load in numeric order, see index.html)
+// ---------- items & tools ----------
+const ITEMS=[
+ {id:'atk',name:'SPIRIT POWER',d:'+3 SPELL POWER',g:'A',r:0},{id:'aspd',name:'QUICK HANDS',d:'+12% CAST SPEED',g:'S',r:0},
+ {id:'range',name:'FAR SIGHT',d:'+BOLT RANGE',g:'L',r:0},{id:'hp',name:'VITALITY BEAD',d:'+20 MAX HP',g:'V',r:0},
+ {id:'pos',name:'STEADY BEAD',d:'+15 STUN RESIST',g:'P',r:0},{id:'spd',name:'LIGHT FOOT',d:'+8% MOVE SPEED',g:'F',r:0},
+ {id:'parry',name:'WARD SEAL',d:'+WARD DURATION',g:'D',r:1},{id:'crit',name:'CRITICAL EYE',d:'+8% CRIT',g:'C',r:0},
+ {id:'blood',name:'BLOOD MIST',d:'HEAL 3 ON KILL',g:'B',r:1},{id:'fire',name:'FIRE OIL',d:'EVERY ATTACK MAY BURN (LMB TOO)',g:'O',r:1},
+ {id:'poison',name:'POISON MIST',d:'EVERY ATTACK POISONS (LMB TOO)',g:'X',r:1},{id:'shadow',name:'SHADOW STEP',d:'FASTER DASH',g:'H',r:1},
+ {id:'emb',name:'FOCUS CHARM',d:'-10% COOLDOWNS',g:'E',r:0},{id:'thorn',name:'REPRISAL',d:'WARD SHOCKWAVE',g:'R',r:2},
+ {id:'wave',name:'TWIN TALISMAN',d:'+1 SIDE BOLT',g:'W',r:2},{id:'gourd',name:'POTION SATCHEL',d:'+1 HP POTION NOW',g:'G',r:1},
+ {id:'rez',name:'RESURRECTION',d:'+1 REVIVE',g:'Z',r:2},{id:'magnet',name:'GOLD MAGNET',d:'+GOLD +PICKUP',g:'M',r:1},
+ {id:'hunger',name:'DEATHBLOW HUNGER',d:'DEATHBLOW HEALS',g:'U',r:2},{id:'mikiri',name:'PHASE STRIKE',d:'DASH->NEXT BOLT +60%',g:'K',r:2},
+ {id:'iron',name:'IRON BODY',d:'-8% DAMAGE TAKEN',g:'I',r:1},{id:'ghost',name:'PHANTOM',d:'6% DODGE',g:'N',r:1},
+];
+const RCOL=['#9ab','#6c6','#c6f'],ITEMBY={};ITEMS.forEach(i=>ITEMBY[i.id]=i);
+// rarity weights: common 12, uncommon 6, rare 3, legendary 1. minR filters out lower rarities.
+function randItem(excl,minR){const RW=[14,7,3,2.2],pool=[]; /* legendary relics (r3) are very rare unless a source forces them with minR */for(const it of ITEMS){if(excl&&excl.includes(it.id))continue;if(minR&&it.r<minR)continue;for(let k=0;k<RW[it.r];k++)pool.push(it);}return pick(pool.length?pool:ITEMS);}
+
+// ---------- mage abilities ----------
+const ULT_CD=32,WARD_CD=7,CHAIN_CD=4.5;
+
+// ---------- meta progression ----------
+const UPG=[{k:'vit',name:'VITALITY',d:'+12 MAX HP',base:30,max:10},{k:'atk',name:'MIGHT',d:'+2 SPELL POWER',base:40,max:10},{k:'pos',name:'RESOLVE',d:'+10 STUN RESIST',base:30,max:10},{k:'emb',name:'FOCUS',d:'-4% COOLDOWNS',base:35,max:8},{k:'sen',name:'GREED',d:'+10% GOLD',base:50,max:8},{k:'res',name:'SECOND WIND',d:'+1 RESURRECTION',base:300,max:2}];
+function loadMeta(){let m=null;try{m=JSON.parse(localStorage.getItem('shinobiDungeons1'));}catch(e){}if(!m||!m.up)m={sen:0,reached:0,runs:0,wins:0,up:{vit:0,atk:0,pos:0,emb:0,sen:0,res:0}};if(!m.loadout)m.loadout={};for(const k of 'mhqwfe')if(m.loadout[k]==null)m.loadout[k]=0;if(!m.stats)m.stats={att:0,def:0,spd:0,dex:0,vit:0,wis:0};if(!m.codex)m.codex={sp:{},gear:{}};if(m.asc==null){m.asc=0;m.ascMax=0;}
+ // characters: 2 to start, one more after each finished run (older saves get credit for runs already played)
+ if(m.unlocked==null)m.unlocked=Math.min(5,2+(m.runs||0));if((m.cls||0)>=m.unlocked)m.cls=0;return m;}
+let meta=loadMeta();function saveMeta(){try{localStorage.setItem('shinobiDungeons1',JSON.stringify(meta));}catch(e){}}
