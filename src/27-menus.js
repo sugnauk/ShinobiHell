@@ -318,7 +318,7 @@ function drawCursor(){const mx=Math.round(mouse.x),my=Math.round(mouse.y);
 // ---------- options: volume, difficulty, toggles, key rebinding, debug overlay ----------
 const KBACTS=[['up','MOVE UP','KeyW'],['down','MOVE DOWN','KeyS'],['left','MOVE LEFT','KeyA'],['right','MOVE RIGHT','KeyD'],['dash','DASH','Space'],['focus','FOCUS (HOLD)','ShiftLeft'],
  ['q','ABILITY Q','KeyQ'],['w','ABILITY E','KeyE'],['f','ABILITY F','KeyF'],['e','ULTIMATE','KeyR'],['heal','DRINK POTION','KeyC'],['use','INTERACT','KeyG'],['swap','SWAP WEAPON','KeyX'],['pack','BACKPACK','Tab']];
-const DIFFS=[{n:'STORY',d:'FOES DEAL 55% DAMAGE AND HAVE 75% HP',dmg:.55,hp:.75,c:'#6c6'},{n:'NORMAL',d:'THE GAME AS DESIGNED',dmg:1,hp:1,c:'#ddd'},{n:'HARD',d:'FOES DEAL 130% DAMAGE AND HAVE 125% HP',dmg:1.3,hp:1.25,c:'#f55'}];
+const DIFFS=[{n:'STORY',d:'55% DAMAGE, 75% HP, FEWER BOSS BULLETS',dmg:.55,hp:.75,bh:.65,c:'#6c6'},{n:'NORMAL',d:'THE GAME AS DESIGNED',dmg:1,hp:1,bh:1,c:'#ddd'},{n:'HARD',d:'130% DAMAGE, 125% HP, MORE BOSS BULLETS',dmg:1.3,hp:1.25,bh:1.35,c:'#f55'}];
 (function initOpt(){const d={mus:6,sfx:7,diff:1,shake:1,flash:1,dmgNum:1,dbg:0,kb:{}};meta.opt=Object.assign(d,meta.opt||{});for(const [k,,c] of KBACTS)if(!meta.opt.kb[k])meta.opt.kb[k]=c;})();
 const OPT=()=>meta.opt,KB=new Proxy({},{get:(_,k)=>meta.opt.kb[k]}),DF=()=>DIFFS[meta.opt.diff]||DIFFS[1];
 const keyName=c=>!c?'-':c.startsWith('Key')?c.slice(3):c.startsWith('Digit')?c.slice(5):({Space:'SPACE',ShiftLeft:'SHIFT',ShiftRight:'RSHIFT',ControlLeft:'CTRL',AltLeft:'ALT',Tab:'TAB',CapsLock:'CAPS',ArrowUp:'UP',ArrowDown:'DOWN',ArrowLeft:'LEFT',ArrowRight:'RIGHT',Backquote:'`',Semicolon:';',Quote:"'",Slash:'/',Backslash:'\\',BracketLeft:'[',BracketRight:']',Minus:'-',Equal:'='})[c]||c.toUpperCase().slice(0,6);
@@ -335,6 +335,9 @@ const OPTROWS=()=>[
  {n:'SCREEN FLASHES',v:()=>OPT().flash?'ON':'OFF',ch:()=>{OPT().flash^=1;}},
  {n:'DAMAGE NUMBERS',v:()=>OPT().dmgNum?'ON':'OFF',ch:()=>{OPT().dmgNum^=1;}},
  {n:'DEBUG OVERLAY',v:()=>OPT().dbg?'ON':'OFF',info:()=>'FPS, FOES, BULLETS, YOUR DAMAGE PER SECOND',ch:()=>{OPT().dbg^=1;}},
+ // arcade extras (src/91-arcade.js): spirit trails won by no-hit boss clears, New Game+ won by beating the Emperor
+ {n:'SPIRIT TRAIL',v:()=>trailName(),c:()=>trailCol(),info:()=>trailInfo(),ch:d=>cycleTrail(d)},
+ {n:'NEW GAME+',v:()=>!meta.ngUnlocked?'LOCKED':OPT().ngp?'ON':'OFF',c:()=>meta.ngUnlocked?(OPT().ngp?'#ff60ff':'#ddd'):'#666',info:()=>meta.ngUnlocked?'EVERY BOSS STARTS IN ITS SECOND FORM. FOES HAVE +25% HP':'BEAT THE CORRUPT EMPEROR TO UNLOCK',ch:()=>{if(meta.ngUnlocked)OPT().ngp^=1;}},
  ...KBACTS.map(([k,n])=>({n,key:k,v:()=>optWait===k?'PRESS A KEY...':keyName(KB[k])})),
  {n:'RESET KEYS TO DEFAULT',v:()=>'',act:()=>{for(const [k,,c] of KBACTS)OPT().kb[k]=c;syncKeyLabels();sfx('pickup');}}];
 function openOptions(from){optFrom=from;optSel=0;optWait=null;mode='options';sfx('tool');}

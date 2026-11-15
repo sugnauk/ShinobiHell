@@ -37,7 +37,7 @@ function bsh(e,x,y,a,sp,dmg,o){o=o||{};const q=mkProj('e',x,y,a,sp,dmg*e.dm,Obje
 function bring(e,x,y,n,sp,dmg,o,off,ga,gw){for(let i=0;i<n;i++){const a=(off||0)+i/n*TAU;if(ga!=null&&Math.abs(angDiff(a,ga))<gw)continue;bsh(e,x,y,a,sp,dmg,o);}}
 // a fan of n bullets centred on a, total width w
 function bfan(e,x,y,a,n,w,sp,dmg,o){for(let i=0;i<n;i++)bsh(e,x,y,a+(n>1?(i/(n-1)-.5)*w:0),sp,dmg,o);}
-function clearEnemyShots(keepPeril){for(const q of projs)if(q.from==='e'&&!(keepPeril&&q.peril))q.dead=true;fakes.length=0;}
+function clearEnemyShots(keepPeril,cash){if(cash&&typeof cashOut==='function')cashOut(keepPeril);for(const q of projs)if(q.from==='e'&&!(keepPeril&&q.peril))q.dead=true;fakes.length=0;}
 function say(e,s,c,t){e.say={s,c:c||'#fff',t:t||1};}
 
 // ---------------------------------------------------------------- ground tells (markers)
@@ -70,7 +70,7 @@ function shapePath(m,k){ctx.beginPath();k=k==null?1:k;switch(m.k){
  case 'rect':ctx.rect(m.x0,m.y0,m.x1-m.x0,m.y1-m.y0);break;}}
 function drawMarks(){if(!BMK.length)return;ctx.save();worldXf();ctx.lineWidth=1.2;
  // fake walls (the fox's illusions) look real until a torii gate reveals them
- for(const m0 of BMK){if(m0.hidden&&!(m0.reveal&&m0.reveal(m0)))continue;const m=m0.fake&&!(BX.reveal>0)?Object.assign({},m0,{fake:false}):m0;if(m.thin){ctx.globalAlpha=.55+.3*Math.sin(time*9);ctx.strokeStyle=m.col;ctx.lineWidth=.8;shapePath(Object.assign({},m,{w:.5}));ctx.stroke();ctx.lineWidth=1.2;continue;}
+ for(const m0 of BMK){if(m0.hidden&&!(m0.reveal&&m0.reveal(m0)))continue;const m=m0.fake&&!(revealed())?Object.assign({},m0,{fake:false}):m0;if(m.thin){ctx.globalAlpha=.55+.3*Math.sin(time*9);ctx.strokeStyle=m.col;ctx.lineWidth=.8;shapePath(Object.assign({},m,{w:.5}));ctx.stroke();ctx.lineWidth=1.2;continue;}
   const k=m.fired?1:clamp(1-m.t/m.dur,0,1),bl=Math.floor(time*14)%2;
   if(m.fired){ctx.globalAlpha=m.fake?.12:.35+.15*Math.sin(time*20);ctx.fillStyle=m.col;shapePath(m);ctx.fill();if(!m.fake){ctx.globalAlpha=.8;ctx.strokeStyle='#fff';ctx.stroke();}continue;}
   ctx.globalAlpha=m.fake?.06:.14;ctx.fillStyle=m.col;shapePath(m);ctx.fill();
@@ -94,6 +94,7 @@ function drawFakes(){for(const q of fakes){const X=sx(q.x,q.y),Y=sy(q.x,q.y)-7;c
 // ---------------------------------------------------------------- arena props drawn by the bosses
 // shootable props are enemies (propFoe) with ai 'dummy'; onHurt lets a prop react to shots without dying
 const BX={wind:null,dark:0,lights:[],smoke:null};
+const revealed=()=>BX.reveal>0||!!(R&&R.inv&&R.inv.foxmask);
 function bProp(e,type,x,y,o){const p=freeSpot(e,x,y,4);const m=mkEnemy(type,p.x,p.y,e.room,R.di);Object.assign(m,{prop:true,awake:true,bossOwned:e},o||{});enemies.push(m);return m;}
 // boss minions fire far fewer bullets than stage foes: the boss's own patterns should be what you read
 function bMin(e,type,x,y,o){const p=freeSpot(e,x,y,5);const m=mkEnemy(type,p.x,p.y,e.room,R.di);Object.assign(m,{awake:true,minion:true,bossOwned:e},o||{});
@@ -134,31 +135,31 @@ function bossEvents(K){if(K._evs)return K._evs;const L=[].concat(K.events||[],K.
 function stormEvent(S){return {at:S.at,dur:S.dur||9,name:S.name||'LAST STAND',hint:'SURVIVE THE STORM',storm:1,
  start(e,E){const A=arenaOf(e);e.onCeil=0;e.ceil=0;E.home=freeSpot(e,A.cx,A.cy,e.r);E.bt=.6;E.rt=1.2;E.k=0;if(S.start)S.start(e,E);},
  tick(e,dt,E){e.x+=(E.home.x-e.x)*Math.min(1,dt*3);e.y+=(E.home.y-e.y)*Math.min(1,dt*3);const B=BKIT[e.name].barrage,L=S.patterns||(B&&(B.storm||B.ph1))||[];
-  E.bt-=dt;if(E.bt<=0&&L.length){E.bt=S.rate||.5;if(eShots()<(S.cap||280))bossBarrage(e,L[E.k++%L.length]);}
+  E.bt-=dt;if(E.bt<=0&&L.length){E.bt=(S.rate||.5)/BHK();if(eShots()<(S.cap||280)*BHK())bossBarrage(e,L[E.k++%L.length]);}
   E.rt-=dt;if(E.rt<=0){E.rt=S.rain||1.5;enemyShoot(e,{pat:'rain',cnt:4,rad:18,col:bsty(e).c,dmg:10,sp:0},0);}
   if(Math.random()<dt*20)spark(e.x,e.y,bsty(e).c,2,40);if(S.tick)S.tick(e,dt,E);}};}
 // the bullet-hell layer: between (and during some) attacks the boss keeps throwing its signature barrages at you
 // K.barrage = {ph1:[patterns], half:[patterns], rate:[s, s at half], during:[attack names it keeps firing through]}
-const BCAP=240,eShots=()=>{let n=0;for(const q of projs)if(q.from==='e')n++;return n;};
+const BHK=()=>(DF&&DF().bh)||1,BCAP=240,eShots=()=>{let n=0;for(const q of projs)if(q.from==='e')n++;return n;};
 function barrageTick(e,K,dt){const B=K.barrage;if(e.air)return;if(e.A&&B.during!=='all'&&!(B.during||[]).includes(e.A.n))return;if(e.A&&B.not&&B.not.includes(e.A.n))return;
- e.bgT=(e.bgT==null?1.2:e.bgT)-dt;if(e.bgT>0)return;const r=B.rate||[1.1,.8];e.bgT=(e.ph===3&&r[2])||(e.half?r[1]:r[0]);if(eShots()>(B.cap||BCAP))return;
+ e.bgT=(e.bgT==null?1.2:e.bgT)-dt;if(e.bgT>0)return;const r=B.rate||[1.1,.8];e.bgT=((e.ph===3&&r[2])||(e.half?r[1]:r[0]))/BHK();if(eShots()>(B.cap||BCAP)*BHK())return;
  const L=(B.pick&&B.pick(e))||(e.half&&B.half)||B.ph1;bossBarrage(e,L[(e.bgN=(e.bgN||0)+1)%L.length]);}
 function kitStart(e,K){if(e.kitOn)return;e.kitOn=1;if(e.r0==null){e.r0=e.r;e.spd0=e.spd;}Object.assign(e,{evSeen:{},bgT:null,bgN:0,brq:[],ph:1,half:0,evDone:0,EV:null,A:null,gapT:1.4,spdK:1,lastA:null,say:null,mins:[]});e.drawAfter=bossDrawAfter;if(K.draw)e.drawFn=K.draw;if(K.init)K.init(e);}
 function defaultMove(e,dt,d,a,K){const pref=K.pref||e.pref||70;if(d>pref+12)steer(e,a,e.spd,dt);else if(d<pref-20)steer(e,a+Math.PI,e.spd*.8,dt);else steer(e,a+Math.PI/2*e.sdir,e.spd*.6,dt);if(Math.random()<dt*.3)e.sdir*=-1;}
 function chooseAtk(e,K,d){let L=K.atks.filter(x=>(x.half==null||(x.half===1)===!!e.half)&&(!x.ok||x.ok(e,d)));if(L.length>1){const L2=L.filter(x=>x.n!==e.lastA);if(L2.length)L=L2;}if(!L.length)return null;return wpick(L);}
 function startAtk(e,at){e.A={n:at.n,t:0,run:at.run,end:at.end,gap:at.gap};e.lastA=at.n;}
 function cancelAtk(e){if(e.A&&e.A.end)e.A.end(e,e.A);e.A=null;e.tele=0;e.air=false;e.z=0;}
-function doHalf(e,K){e.half=1;e.phase=2;e.spdK=K.spdK||1.2;cancelAtk(e);clearEnemyShots(true);e.iv=1.4;e.gapT=1.6;
+function doHalf(e,K){e.half=1;e.phase=2;e.spdK=K.spdK||1.2;cancelAtk(e);clearEnemyShots(true,1);e.iv=1.4;e.gapT=1.6;
  if(!K.keepSpr)e.sprOv=bossHurtSpr(e.di);if(K.onHalf)K.onHalf(e);
  const c=bsty(e).c;sfx('break');sfx('boss');shake=Math.max(shake,9);hitstop=Math.max(hitstop,.12);impact(e.x,e.y,c,10,true);fxRing(e.x,e.y,90,c,.6);fxRing(e.x,e.y,50,'#fff',.4);
  txtFx(e.x,e.y-16,K.halfName||'ENRAGED',c,2);setToast(e.name.split(',')[0]+': '+(K.halfName||'ENRAGED'),c,3);}
-function startEvent(e,K,ev){ev=ev||K.event;e.EVdef=ev;cancelAtk(e);e.brq=[];clearEnemyShots(true);e.evDone=1;e.EV={t:0,name:ev.name};e.iv=999;
+function startEvent(e,K,ev){ev=ev||K.event;e.EVdef=ev;cancelAtk(e);e.brq=[];clearEnemyShots(true,1);e.evDone=1;e.EV={t:0,name:ev.name};e.iv=999;
  // the engine's HUD reads storm/stormMax for the SURVIVE countdown and ev.mins for "defeat the guard"
  e.storm=ev.dur;e.stormMax=ev.dur;e.ev={name:ev.name,mins:[]};if(ev.start)ev.start(e,e.EV);
  const c=bsty(e).c;sfx('boss');shake=Math.max(shake,8);fxRing(e.x,e.y,80,c,.5);txtFx(e.x,e.y-16,ev.name,c,2);setToast(ev.name+' - '+(ev.hint||'SURVIVE!'),c,3.5);}
 function runEvent(e,K,dt){const ev=e.EVdef||K.event,E=e.EV;E.t+=dt;e.iv=999;e.storm=Math.max(0,ev.dur-E.t);if(ev.tick)ev.tick(e,dt,E);
- if(!ev.storm&&K.barrage&&!ev.quiet&&!e.ghost&&!e.air){E.bb=(E.bb==null?1.5:E.bb)-dt;if(E.bb<=0){E.bb=(K.barrage.rate||[1])[0]*1.7;if(eShots()<160){const L=K.barrage.ph1;bossBarrage(e,L[(E.bk=(E.bk||0)+1)%L.length]);}}}
- if(E.t>=ev.dur||(E.done)){if(ev.end)ev.end(e,E);e.EV=null;e.ev=null;e.storm=0;e.iv=.5;e.gapT=1.2;e.air=false;e.z=0;e.alpha=null;sfx('break');fxRing(e.x,e.y,60,'#fff',.4);setToast(ev.name+' ENDS - STRIKE NOW!','#fff',2.2);}}
+ if(!ev.storm&&K.barrage&&!ev.quiet&&!e.ghost&&!e.air){E.bb=(E.bb==null?1.5:E.bb)-dt;if(E.bb<=0){E.bb=(K.barrage.rate||[1])[0]*1.7/BHK();if(eShots()<160){const L=K.barrage.ph1;bossBarrage(e,L[(E.bk=(E.bk||0)+1)%L.length]);}}}
+ if(E.t>=ev.dur||(E.done)){if(ev.end)ev.end(e,E);if(ev.storm)clearEnemyShots(true,1);e.EV=null;e.ev=null;e.storm=0;e.iv=.5;e.gapT=1.2;e.air=false;e.z=0;e.alpha=null;sfx('break');fxRing(e.x,e.y,60,'#fff',.4);setToast(ev.name+' ENDS - STRIKE NOW!','#fff',2.2);}}
 // speech bubble over the boss, and the generic sprite extras
 function bossDrawAfter(e){const K=BKIT[e.name];if(K&&K.drawAfter)K.drawAfter(e);
  if(e.say&&!e.dead){const X=sx(e.x,e.y),Y=sy(e.x,e.y)-e.z-58,s=e.say.s,w=txtW(s)+6;ctx.fillStyle='#14101a';ctx.fillRect(X-(w>>1)-1,Y-1,w+2,11);ctx.fillStyle='#f8f4e8';ctx.fillRect(X-(w>>1),Y,w,9);ctx.fillRect(X-1,Y+9,3,2);txt(s,X-(w>>1)+3,Y+2,e.say.c==='#fff'?'#14101a':e.say.c);}}
@@ -168,7 +169,7 @@ function drawGhostly(e,alpha,ox,oy,s){s=s||sprOf(e);const X=sx(e.x,e.y)+(ox||0),
 
 // ---------------------------------------------------------------- engine hooks (wrapping game.js functions)
 {const _bk=bossKitTick;bossKitTick=function(e,dt,d){const K=BKIT[e.name];if(K&&K.director)return K.director(e,dt,d);return _bk(e,dt,d);};}
-{const _h=hurtE;hurtE=function(e,dmg,pd,o){if(e&&e.onHurt&&!e.dead&&!e.air&&!(e.iv>0)){const r=e.onHurt(e,dmg,o||{});if(r===false)return;if(typeof r==='number')dmg*=r;}return _h(e,dmg,pd,o);};}
+{const _h=hurtE;hurtE=function(e,dmg,pd,o){if(e&&e.onHurt&&!e.dead&&!e.air&&!(e.iv>0)){const r=e.onHurt(e,dmg,o||{});if(r===false)return;if(typeof r==='number'){if(r>0&&r<1&&R&&R.inv&&R.inv.spiritlantern)dmg*=1-(1-r)/2;else dmg*=r;}}return _h(e,dmg,pd,o);};}
 {const _de=drawEnemy;drawEnemy=function(e){if(e.drawFn&&e.drawFn(e)===false){if(e.drawAfter)e.drawAfter(e);return;}
   if(e.alpha!=null&&e.alpha<1){if(e.alpha>.02)drawGhostly(e,e.alpha);}else _de(e);if(e.drawAfter)e.drawAfter(e);};}
 {const _bf=drawBossFloor;drawBossFloor=function(){_bf();if(boss&&!boss.dead&&boss.kitOn&&BKIT[boss.name]&&BKIT[boss.name].floor)BKIT[boss.name].floor(boss);drawMarks();};}
@@ -186,7 +187,7 @@ function bossWorld(dt){tickMarks(dt);tickFakes(dt);
    if(K.reset)K.reset(e);if(e.r0!=null){e.r=e.r0;e.spd=e.spd0;}e.kitOn=0;e.sprOv=null;e.corpse=null;e.fan=0;e.mounted=0;e.downT=0;e.stunT=0;e.EV=null;e.ev=null;e.storm=0;e.alpha=null;e.drawFn=null;e.air=false;e.z=0;e.ghost=false;}
   return _br(e);};}
 {const _od=onBossDead;onBossDead=function(e){const K=BKIT[e.name];if(K&&K.director){if(K.onDeath)K.onDeath(e);killOwned(e);BMK.length=0;fakes.length=0;BX.dark=0;BX.wind=null;BX.smoke=null;if(P){P.slowT=0;P.revT=0;}
-   for(const q of projs)if(q.from==='e')q.dead=true;}return _od(e);};}
+   clearEnemyShots(false,1);}return _od(e);};}
 // HUD: the health bar shows its four damage steps and where the event triggers; the arena hint line
 {const _hud=drawHUD;drawHUD=function(){_hud();const b=boss;if(!b||!b.awake||b.dead)return;const K=BKIT[b.name];if(!K||!K.director)return;
   const w=150,x=Math.round((W-w)/2)-20;if(!K.noTicks){ctx.fillStyle='#14101a';for(const k of [.25,.5,.75])ctx.fillRect(x+Math.round(w*k),H-22,1,6);bossEvents(K).forEach((ev,i)=>{if(b.evSeen&&b.evSeen[i])return;ctx.fillStyle='#ffd040';ctx.fillRect(x+Math.round(w*ev.at)-1,H-24,3,2);});}
@@ -600,7 +601,7 @@ function r7Director(e,dt,d){const K=BKIT[e.name];kitStart(e,K);
  // formations every so often (not during the gate)
  if(!e.EV){e.formT-=dt;if(e.formT<=0&&act.length>=2&&!e.form){e.formT=14;e.form=R7FORM(e,act);}}
  if(e.form){e.form.t+=dt;if(e.form.run(e,e.form,dt)){e.form=null;for(const m of act)m.cd=rnd(.6,1.2);}return true;}
- for(const m of act){tickBarrage(m,dt);m.bt=(m.bt==null?rnd(.4,1.2):m.bt)-dt;if(m.bt<=0){m.bt=(e.EV?1.5:1.05)/k;const L=R7BAR[m.d.id];if(eShots()<220)bossBarrage(m,Object.assign({dmg:8,pd:6},L[(m.bn=(m.bn||0)+1)%L.length]));}
+ for(const m of act){tickBarrage(m,dt);m.bt=(m.bt==null?rnd(.4,1.2):m.bt)-dt;if(m.bt<=0){m.bt=(e.EV?1.5:1.05)/k/BHK();const L=R7BAR[m.d.id];if(eShots()<220)bossBarrage(m,Object.assign({dmg:8,pd:6},L[(m.bn=(m.bn||0)+1)%L.length]));}
   if(m.A){m.A.t+=dt;if(R7SIG[m.A.n](e,m,m.A,dt)){m.A=null;m.tele=0;m.cd=rnd(1.8,2.8)/k/(e.EV?1.3:1);}continue;}
   // circle the player at this ronin's own range
   m.ang+=dt*.5*(m.d.twins&&m===e.r7.find(o=>o.d.twins)?-1:1);let tx=P.x+Math.cos(m.ang)*m.d.r,ty=P.y+Math.sin(m.ang)*m.d.r;
@@ -918,7 +919,7 @@ function bossDark(e){const a=BX.dark||0;if(a<=0)return;if(!darkCv||darkCv.width!
  const g=darkCv.getContext('2d');g.globalCompositeOperation='source-over';g.clearRect(0,0,W,H);g.fillStyle='rgba(6,6,20,'+a+')';g.fillRect(0,0,W,H);g.globalCompositeOperation='destination-out';
  const hole=(x,y,r,k)=>{const X=sx(x,y),Y=sy(x,y)-6,gr=g.createRadialGradient(X,Y,r*.3,X,Y,r);gr.addColorStop(0,'rgba(0,0,0,'+(k||1)+')');gr.addColorStop(1,'rgba(0,0,0,0)');g.fillStyle=gr;g.fillRect(X-r,Y-r,r*2,r*2);};
  const inSmoke=BX.smoke&&Math.hypot(P.x-BX.smoke.x,P.y-BX.smoke.y)<BX.smoke.r;
- hole(P.x,P.y,inSmoke?28:e.EV?46:72);for(const t of (e.torches||[]))if(t.lit)hole(t.x,t.y,78,.95);for(const l of BX.lights)hole(l.x,l.y,l.r||70,.9);
+ hole(P.x,P.y,(inSmoke?28:e.EV?46:72)*(R.inv.hood?1.6:1));for(const t of (e.torches||[]))if(t.lit)hole(t.x,t.y,78,.95);for(const l of BX.lights)hole(l.x,l.y,l.r||70,.9);
  ctx.drawImage(darkCv,0,0);
  if(BX.smoke){const S=BX.smoke;ctx.globalAlpha=.55*Math.min(1,S.t);wdisc(S.x,S.y,S.r,'#5a5a6a');ctx.globalAlpha=1;}}
 
@@ -950,11 +951,11 @@ BKIT['THE NINE-TAILED KITSUNE']={director:bossDirector,pref:110,gap:.75,halfName
   else{ctx.globalAlpha=.25;ctx.fillStyle='#0a0a20';ctx.fillRect(0,0,W,H);ctx.globalAlpha=1;}
   for(const g of e.torii){const X=sx(g.x,g.y),Y=sy(g.x,g.y),c=g.cd>0?'#7a3040':'#d02838';ctx.fillStyle='#14101a';ctx.fillRect(X-12,Y-30,25,4);ctx.fillStyle=c;ctx.fillRect(X-11,Y-29,23,2);ctx.fillRect(X-9,Y-24,19,2);ctx.fillRect(X-8,Y-26,2,26);ctx.fillRect(X+7,Y-26,2,26);ctx.fillStyle='#14101a';ctx.fillRect(X-8,Y,2,1);ctx.fillRect(X+7,Y,2,1);}},
  hudExtra(e){const n=KIT.tails(e),x=Math.round((W-150)/2)-20-66;txt('TAILS',x,H-22,'#c080ff');for(let i=0;i<9;i++){ctx.fillStyle=i<n?'#ff9040':'#3a2a40';ctx.fillRect(x+26+i*4,H-22,3,5);}},
- hud:e=>BX.reveal>0?'ILLUSIONS REVEALED':KIT.clones(e).length?'ONLY THE REAL FOX CASTS A SHADOW - TORII GATES REVEAL':null,hudC:'#c080ff',
+ hud:e=>revealed()?'ILLUSIONS REVEALED':KIT.clones(e).length?'ONLY THE REAL FOX CASTS A SHADOW - TORII GATES REVEAL':null,hudC:'#c080ff',
  atks:[
   // make clones: 2-4 copies, and she swaps places with one of them
   {n:'clones',wt:3,ok:e=>KIT.tails(e)>3&&KIT.clones(e).length<2,run(e,A){if(!A.go){A.go=1;const n=KIT.tails(e)>=7?2:KIT.tails(e)>=5?3:4;sfx('heal');for(let i=0;i<n;i++){const a=i/n*TAU+Math.random(),p=freeSpot(e,P.x+Math.cos(a)*110,P.y+Math.sin(a)*110,e.r);
-     const c=bMin(e,'foxclone',p.x,p.y);c.hp=c.maxhp=1;c.wob=Math.random()*6;c.drawFn=c=>{drawGhostly(c,BX.reveal>0?.35:1,0,0,sprOf(e));if(BX.reveal>0)wcirc(c.x,c.y,c.r+4,'#c080ff');return false;};c.onHurt=c=>{c.dead=true;spark(c.x,c.y,'#c080ff',14,70);txtFx(c.x,c.y-14,'ILLUSION','#c080ff');return false;};e.clones.push(c);}
+     const c=bMin(e,'foxclone',p.x,p.y);c.hp=c.maxhp=1;c.wob=Math.random()*6;c.drawFn=c=>{drawGhostly(c,revealed()?.35:1,0,0,sprOf(e));if(revealed())wcirc(c.x,c.y,c.r+4,'#c080ff');return false;};c.onHurt=c=>{c.dead=true;spark(c.x,c.y,'#c080ff',14,70);txtFx(c.x,c.y-14,'ILLUSION','#c080ff');return false;};e.clones.push(c);}
      // the swap
      const c=pick(KIT.clones(e)),ox=e.x,oy=e.y;e.x=c.x;e.y=c.y;c.x=ox;c.y=oy;for(const q of [e,c])spark(q.x,q.y,'#ff9040',10,60);}return A.t>.7;}},
   // fox-flame orbs: wisps gather round her, brighten in turn, then launch one by one, slightly homing
@@ -975,7 +976,7 @@ BKIT['THE NINE-TAILED KITSUNE']={director:bossDirector,pref:110,gap:.75,halfName
  ],
  // EVENT 30%: maze of illusions. Six foxes circle you; only the one with a moon-shadow is real
  event:{at:.3,dur:22,name:'MAZE OF ILLUSIONS',hint:'ONLY THE FOX WITH A SHADOW FIRES REAL FLAMES',
-  start(e,E){for(const c of KIT.clones(e))c.dead=true;e.clones=[];for(let i=0;i<5;i++){const c=bMin(e,'foxclone',e.x,e.y);c.hp=c.maxhp=1;c.wob=i;c.iv=999;c.drawFn=c=>{drawGhostly(c,BX.reveal>0?.35:1,0,0,sprOf(e));return false;};e.clones.push(c);}E.ang=0;E.st=1.2;E.mt=1;},
+  start(e,E){for(const c of KIT.clones(e))c.dead=true;e.clones=[];for(let i=0;i<5;i++){const c=bMin(e,'foxclone',e.x,e.y);c.hp=c.maxhp=1;c.wob=i;c.iv=999;c.drawFn=c=>{drawGhostly(c,revealed()?.35:1,0,0,sprOf(e));return false;};e.clones.push(c);}E.ang=0;E.st=1.2;E.mt=1;},
   tick(e,dt,E){E.ang+=dt*.45;const all=[e].concat(KIT.clones(e));all.forEach((q,i)=>{const a=E.ang+i/all.length*TAU;q.x+=(P.x+Math.cos(a)*120-q.x)*Math.min(1,dt*3);q.y+=(P.y+Math.sin(a)*120-q.y)*Math.min(1,dt*3);q.iv=999;});
    E.st-=dt;if(E.st<=0){E.st=1.1;KIT.both(e,(src,real)=>{const a=Math.atan2(P.y-src.y,P.x-src.x);for(let i=-1;i<=1;i++)KIT.shot(e,src,real,a+i*.25,62,9,{st:'seek',turn:.6,seekT:1.4,col:'#8080ff',r:3,life:5});});}
    E.mt-=dt;if(E.mt<=0){E.mt=7;BKIT['THE NINE-TAILED KITSUNE'].atks.find(x=>x.n==='maze').run(e,{t:0});}},
@@ -1102,11 +1103,11 @@ function empDirector(e,dt,d){const K=BKIT[e.name];kitStart(e,K);if(e.say){e.say.
   for(const m of G){if(m.A){m.A.t+=dt;if(R7SIG[m.A.n](e,m,m.A,dt)){m.A=null;m.cd=rnd(2,3);}continue;}m.ang+=dt*.5;const tx=P.x+Math.cos(m.ang)*m.d.r,ty=P.y+Math.sin(m.ang)*m.d.r;steer(m,Math.atan2(ty-m.y,tx-m.x),Math.min(Math.hypot(tx-m.x,ty-m.y)/dt,m.spd*1.5),dt);m.cd-=dt;if(m.cd<=0)m.A={n:m.sigs[0],t:0};}
   e.gapT-=dt;if(!e.A&&e.gapT<=0){e.A={t:0,n:pick(['spiral','edict'])};}
   if(e.A){e.A.t+=dt;if(EMPATK[e.A.n](e,e.A,dt)){e.A=null;e.gapT=1.4;}}
-  if(!G.length){e.ph=2;e.phase=2;e.iv=1.5;e.A=null;clearEnemyShots(true);const A=arenaOf(e);e.home=freeSpot(e,A.cx,A.cy-60,e.r);sfx('break');impact(e.x,e.y,'#b040ff',10,true);txtFx(e.x,e.y-20,'HE RISES','#e080ff',2);setToast('THE GUARD FALLS - THE EMPEROR RISES','#e080ff',3);}
+  if(!G.length){e.ph=2;e.phase=2;e.iv=1.5;e.A=null;clearEnemyShots(true,1);const A=arenaOf(e);e.home=freeSpot(e,A.cx,A.cy-60,e.r);sfx('break');impact(e.x,e.y,'#b040ff',10,true);txtFx(e.x,e.y-20,'HE RISES','#e080ff',2);setToast('THE GUARD FALLS - THE EMPEROR RISES','#e080ff',3);}
   return true;}
  if(e.downT>0){e.downT-=dt;e.iv=0;if(Math.random()<dt*8)spark(e.x,e.y-20,'#ffd040',2,30);return true;}
  // crown shatters at 35%: the true form
- if(e.ph===2&&e.hp<e.maxhp*.35&&!e.EV){e.ph=3;e.phase=3;e.E=[];e.A=null;clearEnemyShots(true);BX.dark=0;for(const c of (e.clones||[]))c.dead=true;e.iv=2;const A=arenaOf(e);e.home=freeSpot(e,A.cx,A.y0+44,e.r);e.sprOv=EMPR.trueSpr||(EMPR.trueSpr=EMPR.mkTrue(e));e.r=16;
+ if(e.ph===2&&e.hp<e.maxhp*.35&&!e.EV){e.ph=3;e.phase=3;e.E=[];e.A=null;clearEnemyShots(true,1);BX.dark=0;for(const c of (e.clones||[]))c.dead=true;e.iv=2;const A=arenaOf(e);e.home=freeSpot(e,A.cx,A.y0+44,e.r);e.sprOv=EMPR.trueSpr||(EMPR.trueSpr=EMPR.mkTrue(e));e.r=16;
   impact(e.x,e.y,'#b040ff',14,true);sfx('boss');sfx('break');txtFx(e.x,e.y-30,'THE CROWN SHATTERS','#e080ff',2);setToast('THE EMPEROR\'S TRUE FORM','#e080ff',3);return true;}
  if(phaseGate(e,K,dt))return true;
  if(e.home){e.x+=(e.home.x-e.x)*Math.min(1,dt*1.5);e.y+=(e.home.y-e.y)*Math.min(1,dt*1.5);}

@@ -608,6 +608,8 @@ function renderTitle(){
  if(Math.floor(time*2)%2===0)ctxt('- PRESS START -',70,'#fff');ctxt('ENTER OR CLICK',H-20,'#777');
  {const s=savedRun();ctxt(s?'C: CONTINUE RUN - '+ROMAN[s.R.di]+'. '+DUN[s.R.di].name:'O: OPTIONS',81,s?'#8cf':'#999');if(s)ctxt('O: OPTIONS',92,'#999');}
  ctxt('FILL THE STUN BAR, THEN PUNISH THE STUN',H-9,'#c8a0ff');
+ // the build: tells you at a glance whether the browser is running the latest code
+ txt('V'+GAME_VERSION,W-4-txtW('V'+GAME_VERSION),H-9,'#666');
 }
 function renderHub(){
  bg();ctx.fillStyle='rgba(8,4,12,.85)';ctx.fillRect(12,4,296,174);ctx.fillStyle='#d02030';ctx.fillRect(12,4,296,1);ctx.fillRect(12,177,296,1);
