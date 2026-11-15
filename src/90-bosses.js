@@ -246,12 +246,14 @@ const AKA={
 BKIT['AKAGANE, THE RED OX']={director:bossDirector,pref:85,gap:1.25,halfName:'HELMET OFF - NO MORE ORDERS',
  // the bullet-hell layer (from the original fight): war-drum rings, arrow walls with a gap, arrow fans, and at half health
  // accelerating arrow streams and curtains. He keeps firing through his crescents, charges, rushes and stomps
- barrage:{rate:[1.15,.8],during:['crescent','charge','rush','stomp'],
-  ph1:[{pat:'gapring',cnt:20,gw:.45,sp:55,spr:'drum',col:'#e0b040'},{pat:'wall',cnt:11,sp:68,spr:'arrow',col:BC.aim},{cnt:5,spread:.6,sp:92,spr:'arrow',col:BC.aim},{pat:'gapring',cnt:16,gw:.5,sp:48,spr:'drum',col:'#e0b040',burst:2,gap:.35}],
-  half:[{pat:'wall',cnt:13,sp:76,spr:'arrow',col:BC.aim},{pat:'stream',cnt:6,sp:105,st:'accel',spr:'arrow',col:BC.aim},{pat:'gapring',cnt:24,gw:.42,sp:58,spr:'drum',col:'#e0b040'},{pat:'curtain',cnt:9,sp:80,spr:'arrow',col:'#ff8040'},{pat:'cross',dirs:6,cnt:3,sp:66,st:'boom',bT:1.4,col:'#ff6040',rot:.2}],
-  storm:[{pat:'gapring',cnt:26,gw:.4,sp:56,spr:'drum',col:'#e0b040'},{pat:'wall',cnt:15,sp:82,spr:'arrow',col:BC.aim},{pat:'cross',dirs:6,cnt:3,sp:70,st:'boom',bT:1.4,col:'#ff6040',rot:.2},{pat:'curtain',cnt:9,sp:85,spr:'arrow',col:'#ff8040'},{pat:'spiral',arms:5,spin:.35,sp:60,spr:'drum',col:'#e0b040',burst:6,gap:.1}]},
+ barrage:{rate:[.5,.38],during:['crescent','charge','rush','stomp','rain','spearwall'],
+  ph1:[{pat:'gapring',cnt:28,gw:.4,sp:56,spr:'drum',col:'#e0b040',burst:2,gap:.3},{pat:'wall',cnt:15,sp:70,r:3,col:BC.aim,burst:2,gap:.45},{cnt:7,spread:.7,sp:95,r:3,col:BC.aim,burst:3,gap:.14},
+   {pat:'spiral',arms:4,spin:.3,sp:58,spr:'drum',col:'#e0b040',burst:8,gap:.09},{pat:'curtain',cnt:9,sp:78,r:3,col:'#ff8040'},{pat:'flower',cnt:20,sp:52,spr:'drum',col:'#e0b040'}],
+  half:[{pat:'wall',cnt:17,sp:80,r:3,col:BC.aim,burst:3,gap:.35},{pat:'stream',cnt:8,sp:110,st:'accel',r:3,col:BC.aim,burst:2,gap:.2},{pat:'gapring',cnt:32,gw:.38,sp:60,spr:'drum',col:'#e0b040',burst:3,gap:.28},
+   {pat:'curtain',cnt:11,sp:84,r:3,col:'#ff8040',burst:2,gap:.3},{pat:'cross',dirs:6,cnt:4,sp:68,st:'boom',bT:1.4,col:'#ff6040',rot:.2},{pat:'spiral',arms:6,spin:.32,sp:62,spr:'drum',col:'#e0b040',burst:10,gap:.08}],
+  storm:[{pat:'gapring',cnt:32,gw:.36,sp:58,spr:'drum',col:'#e0b040'},{pat:'wall',cnt:17,sp:84,r:3,col:BC.aim},{pat:'cross',dirs:8,cnt:3,sp:70,st:'boom',bT:1.4,col:'#ff6040',rot:.2},{pat:'curtain',cnt:11,sp:88,r:3,col:'#ff8040'},{pat:'spiral',arms:6,spin:.35,sp:62,spr:'drum',col:'#e0b040',burst:8,gap:.08}]},
  // the original fight's survival phase, kept as his last stand
- storm:{at:.3,dur:9,name:'LAST STAND',rate:.45},
+ storm:{at:.3,dur:10,name:'LAST STAND',rate:.32,rain:1.1},
  style:{c:'#e04030',t:['DRILL','SQUAD','LAST STAND'],ph:[[],[],[]]},
  guide:['SKILL: READING TELEGRAPHS. HE SHOUTS EVERY ORDER','LOOSE = ARROW GRID. BRACE = SPEAR WALL. CHARGE = OX CHARGE','WAR DRUMS AND ARROW WALLS FILL THE GAPS: FIND THE HOLE','CUT HIS BANNERS OR FALLEN TROOPS REGROUP. 30%: LAST STAND'],
  init(e){const A=arenaOf(e),k=A.R*.62;e.flagsB=[];e.troops=[];
@@ -261,7 +263,7 @@ BKIT['AKAGANE, THE RED OX']={director:bossDirector,pref:85,gap:1.25,halfName:'HE
   for(const s of AKA.troopSlots(e))e.troops.push(AKA.mkTroop(e,s.x,s.y));e.regroupT=8;},
  // the drill line keeps formation behind him; fallen troops regroup at a standing banner
  tick(e,dt,d,inEv){if(e.half)return;const tr=AKA.troops(e),sl=AKA.troopSlots(e);
-  if(!inEv&&!e.brace)tr.forEach((m,i)=>{m.vt=(m.vt==null?1+i*.8:m.vt)-dt;if(m.vt<=0){m.vt=3.4;bfan(m,m.x,m.y,aimAt(m),3,.45,85,7,{spr:'arrow',col:BC.aim,r:2});}});
+  if(!inEv&&!e.brace)tr.forEach((m,i)=>{m.vt=(m.vt==null?1+i*.8:m.vt)-dt;if(m.vt<=0){m.vt=2.2;bfan(m,m.x,m.y,aimAt(m),5,.7,88,7,{spr:'arrow',col:BC.aim,r:2});}});
   tr.forEach((m,i)=>{if(e.brace)return;const s=sl[i];const a=Math.atan2(s.y-m.y,s.x-m.x),dd=Math.hypot(s.x-m.x,s.y-m.y);if(dd>3)move(m,Math.cos(a)*Math.min(dd,70*dt),Math.sin(a)*Math.min(dd,70*dt),m.r);});
   if(!inEv&&tr.length<4){const b=e.flagsB.filter(x=>!x.dead);if(b.length){e.regroupT-=dt;if(e.regroupT<=0){e.regroupT=8;const s=pick(b);e.troops=tr.concat([AKA.mkTroop(e,s.x,s.y+10)]);txtFx(s.x,s.y-10,'REGROUP!','#e04030');}}}},
  hud:e=>{const n=e.flagsB.filter(b=>!b.dead).length;return n?'WAR BANNERS: '+n+' - FALLEN TROOPS REGROUP AT THEM':null;},
@@ -313,7 +315,7 @@ BKIT['AKAGANE, THE RED OX']={director:bossDirector,pref:85,gap:1.25,halfName:'HE
  event:{at:.7,dur:20,name:'ASHIGARU SQUAD',hint:'CUT THEM DOWN IN 20S OR THEY JOIN HIM',
   start(e,E){const A=arenaOf(e);E.mins=[];for(let i=0;i<7;i++)E.mins.push(bMin(e,i<6?'ashigaru':'archer',A.cx+(i-3)*22,A.y1-24));e.ev.mins=E.mins;E.home=freeSpot(e,A.cx,A.y0+60);E.rt=2.5;},
   tick(e,dt,E){e.x+=(E.home.x-e.x)*Math.min(1,dt*3);e.y+=(E.home.y-e.y)*Math.min(1,dt*3);
-   E.dr=(E.dr==null?1:E.dr)-dt;if(E.dr<=0){E.dr=1.8;enemyShoot(e,{pat:'gapring',cnt:18,gw:.5,sp:50,spr:'drum',col:'#e0b040',dmg:9,pd:6},0);sfx('beat');}
+   E.dr=(E.dr==null?1:E.dr)-dt;if(E.dr<=0){E.dr=1.05;E.dk=(E.dk||0)+1;bossBarrage(e,E.dk%2?{pat:'gapring',cnt:26,gw:.42,sp:52,spr:'drum',col:'#e0b040',burst:2,gap:.3}:{pat:'wall',cnt:15,sp:68,r:3,col:BC.aim,burst:2,gap:.4});sfx('beat');}
    E.rt-=dt;if(E.rt<=0){E.rt=4.5;say(e,'LOOSE!','#c02020',.8);const cx=P.x,cy=P.y;for(let i=0;i<5;i++){const a=i/5*TAU+Math.random(),r=i?36:0;mark({k:'c',x:cx+Math.cos(a)*r,y:cy+Math.sin(a)*r,r:15,t:1,dmg:12*e.dm,col:'#3a2a20',src:e});}}
    if(E.mins.every(m=>m.dead)&&E.t>2){E.done=1;setToast('SQUAD ROUTED','#ffd040',2);}},
   end(e,E){const left=E.mins.filter(m=>!m.dead).length;if(left)setToast(left+' ASHIGARU JOIN THE FIGHT','#ff8080',2.5);}},
