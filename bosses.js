@@ -190,17 +190,10 @@ Object.assign(PSPR,{
 });
 
 // ---------------------------------------------------------------- half-health sprites
-// art functions receive p.hurt; any art that ignores it still gets battle damage: cracks, scorch and a torn edge
+// at half health a boss changes form: art functions read ARTHURT and draw their second phase (helmet off, robes shed...)
 let ARTHURT=false;
 const HURTSPR={};
-function bossHurtSpr(di){if(HURTSPR[di])return HURTSPR[di];ARTHURT=true;let s;try{s=bossSheet(di);}finally{ARTHURT=false;}
- // a copy so the cached healthy sheet is not touched
- const c=mk(s.c.width,s.c.height,g=>g.drawImage(s.c,0,0)),g=c.getContext('2d'),id=g.getImageData(0,0,c.width,c.height),px=id.data;
- let sd=di*977+13;const rr=()=>{sd=(sd*16807)%2147483647;return sd/2147483647;};
- for(let f=0;f<3;f++){const x0=f*s.fw;
-  for(let k=0;k<7;k++){let x=x0+Math.floor(s.fw*.25+rr()*s.fw*.5),y=Math.floor(s.fh*.2+rr()*s.fh*.6);for(let j=0;j<6;j++){const i=(y*c.width+x)*4;if(px[i+3]>0){px[i]=20;px[i+1]=12;px[i+2]=20;}x+=rr()<.5?1:-1;y+=1;if(x<x0||x>=x0+s.fw||y>=s.fh)break;}}
-  for(let y=0;y<s.fh;y++)for(let x=x0;x<x0+s.fw;x++){const i=(y*c.width+x)*4;if(px[i+3]===0)continue;if(rr()<.05){px[i]=Math.min(255,px[i]*.55+90);px[i+1]*=.45;px[i+2]*=.45;}}}
- g.putImageData(id,0,0);return HURTSPR[di]=Object.assign({},s,{c,wc:whiteOf(c)});}
+function bossHurtSpr(di){if(HURTSPR[di])return HURTSPR[di];ARTHURT=true;let s;try{s=bossSheet(di);}finally{ARTHURT=false;}return HURTSPR[di]=s;}
 
 // ---------------------------------------------------------------- guide entries
 // (game.js reads BKIT[name].guide for the guide's boss page)
@@ -306,7 +299,8 @@ BART['THE WHITE TIGER']=Object.assign(p=>{const {R,E,L,f,atk}=p,W0='#f0f0f4',W1=
  E(56,20+b,9,8,W0);R(50,11+b,4,4,W0);R(59,11+b,4,4,W0);R(51,12+b,2,2,'#e8a0b0');R(60,12+b,2,2,'#e8a0b0');
  R(55,13+b,2,4,K0);R(52,15+b,1,3,K0);R(60,15+b,1,3,K0);R(52,18+b,3,1,'#60c8ff');R(59,18+b,3,1,'#60c8ff');
  E(62,24+b,5,4,W0);R(64,21+b,3,2,'#e8a0b0');if(atk){R(58,26,9,3,'#5a0a10');R(59,26,1,2,'#fff');R(64,26,1,2,'#fff');}else R(60,26+b,5,1,K0);
- if(hurt){for(const [x,y] of [[28,20],[36,24],[44,19],[54,22]])L(x,y,x+4,y+6,'#c02030');R(50,11,4,2,'#c02030');}},{sc:1.15,fw:72,fh:46,raw:1});
+ if(hurt){// frenzy: hackles up, red eyes, jaws open, breath steaming
+  for(let x=20;x<48;x+=3)R(x,15+b-(x%2),2,3,W0);R(52,18+b,3,1,'#ff3020');R(59,18+b,3,1,'#ff3020');R(58,26,9,3,'#5a0a10');R(59,26,1,2,'#fff');R(64,26,1,2,'#fff');for(let i=0;i<3;i++)R(68+i*2,22-i+f,1,1,'#e8eef6');}},{sc:1.15,fw:72,fh:46,raw:1});
 defProp('slantern','SHRINE LANTERN',99,6,miniSpr(10,18,R=>{R(2,15,6,3,'#8a8a90');R(4,9,2,6,'#9a9aa0');R(1,5,8,4,'#b0b0b8');R(0,3,10,2,'#8a8a90');R(3,0,4,3,'#9a9aa0');R(3,6,4,2,'#3a3a40');}));
 const TIG={inReed(e,x,y){for(const r of e.reeds)if(r.hp>0&&Math.hypot(x-r.x,y-r.y)<r.r)return r;return null;},
  lit(e){for(const l of e.lamps)if(l.lit>0&&Math.hypot(e.x-l.x,e.y-l.y)<90)return true;return false;}};
@@ -733,15 +727,15 @@ const ABB={
   e.A={n,q:[],t:0};if(n==='strike'){e.A.b2=e.bells.filter(b=>b!==nb).reduce((a,b)=>dist(a,nb)<dist(b,nb)?a:b);nb.glow=1;e.A.b2.glow=1;}
   spark(e.x,e.y,'#d8b040',12,70);e.at=nb;e.x=nb.x;e.y=nb.y+14;spark(e.x,e.y,'#d8b040',12,70);fxRing(e.x,e.y,24,'#d8b040',.3);sfx('dash');},
  // toll rings: one per beat from his bell; thin ones (dash through) and thick ones with a gap
- toll(e,A,b){const thick=b===2;if(thick)bring(e,e.x,e.y,40,62,9,{col:'#c89030',r:4,life:6},b*.1,aimAt(e)+rnd(-.5,.5),.38);else bring(e,e.x,e.y,44,70,8,{col:'#e8d8a0',r:2,life:6},b*.07);tone(440,.25,'triangle',.05,-100);},
+ toll(e,A,b){const thick=b===2;if(thick)bring(e,e.x,e.y,40,62,9,{col:'#c89030',r:4,life:4.5},b*.1,aimAt(e)+rnd(-.5,.5),.38);else bring(e,e.x,e.y,44,70,8,{col:'#e8d8a0',r:2,life:4.5},b*.07);tone(440,.25,'triangle',.05,-100);},
  // prayer beads: a string of 30 beads snaking across in a wave
  beads(e,A,b){if(b!==1)return;const a=aimAt(e);for(let i=0;i<30;i++)bsh(e,e.x,e.y,a,0,7,{spr:'bead',st:'hang',wait:i*.05,ha:a,csp:78,then:'wave',wa:60,wf:5,col:'#7a4a20',r:2,life:7});},
  // staff spin: a ring of twelve short bursts, then twelve more turned between them
  staff(e,A,b){const o=b===2?TAU/24:0;for(let i=0;i<12;i++)for(let j=0;j<3;j++)bsh(e,e.x,e.y,o+i/12*TAU,50+j*14,8,{col:'#c08040',r:3,life:5});tone(160,.3,'square',.05,-40);},
  // teleport strike: two bells glow; he strikes both, ring sets from each
- strike(e,A,b){if(b===2)return;for(const s of [e.at,A.b2])bring(e,s.x,s.y,30,58,9,{col:'#c89030',r:3,life:6},b*.1);tone(440,.25,'triangle',.05,-100);},
+ strike(e,A,b){if(b===2)return;for(const s of [e.at,A.b2])bring(e,s.x,s.y,30,58,9,{col:'#c89030',r:3,life:4.5},b*.1);tone(440,.25,'triangle',.05,-100);},
  // cracked toll (half health): broken rings with random gaps, read them by sight
- cracked(e,A,b){const ga=Math.random()*TAU;bring(e,e.x,e.y,36,rnd(52,72),9,{col:'#a07a28',r:3,life:6},Math.random(),ga,.5);if(Math.random()<.5)bring(e,e.x,e.y,36,50,9,{col:'#a07a28',r:3,life:6},Math.random(),ga+Math.PI,.5);},
+ cracked(e,A,b){const ga=Math.random()*TAU;bring(e,e.x,e.y,36,rnd(52,72),9,{col:'#a07a28',r:3,life:4.5},Math.random(),ga,.5);if(Math.random()<.25)bring(e,e.x,e.y,36,50,9,{col:'#a07a28',r:3,life:4.5},Math.random(),ga+Math.PI,.5);},
 };
 
 // ================================================================ VIII. ONIKUMA, THE JAILER - close-range fighting
@@ -1176,7 +1170,7 @@ BART['THE MOTH QUEEN']=Object.assign(p=>{const {R,E,L,f,atk}=p,b=f===1?1:0,hurt=
   L(X(8),26,X(28),12+dn*.6,W3,1);L(X(6),29,X(25),27,WC,1);
   E(X(18),20+dn*.5,3,2,WC);R(X(18),20+dn*.5,1,1,WD);
   E(X(tx-3),ty+3,3,2,'#e8d8c0');R(X(tx-3),ty+3,1,1,'#3a1418');
-  if(hurt){R(X(20),14+dn*.6,3,3,'rgba(0,0,0,0)');for(const [hx,hy] of [[16,20],[24,12],[13,40]])E(X(hx),hy+dn*.4,2,1,'#14101a');}}
+  if(hurt){E(X(18),20+dn*.5,4,3,'#ffe080');R(X(18),20+dn*.5,1,1,'#ff4020');E(X(15),39,3,3,'#ffe080');for(let i=0;i<4;i++)R(X(10+i*6),28+((i+f)%2)*2,1,1,'#fff8c0');}}
  // body: a plum kimono with a gold obi, a white fur ruff
  for(let y=28;y<=57;y++){const w=Math.round(3+(y-28)*.33);R(cx-w,y,w*2,1,y>52?'#2a1438':'#4a2a5a');R(cx-w,y,1,1,'#2a1438');}
  R(cx-1,30,2,26,'#6a3a7a');R(cx-6,36,12,3,'#d8a840');R(cx-6,37,12,1,'#a07020');
@@ -1189,3 +1183,95 @@ BART['THE MOTH QUEEN']=Object.assign(p=>{const {R,E,L,f,atk}=p,b=f===1?1:0,hurt=
  E(cx,18+b,6,4,'#2a1438');R(cx-6,18+b,2,8,'#2a1438');R(cx+5,18+b,2,8,'#2a1438');R(cx-3,15+b,5,1,'#5a3a7a');R(cx-5,19+b,10,1,'#2a1438');R(cx+4,14+b,4,1,'#e0b040');R(cx+7,13+b,1,3,'#ff6080');
  for(const s of [-1,1]){L(cx+s*2,15+b,cx+s*9,4+b,'#c09040',1);for(let i=1;i<6;i++){const x=cx+s*(2+i*1.4),y=15+b-i*2.2;R(x-s*2,y,2,1,'#e0b860');R(x,y-1,1,1,'#e0b860');}}
 },{sc:1.05,fw:80,fh:60,raw:1});
+
+// ================================================================ SECOND FORMS (half health)
+// AKAGANE: phase 2 he throws off the horned helmet and the banner, ties a headband over wild hair and grips the naginata
+// two-handed, always levelled forward.
+BART['AKAGANE, THE RED OX']=Object.assign(p=>{const {R,E,L,b,atk}=p,two=ARTHURT;
+ if(!two){R(8,2,1,38,'#3a2a1a');R(2,3,7,14,'#c02820');R(3,6,5,3,'#e0b040');R(4,10,3,1,'#e0b040');}
+ const h=bWarrior(two?Object.assign({},p,{atk:true}):p,{ar:'#a02818',ad:'#5a1008',ac:'#e0b040',lg:'#3a1a10',hand:'#5a3420',arm:two?'#d8a878':'#6a3a24',chest:'#c03020'});
+ const hx=h.cx,hy=h.ty-12;bFace(p,hx,hy,'#d8a878');
+ if(!two){R(hx-5,hy+6,11,5,'#5a1008');R(hx-4,hy+8,9,1,'#e0b040');R(hx-3,hy+10,1,1,'#f0e8d8');R(hx+3,hy+10,1,1,'#f0e8d8');
+  R(hx-7,hy-2,15,5,'#a02818');R(hx-6,hy-2,13,1,'#c03020');R(hx-8,hy+2,3,6,'#7a1810');R(hx+6,hy+2,3,6,'#7a1810');R(hx-1,hy-3,3,2,'#e0b040');
+  L(hx-6,hy,hx-12,hy-4,'#f0e8d8',2);L(hx-12,hy-4,hx-11,hy-10,'#f0e8d8',2);L(hx+6,hy,hx+12,hy-4,'#f0e8d8',2);L(hx+12,hy-4,hx+11,hy-10,'#f0e8d8',2);R(hx-11,hy-11,2,2,'#c8c0b0');R(hx+11,hy-11,2,2,'#c8c0b0');}
+ else{// wild black hair, a red hachimaki with trailing ends, a snarl
+  E(hx,hy+1,7,4,'#14101a');for(let i=0;i<6;i++)R(hx-7+i*2.5,hy-4+(i%2),2,4,'#14101a');R(hx-7,hy+2,2,7,'#14101a');
+  R(hx-6,hy+1,13,2,'#e02818');L(hx-6,hy+2,hx-12,hy+6+b,'#e02818',2);L(hx-6,hy+2,hx-11,hy+9,'#c01810',1);
+  R(hx+1,hy+4,2,1,'#14101a');R(hx+3,hy+4,1,1,'#ff3020');R(hx-1,hy+8,5,1,'#5a1008');R(hx,hy+8,1,1,'#fff');R(hx+3,hy+8,1,1,'#fff');}
+ if(atk||two){L(h.hx-14,h.hy+8,h.hx+16,h.hy-6,'#5a3a22',2);L(h.hx+14,h.hy-6,h.hx+22,h.hy-12,'#e8eef6',2);R(h.hx+20,h.hy-14,3,3,'#ffffff');if(two)R(h.cx-13,h.ty+10,4,4,'#d8a878');}
+ else{R(h.hx+1,2,2,50,'#5a3a22');L(h.hx+2,2,h.hx+6,-6,'#e8eef6',2);R(h.hx,8,4,2,'#e0b040');}},{sc:1.1});
+
+// THE THOUSAND-BELL ABBOT: a towering warrior-monk under a wide straw hat, a great bronze bell on his back, a ringed staff.
+// Phase 2 his bell cracks: the hat is gone, the upper robe hangs at his waist showing a sutra-tattooed torso, beads round his fist.
+BART['THE THOUSAND-BELL ABBOT']=Object.assign(p=>{const {R,E,L,b,atk,f}=p,two=ARTHURT,cx=24,SK='#c89060',SK2='#a06a40',RB='#e8dcc0',RB2='#c0a878',SF='#e09030',GD='#d8b040';
+ // the bell on his back (cracked in phase 2)
+ if(!two){E(cx-3,18+b,12,11,'#6a4a18');E(cx-3,17+b,11,10,'#8a6a28');R(cx-15,24+b,24,4,'#a07a30');for(let x=cx-11;x<cx+5;x+=4)for(let y=10;y<20;y+=3)R(x,y+b,1,1,'#c8a048');R(cx-5,5+b,4,3,'#5a3a10');}
+ else{// the cracked bell lies at his feet, split in two
+  E(cx-17,50,6,5,'#6a4a18');E(cx-17,49,5,4,'#8a6a28');R(cx-23,53,12,2,'#a07a30');L(cx-17,45,cx-15,54,'#14101a',1);E(cx-9,53,3,2,'#8a6a28');}
+ // robe: saffron skirt to the floor, white kesa sash
+ for(let y=34;y<=54;y++){const w=Math.round(9+(y-34)*.3);R(cx-w,y,w*2,1,SF);R(cx-w,y,1,1,'#a06020');}R(cx-10,34,20,2,GD);R(cx-9,53,18,2,'#a06020');
+ if(!two){for(let y=22;y<34;y++){const w=10;R(cx-w,y,w*2,1,RB);}L(cx-9,22,cx+8,34,SF,3);L(cx-9,22,cx+8,34,GD,1);R(cx-14,23,6,13,RB);R(cx+8,23,6,13,RB);R(cx-14,35,5,3,SK);}
+ else{// bare torso with sutra tattoos; the robe top hangs at the waist
+  E(cx,28+b,10,7,SK);R(cx-10,22+b,20,10,SK);R(cx-1,23+b,1,9,SK2);R(cx-6,26+b,4,1,SK2);R(cx+2,26+b,4,1,SK2);
+  for(const [x,y] of [[cx-8,24],[cx-8,28],[cx+5,24],[cx+5,29],[cx-3,31]])R(x,y+b,3,1,'#2a1a10');R(cx-12,33,24,3,RB);R(cx-12,35,24,1,RB2);
+  R(cx-15,22+b,5,12,SK);R(cx+10,22+b,5,12,SK);E(cx-13,35+b,3,3,SK);for(let i=0;i<6;i++)E(cx-16+i*1.4,33+b+(i%2)*2,1,1,'#7a4a20');}
+ // prayer beads round the neck
+ if(!two)for(let i=0;i<9;i++)E(cx-8+i*2,22+Math.round(Math.sin(i/8*3.14)*4)+b,1,1,'#5a3a18');
+ // ringed shakujo staff
+ const sx=atk?cx+16:cx+12;R(sx,atk?6:10,2,atk?42:44,'#6a4a28');E(sx+1,atk?4:8,4,4,GD);for(let i=0;i<6;i++)E(sx+1+Math.cos(i*1.05)*5,(atk?4:8)+Math.sin(i*1.05)*4,1,1,'#f0d060');R(sx-1,36,4,3,SK);
+ // head: under the hat only burning eyes; phase 2 a bald scarred head and a furious face
+ if(!two){E(cx,17+b,5,5,SK2);R(cx-3,17+b,2,1,'#ffd040');R(cx+1,17+b,2,1,'#ffd040');artPoly(R,[[cx-15,15+b],[cx,6+b],[cx+15,15+b],[cx+12,16+b],[cx-12,16+b]],'#c8a050');L(cx-13,15+b,cx,7+b,'#a07a30',1);L(cx+13,15+b,cx,7+b,'#e0c070',1);}
+ else{E(cx,15+b,5,6,SK);R(cx-4,11+b,8,2,'#d8a070');R(cx-3,15+b,2,1,'#14101a');R(cx+1,15+b,2,1,'#14101a');R(cx-3,14+b,2,1,'#5a2a10');R(cx+1,14+b,2,1,'#5a2a10');L(cx-2,11+b,cx+2,17+b,'#8a3020',1);R(cx-2,19+b,4,1,'#5a2a10');for(let i=0;i<3;i++)R(cx-2+i*2,9+b,1,1,'#14101a');}},{sc:1.12});
+
+// ONIKUMA, THE JAILER: a giant warden in black iron lamellar under a bear's-head hood, an iron kanabo chained to his wrist.
+// Phase 2 the hood, helmet and plates come off: a scarred ex-sumo brawler, chain wrapped round both fists.
+BART['ONIKUMA, THE JAILER']=Object.assign(p=>{const {R,E,L,b,atk,f}=p,two=ARTHURT,cx=24,SK='#c89070',SK2='#9a6a48',IR='#4a4a56',IR2='#7a7a88',FUR='#5a3a22',FUR2='#3a2414';
+ // legs and a heavy skirt
+ R(cx-11,40,8,13,'#2a2a32');R(cx+3,40,8,13,'#2a2a32');R(cx-12,52,10,4,'#1a1418');R(cx+2,52,10,4,'#1a1418');for(let j=0;j<8;j++)R(cx-13+j%2,36+j,26-(j%2)*2,1,j%2?'#3a2a20':'#5a4030');
+ if(!two){// pelt cloak behind, iron lamellar torso
+  for(let j=0;j<26;j++)R(cx-16-(j>>3),14+j,32+(j>>2),1,j%3?FUR:FUR2);
+  R(cx-12,18+b,24,18,IR);for(let y=20;y<34;y+=3)for(let x=cx-11;x<cx+11;x+=4)R(x,y+b,3,2,IR2);R(cx-12,34,24,2,'#c8a040');
+  R(cx-18,17+b,7,9,IR2);R(cx+11,17+b,7,9,IR2);R(cx-18,25+b,6,10,IR);R(cx+12,25+b,6,10,IR);E(cx-15,37+b,3,3,SK);E(cx+15,37+b,3,3,SK);
+  // bear-head hood over an iron mask
+  E(cx,10+b,9,8,FUR);R(cx-9,3+b,4,4,FUR);R(cx+5,3+b,4,4,FUR);R(cx-8,4+b,2,2,'#7a5a40');R(cx+6,4+b,2,2,'#7a5a40');E(cx,8+b,6,3,FUR2);R(cx-3,7+b,2,1,'#ffd040');R(cx+2,7+b,2,1,'#ffd040');
+  R(cx-5,11+b,10,6,IR);R(cx-4,13+b,8,1,'#14101a');R(cx-2,15+b,1,1,IR2);R(cx+1,15+b,1,1,IR2);
+  // kanabo: studded iron club, chained to the wrist
+  const kx=atk?cx+18:cx+16,top=atk?0:6;R(kx,top,5,32,'#2a2a32');R(kx+1,top,3,32,'#4a4a56');for(let y=top+2;y<top+28;y+=4){R(kx-1,y,1,1,'#9a9aa8');R(kx+5,y+2,1,1,'#9a9aa8');}
+  for(let i=0;i<4;i++)R(cx+15+i,38+i*2,2,2,'#7a7a88');}
+ else{// bare scarred torso, rope belt, wild hair and beard, chain-wrapped fists
+  E(cx,26+b,13,10,SK);R(cx-13,20+b,26,12,SK);R(cx-1,21+b,1,12,SK2);E(cx-5,23+b,4,2,SK2);E(cx+5,23+b,4,2,SK2);L(cx-8,20+b,cx+2,30+b,'#c06050',1);L(cx+6,22+b,cx+9,31+b,'#c06050',1);
+  R(cx-13,33,26,3,'#e8dcc0');R(cx-2,33,4,6,'#e8dcc0');
+  const ra=atk?-6:0;R(cx-19,20+b,7,11,SK);R(cx+12,20+b+ra,7,11,SK);
+  for(const [x,y] of [[cx-16,34+b],[cx+16,34+b+ra]]){E(x,y,5,4,SK);for(let i=0;i<4;i++)R(x-5,y-3+i*2,10,1,i%2?'#9a9aa8':'#5a5a66');}L(cx-16,37+b,cx-22,52,'#7a7a88',1);
+  E(cx,12+b,7,7,SK);for(let i=0;i<7;i++)R(cx-8+i*2.5,4+b+(i%2),2,5,'#2a1a10');E(cx,17+b,6,4,'#2a1a10');R(cx-3,11+b,2,1,'#14101a');R(cx+1,11+b,2,1,'#14101a');R(cx-3,10+b,2,1,'#4a2a10');R(cx+1,10+b,2,1,'#4a2a10');R(cx-2,15+b,4,1,'#5a1a10');}},{sc:1.3});
+
+// THE NINE-TAILED KITSUNE: an elegant fox spirit in shrine robes - silver hair, fox ears, a fan, nine golden tails tipped
+// with blue fox-fire. Phase 2 she drops the human guise: a crouched feral fox with burning tails and bared fangs.
+BART['THE NINE-TAILED KITSUNE']=Object.assign(p=>{const {R,E,L,b,atk,f}=p,two=ARTHURT,cx=36;
+ const tails=two?5:9;for(let i=0;i<tails;i++){const a=-2.95+(i+(9-tails)/2)*.36+(f===1?.05:0),tx=cx+Math.cos(a)*30,ty=42+Math.sin(a)*24,c=i%2?'#d07a28':'#e8a040';
+  L(cx,42,tx,ty,'#14101a',6);L(cx,42,tx,ty,c,4);L(cx,41,(cx+tx)/2,(41+ty)/2,shade(c,.25),1);E(tx,ty,3,3,two?'#80c0ff':'#fff4dc');
+  if(two){for(let k=0;k<3;k++)R(tx-1+k-1,ty-5-k*2-(f+k)%2,2,3,k%2?'#c0f0ff':'#4080ff');}else R(tx-1,ty-4,2,2,'#80e0ff');}
+ if(!two){// shrine robes: white kosode over red hakama
+  for(let y=30;y<=55;y++){const w=Math.round(6+(y-30)*.3);R(cx-w,y,w*2,1,y>39?'#c02030':'#f8f4ec');R(cx-w,y,1,1,y>39?'#801020':'#c8c0b8');}R(cx-7,38,14,2,'#e0b040');
+  R(cx-11,30,5,10,'#f8f4ec');R(cx+6,30,5,10,'#f8f4ec');R(cx-11,39,4,2,'#f0d8c0');
+  // a folding fan, flicked open to cast
+  if(atk){for(let i=0;i<7;i++)L(cx+9,32,cx+14+i*1.5,22+i*.8,i%2?'#f8f4ec':'#c02030',1);}else R(cx+7,39,3,3,'#f8f4ec');
+  // face, long silver hair, fox ears, red eye-liner
+  R(cx-7,16+b,14,18,'#e8e8f4');E(cx,20+b,5,6,'#f8ecdc');R(cx-2,20+b,2,1,'#14101a');R(cx+2,20+b,2,1,'#14101a');R(cx-3,19+b,2,1,'#c02030');R(cx+3,19+b,2,1,'#c02030');R(cx,23+b,1,1,'#c02030');
+  E(cx,15+b,6,3,'#e8e8f4');L(cx-5,14+b,cx-7,6+b,'#f0a850',3);L(cx+5,14+b,cx+7,6+b,'#f0a850',3);R(cx-7,8+b,1,3,'#3a1a10');R(cx+7,8+b,1,3,'#3a1a10');R(cx-1,13+b,3,1,'#e0b040');}
+ else{// the feral fox: low crouch, ruff of fur, long muzzle, fangs, blazing eyes
+  E(cx,44+b,14,8,'#e8a040');E(cx,42+b,12,6,'#f0b860');E(cx+3,46+b,7,4,'#fff4dc');
+  for(const x of [cx-10,cx-4,cx+6,cx+11])R(x,48,3,8,'#d07a28');for(const x of [cx-10,cx-4,cx+6,cx+11])R(x-1,55,5,1,'#3a1a10');
+  E(cx+12,32+b,8,7,'#f0a850');for(let i=0;i<5;i++)R(cx+5+i*3,37+b+(i%2),2,3,'#fff4dc');
+  L(cx+8,28+b,cx+6,18+b,'#f0a850',3);L(cx+15,27+b,cx+17,17+b,'#f0a850',3);R(cx+6,20+b,1,3,'#3a1a10');R(cx+17,19+b,1,3,'#3a1a10');
+  artPoly(R,[[cx+16,30+b],[cx+28,33+b],[cx+16,37+b]],'#f0a850');R(cx+26,32+b,2,2,'#14101a');
+  R(cx+11,30+b,3,1,'#80e0ff');R(cx+13,29+b,1,1,'#ffffff');R(cx+9,28+b,3,1,'#c03030');
+  R(cx+18,35+b,9,2,atk?'#5a0a10':'#14101a');R(cx+19,34+b,1,2,'#fff');R(cx+24,34+b,1,2,'#fff');R(cx+21,37+b,1,1,'#fff');}},{sc:1.05,fw:72,fh:60,raw:1});
+
+// THE CORRUPT EMPEROR, phase 2: his robes split down the front and the corruption shows through - a violet rift from collar
+// to hem, veins across his face, eyes blazing and the crown knocked askew.
+{const old=BART['THE CORRUPT EMPEROR'];BART['THE CORRUPT EMPEROR']=Object.assign(p=>{old(p);if(!ARTHURT)return;const {R,E,L,b,f}=p;
+ for(let y=27;y<=54;y++){const w=Math.round(1+(y-27)*.13+Math.sin(y*.9)*1);R(24-w-1,y,w*2+2,1,'#14101a');R(24-w,y,w*2,1,'#6a20a0');if(w>1)R(24-w+1,y,w*2-2,1,(y+f)%3?'#b040ff':'#e080ff');}
+ for(const [x0,y0,x1,y1] of [[20,30,14,36],[28,32,34,40],[22,44,16,50],[27,46,32,52]])L(x0,y0,x1,y1,'#b040ff',1);
+ const hy=12+b;R(20,hy+5,1,3,'#b040ff');R(28,hy+6,1,3,'#b040ff');L(19,hy+9,22,hy+11,'#b040ff',1);R(21,hy+4,3,2,'#ff60ff');R(26,hy+4,3,2,'#ff60ff');R(22,hy+4,1,1,'#fff');R(27,hy+4,1,1,'#fff');
+ for(let i=0;i<10;i++){const a=i*.7+f*.6;R(24+Math.cos(a)*18,26+Math.sin(a)*16-f*2,2,2,i%2?'#e080ff':'#6a20a0');}},old);}
