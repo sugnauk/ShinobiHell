@@ -405,7 +405,7 @@ BKIT['THE WHITE TIGER']={director:bossDirector,pref:100,gap:.9,halfName:'SEAL BR
   if(e.alpha>.05){
    ctx.globalAlpha=e.alpha;
    shadow(X,Y-2,e.r*2+6);
-   const frame=e.air||e.A?.wind||e.EV?.strike?.wind?2:e.moving?Math.floor(time*7)%2:0;
+   const frame=sp.pick?sp.pick(e):e.air||e.A?.wind||e.EV?.strike?.wind?2:e.moving?Math.floor(time*7)%2:0;
    const dir=e.A?.dir??e.EV?.strike?.dir;
    const facing=dir==null?sx(P.x,P.y)<X:scrVec(Math.cos(dir),Math.sin(dir))[0]<0;
    drawSpr(sp,X,Y-e.z,e.flash>0&&meta.opt.flash,frame,facing);
