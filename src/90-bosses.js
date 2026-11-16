@@ -40,7 +40,7 @@ function bfan(e,x,y,a,n,w,sp,dmg,o){for(let i=0;i<n;i++)bsh(e,x,y,a+(n>1?(i/(n-1
 // A full ring closes the stationary side lanes. Two faster shots ask for a second,
  // smaller dodge after the ring, with a lead based on the player's current movement.
 function bossPressure(e){
- if(!e.boss||e.air||e.ghost||e.hid||e.dead||!P||eShots()>165*BHK())return;
+ if(!e.boss||e.air||e.ghost||e.hid||e.dead||e.danmakuCast||!P||eShots()>165*BHK())return;
  const now=R.time;
  if(now<(e.pressureAt||0))return;
  e.pressureAt=now+(e.storm>0?1.6:2.2)/Math.sqrt(BHK());
@@ -145,7 +145,7 @@ function phaseGate(e,K,dt){if(e.EV){runEvent(e,K,dt);return true;}const f=e.hp/e
 function bossEvents(K){if(K._evs)return K._evs;const L=[].concat(K.events||[],K.event?[K.event]:[]);if(K.storm)L.push(stormEvent(K.storm));return K._evs=L.sort((a,b)=>b.at-a.at);}
 // the classic SURVIVAL phase from the original fights: the boss holds the centre, invulnerable, and throws its whole
 // barrage set plus telegraphed rain at you
-function stormEvent(S){return {at:S.at,dur:S.dur||9,name:S.name||'LAST STAND',hint:'SURVIVE THE STORM',storm:1,
+function stormEvent(S){return {at:S.at,dur:S.dur||9,name:S.name||'LAST STAND',hint:'SURVIVE THE STORM',storm:1,survival:true,
  start(e,E){const A=arenaOf(e);e.onCeil=0;e.ceil=0;E.home=freeSpot(e,A.cx,A.cy,e.r);E.bt=.6;E.rt=1.2;E.k=0;if(S.start)S.start(e,E);},
  tick(e,dt,E){e.x+=(E.home.x-e.x)*Math.min(1,dt*3);e.y+=(E.home.y-e.y)*Math.min(1,dt*3);const B=BKIT[e.name].barrage,L=S.patterns||(B&&(B.storm||B.ph1))||[];
   E.bt-=dt;if(E.bt<=0&&L.length){E.bt=(S.rate||.5)/BHK();if(eShots()<(S.cap||280)*BHK())bossBarrage(e,L[E.k++%L.length]);}
@@ -173,7 +173,7 @@ function startEvent(e,K,ev){ev=ev||K.event;e.EVdef=ev;cancelAtk(e);e.brq=[];clea
 function runEvent(e,K,dt){const ev=e.EVdef||K.event,E=e.EV;E.t+=dt;e.iv=999;e.storm=Math.max(0,ev.dur-E.t);if(ev.tick)ev.tick(e,dt,E);
  if(!ev.storm&&!ev.quiet&&E.t>.8)bossPressure(e);
  if(!ev.storm&&K.barrage&&!ev.quiet&&!e.ghost&&!e.air){E.bb=(E.bb==null?1.5:E.bb)-dt;if(E.bb<=0){E.bb=(K.barrage.rate||[1])[0]*1.7/BHK();if(eShots()<160){const L=K.barrage.ph1;bossBarrage(e,L[(E.bk=(E.bk||0)+1)%L.length]);}}}
- if(E.t>=ev.dur||(E.done)){if(ev.end)ev.end(e,E);if(ev.storm)clearEnemyShots(true,1);e.EV=null;e.ev=null;e.storm=0;e.iv=.5;e.gapT=1.2;e.air=false;e.z=0;e.alpha=null;sfx('break');fxRing(e.x,e.y,60,'#fff',.4);setToast(ev.name+' ENDS - STRIKE NOW!','#fff',2.2);}}
+ if(E.t>=ev.dur||(E.done)){if(ev.end)ev.end(e,E);if(ev.survival)clearEnemyShots(true,1);e.EV=null;e.ev=null;e.storm=0;e.iv=.5;e.gapT=1.2;e.air=false;e.z=0;e.alpha=null;sfx('break');fxRing(e.x,e.y,60,'#fff',.4);setToast(ev.name+' ENDS - STRIKE NOW!','#fff',2.2);}}
 // speech bubble over the boss, and the generic sprite extras
 function bossDrawAfter(e){const K=BKIT[e.name];if(K&&K.drawAfter)K.drawAfter(e);
  if(e.say&&!e.dead){const X=sx(e.x,e.y),Y=sy(e.x,e.y)-e.z-58,s=e.say.s,w=txtW(s)+6;ctx.fillStyle='#14101a';ctx.fillRect(X-(w>>1)-1,Y-1,w+2,11);ctx.fillStyle='#f8f4e8';ctx.fillRect(X-(w>>1),Y,w,9);ctx.fillRect(X-1,Y+9,3,2);txt(s,X-(w>>1)+3,Y+2,e.say.c==='#fff'?'#14101a':e.say.c);}}
@@ -198,7 +198,7 @@ function bossWorld(dt){tickMarks(dt);tickFakes(dt);
  // a posture break interrupts whatever the boss was doing
  if(boss&&boss.A&&boss.stag>0)cancelAtk(boss);}
 {const _br=bossReset;bossReset=function(e){const K=BKIT[e.name];if(K&&K.director){cancelAtk(e);killOwned(e);BMK.length=0;fakes.length=0;BX.dark=0;BX.wind=null;BX.smoke=null;
-   if(K.reset)K.reset(e);if(e.r0!=null){e.r=e.r0;e.spd=e.spd0;}e.kitOn=0;e.pressureAt=0;e.pressureTurn=0;e.sprOv=null;e.corpse=null;e.fan=0;e.mounted=0;e.downT=0;e.stunT=0;e.EV=null;e.ev=null;e.storm=0;e.alpha=null;e.drawFn=null;e.air=false;e.z=0;e.ghost=false;}
+   if(K.reset)K.reset(e);if(e.r0!=null){e.r=e.r0;e.spd=e.spd0;}e.kitOn=0;e.danmakuCast=null;e.danmakuContext=undefined;e.danmakuClock=2.3;e.danmakuTurn=0;e.pressureAt=0;e.pressureTurn=0;e.sprOv=null;e.corpse=null;e.fan=0;e.mounted=0;e.downT=0;e.stunT=0;e.EV=null;e.ev=null;e.storm=0;e.alpha=null;e.drawFn=null;e.air=false;e.z=0;e.ghost=false;}
   return _br(e);};}
 {const _od=onBossDead;onBossDead=function(e){const K=BKIT[e.name];if(K&&K.director){if(K.onDeath)K.onDeath(e);killOwned(e);BMK.length=0;fakes.length=0;BX.dark=0;BX.wind=null;BX.smoke=null;if(P){P.slowT=0;P.revT=0;}
    clearEnemyShots(false,1);}return _od(e);};}
@@ -490,8 +490,12 @@ BKIT['THE WHITE TIGER']={director:bossDirector,pref:100,gap:.9,halfName:'SEAL BR
  event:{at:.30,dur:8,name:'THE LAST HUNT',hint:'BAIT A POUNCE INTO A LIT LANTERN',quiet:true,
   start(e,E){E.strike={t:0};e.alpha=1;e.recover=0;},
   tick(e,dt,E){
+   const A=E.strike;
+   if(A.pause>0&&A.left===0){A.pause-=dt;return;}
+   if(A.left===0)E.strike={t:0};
+   if(!E.strike.m&&e.storm<1)return;
    E.strike.t+=dt;
-   if(TIG.pounce(e,E.strike,dt,3,.86))E.done=true;
+   if(TIG.pounce(e,E.strike,dt,6,.86)&&E.strike.trapped)E.done=true;
   },
   end(e,E){TIG.cancel(e,E.strike);TIG.expose(e,2);}
  },
@@ -590,7 +594,7 @@ BKIT['TSUCHIGUMO, EARTH SPIDER']={director:bossDirector,pref:70,gap:.6,halfName:
  event:{at:.7,dur:20,name:'THE HATCHING',hint:'SURVIVE THE SWARM',
   start(e,E){e.air=true;e.ceil=1;e.z=170;e.onCeil=1;for(const g of e.eggs.filter(x=>!x.dead))SPI.hatch(e,g,3);E.sw=1;},
   tick(e,dt,E){e.air=true;e.z=170;const a=aimAt(e),dd=dist(e,P);e.x+=Math.cos(a)*Math.min(dd,40*dt);e.y+=Math.sin(a)*Math.min(dd,40*dt);
-   E.sw-=dt;if(E.sw<=0){E.sw=2.4;const A=arenaOf(e);for(let i=0;i<2;i++){const an=Math.random()*TAU;const m=bMin(e,'spiderling',A.cx+Math.cos(an)*A.R*.75,A.cy+Math.sin(an)*A.R*.75);m.hp=m.maxhp*.7;}}
+   E.sw-=dt;if(E.sw<=0){E.sw=2.4;const A=arenaOf(e);for(let i=0;i<2&&enemies.filter(m=>m.bossOwned===e&&m.minion&&!m.dead).length<14;i++){const an=Math.random()*TAU;const m=bMin(e,'spiderling',A.cx+Math.cos(an)*A.R*.75,A.cy+Math.sin(an)*A.R*.75);m.hp=m.maxhp*.7;}}
    E.dr=(E.dr||2)-dt;if(E.dr<=0){E.dr=1.6;mark({k:'c',x:P.x+rnd(-20,20),y:P.y+rnd(-20,20),r:14,t:1,dmg:10*e.dm,col:'#e8e8f0',src:e});}
    // the nest walls spit silk: rings with a gap from where the egg sacs hung
    E.wr=(E.wr==null?.8:E.wr)-dt;if(E.wr<=0&&eShots()<170){E.wr=1.1;const A=arenaOf(e),a=Math.random()*TAU,x=A.cx+Math.cos(a)*A.R*.72,y=A.cy+Math.sin(a)*A.R*.72;bring(e,x,y,22,50,8,{spr:'silk',col:BC.fix,r:3,life:6},Math.random(),Math.atan2(P.y-y,P.x-x),.38);}},
@@ -846,7 +850,7 @@ BKIT['TETSUO THE GUNSMITH']={director:bossDirector,pref:0,gap:1.1,halfName:'ARMO
  // EVENT 70%: wall breach. Siege ladders go up both walls and climbers pour over while the cannons keep firing
  event:{at:.7,dur:20,name:'WALL BREACH',hint:'HOLD THE WALL - SURVIVE',
   start(e,E){E.st=.5;E.ct=2;E.lad=[{x:arenaOf(e).x0+20,y:arenaOf(e).cy+30},{x:arenaOf(e).x1-20,y:arenaOf(e).cy+30}];},
-  tick(e,dt,E){E.st-=dt;if(E.st<=0){E.st=2.6;for(const l of E.lad)bMin(e,pick(['ashigaru','bandit','ashigaru']),l.x,l.y);}
+  tick(e,dt,E){E.st-=dt;if(E.st<=0){E.st=2.6;for(const l of E.lad)if(enemies.filter(m=>m.bossOwned===e&&m.minion&&!m.dead).length<10)bMin(e,pick(['ashigaru','bandit','ashigaru']),l.x,l.y);}
    E.ct-=dt;if(E.ct<=0){E.ct=2.2;const c=pick(e.cannons);bsh(e,c.x,c.y,aimAt(c),80,12,{spr:'ball',r:7,st:'bounce',bn:2,col:'#14101a',life:7});impact(c.x,c.y,'#c8c8c8',4);sfx('break');}
    for(const l of E.lad)if(Math.random()<dt*6)particles.push({x:l.x+rnd(-6,6),y:l.y+rnd(-20,20),vx:0,vy:-6,t:.4,col:'#8a6a40'});}},
 };
@@ -875,7 +879,7 @@ BKIT['THE THOUSAND-BELL ABBOT']={director:abbotDirector,keepSpr:0,halfName:'HIS 
  overlay(e){for(const s of e.sil){ctx.save();worldXf();ctx.strokeStyle='#ffd040';ctx.lineWidth=3;ctx.globalAlpha=.8;ctx.beginPath();ctx.arc(s.x,s.y,s.r,0,TAU);ctx.stroke();ctx.restore();ctx.globalAlpha=1;}},
  event:{at:.3,dur:16,name:'THE GREAT BELL FALLS',hint:'GET OUT FROM UNDER IT - DASH THROUGH THE WAVE',
   start(e,E){const A=arenaOf(e);e.x=A.cx;e.y=A.y0+40;E.k=0;E.nt=0;},
-  tick(e,dt,E){E.nt-=dt;if(E.nt<=0&&E.k<3){E.nt=5.2;const A=arenaOf(e),x=E.k?P.x:A.cx,y=E.k?P.y:A.cy;E.k++;tone(60,1,'sine',.08,-10);
+  tick(e,dt,E){E.nt-=dt;if(E.nt<=0&&E.t+4<e.EVdef.dur){E.nt=5.2;const A=arenaOf(e),x=E.k?P.x:A.cx,y=E.k?P.y:A.cy;E.k++;tone(60,1,'sine',.08,-10);
     mark({k:'c',x,y,r:62,t:4,dmg:30*e.dm,col:'#5a4010',src:e,shake:12,on:m=>{impact(m.x,m.y,'#d8b040',12,true);sfx('break');bring(e,m.x,m.y,52,64,10,{col:'#d8b040',r:4,life:5},0);}});}}},
 };
 function abbotDirector(e,dt,d){const K=BKIT[e.name];kitStart(e,K);
@@ -1498,5 +1502,17 @@ const R7BAR={JUBEI:[{pat:'gapring',cnt:14,gw:.5,sp:55,col:'#f0f0f4'},{cnt:3,spre
  TETSUGORO:[{pat:'flower',cnt:14,sp:44,st:'big',col:'#4060c0'},{pat:'gapring',cnt:16,gw:.5,sp:48,st:'big',col:'#4060c0'}],TWINS:[{pat:'stream',cnt:5,sp:100,st:'zig',col:'#ff9030'},{cnt:3,spread:.4,sp:100,col:'#ff9030'}],
  MURAMASA:[{pat:'spiral',arms:4,spin:.4,sp:58,spr:'petal',col:'#ff80c0',burst:6,gap:.1},{pat:'gapring',cnt:20,gw:.42,sp:55,spr:'petal',col:'#ff80c0'}]};
 
-// with fights of 1-3 minutes the invulnerable phases are shorter too: events ~13s, storms 7s, the Emperor's last stand 18s
-for(const k in BKIT){const K=BKIT[k];if(!K.director)continue;if(K.event)K.event.dur=Math.max(10,Math.round(K.event.dur*.65));if(K.storm)K.storm.dur=7;K._evs=null;}
+// Keep objective clocks at their existing lengths. Timed survival phases use twice
+// the previous live duration (the original design durations were compressed before).
+const OBJECTIVE_EVENTS=new Set(['ASHIGARU SQUAD','THE LAST STAND']);
+for(const K of Object.values(BKIT)){
+ if(!K.director)continue;
+ if(K.event){
+  const base=Math.max(10,Math.round(K.event.dur*.65)),survival=!OBJECTIVE_EVENTS.has(K.event.name);
+  K.event.dur=base*(survival?2:1);K.event.survival=survival;
+ }
+ if(K.storm)K.storm.dur=14;
+ K._evs=null;
+}
+// The Emperor's shrine objective keeps its timer. His new phase-three storm is a separate survival phase.
+BKIT['THE CORRUPT EMPEROR'].storm={at:.27,dur:14,name:'THE IMPERIAL DELUGE',rate:.52,patterns:BKIT['THE CORRUPT EMPEROR'].barrage.ph3};
