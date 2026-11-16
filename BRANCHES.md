@@ -39,6 +39,10 @@ file with a number after anything it uses, and add its `<script>` tag to `index.
 | Items and loot (`feature/items-loot`) | `07-items.js`, `12-loot.js`, `21-items-extra.js`, `96-gear-powers.js` (gear abilities, legendaries), `97-item-icons.js`, `98-skilltree.js` (the temple skill tree) |
 | UI and menus (`feature/ui-menus`) | `26-render.js`, `27-menus.js`, `index.html` |
 | Scenery and story | `100-scenery.js`: each stage's story, borders (bamboo, reeds, rock, hedges, walls), terrain beyond the walls, boss arena seals, the screen-wide range cap, selling to the trader, boss trophies on the player |
+| Menus | `101-select.js` character select, `102-menus.js` pause, settings and guide |
+| Bullet patterns | `103-danmaku.js` two signature barrages per guardian, `105-patterns.js` the pattern library (stack, double spiral, lattice, rose, aimed ring, encircle, sweep, sniper, layered rings), boss and foe patterns, elite volleys, three-wave ambushes with spirit lanterns |
+| Meta progression | `104-tree-plus.js` branch mastery, respec, the build page, node previews; `107-bossrush.js` Boss Rush; `108-trials.js` Temple Trials; `109-synergies.js` relic synergies |
+| Fairness | `106-polish.js` mercy window after a bullet hit, bullet contrast option, off-screen danger ticks |
 
 ## Versions
 
