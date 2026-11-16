@@ -43,6 +43,7 @@ file with a number after anything it uses, and add its `<script>` tag to `index.
 | Bullet patterns | `103-danmaku.js` two signature barrages per guardian, `105-patterns.js` the pattern library (stack, double spiral, lattice, rose, aimed ring, encircle, sweep, sniper, layered rings), boss and foe patterns, elite volleys, three-wave ambushes with spirit lanterns |
 | Meta progression | `104-tree-plus.js` branch mastery, respec, the build page, node previews; `107-bossrush.js` Boss Rush; `108-trials.js` Temple Trials; `109-synergies.js` relic synergies |
 | Fairness | `106-polish.js` mercy window after a bullet hit, bullet contrast option, off-screen danger ticks |
+| Stage dressing | `110-dressing.js` story props per stage, cover obstacles, swaying plants; `111-floors.js` floor centrepieces and stage mood; `112-breakables.js` breakable props and powder kegs; `113-critters.js` redrawn small beasts |
 
 ## Versions
 

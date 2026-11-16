@@ -1,0 +1,8 @@
+# generated previews from the build-*.ps1 sprite scripts
+*-preview.png
+# local backups of the game
+backups/
+# editor and OS files
+.DS_Store
+Thumbs.db
+.vscode/
