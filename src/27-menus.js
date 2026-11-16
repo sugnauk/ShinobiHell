@@ -194,7 +194,7 @@ function renderMaster(){const t=time-CS.t0;
  let who=MASTER,lines=[],col='#ddd';
  if(CS.step===0){const s=CS.line.slice(0,Math.floor(t*45));lines=wrapTxt(s,72);}
  else if(CS.step===1){const e=time-CS.t1;lines=e<1.2?['STAND STILL. LET THE LESSON SETTLE INTO YOU...']:['YOU HAVE GROWN. YOU ARE NOW: '+evoName(P.evo||0)];col=e<1.2?'#ddd':'#ffe060';}
- else{who='NEXT';const d=DUN[CS.next];lines=[ROMAN[CS.next]+'. '+d.name,d.story||''];col='#fff';}
+ else{who='NEXT';const d=DUN[CS.next];lines=[ROMAN[CS.next]+'. '+d.name,...wrapTxt(d.tale||d.story||'',72)];col='#fff';}
  txt(who,16,141,'#e0b040');lines.slice(0,3).forEach((l,i)=>txt(l,16,151+i*8,col));
  if(Math.floor(time*2)%2)txt('ENTER',W-36,168,'#888');}
 // ===== THE GUIDE: everything you have encountered, unlocked by defeating / finding / opening it =====
