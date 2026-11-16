@@ -562,7 +562,7 @@ function renderPlay(){
   if(a>0){const X=sx(P.x,P.y),Y=sy(P.x,P.y)-7;ctx.globalAlpha=a;
    if(P.focus){ctx.globalAlpha=.5;circ(X,Y,12,'#cef');ctx.globalAlpha=a;}
    ctx.fillStyle='#14101a';ctx.fillRect(X-2,Y-2,5,5);ctx.fillStyle='#fff';ctx.fillRect(X-1,Y-1,3,3);ctx.fillStyle=P.focus?'#f44':'#ff8080';ctx.fillRect(X,Y,1,1);ctx.globalAlpha=1;}}
- if(slowT>0){ctx.fillStyle='rgba(160,220,255,.08)';ctx.fillRect(0,0,W,H);}
+ if(slowT>0||ultSlow>0){ctx.fillStyle='rgba(160,220,255,.08)';ctx.fillRect(0,0,W,H);}
  for(const f of fx)drawFx(f);
  for(const q of particles){ctx.fillStyle=q.col;ctx.fillRect(sx(q.x,q.y),sy(q.x,q.y)-8,1,1);}
  drawAmbient();
