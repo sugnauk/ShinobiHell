@@ -1,6 +1,48 @@
 # Changelog
 
-## 0.6.4: patterns, progression and fairness
+## 0.6.4: stages, sprites and gameplay (second batch)
+
+### Fixed
+- **Stage borders:** the bamboo, reed, rock, hedge and wall borders had stopped drawing after the renderer was restructured. They draw again, and now go through the new prebuilt wall list.
+
+### Stage environments
+- **Cover:** the bigger fight rooms now hold 1–5 obstacles in the stage's own style:
+  - bamboo groves, crystal rocks, snowy boulders, crenellated stone blocks, brick blocks, little shoji houses, clipped hedges and black-and-gold blocks
+  - they **block bullets both ways**, so you can break a foe's line of fire, and they can break yours
+- **Floor centrepieces:** every fight room gets one painted into its floor:
+  - I, II, III: a trampled clearing with ash, crossing plank boardwalks, dark moss with glowing spores
+  - IV, V, VI: cobbled street patches, a packed-snow path with footprints, muddy cart ruts
+  - VII, VIII, IX: a stone mosaic, drain grates and stains, red rugs with gold borders
+  - X, XI, XII: raked sand with stepping stones, a jade and gold inlay ring, a red carpet runner
+- **Story props:** each stage now has its own decoration list, so stages that share a floor no longer look alike:
+  - I: Akagane's war camp (tents, campfires, spear racks)
+  - II: scarecrows in the abandoned paddies
+  - III: the smugglers' crates and spider webs
+  - IV: burnt-out houses and rubble in the town
+  - V: waystation signposts and campfires on the pass
+  - VI: Tetsuo's cannons, spiked barricades and arrow bundles
+  - VIII: the jailer's cages and chains
+  - IX: folding screens, armour stands and vases in the keep
+  - XI: jade statues and gold braziers in the palace
+- **Mood:** each stage has a soft vignette in its own light. The caves and cellars close in darker, the burnt town has a red haze, and the pass has a cold pale edge.
+- **Sway:** bamboo, reeds, grass, trees, banners, tents and scarecrows sway gently in the breeze.
+
+### Gameplay
+- **Breakable props:** barrels, crates, vases, urns and rice bales break when your shots, slashes or blasts hit them. Some spill gold, and a few drop a potion.
+- **Powder kegs:** red kegs on the war-camp, burnt-town and rampart stages explode when hit. They hurt every foe nearby (and you, if you're too close), and set off neighbouring kegs. Enemy shots can set them off too.
+
+### Sprites
+- **Critters redrawn:** bigger, shaded two-frame sprites for the salamander, toad, bat (wings up and down), hornet, viper, centipede, crab and beetle.
+
+### Checked
+- **Headless runs:**
+  - a full campaign
+  - all 12 boss fights
+  - every class fighting at stages II, VII and XI
+- **No errors** in any of them.
+- **Frame cost:** about 3 ms per frame (the budget at 60 fps is 16.7 ms).
+
+## 0.6.4 (first batch): patterns, progression and fairness
 
 ### Bullet patterns (research-led)
 Every new pattern is built on the basic shmup building blocks: fixed, aimed and random angles, combined into rings, fans and stacks.
