@@ -1092,9 +1092,9 @@ BKIT['THE NINE-TAILED KITSUNE']={director:bossDirector,pref:110,gap:.75,halfName
      // the swap
      const c=pick(KIT.clones(e)),ox=e.x,oy=e.y;e.x=c.x;e.y=c.y;c.x=ox;c.y=oy;for(const q of [e,c])spark(q.x,q.y,'#ff9040',10,60);}return A.t>.7;}},
   // fox-flame orbs: wisps gather round her, brighten in turn, then launch one by one, slightly homing
-  {n:'orbs',wt:3,run(e,A){if(!A.go){A.go=1;const n=Math.min(8,KIT.tails(e));KIT.both(e,(src,real)=>{for(let i=0;i<n;i++){const a=i/n*TAU,x=src.x+Math.cos(a)*18,y=src.y+Math.sin(a)*18,ha=Math.atan2(P.y-y,P.x-x);
+  {n:'orbs',wt:3,run(e,A,dt){if(!A.go){A.go=1;const n=Math.min(8,KIT.tails(e));KIT.both(e,(src,real)=>{for(let i=0;i<n;i++){const a=i/n*TAU,x=src.x+Math.cos(a)*18,y=src.y+Math.sin(a)*18,ha=Math.atan2(P.y-y,P.x-x);
       if(real)bsh(e,x,y,ha,0,9,{spr:'wisp',st:'hang',wait:.7+i*.2,ha,csp:85,then:'seek',turn:.8,seekT:1.2,col:'#8080ff',r:3,life:5});else{const q=fakeShot(e,x,y,ha,0,{life:5});q.hold=.7+i*.2;q.ha=ha;}}});}
-    for(const q of fakes)if(q.hold>0){q.hold-=1/60;if(q.hold<=0){q.vx=Math.cos(q.ha)*85;q.vy=Math.sin(q.ha)*85;}}return A.t>2.4;}},
+    for(const q of fakes)if(q.hold>0){q.hold-=dt;if(q.hold<=0){q.vx=Math.cos(q.ha)*85;q.vy=Math.sin(q.ha)*85;}}return A.t>2.4;}},
   // tail sweep: one curved flame wave per remaining tail, fanned out. Find the gap between the arcs
   {n:'tails',wt:3,run(e,A){if(!A.go){A.go=1;e.tele=1;}if(at(A,.55)){e.tele=0;const n=KIT.tails(e);KIT.both(e,(src,real)=>{const base=Math.atan2(P.y-src.y,P.x-src.x);for(let t=0;t<n;t++){const ca=base+(t-(n-1)/2)*.36;for(let j=0;j<4;j++)KIT.shot(e,src,real,ca+(j-1.5)*.05,60+j*6+(9-n)*4,9,{st:'curve',curve:(t%2?1:-1)*.3,col:'#c080ff',r:3,life:4});}});sfx('shoot');}return A.t>.9;}},
   // illusion maze: walls rise around you for 8s; some are false. A torii shows which

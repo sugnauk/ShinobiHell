@@ -81,7 +81,7 @@ function cycleTrail(d){const own=[-1].concat(trailOwned());if(own.length<2)retur
    saveMeta();setToast(msg,Rk.c,4);bossRankFx={r:Rk.r,c:Rk.c,t:2.5,hits,secs};
    const rel=BOSSRELIC[di];if(rel&&!R.inv[rel.id])dropPickup(e.x-22,e.y+8,'item',0,rel.id);}return res;};}
 let bossRankFx=null;
-{const _rp=renderPlay;renderPlay=function(){_rp();if(bossRankFx&&mode==='play'){const f=bossRankFx;f.t-=1/60;if(f.t<=0){bossRankFx=null;return;}ctx.globalAlpha=Math.min(1,f.t*2);txt(f.r,Math.round(W/2-txtW(f.r,6)/2),46,f.c,6);ctxt(f.hits?f.hits+' HITS - '+Math.floor(f.secs)+'S':'NO HIT - '+Math.floor(f.secs)+'S',86,'#fff');ctx.globalAlpha=1;}};}
+{const _rp=renderPlay;renderPlay=function(){_rp();if(bossRankFx&&mode==='play'){const f=bossRankFx;f.t-=RDT;if(f.t<=0){bossRankFx=null;return;}ctx.globalAlpha=Math.min(1,f.t*2);txt(f.r,Math.round(W/2-txtW(f.r,6)/2),46,f.c,6);ctxt(f.hits?f.hits+' HITS - '+Math.floor(f.secs)+'S':'NO HIT - '+Math.floor(f.secs)+'S',86,'#fff');ctx.globalAlpha=1;}};}
 
 // ---------------------------------------------------------------- relic effects that hook combat
 {const _he=hurtE;hurtE=function(e,dmg,pd,o){if(e&&R&&R.inv){if(R.inv.roninCrest&&!e.boss&&(e.bossOwned||e.minion||e.member))dmg*=1.25;
