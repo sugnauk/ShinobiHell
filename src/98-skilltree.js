@@ -55,7 +55,7 @@ const NOTA=[['VETERAN','WARLORD'],['STEEL WIND','THOUSAND CUTS'],['CLEAR MIND','
  // nodes bought on the old layout that no longer exist are refunded
  try{const old=/^(st|ks|sd|sd2|br)_/;let g=0;for(const k in (meta.up||{})){if(SKT.byK[k]||TNODE[k]||!old.test(k))continue;const m=k.split('_'),i=+m[2]||0;
    g+=k.startsWith('ks_')?(i===5?300:650):k.startsWith('sd2_')?150:k.startsWith('sd_')?30+i*14:k.startsWith('br_')?60+i*16:22+i*14;delete meta.up[k];}
-  if(g){meta.sen+=g;saveMeta();setTimeout(()=>setToast('THE SKILL TREE WAS REBUILT: '+g+' GOLD REFUNDED','#ffd040',5),500);}}catch(e){}})();
+  if(g){meta.sen+=g;saveMeta();setTimeout(()=>setToast('THE SKILL TREE WAS REBUILT: '+g+' JADE REFUNDED','#ffd040',5),500);}}catch(e){}})();
 const stLv=k=>k==='root'?1:upLv(k),stOpen=n=>n.free||SKT.adj[n.k].some(k=>stLv(k)>0),stCost=n=>n.old?n.base*(upLv(n.k)+1):n.cost;
 function stBuy(n){const lv=stLv(n.k);if(lv>=n.max){sfx('block');return;}if(!stOpen(n)){sfx('block');setToast('LOCKED: BUY A NODE NEXT TO IT FIRST','#c55',2);return;}
  const c=stCost(n);if(meta.sen<c){sfx('block');return;}meta.sen-=c;meta.up[n.k]=lv+1;saveMeta();sfx(n.big?'rare':'pickup');}
@@ -91,12 +91,12 @@ const STS={lastHit:-9,cds:{}};
 const stView={x0:6,y0:20,w:308,h:116};
 SKT.zoom=1;SKT.zt=1; // Z or the mouse wheel: the whole grid at once
 const stScr=n=>[Math.round(stView.x0+stView.w/2+(n.x-SKT.cam.x)*SKT.zoom),Math.round(stView.y0+stView.h/2+(n.y-SKT.cam.y)*SKT.zoom)];
-const stR=n=>Math.max(1,Math.round((n.big?(n.free?6:8):n.mid?5:2)*(SKT.zoom<1?.55:1))); // half-size of each node's square
+const stR=n=>Math.max(1,Math.round((n.big?8:n.mid?5:2)*(SKT.zoom<1?.55:1))); // half-size of each node's square
 function stNodeAt(mx,my){let best=null,bd=10;for(const n of SKT.nodes){const [x,y]=stScr(n);const d=Math.max(Math.abs(mx-x),Math.abs(my-y))-stR(n);if(d<bd&&y>stView.y0&&y<stView.y0+stView.h){bd=d;best=n;}}return bd<=4?best:null;}
 function stClick(){const n=stNodeAt(mouse.x,mouse.y);if(!n)return;if(SKT.zt<1){SKT.sel=n.k;SKT.zt=1;sfx('coin');return;}if(SKT.sel===n.k)stBuy(n);else{SKT.sel=n.k;sfx('coin');}}
 renderUpgrades=function(){const sel=SKT.byK[SKT.sel]||SKT.byK.root;SKT.zoom+=(SKT.zt-SKT.zoom)*.25;if(Math.abs(SKT.zt-SKT.zoom)<.01)SKT.zoom=SKT.zt;const tx=SKT.zt<1?0:sel.x,ty=SKT.zt<1?0:sel.y;SKT.cam.x+=(tx-SKT.cam.x)*.18;SKT.cam.y+=(ty-SKT.cam.y)*.18;
  txt('TEMPLE SKILL TREE',8,6,'#d02030',1);{const own=SKT.nodes.filter(n=>stLv(n.k)>0).length;txt(own+'/'+SKT.nodes.length+' NODES',8,13,'#777');}
- {hudCoin(W-8-txtW(String(meta.sen))-10,6);const s=String(meta.sen);txt(s,W-8-txtW(s),7,'#fc4');}
+ {const s=String(meta.sen);hudJade(W-8-txtW(s)-10,6);txt(s,W-8-txtW(s),7,JADEC);}
  // legend
  {let x=96;for(const [lab,r,c] of [['STAT',2,'#aaa'],['NOTABLE',4,'#ddd'],['KEYSTONE',5,'#fff']]){ctx.fillStyle=c;ctx.fillRect(x,10-r,r*2+1,r*2+1);ctx.fillStyle='#14101a';if(r>2)ctx.fillRect(x+1,11-r,r*2-1,r*2-1);ctx.fillStyle=c;if(r>2)ctx.fillRect(x+2,12-r,r*2-3,r*2-3);txt(lab,x+r*2+4,7,'#888');x+=txtW(lab)+r*2+12;}}
  if(mouse.x!==selMX||mouse.y!==selMY){const h=stNodeAt(mouse.x,mouse.y);if(h)SKT.sel=h.k;selMX=mouse.x;selMY=mouse.y;}
@@ -115,11 +115,11 @@ renderUpgrades=function(){const sel=SKT.byK[SKT.sel]||SKT.byK.root;SKT.zoom+=(SK
   if(n.big||n.mid){ // framed: an outer ring in the branch colour, the core lit once owned
    ctx.fillStyle=full?n.c:open?shade(n.c,-.35):'#3a3044';ctx.fillRect(x-r,y-r,r*2+1,r*2+1);ctx.fillStyle='#14101a';ctx.fillRect(x-r+1,y-r+1,r*2-1,r*2-1);
    ctx.fillStyle=full?n.c:open?'#3a3044':'#1e1826';ctx.fillRect(x-r+2,y-r+2,r*2-3,r*2-3);
-   if(n.big&&!n.free&&SKT.zoom>.8){ctx.fillStyle=full?'#fff':'#14101a';ctx.fillRect(x-1,y-4,3,9);ctx.fillRect(x-4,y-1,9,3);ctx.fillStyle=full?n.c:'#5a4e68';ctx.fillRect(x,y,1,1);} // a keystone's cross
+   if(n.big&&SKT.zoom>.8){ctx.fillStyle=full?shade(n.c,-.6):'#14101a';ctx.fillRect(x-r+2,y-r+2,r*2-3,r*2-3);const ic=ksIcon(n.n,n.c,full||open);if(ic){if(!full&&!open)ctx.globalAlpha=.5;ctx.drawImage(ic,x-5,y-5);ctx.globalAlpha=1;}} // the keystone's picture
    if(full&&n.big){ctx.globalAlpha=.25+.15*Math.sin(time*3);ctx.fillStyle=n.c;ctx.fillRect(x-r-3,y-r-3,r*2+7,r*2+7);ctx.globalAlpha=1;}}
   else{ctx.fillStyle=full?n.c:lv?shade(n.c,-.25):open?'#4a3e58':'#241c2c';ctx.fillRect(x-r,y-r,r*2+1,r*2+1);
    if(n.old&&n.max>1&&lv>0&&lv<n.max){ctx.fillStyle='#14101a';ctx.fillRect(x-r,y-r,r*2+1,r*2+1);ctx.fillStyle=n.c;ctx.fillRect(x-r,y+r+1-Math.max(1,Math.round((r*2+1)*lv/n.max)),r*2+1,Math.max(1,Math.round((r*2+1)*lv/n.max)));}}
-  if(can&&Math.floor(time*3)%2){ctx.fillStyle='#ffd040';ctx.fillRect(x-r-1,y-r-2,r*2+3,1);ctx.fillRect(x-r-1,y+r+2,r*2+3,1);}
+  if(can&&Math.floor(time*3)%2){ctx.fillStyle=JADEC;ctx.fillRect(x-r-1,y-r-2,r*2+3,1);ctx.fillRect(x-r-1,y+r+2,r*2+3,1);}
   if(n.k===SKT.sel){const R2=r+3;ctx.fillStyle='#fff';ctx.fillRect(x-R2,y-R2,3,1);ctx.fillRect(x-R2,y-R2,1,3);ctx.fillRect(x+R2-2,y-R2,3,1);ctx.fillRect(x+R2,y-R2,1,3);ctx.fillRect(x-R2,y+R2,3,1);ctx.fillRect(x-R2,y+R2-2,1,3);ctx.fillRect(x+R2-2,y+R2,3,1);ctx.fillRect(x+R2,y+R2-2,1,3);}}
  if(SKT.zoom>.8)
  // the whole grid in miniature, top-right: owned nodes lit, keystones as bigger dots, the view as a frame
@@ -133,7 +133,7 @@ renderUpgrades=function(){const sel=SKT.byK[SKT.sel]||SKT.byK.root;SKT.zoom+=(SK
  const kind=n.free?'':n.big?'  KEYSTONE':n.mid?'  NOTABLE':'';txt(n.n+(n.max>1?'  '+lv+'/'+n.max:'')+kind,12,141,n.c);
  const words=n.d.split(' ');let line='',ly=150;for(const w of words){if(txtW(line+w)>W-30){txt(line,12,ly,'#ddd');ly+=8;line='';}line+=w+' ';}txt(line,12,ly,'#ddd');
  if(n.big&&!n.free)txt(ways+' PATHS LEAD HERE',12,ly+8,'#888');
- const s=mx?'OWNED':!open?'LOCKED':stCost(n)+' GOLD';txt(s,W-12-txtW(s),141,mx?'#6f6':!open?'#c55':meta.sen>=stCost(n)?'#fc4':'#666');
+ const s=mx?'OWNED':!open?'LOCKED':stCost(n)+' JADE';txt(s,W-12-txtW(s),141,mx?'#6f6':!open?'#c55':meta.sen>=stCost(n)?JADEC:'#666');
  ctxt((SKT.zt<1?'OVERVIEW: CLICK A NODE OR Z TO ZOOM IN':'WASD MOVE   ENTER BUY   Z OVERVIEW')+'   '+(treeFrom==='hub'?'ESC BACK':'TAB CHARACTERS   ESC BACK'),H-7,'#666');};
 // arrow keys: step to the grid neighbour in that direction (linked first), or the nearest node that way
 function stMove(dx,dy){const s=SKT.byK[SKT.sel];for(const k of SKT.adj[s.k]){const m=SKT.byK[k];if(m.gx-s.gx===dx&&m.gy-s.gy===dy){SKT.sel=k;sfx('coin');return;}}
@@ -148,3 +148,27 @@ function skillHubSummary(row){const avail=SKT.nodes.filter(n=>stOpen(n)&&stLv(n.
 
 // the mouse wheel on the tree: zoom out to the whole grid, or back in
 cv.addEventListener('wheel',e=>{if(mode==='select'&&selTab===1){SKT.zt=e.deltaY>0?.42:1;e.preventDefault();}},{passive:false});
+
+// ---------------------------------------------------------------- keystone icons: a picture of what each one does
+const KSICON={
+ 'TEMPLE GATE':['rrrrrrrrrrr','.rrrrrrrrr.','..r.....r..','rrrrrrrrrrr','..r.....r..','..r.....r..','..r.....r..','..r.....r..','..r.....r..','.ddd...ddd.','...........'],
+ 'BERSERKER':['..rr...rr..','.rrrr.rrrr.','rrwrrrrrrrr','rrrrrwrrrrr','rrrrwrrrrrr','.rrrrwrrrr.','..rrrrwrr..','...rrrrr...','....rrr....','.....r.....','...........'],
+ 'EXECUTIONER':['..kkk......','.kwwwkoo...','kwwwwwkoo..','kwwwwwkoo..','kwwwwwkoo..','.kwwwkoo...','..kkk.oo...','......oo...','......oo...','......oo...','.....oooo..'],
+ 'IAIDO MASTER':['.........w.','........wk.','.......wk..','......wk...','.....wk....','....wk.....','...yy......','..ry.......','.rd........','rd.........','...........'],
+ 'BLADE DANCE':['...aaaaa...','.aa.....a..','.a......kw.','a......wk.a','a.....wk..a','a....wk...a','a...yy....a','.a.ry....a.','..rd....aa.','...aaaaa...','...........'],
+ 'MOMENTUM':['...........','a....a.....','aa...aa....','.aa...aa...','..aa...aa..','...aa...aa.','..aa...aa..','.aa...aa...','aa...aa....','a....a.....','...........'],
+ 'TIME WEAVER':['yyyyyyyyyyy','.wbbbbbbbw.','..wbbbbbw..','...wbbbw...','....wbw....','.....w.....','....w.w....','...w...w...','..w..b..w..','.w..bbb..w.','yyyyyyyyyyy'],
+ 'OVERCHANNEL':['.....a.....','.a...a...a.','..a..a..a..','...aawaa...','....www....','aaawwwwwaaa','....www....','...aawaa...','..a..a..a..','.a...a...a.','.....a.....'],
+ 'ECHO MIND':['...........','..aaaaaaa..','.a.......a.','a..aaaaa..a','a.a.....a.a','a.a..w..a.a','a.a.....a.a','a..aaaaa..a','.a.......a.','..aaaaaaa..','...........'],
+ 'COLOSSUS':['kkkkkkkkkkk','kaaaawaaaak','kaaaawaaaak','kwwwwwwwwwk','kaaaawaaaak','.kaaawaaak.','.kaaawaaak.','..kaawaak..','...kawak...','....kkk....','.....k.....'],
+ 'UNDYING':['...wwwww...','..wwwwwww..','.wwwwwwwww.','.wdddwdddw.','.wdddwdddw.','.wwwwdwwww.','..wwwwwww..','...wwwww...','...w.w.w...','...........','...........'],
+ 'GHOST STEP':['...wwwww...','..wwwwwww..','.wwwwwwwww.','.wwdwwwdww.','.wwdwwwdww.','.wwwwwwwww.','.wwwwwwwww.','.wwwwwwwww.','.ww.ww.ww..','.w..w..w...','...........'],
+ 'GRAZE MASTER':['...........','...rrr.....','..rwwwr....','..rwwwr....','..rwwwr....','...rrr.....','.a.......a.','..a.....a..','...aaaaa...','...........','...........'],
+ 'MIDAS':['...ooooo...','..oylllyo..','..oyyyyyo..','...ooooo...','..oyyyyyo..','..oylllyo..','...ooooo...','..oyyyyyo..','..oylllyo..','...ooooo...','...........'],
+ 'TREASURE HUNTER':['...........','.ooooooooo.','oyyyyyyyyyo','oyyyyyyyyyo','ooooolooooo','oyyyylyyyyo','oyyyyyyyyyo','oyyyyyyyyyo','ooooooooooo','...........','...........'],
+ 'EAGLE EYE':['...........','...aaaaa...','.aawwwwwaa.','awwwbbbwwwa','awwbbdbbwwa','awwbdddbwwa','awwbbdbbwwa','awwwbbbwwwa','.aawwwwwaa.','...aaaaa...','...........'],
+ 'MARKED PREY':['.....r.....','...rrrrr...','..r..r..r..','.r...r...r.','.r.......r.','rrrr.w.rrrr','.r.......r.','.r...r...r.','..r..r..r..','...rrrrr...','.....r.....']};
+const KSPAL={w:'#f0f0f0',d:'#2a2030',k:'#8a8a9a',r:'#e03040',y:'#e0b040',l:'#fff0a0',o:'#8a6010',b:'#40a0e0',p:'#c080ff'};
+const KSC={};
+function ksIcon(name,col,owned){const k=name+col+owned;if(KSC[k])return KSC[k];const A=KSICON[name];if(!A)return null;
+ return KSC[k]=mk(11,11,g=>{A.forEach((row,y)=>{for(let x=0;x<11;x++){const ch=row[x];if(ch==='.')continue;let c=ch==='a'?col:KSPAL[ch];if(!owned)c=shade(c,-.45);g.fillStyle=c;g.fillRect(x,y,1,1);}});});}

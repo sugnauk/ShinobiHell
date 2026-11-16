@@ -98,7 +98,7 @@ renderSelect=function(){
   txt(String(i+1),x+2,y+2,sel?'#fff':'#555');});
  {const l=rstX(0)-8,r=rstX(CLASSES.length-1)+RST.w+4,b=Math.floor(time*3)%2;txt('<',l-(b?1:0),RST.y+7,'#888');txt('>',r+(b?1:0),RST.y+7,'#888');}
  // ---- footer: key hints ----
- {const hint=selLock?'':lk?'A/D CHOOSE   ESC BACK':'A/D CHOOSE   W/S ABILITIES   ENTER START   TAB SKILL TREE ('+meta.sen+')   K GUIDE';txt(hint,Math.round((W-txtW(hint))/2),H-6,'#777');}
+ {const hint=selLock?'':lk?'A/D CHOOSE   ESC BACK':'A/D CHOOSE   W/S ABILITIES   ENTER START   TAB SKILL TREE ('+meta.sen+' JADE)   K GUIDE';txt(hint,Math.round((W-txtW(hint))/2),H-6,'#777');}
  // ---- confirm: a READY banner sweeps across with a burst ----
  if(selLock){const t=time-selT,k=clamp(t/.25,0,1),bw=Math.round(W*k);ctx.fillStyle='rgba(0,0,0,.6)';ctx.fillRect(0,64,bw,26);ctx.fillStyle=C.col;ctx.fillRect(0,64,bw,1);ctx.fillRect(0,89,bw,1);
   if(k>=1){const s=C.n+' - READY';txt(s,Math.round((W-txtW(s,2))/2),71,'#fff',2);}

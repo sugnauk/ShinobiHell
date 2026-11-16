@@ -40,7 +40,7 @@ function tBuy(n){const lv=upLv(n.k);if(lv>=n.max){sfx('block');return;}if(!tOpen
 const tNodeXY=(bi,ti)=>[10+bi*76,30+ti*27];
 function tNodeAt(x,y){for(let bi=0;bi<4;bi++)for(let ti=0;ti<4;ti++){const [nx,ny]=tNodeXY(bi,ti);if(x>=nx&&x<nx+70&&y>=ny&&y<ny+20)return [bi,ti];}return null;}
 function renderUpgrades(){
- ctxt('TEMPLE SKILL TREE',4,'#d02030',2);{const s='GOLD '+meta.sen;txt(s,W-8-txtW(s),8,'#fc4');}
+ ctxt('TEMPLE SKILL TREE',4,'#d02030',2);{const s='JADE '+meta.sen;txt(s,W-8-txtW(s),8,'#5fd08a');}
  if(mouse.x!==selMX||mouse.y!==selMY){const h=tNodeAt(mouse.x,mouse.y);if(h){treeB=h[0];treeT=h[1];}selMX=mouse.x;selMY=mouse.y;}
  TREE.forEach((b,bi)=>{const [bx]=tNodeXY(bi,0);txt(b.n,bx+35-Math.round(txtW(b.n)/2),22,b.c);
   b.nodes.forEach((n,ti)=>{const [x,y]=tNodeXY(bi,ti),lv=upLv(n.k),open=tOpen(n),mx=lv>=n.max,sel=bi===treeB&&ti===treeT,can=open&&!mx&&meta.sen>=tCost(n);
@@ -54,7 +54,7 @@ function renderUpgrades(){
  const n=TREE[treeB].nodes[treeT],lv=upLv(n.k),mx=lv>=n.max,open=tOpen(n),b=TREE[treeB];
  ctx.fillStyle='rgba(20,12,26,.95)';ctx.fillRect(10,140,W-20,28);ctx.fillStyle=b.c;ctx.fillRect(10,140,2,28);
  txt(n.n+'  '+lv+'/'+n.max,16,144,b.c);txt(n.d,16,153,'#ddd');
- const s=mx?'MAXED':!open?'NEEDS '+TNODE[n.req[0]].n+' '+n.req[1]:tCost(n)+' GOLD';txt(s,W-16-txtW(s),144,mx?'#6f6':!open?'#c55':meta.sen>=tCost(n)?'#fc4':'#666');
+ const s=mx?'MAXED':!open?'NEEDS '+TNODE[n.req[0]].n+' '+n.req[1]:tCost(n)+' JADE';txt(s,W-16-txtW(s),144,mx?'#6f6':!open?'#c55':meta.sen>=tCost(n)?'#fc4':'#666');
  txt(mx?'':open?'ENTER OR CLICK TO BUY THE NEXT RANK':'BUY THE NODE ABOVE TO UNLOCK',16,161,'#888');
  ctxt('ARROWS MOVE   ENTER BUY   '+(treeFrom==='hub'?'ESC BACK':'TAB CHARACTERS   ESC BACK'),H-7,'#666');}
 function upgradesKey(c){
@@ -144,7 +144,7 @@ function renderSelect(){
  // the fully evolved form, so you can see where the class ends up
  const m=heroSpr(C.k,9);shadow(272,py+66,18);
  ctx.drawImage(m.c,WIZ.idle[Math.floor(time*2.5)%2]*m.fw,0,m.fw,m.fh,252,py+20,m.fw*2,m.fh*2);
- ctxt(selLock?'READY':'A/D CHOOSE  ENTER CONFIRM  TAB UPGRADES ('+meta.sen+' GOLD)  K GUIDE',H-7,selLock?'#fff':'#888');
+ ctxt(selLock?'READY':'A/D CHOOSE  ENTER CONFIRM  TAB UPGRADES ('+meta.sen+' JADE)  K GUIDE',H-7,selLock?'#fff':'#888');
 }
 // ===== BETWEEN STAGES: a campfire with your master. He briefs you, and this is where you evolve =====
 const MASTER='MASTER KAITO';
@@ -239,6 +239,7 @@ const TERMS=[['FOCUS (SHIFT)','HOLD SHIFT TO MOVE SLOWLY. YOUR HITBOX SHRINKS','
  ['DODGE','A CHANCE TO IGNORE A BULLET COMPLETELY. RED CIRCLES CANNOT BE DODGED THIS WAY'],
  ['EXPLODE','A BLAST THAT HURTS EVERY FOE AROUND THAT SPOT'],
  ['FREEZE','A FROZEN FOE CANNOT ACT: 1.8 SECONDS, 0.9 FOR BOSSES'],
+ ['JADE','THE TEMPLE\'S CURRENCY FOR THE SKILL TREE. ANY GOLD YOU HAVE NOT SPENT TURNS INTO JADE WHEN A RUN ENDS (+200 FOR A WIN). GOLD IS ONLY FOR THE RUN: SHOPS, OFFERINGS AND SHRINES'],
  ['GOLD / PICKUP','+GOLD: MORE GOLD FROM FOES. +PICKUP: COINS AND ITEMS FLY TO YOU FROM FARTHER AWAY'],
  ['HASTE','A SHORT BURST OF EXTRA MOVE SPEED. GREEN LINES TRAIL BEHIND YOU'],
  ['LIFESTEAL / HEALS % OF DAMAGE','YOU HEAL BY THAT SHARE OF THE DAMAGE YOU DEAL'],
@@ -307,7 +308,7 @@ function renderEnd(){
  ctxt(C.n+' ('+heroEV(C.k,d.evo||0).n+')  -  '+(d.win?'THE CORRUPT EMPEROR IS DEAD':'FELL IN '+ROMAN[d.di]+'. '+DUN[d.di].name),23,'#aaa');
  // run stats
  box(6,32,110,82,'#d02030');txt('RUN',10,35,'#d02030');
- [['GOLD GAINED',d.sen,'#fc4'],['ENEMIES SLAIN',d.kills,'#ddd'],['DEATHBLOWS',d.db,'#ddd'],['PERFECT DODGES',d.pf,'#8cf'],['BEST COMBO',d.combo||0,'#f84'],['TIME',Math.floor(d.time/60)+'M '+Math.floor(d.time%60)+'S','#ddd']]
+ [['JADE EARNED',d.sen,'#5fd08a'],['ENEMIES SLAIN',d.kills,'#ddd'],['DEATHBLOWS',d.db,'#ddd'],['PERFECT DODGES',d.pf,'#8cf'],['BEST COMBO',d.combo||0,'#f84'],['TIME',Math.floor(d.time/60)+'M '+Math.floor(d.time%60)+'S','#ddd']]
   .forEach(([n,v,c],i)=>{const y=46+i*10;txt(n,10,y,'#999');const s=String(v);txt(s,112-txtW(s),y,c);});
  // damage dealt by each ability
  const DM=d.dmg||{},keys=['m','h','q','w','f','e','x'],tot=keys.reduce((a,k)=>a+(DM[k]||0),0)||1,mx=Math.max(1,...keys.map(k=>DM[k]||0));

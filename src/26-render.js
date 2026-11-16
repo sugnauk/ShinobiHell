@@ -431,6 +431,10 @@ function drawTooltip(){
 }
 // a gold coin and a revive (a blue spirit flame) for the counters along the bottom
 function hudCoin(x,y){ctx.fillStyle='#7a5a10';ctx.fillRect(x+1,y,5,7);ctx.fillRect(x,y+1,7,5);ctx.fillStyle='#e0b040';ctx.fillRect(x+1,y+1,5,5);ctx.fillStyle='#fff0a0';ctx.fillRect(x+2,y+1,2,1);ctx.fillRect(x+1,y+2,1,2);ctx.fillStyle='#7a5a10';ctx.fillRect(x+3,y+2,1,3);}
+// JADE: the temple's currency for the skill tree (unspent gold turns into jade when a run ends). A green magatama.
+const JADEC='#5fd08a';
+function hudJade(x,y){ctx.fillStyle='#1e5a3a';ctx.fillRect(x+1,y,4,1);ctx.fillRect(x,y+1,6,3);ctx.fillRect(x+1,y+4,5,1);ctx.fillRect(x+3,y+5,3,1);ctx.fillRect(x+4,y+6,1,1);
+ ctx.fillStyle='#5fd08a';ctx.fillRect(x+1,y+1,4,3);ctx.fillRect(x+2,y+4,3,1);ctx.fillStyle='#c8ffd8';ctx.fillRect(x+1,y+1,1,1);ctx.fillStyle='#1e5a3a';ctx.fillRect(x+2,y+2,1,1);}
 function hudRevive(x,y){const f=Math.floor(time*6)%2;ctx.fillStyle='#2a6aa0';ctx.fillRect(x+1,y+3,5,4);ctx.fillRect(x+2,y+1,3,2);ctx.fillRect(x+3-f,y,1,1);ctx.fillStyle='#8cf';ctx.fillRect(x+2,y+3,3,3);ctx.fillRect(x+3,y+2,1,1);ctx.fillStyle='#fff';ctx.fillRect(x+3,y+4,1,2);}
 function drawHUD(){
  syncLMB();
@@ -615,7 +619,7 @@ function renderTitle(){
 function renderHub(){
  bg();ctx.fillStyle='rgba(8,4,12,.85)';ctx.fillRect(12,4,296,174);ctx.fillStyle='#d02030';ctx.fillRect(12,4,296,1);ctx.fillRect(12,177,296,1);
  ctxt('HALL OF LANTERNS',8,'#d02030',2);
- txt('GOLD '+meta.sen,18,24,'#fc4');{const s='RUNS '+meta.runs+'  WINS '+meta.wins;txt(s,302-txtW(s),24,'#888');}
+ hudJade(18,23);txt('JADE '+meta.sen,27,24,JADEC);{const s='RUNS '+meta.runs+'  WINS '+meta.wins;txt(s,302-txtW(s),24,'#888');}
  txt(meta.ascMax?'ASCENSION '+meta.asc+'/'+meta.ascMax+' (Q/E)':'WIN A RUN TO UNLOCK ASCENSION',18,32,meta.asc?'#f5a':'#666');{const g=meta.guide||{},n=Object.values(g).reduce((a,o)=>a+Object.keys(o).length,0),s='K: GUIDE ('+n+' FOUND)';txt(s,302-txtW(s),32,'#8cf');}
  sep(16,40,288);
  const row=(i,y,label,right,col)=>{const sel=hubSel===i;if(sel){ctx.fillStyle='rgba(208,32,48,.35)';ctx.fillRect(16,y-2,288,9);}txt((sel?'> ':'  ')+label,18,y,col||'#ddd');if(right)txt(right,302-txtW(right),y,sel?'#fff':'#888');};
