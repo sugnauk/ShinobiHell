@@ -297,7 +297,7 @@ BKIT['AKAGANE, THE RED OX']={director:bossDirector,pref:85,gap:1.25,halfName:'HE
     const fire=()=>{bfan(e,e.x,e.y,A.a,3,1.05,120,10,{spr:'naginata',r:5,col:BC.aim,st:'decel',dec:1.1,minSp:38,life:3.6});sfx('slash');};
     if(at(A,.6*k)){e.tele=0;fire();}if(e.half&&at(A,.85*k)){A.a=aimAt(e);fire();}return A.t>(e.half?1.1:.9)*k;}},
   // Arrow rain: "LOOSE!" - a grid of landing shadows, shifted half a cell each volley; stand in a cell the next grid misses
-  {n:'rain',wt:2,ok:e=>!e.half||Math.random()<.5,run(e,A){const k=1/e.spdK,S=74,vol=e.half?3:3; // bigger circles, wider gaps, longer warning (easier to read)if(!A.go){A.go=1;AKA.order(e,'LOOSE!');A.cx=P.x;A.cy=P.y;}
+  {n:'rain',wt:2,ok:e=>!e.half||Math.random()<.5,run(e,A){const k=1/e.spdK,S=74,vol=e.half?3:3;if(!A.go){A.go=1;AKA.order(e,'LOOSE!');A.cx=P.x;A.cy=P.y;}
     for(let v=0;v<vol;v++)if(at(A,(.35+v*1.05)*k)){const ox=v%2?S/2:0;for(let gx=-3;gx<=3;gx++)for(let gy=-3;gy<=3;gy++){const x=A.cx+gx*S+ox,y=A.cy+gy*S+ox;if(Math.hypot(x-A.cx,y-A.cy)>170||blocked(x,y,2))continue;
       mark({k:'c',x,y,r:23,t:1.3*k,dmg:13*e.dm,col:'#3a2a20',src:e,on:m=>{for(let i=0;i<3;i++)particles.push({x:m.x+rnd(-6,6),y:m.y+rnd(-6,6),vx:0,vy:60,t:.25,col:'#e8eef6'});}});}sfx('shoot');}
     return A.t>(.35+vol*1.05+1)*k;}},
@@ -1027,13 +1027,13 @@ BKIT['KAGE, THE SHINOBI MASTER']={director:bossDirector,pref:105,gap:.75,halfNam
   // smoke bomb: a pop, and your view shrinks to a small circle for 4s (the wind carries the cloud off)
   {n:'smoke',wt:2,ok:()=>!BX.smoke,run(e,A){if(!A.go){A.go=1;sfx('break');BX.smoke={x:P.x,y:P.y,r:70,t:4};for(let i=0;i<20;i++)particles.push({x:P.x+rnd(-30,30),y:P.y+rnd(-30,30),vx:rnd(-20,20),vy:-10,t:.8,col:'#8a8a9a'});}return A.t>.5;}},
   // shadow step: your shadow flickers, then he is behind you with a slash. Dash forward at once
-  {n:'step',wt:2,run(e,A){const k=1/e.spdK;if(!A.go){A.go=1;A.m=mark({k:'c',x:P.x,y:P.y,r:9,t:.45*k,col:'#14101a',follow:m=>{m.x=P.x;m.y=P.y;},lock:0,quiet:1});}
+  {n:'step',wt:1,ok:e=>(R.time-(e.lastTp||-99))>7,run(e,A){const k=1/e.spdK;e.lastTp=R.time;if(!A.go){A.go=1;A.m=mark({k:'c',x:P.x,y:P.y,r:9,t:.45*k,col:'#14101a',follow:m=>{m.x=P.x;m.y=P.y;},lock:0,quiet:1});}
     if(A.m.fired&&!A.tp){A.tp=1;const ba=P.aim+Math.PI,p=freeSpot(e,P.x+Math.cos(ba)*22,P.y+Math.sin(ba)*22,e.r);e.x=p.x;e.y=p.y;KAG.reveal(e,.6);sfx('dash');mark({k:'cone',x:e.x,y:e.y,a:aimAt(e),r:40,arc:1.7,t:.3*k,dmg:17*e.dm,col:BC.aim,src:e,on:()=>sfx('slash')});}
     return A.t>.95*k;}},
   // afterimage dashes (half health): three dashes; every copy left behind throws one delayed shuriken
-  {n:'afterimage',wt:4,half:1,run(e,A,dt){if(!A.go){A.go=1;A.n=0;A.nt=0;}A.nt-=dt;if(A.nt<=0&&A.n<3){A.nt=.38;A.n++;const ox=e.x,oy=e.y,a=aimAt(e)+rnd(-1.2,1.2),p=freeSpot(e,P.x+Math.cos(a+Math.PI)*90,P.y+Math.sin(a+Math.PI)*90,e.r);
+  {n:'afterimage',wt:2,half:1,ok:e=>(R.time-(e.lastTp||-99))>7,run(e,A,dt){if(!A.go){A.go=1;A.n=0;A.nt=0;e.lastTp=R.time;}A.nt-=dt;if(A.nt<=0&&A.n<2){A.nt=.6;A.n++;const ox=e.x,oy=e.y,a=aimAt(e)+rnd(-1.2,1.2),p=freeSpot(e,P.x+Math.cos(a+Math.PI)*90,P.y+Math.sin(a+Math.PI)*90,e.r);
      mark({k:'c',x:ox,y:oy,r:6,t:.6,col:'#c02020',quiet:1,on:m=>bsh(e,m.x,m.y,aimAt(m),160,9,{spr:'shuriken',st:'curve',curve:0,wind:1,col:BC.aim,r:3})});for(let i=0;i<6;i++)particles.push({x:lerp(ox,p.x,i/6),y:lerp(oy,p.y,i/6),vx:0,vy:0,t:.4,col:'#3a3a48'});e.x=p.x;e.y=p.y;sfx('dash');}
-    return A.n>=3&&A.t>1.4;}},
+    return A.n>=2&&A.t>1.4;}},
  ],
  // EVENT 70%: lights out. Every torch dies for 20s: only sound shows his attacks
  event:{at:.7,dur:20,name:'LIGHTS OUT',hint:'LISTEN: WHISTLES BEFORE STARS, TICKS BEFORE KUNAI',

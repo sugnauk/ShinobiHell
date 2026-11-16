@@ -25,7 +25,7 @@ const stTier=b=>{const o=stBranchOwned(b);return MASTERY_AT.filter(t=>o>=t).leng
   setToast(STB[b].n+' MASTERY '+ROMAN[after-1]+': '+nm,STB[b].c,3.5);sfx('rare');STOT=null;}}};}
 
 // ---------- respec ----------
-function stSpent(){let s=0;for(const n of SKT.nodes){if(n.free)continue;const lv=stLv(n.k);if(!lv)continue;if(n.old){for(let i=0;i<lv;i++)s+=n.base*(i+1);}else s+=n.cost;}return s;}
+function stSpent(){let s=0;for(const n of SKT.nodes){if(n.free)continue;const lv=stLv(n.k);if(!lv)continue;if(n.old){for(let i=0;i<lv;i++)s+=n.base*(i+1);}else if(n.big){for(let i=0;i<lv;i++)s+=Math.round(n.cost*(1+.6*i));}else s+=n.cost;}return s;}
 function stRespec(){const g=stSpent();if(!g){stUI.notice={key:SKT.sel,t:time,text:'NOTHING TO REFUND'};sfx('block');return;}
  if(!(stUI.respecT&&time-stUI.respecT<3)){stUI.respecT=time;sfx('tool');return;}
  stUI.respecT=0;for(const n of SKT.nodes)if(!n.free)delete meta.up[n.k];meta.sen+=g;STOT=null;saveMeta();S&&R&&(S=calcStats());
@@ -65,3 +65,9 @@ function stDrawBuild(){
 {const _sd=stDetails;stDetails=function(n,route){_sd(n,route);if(!n.eff||stLv(n.k)>=n.max)return;const t=stTot(),ks=Object.keys(n.eff).filter(k=>STAT_TXT[k]);if(!ks.length)return;
  const k=ks[0],now=t[k]||0,next=now+n.eff[k],fmt=v=>STAT_TXT[k](Math.round(v*1000)/1000);
  const a=fmt(now).split(' ')[0],b=fmt(next).split(' ')[0],s='NOW '+(now?a:'0')+' > '+b;stCenter(s,221,92,119,'#8fd8a8');};}
+
+// keystone ranks: three pips under each keystone on the map
+{const _ru2=renderUpgrades;renderUpgrades=function(){_ru2.apply(this,arguments);if(stUI.catalog||stBuild)return;ctx.save();ctx.beginPath();ctx.rect(stView.x,stView.y,stView.w,stView.h);ctx.clip();
+ for(const n of SKT.nodes){if(!n.big||n.free)continue;const [x,y]=stScreen(n.x,n.y),r=stRadius(n);if(x<stView.x-10||x>stView.x+stView.w+10||y<stView.y-10||y>stView.y+stView.h+10)continue;const lv=stLv(n.k);
+  for(let i=0;i<n.max;i++){ctx.fillStyle='#07040a';ctx.fillRect(x-8+i*6,y+r+2,5,4);ctx.fillStyle=i<lv?stRGB[n.b]:'#3a3044';ctx.fillRect(x-7+i*6,y+r+3,3,2);}}
+ ctx.restore();};}

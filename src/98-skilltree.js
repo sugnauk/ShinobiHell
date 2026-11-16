@@ -16,6 +16,10 @@ const STAT_TXT={pow:v=>'+'+Math.round(v*100)+'% POWER',crit:v=>'+'+Math.round(v*
  aspd:v=>'+'+Math.round(v*100)+'% ATTACK SPEED',def:v=>'+'+v+' DEFENCE',cdr:v=>'-'+(v*100).toFixed(1).replace('.0','')+'% COOLDOWNS',spd:v=>'+'+(v*100).toFixed(1).replace('.0','')+'% MOVE SPEED',dash:v=>'-'+Math.round(v*100)+'% DASH COOLDOWN',
  abil:v=>'+'+Math.round(v*100)+'% ABILITY DAMAGE',range:v=>'+'+Math.round(v*100)+'% RANGE',hp:v=>'+'+Math.round(v*100)+'% MAX HP',regen:v=>'REGENERATE '+(v*100).toFixed(1)+'% HP/S',dodge:v=>'+'+(v*100).toFixed(1).replace('.0','')+'% DODGE',
  graze:v=>'GRAZES COOL ABILITIES '+(.05*v).toFixed(2)+'S MORE',gold:v=>'+'+Math.round(v*100)+'% GOLD',pot:v=>'POTIONS HEAL +'+Math.round(v*100)+'%',luck:v=>'+'+4*v+'% CHANCE OF BETTER GEAR'};
+// Keystones are the only nodes with ranks (I-III). Ranks II and III each add this bonus on top of the keystone itself.
+const KSRANK={'BERSERKER':{pow:.05},'EXECUTIONER':{crit:.04},'IAIDO MASTER':{near:.08},'BLADE DANCE':{aspd:.05},'MOMENTUM':{spd:.04},'TIME WEAVER':{cdr:.04},
+ 'OVERCHANNEL':{abil:.08},'ECHO MIND':{cdr:.03},'COLOSSUS':{hp:.06},'UNDYING':{def:1},'GHOST STEP':{dodge:.02},'GRAZE MASTER':{graze:1},
+ 'MIDAS':{gold:.10},'TREASURE HUNTER':{luck:1},'EAGLE EYE':{range:.06},'MARKED PREY':{crit:.03}};
 const SKT={nodes:[],byK:{},adj:{},cam:{x:0,y:0},sel:'root'};
 // THE GRID: an oval of cells around the temple gate. Each cell belongs to the branch its direction points at, so the eight
 // branches are regions that touch each other. Links run along the grid; about a quarter are cut to make a maze of paths
@@ -33,9 +37,9 @@ const NOTA=[['VETERAN','WARLORD'],['STEEL WIND','THOUSAND CUTS'],['CLEAR MIND','
  STB.forEach((B,b)=>{
   // the original ranked nodes: three steps out along the axis, the fourth beside the second
   if(B.old){const [ux,uy]=axis(b),sx=Math.round(ux),sy=Math.round(uy);[[1,0],[2,0],[3,0],[2,1]].forEach(([d,o],i)=>{const o2=TNODE[B.old[i]],gx=sx*d+(o?-sy:0),gy=sy*d+(o?sx:0);
-    put(gx,gy,{k:o2.k,n:o2.n,d:o2.d,base:o2.base,max:o2.max,c:B.c,b,old:1});});}
+    put(gx,gy,{k:o2.k,n:o2.n,d:o2.d.replace(' PER RANK',''),base:o2.base,max:1,c:B.c,b,old:1});});}
   // two keystones per branch, inner and outer
-  [[4.2,0],[6.5,0]].forEach(([r,o],i)=>{const [gx,gy]=at(b,r,o);if(cell[key(gx,gy)])return;const [nm,d]=B.ks[i];put(gx,gy,{k:'kst_'+nm.replace(/[^A-Z]/g,''),n:nm,d,eff:{['ks:'+nm]:1},cost:i?700:320,max:1,c:B.c,b,big:1});});
+  [[4.2,0],[6.5,0]].forEach(([r,o],i)=>{const [gx,gy]=at(b,r,o);if(cell[key(gx,gy)])return;const [nm,d]=B.ks[i];put(gx,gy,{k:'kst_'+nm.replace(/[^A-Z]/g,''),n:nm,d,eff:{['ks:'+nm]:1},rk:KSRANK[nm],cost:i?700:320,max:3,c:B.c,b,big:1});});
   // two notables per branch, off to each side between the keystones
   [[5.6,.32],[5.6,-.32]].forEach(([r,o],i)=>{const [gx,gy]=at(b,r,o);if(cell[key(gx,gy)])return;const e={},e1=B.st[i%3],e2=B.st[(i+1)%3];for(const k in e1)e[k]=(e[k]||0)+e1[k]*2;for(const k in e2)e[k]=(e[k]||0)+e2[k]*2;
    put(gx,gy,{k:'ntb_'+b+'_'+i,n:NOTA[b][i],eff:e,cost:180,max:1,c:B.c,b,mid:1});});});
@@ -52,11 +56,15 @@ const NOTA=[['VETERAN','WARLORD'],['STEEL WIND','THOUSAND CUTS'],['CLEAR MIND','
   const lost=SKT.nodes.filter(n=>!seen.has(n.k));if(!lost.length)break;
   for(const n of lost){for(const [ox,oy] of [[1,0],[-1,0],[0,1],[0,-1]]){const m=cell[key(n.gx+ox,n.gy+oy)];if(m&&seen.has(m.k)){link(n,m);break;}}}}
  for(const n of SKT.nodes)if(!n.d)n.d=Object.keys(n.eff).map(k=>STAT_TXT[k]?STAT_TXT[k](n.eff[k]):k).join(', ');
+ for(const n of SKT.nodes)if(n.big&&n.rk)n.d+='. RANKS II AND III: '+Object.keys(n.rk).map(k=>STAT_TXT[k](n.rk[k])).join(', ')+' EACH';
+ // the old ranked nodes are single-rank now: ranks bought beyond the first come back as jade
+ try{let g=0;for(const n of SKT.nodes){if(!n.old)continue;const lv=upLv(n.k);if(lv>1){for(let i=1;i<lv;i++)g+=n.base*(i+1);meta.up[n.k]=1;}}
+  if(g){meta.sen+=g;saveMeta();setTimeout(()=>setToast('ONLY KEYSTONES HAVE RANKS NOW: '+g+' JADE REFUNDED','#ffd040',5),900);}}catch(e){}
  // nodes bought on the old layout that no longer exist are refunded
  try{const old=/^(st|ks|sd|sd2|br)_/;let g=0;for(const k in (meta.up||{})){if(SKT.byK[k]||TNODE[k]||!old.test(k))continue;const m=k.split('_'),i=+m[2]||0;
    g+=k.startsWith('ks_')?(i===5?300:650):k.startsWith('sd2_')?150:k.startsWith('sd_')?30+i*14:k.startsWith('br_')?60+i*16:22+i*14;delete meta.up[k];}
   if(g){meta.sen+=g;saveMeta();setTimeout(()=>setToast('THE SKILL TREE WAS REBUILT: '+g+' JADE REFUNDED','#ffd040',5),500);}}catch(e){}})();
-const stLv=k=>k==='root'?1:upLv(k),stOpen=n=>n.free||SKT.adj[n.k].some(k=>stLv(k)>0),stCost=n=>n.old?n.base*(upLv(n.k)+1):n.cost;
+const stLv=k=>k==='root'?1:upLv(k),stOpen=n=>n.free||SKT.adj[n.k].some(k=>stLv(k)>0),stCost=n=>n.old?n.base*(upLv(n.k)+1):n.big&&!n.free?Math.round(n.cost*(1+.6*upLv(n.k))):n.cost; // keystones are the only nodes with ranks; each rank costs more
 function stBuy(n){
  const lv=stLv(n.k),cost=stCost(n);
  if(lv>=n.max||!stOpen(n)||meta.sen<cost){
@@ -72,7 +80,7 @@ function stBuy(n){
 }
 // totals of every owned node's effects (keystones count as 'ks:NAME')
 let STOT=null,STOTkey='';
-function stTot(){const key=JSON.stringify(meta.up);if(STOT&&key===STOTkey)return STOT;const t={};for(const n of SKT.nodes){if(!n.eff)continue;const lv=stLv(n.k);if(!lv)continue;for(const k in n.eff)t[k]=(t[k]||0)+n.eff[k]*lv;}STOTkey=key;return STOT=t;}
+function stTot(){const key=JSON.stringify(meta.up);if(STOT&&key===STOTkey)return STOT;const t={};for(const n of SKT.nodes){if(!n.eff)continue;const lv=stLv(n.k);if(!lv)continue;for(const k in n.eff)t[k]=(t[k]||0)+n.eff[k]*lv;if(n.rk&&lv>1)for(const k in n.rk)t[k]=(t[k]||0)+n.rk[k]*(lv-1);}STOTkey=key;return STOT=t;}
 const KS=nm=>!!stTot()['ks:'+nm];
 
 // ---------------------------------------------------------------- effects
@@ -423,13 +431,13 @@ function stDetails(n,route){
  ctx.imageSmoothingEnabled=false;
  ctx.drawImage(art,267-art.width,50-art.height,art.width*2,art.height*2);
  ctx.imageSmoothingEnabled=smooth;
- const kind=n.free?'TEMPLE':n.big?'KEYSTONE':n.mid?'NOTABLE':n.old?'RANKED':'PASSIVE';
+ const kind=n.free?'TEMPLE':n.big?'KEYSTONE':n.mid?'NOTABLE':'PASSIVE';
  stCenter(n.free?kind:STB[n.b].n+' / '+kind,221,92,66,col);
  const y=stWrap(n.n,226,76,82,'#fff0cf',7);
  stWrap(n.d,226,y+3,82,'#dad0d9');
  const unlock=SKT.unlock,justBought=unlock&&unlock.key===n.k&&time-unlock.t<1.3;
  const notice=stUI.notice,denied=notice?.key===n.k&&time-notice.t<1.2;
- const status=denied?notice.text:justBought?(unlock.goal?'GOAL REACHED':'LEARNED  -'+unlock.cost):!open?route.edges.size+' TO LEARN / '+route.cost+' JADE':n.old?'RANK '+lv+' / '+n.max:full?'ACTIVE':ready?'READY TO UNLOCK':'NEED '+(stCost(n)-meta.sen)+' MORE';
+ const status=denied?notice.text:justBought?(unlock.goal?'GOAL REACHED':'LEARNED  -'+unlock.cost):!open?route.edges.size+' TO LEARN / '+route.cost+' JADE':n.max>1&&lv?'RANK '+ROMAN[lv-1]+' / '+ROMAN[n.max-1]:full?'ACTIVE':ready?'READY TO UNLOCK':'NEED '+(stCost(n)-meta.sen)+' MORE';
  stCenter(status,221,92,128,denied?'#ef9c97':justBought||ready?'#f3d795':'#bdadbd');
  stButton(stBuyBox,full?n.free?'STARTING POINT':'MASTERED':!open?'LOCKED':(lv?'RANK UP ':'UNLOCK ')+stCost(n),ready);
  const goal=stGoal();
