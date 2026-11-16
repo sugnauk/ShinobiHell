@@ -112,7 +112,7 @@ function deathblow(e){
  hitstop=.18;shake=Math.max(shake,8);sfx('break');R.deathblows++;
  txtFx(e.x,e.y,'DEATHBLOW','#f33');spark(e.x,e.y,'#f33',24,110);fxRing(e.x,e.y,30,'#f33',.3);
  if(S.dbHeal)P.hp=Math.min(S.maxhp,P.hp+S.maxhp*S.dbHeal);
- if(e.boss){e.hp-=e.maxhp*.03;e.stag=0;e.posture=0;e.pdelay=2.5;e.cd=1.3;if(e.hp<=0)killE(e);}
+ if(e.boss&&!(e.iv>0)){e.hp-=e.maxhp*.03;e.stag=0;e.posture=0;e.pdelay=2.5;e.cd=1.3;if(e.hp<=0)killE(e);}
  else killE(e);
 }
 function killE(e){

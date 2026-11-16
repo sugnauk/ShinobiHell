@@ -71,7 +71,7 @@ function updEnemy(e,dt){
   if(st.poison>0){st.poison-=dt;dps+=st.pdps*(st.burn>0?1.5:1);if(Math.random()<dt*8)particles.push({x:e.x+rnd(-3,3),y:e.y+rnd(-3,3),vx:0,vy:-15,t:.4,col:'#8c4'});}else st.pdps=0;
   if(st.shock>0){st.shock-=dt;if(Math.random()<dt*6)particles.push({x:e.x+rnd(-4,4),y:e.y+rnd(-4,4),vx:rnd(-30,30),vy:rnd(-30,30),t:.15,col:'#ff4'});}
   if(st.chillT>0){st.chillT-=dt;if(st.chillT<=0)st.chillS=0;}
-  if(dps>0){e.hp-=dps*dt;if(e.hp<=0){killE(e);return;}}
+  if(dps>0&&!(e.iv>0)){e.hp-=dps*dt;if(e.hp<=0){killE(e);return;}} // burns and poison do not tick through invulnerability (survival phases, the ronin porch)
   if(st.frozen>0){st.frozen-=dt;return;}
  }
  e.slow=Math.min(e.zs||1,(e.st&&e.st.chillT>0)?.85-.15*e.st.chillS:1);e.zs=1;{const lq=liqAt(e.x,e.y);if(lq===1||lq===5)e.slow*=.78;}
