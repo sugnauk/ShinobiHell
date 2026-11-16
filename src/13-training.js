@@ -23,34 +23,37 @@ const tRoom=()=>map.rooms[0],tAt=(fx,fy)=>{const r=tRoom();return {x:(r.x+r.w*fx
 function tSpawn(type,fx,fy,o){const p=tAt(fx,fy),e=mkEnemy(type,p.x,p.y,tRoom(),0);e.awake=true;Object.assign(e,o||{});enemies.push(e);spark(p.x,p.y,'#fff',8,50);return e;}
 const spName=k=>SPELLS[k][P.lo[k]].n,spDesc=k=>SPELLS[k][P.lo[k]].d;
 const kN=k=>keyName(KB[k]);
+// ten lessons, each teaching one or two related things. Every lesson still names the keys and what they do.
+// a turret placed a set distance from you, so its shots always reach you
+const tTurret=(rate,pat)=>{let t=enemies.find(e=>e.type==='turret'&&!e.dead);if(!t)t=tSpawn('turret',.5,.5);const r=tRoom(),x=clamp(P.x+130,(r.x+2)*T,(r.x+r.w-2)*T),y=clamp(P.y,(r.y+2)*T,(r.y+r.h-2)*T);t.x=x;t.y=y;t.tRate=rate;t.tt=.6;t.tPat=pat;return t;};
+const tClear=keep=>{for(const e of enemies)if(!(keep&&e.type===keep))e.dead=true;if(!keep)for(const q of projs)if(q.from==='e')q.dead=true;};
 const LESSONS=[
- {t:'MOVE',l:()=>[[kN('up'),kN('left'),kN('down'),kN('right')].join('')+' TO WALK. HEAD TO THE GLOWING MARK.'],go:()=>{trainMarks=[tAt(.45,.5)];},done:T=>Math.hypot(P.x-trainMarks[0].x,P.y-trainMarks[0].y)<14},
- {t:'CAMERA (, AND .)',l:()=>[', AND . TURN THE CAMERA 90 DEGREES.','MOVEMENT STAYS SCREEN-RELATIVE. TURN IT ONCE.'],go:()=>{trainMarks=[];},need:1,ev:'rot'},
- {t:'BASIC ATTACK (LMB)',l:()=>[spName('m')+': '+spDesc('m'),'AIM WITH THE MOUSE. DESTROY 3 DUMMIES.'],unlock:'m',go:()=>{tSpawn('dummy',.6,.38);tSpawn('dummy',.64,.5);tSpawn('dummy',.6,.62);},need:3,ev:'kill'},
- {t:'HEAVY ATTACK (RMB)',l:()=>[spName('h')+': '+spDesc('h'),'HOLD RMB TO CHARGE, RELEASE. DESTROY 3 DUMMIES.'],unlock:'h',go:()=>{trainMarks=[];tSpawn('dummy',.62,.42);tSpawn('dummy',.62,.58);tSpawn('dummy',.7,.5);},need:3,ev:'kill'},
- {t:'DASH',l:()=>['YOU CANNOT BE HIT WHILE DASHING ('+kN('dash')+').','DASH THROUGH 3 BULLETS FROM THE TURRET.'],unlock:'d',go:()=>{tSpawn('turret',.85,.5,{tRate:.9,tPat:{pat:'wall',cnt:9,sp:45,dmg:3,pd:2,col:'#c8f'}});},need:3,ev:'dodge'},
- {t:'PERFECT DODGE',l:()=>['DASH THROUGH A SHOT JUST AS IT REACHES YOU:','NEARBY BULLETS SHATTER, YOUR DASH RESETS AND','YOUR NEXT ATTACK IS EMPOWERED. DO IT TWICE.'],go:()=>{for(const e of enemies)if(e.type==='turret'){e.tRate=.7;e.tPat={cnt:1,sp:55,dmg:3,pd:2,col:'#fd4'};}},need:2,ev:'perfect'},
- {t:'FOCUS (HOLD SHIFT)',l:()=>['HOLD '+kN('focus')+' IN COMBAT: SLOW MOVE, AND YOUR HITBOX','SHRINKS TO A DOT. WEAVE THROUGH RINGS FOR 6S.'],go:()=>{for(const e of enemies)if(e.type==='turret'){e.tRate=.55;e.tPat={pat:'gapring',cnt:22,gw:.5,sp:40,dmg:3,pd:2,col:'#f8c'};}},timer:6},
- {t:'ABILITY (Q)',l:()=>[spName('q')+': '+spDesc('q'),'USE IT TWICE ON THE DUMMIES.'],unlock:'q',go:()=>{for(const e of enemies)if(e.type==='turret')e.tRate=99;tSpawn('dummy',.6,.4);tSpawn('dummy',.66,.5);tSpawn('dummy',.6,.6);},need:2,ev:'cast',slot:'q',reset:'q'},
- {t:'SUPPORT (E)',l:()=>[spName('w')+': '+spDesc('w'),'USE IT ONCE WHILE THE TURRET FIRES.'],unlock:'w',go:()=>{for(const e of enemies)if(e.type==='turret'){e.tRate=.5;e.tPat={cnt:3,spread:.25,sp:70,dmg:3,pd:2,col:'#c8f'};}},need:1,ev:'cast',slot:'w'},
- {t:'UTILITY (F)',l:()=>[spName('f')+': '+spDesc('f'),'USE IT ONCE NEAR THE DUMMIES.'],unlock:'f',go:()=>{for(const e of enemies)if(e.type==='turret')e.tRate=99;for(let i=0;i<4;i++)tSpawn('dummy',.5+(i%2)*.08,.4+(i>>1)*.2);},need:1,ev:'cast',slot:'f'},
- {t:'ULTIMATE (R)',l:()=>[spName('e')+': '+spDesc('e'),'STRONGEST SPELL. KILLS CUT ITS COOLDOWN.','CAST IT ONCE.'],unlock:'e',go:()=>{for(let i=0;i<5;i++)tSpawn('dummy',.62+(i%3)*.06,.38+(i>>1)*.12);},need:1,ev:'cast',slot:'e'},
- {t:'STUN',l:()=>['EVERY HIT FILLS A FOE\'S YELLOW STUN BAR.','WHEN IT FILLS THEY ARE STUNNED: +50% DAMAGE.','STUN THE ARMOURED DUMMY.'],go:()=>{for(const e of enemies)e.dead=true;tSpawn('dummy',.62,.5,{hp:99999,maxhp:99999,maxPosture:60,r:8});},need:1,ev:'break'},
- {t:'HEALING (C)',l:()=>[kN('heal')+' DRINKS AN HP POTION (+35%). THEY ARE RARE:','CARRY 3 AT MOST. DRINK ONE NOW.'],go0:1,go:()=>{P.hp=Math.round(S.maxhp*.45);R.pots=Math.max(R.pots,1);},need:1,ev:'heal'},
- {t:'LOOT',l:()=>['FOES DROP BAGS. STAND ON ONE TO SEE INSIDE.','1-6 TAKES AN ITEM, G TAKES EVERYTHING.'],go:()=>{const p=tAt(.55,.5);pickups.push({x:p.x,y:p.y,k:'bag',tier:1,items:[mkGear('wpn',1,false,1),{t:'hp'}],t:0,z:2,vz:110});},done:()=>!pickups.some(k=>k.k==='bag')},
- {t:'BACKPACK (TAB)',l:()=>[kN('pack')+' OPENS YOUR BACKPACK: SPARE GEAR, SETS.',kN('swap')+' SWAPS TO A SPARE WEAPON. OPEN IT NOW.'],need:1,ev:'pack'},
- {t:'ENCHANTS',l:()=>['AN ENCHANT ADDS AN ON-HIT EFFECT TO EVERY ABILITY','(RMB Q E F R). IT BINDS TO YOUR WEAPON, AND','REPEATS STACK (II, III). PICK THIS ONE UP.'],go:()=>{const p=tAt(.55,.5);pickups.push({x:p.x,y:p.y,k:'bag',tier:5,items:[{t:'ench',k:'fire'}],t:0,z:2,vz:110});},need:1,ev:'ench'},
- {t:'LEGENDARY SCROLLS',l:()=>['VERY RARE. CHOOSE 1 OF 3: REPLACE AN ABILITY,','OR ADD AN EFFECT TO IT. EITHER WAY THAT SLOT','IS EMPOWERED. TRY ONE (TRAINING ONLY).'],go:()=>{const p=tAt(.55,.5);pickups.push({x:p.x,y:p.y,k:'bag',tier:6,items:[{t:'scroll'}],t:0,z:2,vz:110});},need:1,ev:'scroll'},
- {t:'SURVIVAL PHASE',l:()=>['WHEN A BOSS ENTERS A NEW PHASE IT TURNS GOLD AND','CANNOT BE HURT. RED CIRCLES BURST - STAY OUT.','DODGE UNTIL THE BAR EMPTIES, THEN STRIKE.'],
-  go:()=>{for(const e of enemies)if(e.type!=='turret')e.dead=true;if(!enemies.some(e=>e.type==='turret'&&!e.dead))tSpawn('turret',.85,.5);for(const e of enemies)if(e.type==='turret'){e.tRate=.8;e.tPat={pat:'gapring',cnt:18,gw:.6,sp:38,dmg:3,pd:2,col:'#ffd040'};}},
-  tick:(dt,T)=>{T.rn=(T.rn||0)-dt;if(T.rn<=0){T.rn=.9;for(let i=0;i<2;i++){const a=Math.random()*TAU,d=rnd(8,34);dh.push({x:P.x+Math.cos(a)*d,y:P.y+Math.sin(a)*d,r:13,t:1.1,dur:1.1,dmg:4,col:'#f55'});}}},timer:9,survBar:1},
- {t:'SHRINES AND CURSES',l:()=>['SPIRIT SHRINES: FOX GAMBLES, CRANE HEALS, OX','TRADES BLOOD, MOON HARE GUIDES. ONE OFFERING EACH.','CURSE ALTARS: A DRAWBACK AND A REWARD. MAKE AN OFFERING.'],
-  go:()=>{for(const e of enemies)e.dead=true;dh=[];const p=tAt(.6,.5);props.push({k:'altar',x:p.x,y:p.y,room:tRoom(),col:GODS.crane.c,god:'crane'});},need:1,ev:'offer'},
- {t:'READY',l:()=>['K OPENS THE GUIDE: EVERYTHING YOU HAVE MET.','O: OPTIONS (KEYS, VOLUME, DIFFICULTY).','THE MINIMAP MARKS SHOPS, SHRINES, WELLS AND THE BOSS.','G AT THE PORTAL ENTERS THE FIRST STAGE.'],go:()=>{props=[];const p=tAt(.85,.5);portal={x:p.x,y:p.y,t:0,pending:false};for(const e of enemies)e.dead=true;},done:()=>false}];
-function nextLesson(){const T=R.training;T.i++;T.c=0;T.t=0;const L=LESSONS[T.i];if(!L)return;if(L.unlock){delete P.lock[L.unlock];}if(L.unlock==='e'||L.slot)P.ab[L.slot==='w'?'rmb':L.slot]=0;if(L.go)L.go();sfx('pickup');}
-function trainEv(k,a){const T=R&&R.training;if(!T||T.wait>0)return;const L=LESSONS[T.i];if(!L||L.ev!==k)return;if(L.slot&&a!==L.slot)return;T.c++;if(k==='cast'&&L.reset)P.ab[L.reset]=Math.min(P.ab[L.reset],.6);}
+ {t:'MOVE AND ATTACK',l:()=>[[kN('up'),kN('left'),kN('down'),kN('right')].join('')+' TO WALK, THE MOUSE TO AIM.','LMB: '+spName('m')+'. DESTROY THE 3 DUMMIES.'],unlock:['m'],go:()=>{tSpawn('dummy',.5,.38);tSpawn('dummy',.56,.5);tSpawn('dummy',.5,.62);},need:3,ev:'kill'},
+ {t:'HEAVY ATTACK AND STUN',l:()=>['HOLD RMB TO CHARGE '+spName('h')+', RELEASE TO STRIKE.','EVERY HIT FILLS A FOE\'S YELLOW STUN BAR. A FULL BAR STUNS','THEM: +50% DAMAGE. STUN THE ARMOURED DUMMY.'],unlock:['h'],go:()=>{tClear();tSpawn('dummy',.55,.5,{hp:99999,maxhp:99999,maxPosture:60,r:8});},need:1,ev:'break'},
+ {t:'DASH AND PERFECT DODGE',l:()=>[kN('dash')+' DASHES. YOU CANNOT BE HIT WHILE DASHING.','DASH JUST AS A SHOT REACHES YOU FOR A PERFECT DODGE: NEARBY','BULLETS SHATTER, THE DASH RESETS, YOUR NEXT ATTACK IS','EMPOWERED. DO ONE PERFECT DODGE.'],unlock:['d'],
+  go:()=>{tClear();tTurret(.75,{cnt:1,spread:.12,sp:70,dmg:3,pd:2,col:'#fd4'});},need:1,ev:'perfect',
+  // keep the turret in range, whatever you do
+  tick:(dt,T)=>{const t=enemies.find(e=>e.type==='turret'&&!e.dead);if(t&&Math.hypot(t.x-P.x,t.y-P.y)>170)tTurret(.75,t.tPat);}},
+ {t:'FOCUS (HOLD '+'SHIFT)',l:()=>['HOLD '+kN('focus')+' IN COMBAT: YOU MOVE SLOWLY AND YOUR HITBOX','SHRINKS TO A DOT. WEAVE THROUGH THE RINGS FOR 5S.'],go:()=>{tTurret(.55,{pat:'gapring',cnt:22,gw:.5,sp:42,dmg:3,pd:2,col:'#f8c'});},timer:5},
+ {t:'ABILITIES',l:()=>[kN('q')+': '+spName('q')+'   '+kN('w')+': '+spName('w')+'   '+kN('f')+': '+spName('f'),kN('e')+': '+spName('e')+' - YOUR ULTIMATE. KILLS CUT ITS COOLDOWN.','EACH ABILITY HAS A COOLDOWN. USE ALL FOUR ('+(R.training&&R.training.slots?R.training.slots.size:0)+'/4).'],
+  unlock:['q','w','f','e'],go:()=>{const t=enemies.find(e=>e.type==='turret');if(t)t.tRate=99;for(let i=0;i<4;i++)tSpawn('dummy',.55+(i%2)*.08,.4+(i>>1)*.2);R.training.slots=new Set();},
+  done:T=>T.slots&&T.slots.size>=4},
+ {t:'HEALING ('+'POTIONS)',l:()=>[kN('heal')+' DRINKS AN HP POTION (+35%). THEY ARE RARE: YOU','CARRY 3 AT MOST. DRINK ONE NOW.'],go:()=>{tClear();P.hp=Math.round(S.maxhp*.45);R.pots=Math.max(R.pots,1);},need:1,ev:'heal'},
+ {t:'LOOT',l:()=>['FOES DROP BAGS: STAND ON ONE, 1-6 TAKES AN ITEM, G TAKES ALL.','ENCHANTS ADD AN ON-HIT EFFECT TO EVERY ABILITY AND STACK.','LEGENDARY SCROLLS: CHOOSE 1 OF 3 TO EMPOWER A SLOT.','TAKE EVERYTHING, THEN OPEN YOUR BACKPACK ('+kN('pack')+').'],
+  go:()=>{const p=tAt(.55,.5);pickups.push({x:p.x,y:p.y,k:'bag',tier:6,items:[mkGear('wpn',1,false,2),{t:'ench',k:'fire'},{t:'scroll'},{t:'hp'}],t:0,z:2,vz:110});},
+  done:T=>!pickups.some(k=>k.k==='bag')&&T.ev&&T.ev.pack},
+ {t:'BOSS EVENTS',l:()=>['WHEN A BOSS STARTS AN EVENT IT CANNOT BE HURT. RED CIRCLES','BURST - STAY OUT, DODGE UNTIL THE BAR EMPTIES, THEN STRIKE.'],
+  go:()=>{tClear('turret');tTurret(.8,{pat:'gapring',cnt:18,gw:.6,sp:38,dmg:3,pd:2,col:'#ffd040'});},
+  tick:(dt,T)=>{T.rn=(T.rn||0)-dt;if(T.rn<=0){T.rn=.9;for(let i=0;i<2;i++){const a=Math.random()*TAU,d=rnd(8,34);dh.push({x:P.x+Math.cos(a)*d,y:P.y+Math.sin(a)*d,r:13,t:1.1,dur:1.1,dmg:4,col:'#f55'});}}},timer:7,survBar:1},
+ {t:'SHRINES AND CURSES',l:()=>['SHRINES: FOX GAMBLES, CRANE HEALS, OX TRADES BLOOD, MOON HARE','GUIDES. CURSE ALTARS GIVE A DRAWBACK AND A REWARD. MAKE AN OFFERING.'],
+  go:()=>{tClear();dh=[];const p=tAt(.6,.5);props.push({k:'altar',x:p.x,y:p.y,room:tRoom(),col:GODS.crane.c,god:'crane'});},need:1,ev:'offer'},
+ {t:'READY',l:()=>['K: THE GUIDE (EVERYTHING YOU HAVE MET). O: OPTIONS.','THE MINIMAP MARKS SHOPS, SHRINES, WELLS AND THE BOSS.','G AT THE PORTAL ENTERS THE FIRST STAGE.'],go:()=>{props=[];const p=tAt(.85,.5);portal={x:p.x,y:p.y,t:0,pending:false};tClear();},done:()=>false}];
+function nextLesson(){const T=R.training;T.i++;T.c=0;T.t=0;T.ev={};const L=LESSONS[T.i];if(!L)return;for(const u of L.unlock||[])delete P.lock[u];for(const k of L.unlock||[])if('qwfe'.includes(k))P.ab[k==='w'?'rmb':k]=0;if(L.go)L.go();sfx('pickup');}
+function trainEv(k,a){const T=R&&R.training;if(!T||T.wait>0)return;T.ev=T.ev||{};T.ev[k]=1;const L=LESSONS[T.i];if(!L)return;
+ // the abilities lesson counts each of the four once, and gives the cooldown straight back so you can keep trying
+ if(k==='cast'&&T.slots&&'qwfe'.includes(a)){T.slots.add(a);P.ab[a==='w'?'rmb':a]=Math.min(P.ab[a==='w'?'rmb':a]||0,.4);}
+ if(L.ev!==k)return;if(L.slot&&a!==L.slot)return;T.c++;}
 function updTraining(dt){const T=R.training;if(!T)return;const L=LESSONS[T.i];if(!L)return;T.t+=dt;P.hp=Math.max(P.hp,L.t.startsWith('HEALING')?1:S.maxhp*.3);if(L.tick&&T.wait<=0)L.tick(dt,T);
- if(L.slot==='e'&&P.ab.e>0&&T.c===0)P.ab.e=0;
  for(const e of enemies)if(e.type==='dummy'&&!e.dead)e.hp=Math.min(e.hp,e.maxhp);
  if(T.wait>0){T.wait-=dt;if(T.wait<=0)nextLesson();return;}
  const ok=L.done?L.done(T):L.timer?T.t>=L.timer:T.c>=(L.need||1);

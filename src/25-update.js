@@ -96,7 +96,7 @@ function updProjs(dt){
 }
 function updPlay(dt){
  R.time+=dt;if(R.training)updTraining(dt);if(P.evoT>0)P.evoT-=dt;updPlayer(dt);updWorld(dt);updRoomEvents(dt);updAmbient(dt);
- if(freezeT<=0)for(const e of enemies){if(e.dead)continue;if(!e.boss&&dist(e,P)>300)continue;updEnemy(e,dt);}
+ if(freezeT<=0)for(const e of enemies){if(e.dead)continue;if(!e.boss&&!(R&&R.training)&&dist(e,P)>300)continue;updEnemy(e,dt);}
  for(let i=0;i<enemies.length;i++){const a=enemies[i];if(a.dead||!a.awake||a.air)continue;for(let j=i+1;j<enemies.length;j++){const b=enemies[j];if(b.dead||!b.awake||b.air)continue;const dx=b.x-a.x,dy=b.y-a.y,d=Math.hypot(dx,dy),m=a.r+b.r;if(d>0&&d<m){const push=(m-d)*.5;if(!a.act){move(a,-dx/d*push,-dy/d*push,a.r);}if(!b.act){move(b,dx/d*push,dy/d*push,b.r);}}}}
  enemies=enemies.filter(e=>!e.dead);
  updProjs(dt);updPickups(dt);
