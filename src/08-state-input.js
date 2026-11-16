@@ -38,7 +38,7 @@ function onKey(c){
  if(mode==='tut'){tutKey(c);return;}
  if(mode==='hub'){hubKey(c);return;}
  if(mode==='play'){if(P&&P.dying>0)return;if(c==='KeyN'&&R&&R.training&&!paused){finishTraining();return;}if(invOpen){if(c===KB.pack||c==='KeyI'||c==='Escape')closeInv();return;}if((c===KB.pack||c==='KeyI')&&!paused){invOpen=true;invHover=-1;sfx('tool');trainEv('pack');return;}if(c===KB.swap&&!paused){quickSwap();return;}if(/^Digit[1-6]$/.test(c)&&!paused){const b=nearBag();if(b){takeItem(b,+c.slice(5)-1);return;}}if(c==='Escape'||c==='KeyP'){paused=!paused;return;}
-  if(paused){if(c==='Enter'){paused=false;}else if(c==='KeyK')openGuide('play');else if(c==='KeyO')openOptions('play');else if(c==='KeyQ'&&!R.training){saveRun();R=null;mode='title';paused=false;setToast('','#fff',0);}return;}
+  if(paused){pauseKey(c);return;} // the pause menu (src/102-menus.js)
   if(c===KB.dash)tryDash();else if(c===KB.q)castChain();else if(c===KB.w)castWard();else if(c===KB.f)castF();else if(c===KB.e)castUlt();else if(c===KB.heal)useGourd();else if(c===KB.use)interact();return;}
  if(mode==='choose'){if(c==='Digit1'||c==='Digit2'||c==='Digit3')pickChoice(+c.slice(5)-1);return;}
  if(mode==='scroll'){if(/^Digit[1-3]$/.test(c))pickScroll(+c.slice(5)-1);return;}
@@ -57,9 +57,8 @@ function hubKey(c){
  if(c==='Escape'){mode='title';return;}
  if(c==='ArrowUp'||c==='KeyW'){hubSel=(hubSel+n-1)%n;if(hubSel===1)hubSel=0;}
  else if(c==='ArrowDown'||c==='KeyS'){hubSel=(hubSel+1)%n;if(hubSel===1)hubSel=2;}
- else if(hubSel===0&&(c==='ArrowLeft'||c==='KeyA'))hubStart=Math.max(0,hubStart-1);
- else if(hubSel===0&&(c==='ArrowRight'||c==='KeyD'))hubStart=Math.min(meta.reached,hubStart+1);
- else if(c==='Enter'||c==='Space'){if(hubSel===0)startRun(hubStart);else if(hubSel===2)openTree('hub');}
+ // every run starts at stage I (test mode can still start anywhere)
+ else if(c==='Enter'||c==='Space'){if(hubSel===0)startRun(0);else if(hubSel===2)openTree('hub');}
 }
 function upgCost(u){return u.base*(meta.up[u.k]+1);}
 function buyUpg(u){const lv=meta.up[u.k];if(lv>=u.max){return;}const c=upgCost(u);if(meta.sen>=c){meta.sen-=c;meta.up[u.k]++;saveMeta();sfx('pickup');}else sfx('block');}

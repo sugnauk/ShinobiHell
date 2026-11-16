@@ -1,8 +1,8 @@
 'use strict';
-// HELL OF THE EMPEROR - the TEMPLE SKILL TREE. A web of ~110 nodes around a free root: eight themed branches (War, Blade,
-// Spirit, Arcane, Body, Shadow, Fortune, Hunt), each a winding path with side forks, two KEYSTONES (big nodes that change how
-// you play) and bridges to its neighbours, so there are many routes. Small nodes are small stat increases. You can buy any
-// node next to one you own. The original sixteen nodes keep their keys (meta.up), so ranks already bought carry over.
+// HELL OF THE EMPEROR - the TEMPLE SKILL TREE: a grid of ~240 nodes around a free root, split into eight themed regions (War,
+// Blade, Spirit, Arcane, Body, Shadow, Fortune, Hunt). Small nodes are small stat increases, notables give two stats, and
+// sixteen KEYSTONES (big nodes that change how you play) can each be reached from several sides. You can buy any node next
+// to one you own. The original sixteen ranked nodes keep their keys (meta.up), so ranks already bought carry over.
 const STB=[
  {n:'WAR',c:'#ff5050',old:['atk','crit','bossd','wrath'],st:[{pow:.03},{crit:.02},{boss:.04}],ks:[['BERSERKER','+25% DAMAGE WHILE BELOW HALF HEALTH'],['EXECUTIONER','+40% DAMAGE TO FOES BELOW 25% HEALTH']]},
  {n:'BLADE',c:'#e8eef6',st:[{near:.05},{aspd:.03},{def:1}],ks:[['IAIDO MASTER','+25% DAMAGE TO FOES CLOSE TO YOU. BLADES CUT 3 MORE BULLETS A SECOND'],['BLADE DANCE','YOUR DASH SLASHES EVERYTHING AROUND YOU']]},
@@ -17,23 +17,45 @@ const STAT_TXT={pow:v=>'+'+Math.round(v*100)+'% POWER',crit:v=>'+'+Math.round(v*
  abil:v=>'+'+Math.round(v*100)+'% ABILITY DAMAGE',range:v=>'+'+Math.round(v*100)+'% RANGE',hp:v=>'+'+Math.round(v*100)+'% MAX HP',regen:v=>'REGENERATE '+(v*100).toFixed(1)+'% HP/S',dodge:v=>'+'+(v*100).toFixed(1).replace('.0','')+'% DODGE',
  graze:v=>'GRAZES COOL ABILITIES '+(.05*v).toFixed(2)+'S MORE',gold:v=>'+'+Math.round(v*100)+'% GOLD',pot:v=>'POTIONS HEAL +'+Math.round(v*100)+'%',luck:v=>'+'+4*v+'% CHANCE OF BETTER GEAR'};
 const SKT={nodes:[],byK:{},adj:{},cam:{x:0,y:0},sel:'root'};
-(function buildTree(){const add=n=>{SKT.nodes.push(n);SKT.byK[n.k]=n;SKT.adj[n.k]=SKT.adj[n.k]||[];return n;},link=(a,b)=>{SKT.adj[a.k].push(b.k);SKT.adj[b.k].push(a.k);};
- const root=add({k:'root',n:'TEMPLE GATE',d:'WHERE EVERY PATH BEGINS',x:0,y:0,max:1,free:1,c:'#ffffff',big:1});
- const ring=[];
- STB.forEach((B,b)=>{const a=b*Math.PI/4-Math.PI/2,ux=Math.cos(a),uy=Math.sin(a),px=-uy,py=ux;let prev=root;ring[b]={};
-  for(let i=1;i<=9;i++){const r=26+i*28,zig=(i%2?1:-1)*7,x=ux*r+px*zig,y=uy*r*.62+py*zig*.62;let n;
-   if(B.old&&i<=4){const o=TNODE[B.old[i-1]];n=add({k:o.k,n:o.n,d:o.d,base:o.base,max:o.max,x,y,c:B.c,b,old:1});}
-   else if(i===5||i===9){const [nm,d]=B.ks[i===5?0:1];n=add({k:'ks_'+b+'_'+i,n:nm,d,eff:{['ks:'+nm]:1},cost:i===5?300:650,max:1,x,y,c:B.c,b,big:1});}
-   else{const e=B.st[(i+b)%3];n=add({k:'st_'+b+'_'+i,n:B.n+' '+ROMAN[i-1],eff:e,cost:22+i*14,max:1,x,y,c:B.c,b});}
-   link(prev,n);prev=n;ring[b][i]=n;
-   // side forks: a short spur off the path
-   if(i===2||i===4||i===7){const sd=i===4?-1:1,s=add({k:'sd_'+b+'_'+i,n:B.n+' SPUR',eff:B.st[(i+b+1)%3],cost:30+i*14,max:1,x:x+px*26*sd,y:y+py*26*sd*.62,c:B.c,b});link(n,s);
-    if(i===7){const s2=add({k:'sd2_'+b,n:B.n+' SPUR II',eff:B.st[(b+2)%3],cost:150,max:1,x:x+px*46*sd+ux*12,y:(y+py*46*sd*.62)+uy*8,c:B.c,b});link(s,s2);}}}});
- // bridges between neighbouring branches at depth 3 and 7: loops, so there is always another way round
- STB.forEach((B,b)=>{const nb=(b+1)%8,C=STB[nb];for(const i of [3,7]){const p=ring[b][i],q=ring[nb][i],e1=B.st[0],e2=C.st[0],eff={};for(const k in e1)eff[k]=(eff[k]||0)+e1[k]*.6;for(const k in e2)eff[k]=(eff[k]||0)+(typeof e2[k]==='number'&&k!=='def'&&k!=='graze'&&k!=='luck'?e2[k]*.6:e2[k]);
-   for(const k in eff)if(k==='def'||k==='graze'||k==='luck')eff[k]=Math.max(1,Math.round(eff[k]));
-   const n=add({k:'br_'+b+'_'+i,n:B.n+'-'+C.n+' BRIDGE',eff,cost:60+i*16,max:1,x:(p.x+q.x)/2,y:(p.y+q.y)/2,c:mixC(B.c,C.c,.5),b:-1});link(p,n);link(n,q);}});
- for(const n of SKT.nodes)if(!n.d)n.d=Object.keys(n.eff).map(k=>STAT_TXT[k]?STAT_TXT[k](n.eff[k]):k).join(', ');})();
+// THE GRID: an oval of cells around the temple gate. Each cell belongs to the branch its direction points at, so the eight
+// branches are regions that touch each other. Links run along the grid; about a quarter are cut to make a maze of paths
+// with many loops. Keystones (big) keep every side linked, so there are up to four ways into each. Notables (medium)
+// give two stats at once. The original sixteen ranked nodes sit on the first steps of the four main axes.
+const STG={dx:20,dy:18,RX:10.5,RY:7.5};
+const NOTA=[['VETERAN','WARLORD'],['STEEL WIND','THOUSAND CUTS'],['CLEAR MIND','FLOWING WATER'],['RUNE SCRIBE','STAR READER'],['IRON LUNG','MOUNTAIN'],['NIGHT WALKER','SMOKE'],['LUCKY CAT','MERCHANT'],['TRACKER','APEX']];
+(function buildTree(){const add=n=>{SKT.nodes.push(n);SKT.byK[n.k]=n;SKT.adj[n.k]=SKT.adj[n.k]||[];return n;},link=(a,b)=>{if(SKT.adj[a.k].includes(b.k))return;SKT.adj[a.k].push(b.k);SKT.adj[b.k].push(a.k);};
+ const cell={},key=(gx,gy)=>gx+','+gy,inside=(gx,gy)=>(gx/STG.RX)**2+(gy/STG.RY)**2<=1;
+ const brOf=(gx,gy)=>{const a=Math.atan2(gy,gx/1.35);return ((Math.round((a+Math.PI/2)/(Math.PI/4))%8)+8)%8;};
+ const put=(gx,gy,n)=>{n.gx=gx;n.gy=gy;n.x=gx*STG.dx;n.y=gy*STG.dy;cell[key(gx,gy)]=add(n);return n;};
+ put(0,0,{k:'root',n:'TEMPLE GATE',d:'WHERE EVERY PATH BEGINS',max:1,free:1,c:'#ffffff',big:1});
+ const axis=b=>{const a=b*Math.PI/4-Math.PI/2;return [Math.cos(a),Math.sin(a)];};
+ const at=(b,r,off)=>{const [ux,uy]=axis(b),a=Math.atan2(uy,ux)+(off||0);return [Math.round(Math.cos(a)*r*1.35),Math.round(Math.sin(a)*r)];};
+ STB.forEach((B,b)=>{
+  // the original ranked nodes: three steps out along the axis, the fourth beside the second
+  if(B.old){const [ux,uy]=axis(b),sx=Math.round(ux),sy=Math.round(uy);[[1,0],[2,0],[3,0],[2,1]].forEach(([d,o],i)=>{const o2=TNODE[B.old[i]],gx=sx*d+(o?-sy:0),gy=sy*d+(o?sx:0);
+    put(gx,gy,{k:o2.k,n:o2.n,d:o2.d,base:o2.base,max:o2.max,c:B.c,b,old:1});});}
+  // two keystones per branch, inner and outer
+  [[4.2,0],[6.5,0]].forEach(([r,o],i)=>{const [gx,gy]=at(b,r,o);if(cell[key(gx,gy)])return;const [nm,d]=B.ks[i];put(gx,gy,{k:'kst_'+nm.replace(/[^A-Z]/g,''),n:nm,d,eff:{['ks:'+nm]:1},cost:i?700:320,max:1,c:B.c,b,big:1});});
+  // two notables per branch, off to each side between the keystones
+  [[5.6,.32],[5.6,-.32]].forEach(([r,o],i)=>{const [gx,gy]=at(b,r,o);if(cell[key(gx,gy)])return;const e={},e1=B.st[i%3],e2=B.st[(i+1)%3];for(const k in e1)e[k]=(e[k]||0)+e1[k]*2;for(const k in e2)e[k]=(e[k]||0)+e2[k]*2;
+   put(gx,gy,{k:'ntb_'+b+'_'+i,n:NOTA[b][i],eff:e,cost:180,max:1,c:B.c,b,mid:1});});});
+ // every other cell in the oval is a small node of the branch it points at
+ const nearSp=(gx,gy)=>[[1,0],[-1,0],[0,1],[0,-1]].some(([a,b])=>{const m=cell[key(gx+a,gy+b)];return m&&(m.big||m.mid||m.free||m.old);});
+ for(let gy=-Math.floor(STG.RY);gy<=Math.floor(STG.RY);gy++)for(let gx=-Math.floor(STG.RX);gx<=Math.floor(STG.RX);gx++){if(!inside(gx,gy)||cell[key(gx,gy)])continue;if(!nearSp(gx,gy)&&hash(gx*41+9,gy*29+3)<.14)continue;
+  const b=brOf(gx,gy),B=STB[b],d=Math.hypot(gx/1.35,gy),h=hash(gx*7+31,gy*13+7),e=B.st[(Math.floor(h*3))%3],sc=d>5.5?1.5:1,eff={};for(const k in e)eff[k]=['def','graze','luck'].includes(k)?Math.max(1,Math.round(e[k]*sc)):e[k]*sc;
+  put(gx,gy,{k:'g_'+gx+'_'+gy,n:B.n+' '+ROMAN[Math.min(11,Math.floor(d))],eff,cost:Math.round(18+d*d*5),max:1,c:B.c,b});}
+ // grid links, a quarter cut (never next to the gate, a keystone, a notable or a ranked node)
+ const special=n=>n.big||n.mid||n.old||n.free;
+ for(const n of SKT.nodes)for(const [ox,oy] of [[1,0],[0,1]]){const m=cell[key(n.gx+ox,n.gy+oy)];if(!m)continue;if(!special(n)&&!special(m)&&hash(n.gx*17+ox*5+3,n.gy*23+oy*7+11)<.4)continue;link(n,m);}
+ // make sure everything can be reached from the gate: reconnect any island to its nearest reachable neighbour
+ for(let pass=0;pass<20;pass++){const seen=new Set(['root']),q=['root'];while(q.length){const k=q.pop();for(const m of SKT.adj[k])if(!seen.has(m)){seen.add(m);q.push(m);}}
+  const lost=SKT.nodes.filter(n=>!seen.has(n.k));if(!lost.length)break;
+  for(const n of lost){for(const [ox,oy] of [[1,0],[-1,0],[0,1],[0,-1]]){const m=cell[key(n.gx+ox,n.gy+oy)];if(m&&seen.has(m.k)){link(n,m);break;}}}}
+ for(const n of SKT.nodes)if(!n.d)n.d=Object.keys(n.eff).map(k=>STAT_TXT[k]?STAT_TXT[k](n.eff[k]):k).join(', ');
+ // nodes bought on the old layout that no longer exist are refunded
+ try{const old=/^(st|ks|sd|sd2|br)_/;let g=0;for(const k in (meta.up||{})){if(SKT.byK[k]||TNODE[k]||!old.test(k))continue;const m=k.split('_'),i=+m[2]||0;
+   g+=k.startsWith('ks_')?(i===5?300:650):k.startsWith('sd2_')?150:k.startsWith('sd_')?30+i*14:k.startsWith('br_')?60+i*16:22+i*14;delete meta.up[k];}
+  if(g){meta.sen+=g;saveMeta();setTimeout(()=>setToast('THE SKILL TREE WAS REBUILT: '+g+' JADE REFUNDED','#ffd040',5),500);}}catch(e){}})();
 const stLv=k=>k==='root'?1:upLv(k),stOpen=n=>n.free||SKT.adj[n.k].some(k=>stLv(k)>0),stCost=n=>n.old?n.base*(upLv(n.k)+1):n.cost;
 function stBuy(n){const lv=stLv(n.k);if(lv>=n.max){sfx('block');return;}if(!stOpen(n)){sfx('block');setToast('LOCKED: BUY A NODE NEXT TO IT FIRST','#c55',2);return;}
  const c=stCost(n);if(meta.sen<c){sfx('block');return;}meta.sen-=c;meta.up[n.k]=lv+1;saveMeta();sfx(n.big?'rare':'pickup');}
@@ -67,42 +89,86 @@ const STS={lastHit:-9,cds:{}};
 
 // ---------------------------------------------------------------- the tree screen
 const stView={x0:6,y0:20,w:308,h:116};
-const stScr=n=>[Math.round(stView.x0+stView.w/2+n.x-SKT.cam.x),Math.round(stView.y0+stView.h/2+n.y-SKT.cam.y)];
-function stNodeAt(mx,my){let best=null,bd=8;for(const n of SKT.nodes){const [x,y]=stScr(n);const d=Math.hypot(mx-x,my-y);if(d<bd&&y>stView.y0&&y<stView.y0+stView.h){bd=d;best=n;}}return best;}
-function stClick(){const n=stNodeAt(mouse.x,mouse.y);if(!n)return;if(SKT.sel===n.k)stBuy(n);else{SKT.sel=n.k;sfx('coin');}}
-renderUpgrades=function(){const sel=SKT.byK[SKT.sel]||SKT.byK.root;SKT.cam.x+=(sel.x-SKT.cam.x)*.18;SKT.cam.y+=(sel.y-SKT.cam.y)*.18;
- ctxt('TEMPLE SKILL TREE',4,'#d02030',2);{const s='GOLD '+meta.sen;txt(s,W-8-txtW(s),8,'#fc4');const own=SKT.nodes.filter(n=>stLv(n.k)>0).length;txt('NODES '+own+'/'+SKT.nodes.length,8,8,'#888');}
+SKT.zoom=1;SKT.zt=1; // Z or the mouse wheel: the whole grid at once
+const stScr=n=>[Math.round(stView.x0+stView.w/2+(n.x-SKT.cam.x)*SKT.zoom),Math.round(stView.y0+stView.h/2+(n.y-SKT.cam.y)*SKT.zoom)];
+const stR=n=>Math.max(1,Math.round((n.big?8:n.mid?5:2)*(SKT.zoom<1?.55:1))); // half-size of each node's square
+function stNodeAt(mx,my){let best=null,bd=10;for(const n of SKT.nodes){const [x,y]=stScr(n);const d=Math.max(Math.abs(mx-x),Math.abs(my-y))-stR(n);if(d<bd&&y>stView.y0&&y<stView.y0+stView.h){bd=d;best=n;}}return bd<=4?best:null;}
+function stClick(){const n=stNodeAt(mouse.x,mouse.y);if(!n)return;if(SKT.zt<1){SKT.sel=n.k;SKT.zt=1;sfx('coin');return;}if(SKT.sel===n.k)stBuy(n);else{SKT.sel=n.k;sfx('coin');}}
+renderUpgrades=function(){const sel=SKT.byK[SKT.sel]||SKT.byK.root;SKT.zoom+=(SKT.zt-SKT.zoom)*.25;if(Math.abs(SKT.zt-SKT.zoom)<.01)SKT.zoom=SKT.zt;const tx=SKT.zt<1?0:sel.x,ty=SKT.zt<1?0:sel.y;SKT.cam.x+=(tx-SKT.cam.x)*.18;SKT.cam.y+=(ty-SKT.cam.y)*.18;
+ txt('TEMPLE SKILL TREE',8,6,'#d02030',1);{const own=SKT.nodes.filter(n=>stLv(n.k)>0).length;txt(own+'/'+SKT.nodes.length+' NODES',8,13,'#777');}
+ {const s=String(meta.sen);hudJade(W-8-txtW(s)-10,6);txt(s,W-8-txtW(s),7,JADEC);}
+ // legend
+ {let x=96;for(const [lab,r,c] of [['STAT',2,'#aaa'],['NOTABLE',4,'#ddd'],['KEYSTONE',5,'#fff']]){ctx.fillStyle=c;ctx.fillRect(x,10-r,r*2+1,r*2+1);ctx.fillStyle='#14101a';if(r>2)ctx.fillRect(x+1,11-r,r*2-1,r*2-1);ctx.fillStyle=c;if(r>2)ctx.fillRect(x+2,12-r,r*2-3,r*2-3);txt(lab,x+r*2+4,7,'#888');x+=txtW(lab)+r*2+12;}}
  if(mouse.x!==selMX||mouse.y!==selMY){const h=stNodeAt(mouse.x,mouse.y);if(h)SKT.sel=h.k;selMX=mouse.x;selMY=mouse.y;}
- ctx.save();ctx.beginPath();ctx.rect(stView.x0,stView.y0,stView.w,stView.h);ctx.clip();ctx.fillStyle='rgba(12,8,16,.9)';ctx.fillRect(stView.x0,stView.y0,stView.w,stView.h);
- // branch names at the outer ends
- STB.forEach((B,b)=>{const a=b*Math.PI/4-Math.PI/2,r=26+10*28+12,[x,y]=stScr({x:Math.cos(a)*r,y:Math.sin(a)*r*.62});txt(B.n,x-Math.round(txtW(B.n)/2),y-2,shade(B.c,-.2));});
- // links: bright where both ends are owned, dim where one is, dark otherwise
- for(const n of SKT.nodes)for(const k of SKT.adj[n.k]){if(k<n.k)continue;const m=SKT.byK[k],[x0,y0]=stScr(n),[x1,y1]=stScr(m),a=stLv(n.k)>0,b2=stLv(k)>0;sline(x0,y0,x1,y1,a&&b2?(n.b>=0?n.c:m.c):a||b2?'#5a4e68':'#2a2234');}
- for(const n of SKT.nodes){const [x,y]=stScr(n);if(x<-10||x>W+10||y<10||y>stView.y0+stView.h+10)continue;const lv=stLv(n.k),open=stOpen(n),can=open&&lv<n.max&&meta.sen>=stCost(n),r=n.big?4:2;
-  ctx.fillStyle='#14101a';ctx.fillRect(x-r-1,y-r-1,r*2+3,r*2+3);ctx.fillStyle=lv>=n.max?n.c:lv?shade(n.c,-.25):open?'#3a3044':'#1e1826';ctx.fillRect(x-r,y-r,r*2+1,r*2+1);
-  if(n.old&&n.max>1&&lv>0&&lv<n.max){ctx.fillStyle='#14101a';ctx.fillRect(x-r+1,y-r+1,r*2-1,r*2-1);ctx.fillStyle=n.c;ctx.fillRect(x-r+1,y+r-Math.round((r*2-1)*lv/n.max),r*2-1,Math.round((r*2-1)*lv/n.max));}
-  if(n.big&&lv){ctx.fillStyle='#fff';ctx.fillRect(x,y,1,1);}
-  if(can&&Math.floor(time*3)%2){ctx.fillStyle='#ffd040';ctx.fillRect(x-r-1,y-r-1,r*2+3,1);ctx.fillRect(x-r-1,y+r+1,r*2+3,1);}
-  if(n.k===SKT.sel){ctx.fillStyle='#fff';ctx.fillRect(x-r-3,y-r-3,r*2+7,1);ctx.fillRect(x-r-3,y+r+3,r*2+7,1);ctx.fillRect(x-r-3,y-r-3,1,r*2+7);ctx.fillRect(x+r+3,y-r-3,1,r*2+7);}}
- // the whole web in miniature, top-right: owned nodes lit, the view as a frame
- {const k=.12,ox=stView.x0+stView.w-50,oy=stView.y0+30;ctx.fillStyle='rgba(8,4,12,.85)';ctx.fillRect(ox-46,oy-28,92,56);
-  for(const n of SKT.nodes){ctx.fillStyle=stLv(n.k)>0?n.c:'#3a3044';ctx.fillRect(Math.round(ox+n.x*k),Math.round(oy+n.y*k),1,1);}
+ ctx.save();ctx.beginPath();ctx.rect(stView.x0,stView.y0,stView.w,stView.h);ctx.clip();ctx.fillStyle='rgba(10,6,14,.94)';ctx.fillRect(stView.x0,stView.y0,stView.w,stView.h);
+ // branch regions: each cell tinted with its branch colour
+ for(const n of SKT.nodes){if(n.b==null||n.b<0)continue;const [x,y]=stScr(n);if(x<-20||x>W+20||y<stView.y0-20||y>stView.y0+stView.h+20)continue;ctx.globalAlpha=.06;ctx.fillStyle=n.c;ctx.fillRect(Math.round(x-STG.dx*SKT.zoom/2),Math.round(y-STG.dy*SKT.zoom/2),Math.ceil(STG.dx*SKT.zoom),Math.ceil(STG.dy*SKT.zoom));}ctx.globalAlpha=1;
+ // links: straight grid lines, lit when both ends are owned, dim when one is
+ for(const n of SKT.nodes)for(const k of SKT.adj[n.k]){const m=SKT.byK[k];if(m.gx<n.gx||(m.gx===n.gx&&m.gy<n.gy))continue;const [x0,y0]=stScr(n),[x1,y1]=stScr(m);if(Math.max(x0,x1)<0||Math.min(x0,x1)>W||Math.max(y0,y1)<stView.y0||Math.min(y0,y1)>stView.y0+stView.h)continue;
+  const a=stLv(n.k)>0,b2=stLv(k)>0,c=a&&b2?(n.b!=null&&n.b>=0?n.c:m.c):a||b2?'#6a5e78':'#2e2638';ctx.fillStyle=c;
+  if(y0===y1)ctx.fillRect(Math.min(x0,x1),y0,Math.abs(x1-x0),a&&b2?2:1);else ctx.fillRect(x0,Math.min(y0,y1),a&&b2?2:1,Math.abs(y1-y0));}
+ // branch names in their regions
+ STB.forEach((B,b)=>{const a=b*Math.PI/4-Math.PI/2,[x,y]=stScr({x:Math.cos(a)*9.6*1.35*STG.dx,y:Math.sin(a)*8.2*STG.dy});const ly=SKT.zoom<.8?clamp(y-2,stView.y0+3,stView.y0+stView.h-9):y-2;txt(B.n,x-Math.round(txtW(B.n)/2),ly,shade(B.c,-.15));});
+ // nodes
+ for(const n of SKT.nodes){const [x,y]=stScr(n);if(x<-12||x>W+12||y<stView.y0-12||y>stView.y0+stView.h+12)continue;const lv=stLv(n.k),open=stOpen(n),can=open&&lv<n.max&&meta.sen>=stCost(n),r=stR(n),full=lv>=n.max;
+  ctx.fillStyle='#07040a';ctx.fillRect(x-r-1,y-r-1,r*2+3,r*2+3);
+  if(n.big||n.mid){ // framed: an outer ring in the branch colour, the core lit once owned
+   ctx.fillStyle=full?n.c:open?shade(n.c,-.35):'#3a3044';ctx.fillRect(x-r,y-r,r*2+1,r*2+1);ctx.fillStyle='#14101a';ctx.fillRect(x-r+1,y-r+1,r*2-1,r*2-1);
+   ctx.fillStyle=full?n.c:open?'#3a3044':'#1e1826';ctx.fillRect(x-r+2,y-r+2,r*2-3,r*2-3);
+   if(n.big&&SKT.zoom>.8){ctx.fillStyle=full?shade(n.c,-.6):'#14101a';ctx.fillRect(x-r+2,y-r+2,r*2-3,r*2-3);const ic=ksIcon(n.n,n.c,full||open);if(ic){if(!full&&!open)ctx.globalAlpha=.5;ctx.drawImage(ic,x-5,y-5);ctx.globalAlpha=1;}} // the keystone's picture
+   if(full&&n.big){ctx.globalAlpha=.25+.15*Math.sin(time*3);ctx.fillStyle=n.c;ctx.fillRect(x-r-3,y-r-3,r*2+7,r*2+7);ctx.globalAlpha=1;}}
+  else{ctx.fillStyle=full?n.c:lv?shade(n.c,-.25):open?'#4a3e58':'#241c2c';ctx.fillRect(x-r,y-r,r*2+1,r*2+1);
+   if(n.old&&n.max>1&&lv>0&&lv<n.max){ctx.fillStyle='#14101a';ctx.fillRect(x-r,y-r,r*2+1,r*2+1);ctx.fillStyle=n.c;ctx.fillRect(x-r,y+r+1-Math.max(1,Math.round((r*2+1)*lv/n.max)),r*2+1,Math.max(1,Math.round((r*2+1)*lv/n.max)));}}
+  if(can&&Math.floor(time*3)%2){ctx.fillStyle=JADEC;ctx.fillRect(x-r-1,y-r-2,r*2+3,1);ctx.fillRect(x-r-1,y+r+2,r*2+3,1);}
+  if(n.k===SKT.sel){const R2=r+3;ctx.fillStyle='#fff';ctx.fillRect(x-R2,y-R2,3,1);ctx.fillRect(x-R2,y-R2,1,3);ctx.fillRect(x+R2-2,y-R2,3,1);ctx.fillRect(x+R2,y-R2,1,3);ctx.fillRect(x-R2,y+R2,3,1);ctx.fillRect(x-R2,y+R2-2,1,3);ctx.fillRect(x+R2-2,y+R2,3,1);ctx.fillRect(x+R2,y+R2-2,1,3);}}
+ if(SKT.zoom>.8)
+ // the whole grid in miniature, top-right: owned nodes lit, keystones as bigger dots, the view as a frame
+ {const k=.11,ox=stView.x0+stView.w-30,oy=stView.y0+20;ctx.fillStyle='rgba(6,3,10,.9)';ctx.fillRect(ox-28,oy-17,57,34);
+  for(const n of SKT.nodes){ctx.fillStyle=stLv(n.k)>0?n.c:n.big?'#5a4e68':'#2e2638';const s2=n.big?2:1;ctx.fillRect(Math.round(ox+n.x*k),Math.round(oy+n.y*k),s2,s2);}
   ctx.fillStyle='rgba(255,255,255,.5)';const fx0=Math.round(ox+(SKT.cam.x-stView.w/2)*k),fy0=Math.round(oy+(SKT.cam.y-stView.h/2)*k),fw=Math.round(stView.w*k),fh=Math.round(stView.h*k);
   ctx.fillRect(fx0,fy0,fw,1);ctx.fillRect(fx0,fy0+fh,fw,1);ctx.fillRect(fx0,fy0,1,fh);ctx.fillRect(fx0+fw,fy0,1,fh);}
- ctx.restore();
+ ctx.restore();ctx.fillStyle='#3a2e44';ctx.fillRect(stView.x0,stView.y0+stView.h,stView.w,1);
  // details
- const n=sel,lv=stLv(n.k),mx=lv>=n.max,open=stOpen(n);ctx.fillStyle='rgba(20,12,26,.95)';ctx.fillRect(6,138,W-12,32);ctx.fillStyle=n.c;ctx.fillRect(6,138,2,32);
- txt(n.n+(n.max>1?'  '+lv+'/'+n.max:'')+(n.big&&n.k!=='root'?'  KEYSTONE':''),12,141,n.c);
+ const n=sel,lv=stLv(n.k),mx=lv>=n.max,open=stOpen(n),ways=SKT.adj[n.k].length;ctx.fillStyle='rgba(20,12,26,.95)';ctx.fillRect(6,138,W-12,32);ctx.fillStyle=n.c;ctx.fillRect(6,138,2,32);
+ const kind=n.free?'':n.big?'  KEYSTONE':n.mid?'  NOTABLE':'';txt(n.n+(n.max>1?'  '+lv+'/'+n.max:'')+kind,12,141,n.c);
  const words=n.d.split(' ');let line='',ly=150;for(const w of words){if(txtW(line+w)>W-30){txt(line,12,ly,'#ddd');ly+=8;line='';}line+=w+' ';}txt(line,12,ly,'#ddd');
- const s=mx?'OWNED':!open?'LOCKED':stCost(n)+' GOLD';txt(s,W-12-txtW(s),141,mx?'#6f6':!open?'#c55':meta.sen>=stCost(n)?'#fc4':'#666');
- ctxt('ARROWS MOVE   ENTER BUY   '+(treeFrom==='hub'?'ESC BACK':'TAB CHARACTERS   ESC BACK'),H-7,'#666');};
-// arrow keys: jump to the nearest node in that direction (a linked one if there is one)
-function stMove(dx,dy){const s=SKT.byK[SKT.sel];let best=null,bs=1e9;for(const n of SKT.nodes){if(n===s)continue;const vx=n.x-s.x,vy=n.y-s.y,d=Math.hypot(vx,vy);if(d<1)continue;const dot=(vx*dx+vy*dy)/d;if(dot<.5)continue;
-  const sc=d*(2-dot)*(SKT.adj[s.k].includes(n.k)?.6:1);if(sc<bs){bs=sc;best=n;}}if(best){SKT.sel=best.k;sfx('coin');}}
-upgradesKey=function(c){if(c==='ArrowUp'||c==='KeyW')stMove(0,-1);else if(c==='ArrowDown'||c==='KeyS')stMove(0,1);else if(c==='ArrowLeft'||c==='KeyA')stMove(-1,0);else if(c==='ArrowRight'||c==='KeyD')stMove(1,0);
+ if(n.big&&!n.free)txt(ways+' PATHS LEAD HERE',12,ly+8,'#888');
+ const s=mx?'OWNED':!open?'LOCKED':stCost(n)+' JADE';txt(s,W-12-txtW(s),141,mx?'#6f6':!open?'#c55':meta.sen>=stCost(n)?JADEC:'#666');
+ ctxt((SKT.zt<1?'OVERVIEW: CLICK A NODE OR Z TO ZOOM IN':'WASD MOVE   ENTER BUY   Z OVERVIEW')+'   '+(treeFrom==='hub'?'ESC BACK':'TAB CHARACTERS   ESC BACK'),H-7,'#666');};
+// arrow keys: step to the grid neighbour in that direction (linked first), or the nearest node that way
+function stMove(dx,dy){const s=SKT.byK[SKT.sel];for(const k of SKT.adj[s.k]){const m=SKT.byK[k];if(m.gx-s.gx===dx&&m.gy-s.gy===dy){SKT.sel=k;sfx('coin');return;}}
+ let best=null,bs=1e9;for(const n of SKT.nodes){if(n===s)continue;const vx=n.gx-s.gx,vy=n.gy-s.gy,d=Math.hypot(vx,vy),dot=(vx*dx+vy*dy)/d;if(dot<.7)continue;const sc=d*(2-dot);if(sc<bs){bs=sc;best=n;}}if(best){SKT.sel=best.k;sfx('coin');}}
+upgradesKey=function(c){if(c==='KeyZ'){SKT.zt=SKT.zt<1?1:.42;sfx('coin');return;}if(c==='ArrowUp'||c==='KeyW')stMove(0,-1);else if(c==='ArrowDown'||c==='KeyS')stMove(0,1);else if(c==='ArrowLeft'||c==='KeyA')stMove(-1,0);else if(c==='ArrowRight'||c==='KeyD')stMove(1,0);
  else if(c==='Enter'||c==='Space')stBuy(SKT.byK[SKT.sel]);else if(c==='Escape'||c==='Tab'){if(treeFrom==='hub'){mode='hub';selTab=0;}else selTab=0;sfx('coin');}};
 // the hub's summary: affordable nodes and progress per branch
 function skillHubSummary(row){const avail=SKT.nodes.filter(n=>stOpen(n)&&stLv(n.k)<n.max&&meta.sen>=stCost(n)).length;
  row(2,117,'TEMPLE SKILL TREE',avail?avail+' NODE'+(avail>1?'S':'')+' AFFORDABLE':'ENTER TO VIEW',avail?'#ffd040':'#ddd');
  STB.forEach((B,b)=>{const x=20+b*36,ns=SKT.nodes.filter(n=>n.b===b),own=ns.filter(n=>stLv(n.k)>0).length;txt(B.n.slice(0,6),x,130,B.c);ctx.fillStyle='#2a2034';ctx.fillRect(x,139,30,3);ctx.fillStyle=B.c;ctx.fillRect(x,139,Math.round(30*own/ns.length),3);txt(own+'/'+ns.length,x,146,'#888');});
  const ks=SKT.nodes.filter(n=>n.big&&n.k!=='root'&&stLv(n.k)>0).map(n=>n.n);txt(ks.length?('KEYSTONES: '+ks.join(', ')).slice(0,70):'KEYSTONES: NONE YET',20,156,'#aaa');}
+
+// the mouse wheel on the tree: zoom out to the whole grid, or back in
+cv.addEventListener('wheel',e=>{if(mode==='select'&&selTab===1){SKT.zt=e.deltaY>0?.42:1;e.preventDefault();}},{passive:false});
+
+// ---------------------------------------------------------------- keystone icons: a picture of what each one does
+const KSICON={
+ 'TEMPLE GATE':['rrrrrrrrrrr','.rrrrrrrrr.','..r.....r..','rrrrrrrrrrr','..r.....r..','..r.....r..','..r.....r..','..r.....r..','..r.....r..','.ddd...ddd.','...........'],
+ 'BERSERKER':['..rr...rr..','.rrrr.rrrr.','rrwrrrrrrrr','rrrrrwrrrrr','rrrrwrrrrrr','.rrrrwrrrr.','..rrrrwrr..','...rrrrr...','....rrr....','.....r.....','...........'],
+ 'EXECUTIONER':['..kkk......','.kwwwkoo...','kwwwwwkoo..','kwwwwwkoo..','kwwwwwkoo..','.kwwwkoo...','..kkk.oo...','......oo...','......oo...','......oo...','.....oooo..'],
+ 'IAIDO MASTER':['.........w.','........wk.','.......wk..','......wk...','.....wk....','....wk.....','...yy......','..ry.......','.rd........','rd.........','...........'],
+ 'BLADE DANCE':['...aaaaa...','.aa.....a..','.a......kw.','a......wk.a','a.....wk..a','a....wk...a','a...yy....a','.a.ry....a.','..rd....aa.','...aaaaa...','...........'],
+ 'MOMENTUM':['...........','a....a.....','aa...aa....','.aa...aa...','..aa...aa..','...aa...aa.','..aa...aa..','.aa...aa...','aa...aa....','a....a.....','...........'],
+ 'TIME WEAVER':['yyyyyyyyyyy','.wbbbbbbbw.','..wbbbbbw..','...wbbbw...','....wbw....','.....w.....','....w.w....','...w...w...','..w..b..w..','.w..bbb..w.','yyyyyyyyyyy'],
+ 'OVERCHANNEL':['.....a.....','.a...a...a.','..a..a..a..','...aawaa...','....www....','aaawwwwwaaa','....www....','...aawaa...','..a..a..a..','.a...a...a.','.....a.....'],
+ 'ECHO MIND':['...........','..aaaaaaa..','.a.......a.','a..aaaaa..a','a.a.....a.a','a.a..w..a.a','a.a.....a.a','a..aaaaa..a','.a.......a.','..aaaaaaa..','...........'],
+ 'COLOSSUS':['kkkkkkkkkkk','kaaaawaaaak','kaaaawaaaak','kwwwwwwwwwk','kaaaawaaaak','.kaaawaaak.','.kaaawaaak.','..kaawaak..','...kawak...','....kkk....','.....k.....'],
+ 'UNDYING':['...wwwww...','..wwwwwww..','.wwwwwwwww.','.wdddwdddw.','.wdddwdddw.','.wwwwdwwww.','..wwwwwww..','...wwwww...','...w.w.w...','...........','...........'],
+ 'GHOST STEP':['...wwwww...','..wwwwwww..','.wwwwwwwww.','.wwdwwwdww.','.wwdwwwdww.','.wwwwwwwww.','.wwwwwwwww.','.wwwwwwwww.','.ww.ww.ww..','.w..w..w...','...........'],
+ 'GRAZE MASTER':['...........','...rrr.....','..rwwwr....','..rwwwr....','..rwwwr....','...rrr.....','.a.......a.','..a.....a..','...aaaaa...','...........','...........'],
+ 'MIDAS':['...ooooo...','..oylllyo..','..oyyyyyo..','...ooooo...','..oyyyyyo..','..oylllyo..','...ooooo...','..oyyyyyo..','..oylllyo..','...ooooo...','...........'],
+ 'TREASURE HUNTER':['...........','.ooooooooo.','oyyyyyyyyyo','oyyyyyyyyyo','ooooolooooo','oyyyylyyyyo','oyyyyyyyyyo','oyyyyyyyyyo','ooooooooooo','...........','...........'],
+ 'EAGLE EYE':['...........','...aaaaa...','.aawwwwwaa.','awwwbbbwwwa','awwbbdbbwwa','awwbdddbwwa','awwbbdbbwwa','awwwbbbwwwa','.aawwwwwaa.','...aaaaa...','...........'],
+ 'MARKED PREY':['.....r.....','...rrrrr...','..r..r..r..','.r...r...r.','.r.......r.','rrrr.w.rrrr','.r.......r.','.r...r...r.','..r..r..r..','...rrrrr...','.....r.....']};
+const KSPAL={w:'#f0f0f0',d:'#2a2030',k:'#8a8a9a',r:'#e03040',y:'#e0b040',l:'#fff0a0',o:'#8a6010',b:'#40a0e0',p:'#c080ff'};
+const KSC={};
+function ksIcon(name,col,owned){const k=name+col+owned;if(KSC[k])return KSC[k];const A=KSICON[name];if(!A)return null;
+ return KSC[k]=mk(11,11,g=>{A.forEach((row,y)=>{for(let x=0;x<11;x++){const ch=row[x];if(ch==='.')continue;let c=ch==='a'?col:KSPAL[ch];if(!owned)c=shade(c,-.45);g.fillStyle=c;g.fillRect(x,y,1,1);}});});}

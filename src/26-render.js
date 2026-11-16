@@ -431,6 +431,10 @@ function drawTooltip(){
 }
 // a gold coin and a revive (a blue spirit flame) for the counters along the bottom
 function hudCoin(x,y){ctx.fillStyle='#7a5a10';ctx.fillRect(x+1,y,5,7);ctx.fillRect(x,y+1,7,5);ctx.fillStyle='#e0b040';ctx.fillRect(x+1,y+1,5,5);ctx.fillStyle='#fff0a0';ctx.fillRect(x+2,y+1,2,1);ctx.fillRect(x+1,y+2,1,2);ctx.fillStyle='#7a5a10';ctx.fillRect(x+3,y+2,1,3);}
+// JADE: the temple's currency for the skill tree (unspent gold turns into jade when a run ends). A green magatama.
+const JADEC='#5fd08a';
+function hudJade(x,y){ctx.fillStyle='#1e5a3a';ctx.fillRect(x+1,y,4,1);ctx.fillRect(x,y+1,6,3);ctx.fillRect(x+1,y+4,5,1);ctx.fillRect(x+3,y+5,3,1);ctx.fillRect(x+4,y+6,1,1);
+ ctx.fillStyle='#5fd08a';ctx.fillRect(x+1,y+1,4,3);ctx.fillRect(x+2,y+4,3,1);ctx.fillStyle='#c8ffd8';ctx.fillRect(x+1,y+1,1,1);ctx.fillStyle='#1e5a3a';ctx.fillRect(x+2,y+2,1,1);}
 function hudRevive(x,y){const f=Math.floor(time*6)%2;ctx.fillStyle='#2a6aa0';ctx.fillRect(x+1,y+3,5,4);ctx.fillRect(x+2,y+1,3,2);ctx.fillRect(x+3-f,y,1,1);ctx.fillStyle='#8cf';ctx.fillRect(x+2,y+3,3,3);ctx.fillRect(x+3,y+2,1,1);ctx.fillStyle='#fff';ctx.fillRect(x+3,y+4,1,2);}
 function drawHUD(){
  syncLMB();
@@ -576,16 +580,8 @@ function renderPlay(){
  {const low=P.hp<S.maxhp*.25?.18+lowPulse*.9:0,a=Math.max(hurtT*1.1,low);if(a>0)vignette('#c01010',Math.min(.6,a));}
  if(introT>0&&introE)drawIntro();
  if(P.dying>0){drawDeathOverlay();return;}
- drawRoomEvents();if(R.training)drawTraining();drawHUD();if(invOpen)drawInv();else if(!paused)drawTooltip();
- if(paused){panel(10,6,W-20,H-12,'PAUSED - ESC TO RESUME');
-  [['MOVE',[KB.up,KB.left,KB.down,KB.right].map(keyName).join(''),'AIM','MOUSE','DASH',keyName(KB.dash),'FOCUS',keyName(KB.focus)],['ATTACK','LMB RMB','ABILITY',[KB.q,KB.w,KB.f].map(keyName).join(' '),'ULT',keyName(KB.e),'HEAL',keyName(KB.heal)],['INTERACT',keyName(KB.use),'BAG ITEM','1-6','PACK',keyName(KB.pack),'SWAP WPN',keyName(KB.swap)]].forEach((row,i)=>{for(let j=0;j<4;j++){const x=18+j*90;txt(row[j*2],x,24+i*9,'#888');txt(row[j*2+1],x+40,24+i*9,'#ddd');}});
-  sep(16,54,W-32);txt('STATS',20,60,'#d02030');txt('PERMANENT, MAX '+STATMAX,48,60,'#666');
-  STATS.forEach((s,i)=>{const b=meta.stats[s.k],r=S.st[s.k]-b;txt(s.n,20,70+i*9,b>=STATMAX?'#fd4':s.c);txt(b+(r?' +'+r:''),82,70+i*9,'#ddd');});
-  txt('POWER '+Math.round(S.atk),20,128,'#ddd');txt('HP '+S.maxhp,20,137,'#ddd');txt('DEF '+S.def,20,146,'#ddd');txt('CRIT '+Math.round(S.crit*100)+'%',70,128,'#ddd');txt('CD -'+Math.round((1-S.cdr)*100)+'%',70,137,'#ddd');txt('DODGE '+Math.round(S.dodge*100)+'%',70,146,'#ddd');
-  txt('GEAR',130,60,'#d02030');['wpn','arm','ring'].forEach((s,i)=>{const g=R.eq[s],y=70+i*22;drawItemIcon(g,130,y);txt(g?g.name.slice(0,30):'NO '+SLOTNAME[s],148,y+1,g?itemCol(g):'#666');if(g)txt(gearLines(g).slice(0,2).join('  ').slice(0,34),148,y+8,'#888');});
-  {const st=P.evo||0;txt('FORM '+(st+1)+'/'+WIZEVO.length+': '+WIZEVO[st].n,130,138,'#ffe060');txt(st<WIZEVO.length-1?'EVOLVES AFTER EACH BOSS':'FINAL FORM',130,146,'#aa9');}
-  setLines().slice(0,1).forEach((l,i)=>txt(l.s.slice(0,44),130,154+i*8,l.c));
-  ctxt('O OPTIONS   K GUIDE   M MUTE'+(R.training?'':'   Q SAVE AND QUIT'),H-14,'#8a8a9a');}
+ drawRoomEvents();if(R.training)drawTraining();if(!paused)drawHUD();if(invOpen)drawInv();else if(!paused)drawTooltip();
+ if(paused)drawPause(); // src/102-menus.js
 }
 // the shared menu backdrop: the emperor's palace on its hill under a sky turned violet by his corruption,
 // a pale moon, the far ridges, embers of the burning town drifting up
@@ -623,16 +619,16 @@ function renderTitle(){
 function renderHub(){
  bg();ctx.fillStyle='rgba(8,4,12,.85)';ctx.fillRect(12,4,296,174);ctx.fillStyle='#d02030';ctx.fillRect(12,4,296,1);ctx.fillRect(12,177,296,1);
  ctxt('HALL OF LANTERNS',8,'#d02030',2);
- txt('GOLD '+meta.sen,18,24,'#fc4');{const s='RUNS '+meta.runs+'  WINS '+meta.wins;txt(s,302-txtW(s),24,'#888');}
+ hudJade(18,23);txt('JADE '+meta.sen,27,24,JADEC);{const s='RUNS '+meta.runs+'  WINS '+meta.wins;txt(s,302-txtW(s),24,'#888');}
  txt(meta.ascMax?'ASCENSION '+meta.asc+'/'+meta.ascMax+' (Q/E)':'WIN A RUN TO UNLOCK ASCENSION',18,32,meta.asc?'#f5a':'#666');{const g=meta.guide||{},n=Object.values(g).reduce((a,o)=>a+Object.keys(o).length,0),s='K: GUIDE ('+n+' FOUND)';txt(s,302-txtW(s),32,'#8cf');}
  sep(16,40,288);
  const row=(i,y,label,right,col)=>{const sel=hubSel===i;if(sel){ctx.fillStyle='rgba(208,32,48,.35)';ctx.fillRect(16,y-2,288,9);}txt((sel?'> ':'  ')+label,18,y,col||'#ddd');if(right)txt(right,302-txtW(right),y,sel?'#fff':'#888');};
- row(0,44,'BEGIN RUN','< '+ROMAN[hubStart]+'. '+DUN[hubStart].name+' >','#fff');
+ row(0,44,'BEGIN RUN',ROMAN[0]+'. '+DUN[0].name,'#fff');
  sep(16,53,288);{const C0=CLS();row(1,56,'CHARACTER',C0.n,C0.col);const sp=heroSpr(C0.k,0);ctx.drawImage(sp.c,0,0,20,24,280,63,20,24);ctx.drawImage(heroSpr(C0.k,9).c,0,0,20,24,258,63,20,24);}
  [...SLOTS].forEach((k,i)=>{const sp=SPELLS[k][CLS().kit[k]];txt((SLOTKEY[k]+'   ').slice(0,4),24,66+i*8,'#888');txt(sp.n,44,66+i*8,sp.c);txt(sp.d.slice(0,32),128,66+i*8,'#777');});
  sep(16,113,288);
  skillHubSummary(row); // the temple skill tree (src/98-skilltree.js)
- const tip=hubSel===0&&meta.asc>0?'ASC '+meta.asc+': FOES +'+meta.asc*15+'% HP, FASTER SHOTS. +'+meta.asc*20+'% GOLD':hubSel===0&&hubStart>0?'STARTING DEEPER GRANTS '+hubStart*2+' RANDOM ITEMS':savedRun()?'C CONTINUE SAVED RUN  O OPTIONS  Y TRAINING':'W/S SELECT  A/D CHANGE  ENTER START  O OPTIONS  Y TRAIN';
+ const tip=hubSel===0&&meta.asc>0?'ASC '+meta.asc+': FOES +'+meta.asc*15+'% HP, FASTER SHOTS. +'+meta.asc*20+'% GOLD':savedRun()?'C CONTINUE SAVED RUN  O OPTIONS  Y TRAINING':'W/S SELECT  A/D CHANGE  ENTER START  O OPTIONS  Y TRAIN';
  ctxt(tip,171,'#aaa');
  if(codexOpen)drawCodex();
 }
