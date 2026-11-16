@@ -109,86 +109,74 @@ const AKA_ANIM={crescent:[['cr1','cr2','cr3'],[0,.55,.75]],rain:[['rn1','rn2'],[
  rush:[['ru1','ru2'],'ph'],stomp:[['st1','st2'],[0,.75]]};
 BART['AKAGANE, THE RED OX']=Object.assign(p=>akaDraw(p,AKA_POSES[p.f===2?'atk':p.f===1?'idle1':'idle0']),{fw:72,fh:76,raw:1,sc:1.1,posed:{draw:akaDraw,poses:AKA_POSES,anim:AKA_ANIM}});
 
-// THE WHITE TIGER: a sacred temple tiger, side on. Layered white fur shaded to ice-blue, ink stripes that wrap the body,
-// the forehead mark, a shimenawa rope with paper streamers and a bronze bell at the neck. Second form (seal broken): the
-// rope snapped and trailing, the fur bristling along the spine, claw scars, burning red eyes and a snarl.
-// pose: dx/dy, b (breath), hip/sh body anchors, hd head offset, mouth (0 shut, 1 snarl, 2 roar), legs {fh,ff,nh,nf}
-// as [[top],[joint],[paw]], tail (list of points from the rump), crouch (flattens the body)
-function tigDraw(p,Q){const {R:R_,E:E_,L:L_}=p,two=ARTHURT,ox=Q.dx||0,oy=Q.dy||0,by=Q.b||0;
+// THE WHITE TIGER, facing you: the great head in front, the ruff and broad chest, two front legs planted, the body and
+// haunches behind, the tail curling up over a shoulder. A shimenawa rope with paper streamers and a bronze bell hangs
+// across the chest. Second form (seal broken): the rope snapped, ruff bristling, scars, red burning eyes, a snarl.
+// pose: dx/dy, b (breath), hd [x,y] head offset, mouth (0 shut, 1 snarl, 2 roar), paw [lx,ly,rx,ry] front paw positions,
+// raise (-1/1: lift that paw with claws out), crouch (lowers the body), tail (points from the rump)
+function tigDraw(p,Q){const {R:R_,E:E_,L:L_}=p,two=ARTHURT,ox=Q.dx||0,oy=Q.dy||0,by=Q.b||0,cr=Q.crouch||0;
  const R=(x,y,w,h,c)=>R_(x+ox,y+oy,w,h,c),E=(x,y,rx,ry,c)=>E_(x+ox,y+oy,rx,ry,c),L=(a,b2,c2,d,c,t)=>L_(a+ox,b2+oy,c2+ox,d+oy,c,t);
  const F0='#1a1e2c',F1='#566a84',F2='#93a9c0',F3='#cad8e2',F4='#eef3f2',F5='#ffffff',INK='#161824',IN2='#2e3448',
-  RP='#c8a458',RP2='#8a6a2c',RP3='#f0d890',PAPER='#f4f0e4',BR='#a06a28',BR2='#e0a848',PINK='#c87888';
- const D={fh:[[30,32],[36,44],[33,55]],ff:[[57,33],[60,45],[62,55]],nh:[[24,33],[30,44],[24,55]],nf:[[51,34],[51,45],[51,55]],tail:[[14,24],[8,22],[4,16],[5,9],[9,5],[13,4]]};
- const hip=Q.hip||[25,28],sh=Q.sh||[53,27],legs=Object.assign({},D,Q.legs||{}),tail=Q.tail||D.tail,crouch=Q.crouch||0;
- const lerp=(a,b,t)=>a+(b-a)*t,RY=9-crouch;
- // a limb: thick upper, slimmer lower, wide paw; stripes ring it
- const limb=(Lg,far)=>{const [[ax,ay],[kx,ky],[px2,py2]]=Lg,c1=far?F1:F2,c2=far?F2:F3,c3=F4;
-  L(ax,ay+by,kx,ky,F0,8);L(kx,ky,px2,py2-2,F0,6);L(ax,ay+by,kx,ky,c1,6);L(kx,ky,px2,py2-2,c1,4);L(ax-1,ay+by,kx-1,ky,c2,3);L(kx-1,ky,px2-1,py2-2,c2,2);
-  if(!far){L(ax-1,ay+by,kx-1,ky,c3,1);L(kx-1,ky,px2-1,py2-3,c3,1);}
-  for(const t of [.3,.65]){const x=lerp(kx,px2,t),y=lerp(ky,py2-2,t);R(x-1,y,3,1,far?F0:INK);}
-  {const x=lerp(ax,kx,.55),y=lerp(ay+by,ky,.55);R(x-2,y,3,1,far?F0:INK);R(x-1,y+2,3,1,far?F0:INK);}
-  E(px2+1,py2,4,2,F0);E(px2+1,py2-1,3,1,far?F2:F4);R(px2+2,py2,1,1,F1);R(px2+4,py2,1,1,F1);if(!far)R(px2-1,py2-2,3,1,F5);};
- // tail (behind everything): banded, dark tip
- const tw=i=>Math.max(2,3-Math.floor(i/3));
- for(let i=0;i<tail.length-1;i++){const [x0,y0]=tail[i],[x1,y1]=tail[i+1];L(x0,y0+by,x1,y1+by,F0,tw(i)+2);}
- for(let i=0;i<tail.length-1;i++){const [x0,y0]=tail[i],[x1,y1]=tail[i+1],tip=i>=tail.length-2;L(x0,y0+by,x1,y1+by,tip?INK:F3,tw(i));if(!tip){L(x0,y0+by,x1,y1+by,F4,1);const mx=(x0+x1)/2,my=(y0+y1)/2+by;R(mx-1,my-1,3,2,INK);}}
- limb(legs.fh,1);limb(legs.ff,1);
- // body: a shaded capsule from haunch to chest
- const cap=(s2,offy,c)=>{for(let i=0;i<=12;i++){const t=i/12,x=lerp(hip[0],sh[0],t),y=lerp(hip[1],sh[1],t)+by,r=lerp(10,11,t)-s2;if(r<1)continue;E(x,y+offy,r+3,Math.max(1,RY+lerp(0,1,t)-s2),c);}};
- cap(-1,0,F0);cap(0,0,F1);cap(1.2,-1,F2);cap(3,-2,F3);cap(5.5,-3,F4);
- const top=t=>Math.round(lerp(hip[1],sh[1],t)+by-RY-lerp(0,1,t))+1,bot=t=>Math.round(lerp(hip[1],sh[1],t)+by+RY+lerp(0,1,t));
- for(let i=1;i<12;i++){const t=i/12,x=lerp(hip[0],sh[0],t);R(x-2,top(t),4,1,F5);}
- // belly: soft pale fur hanging under, tufted
- for(let x=hip[0]+6;x<sh[0]-3;x+=3){const t=(x-hip[0])/(sh[0]-hip[0]),y=bot(t);R(x,y-2,3,2,F3);R(x+1,y,1,1,F2);}
- // haunch and shoulder masses
- E(hip[0],hip[1]+by,8,8,F2);E(hip[0]-1,hip[1]+by-1,6,6,F3);E(hip[0]-2,hip[1]+by-3,4,3,F4);
- E(sh[0],sh[1]+by+1,7,8,F2);E(sh[0]-1,sh[1]+by-1,5,6,F3);E(sh[0]-2,sh[1]+by-3,3,3,F4);
- // stripes: wavy, tapered, some forked, running from the spine down the flank
- const SP=[[.12,14,-5,0,0],[.22,7,-3,0,3],[.31,12,-4,1,1],[.44,15,-3,0,0],[.53,6,-2,0,4],[.62,12,-2,1,1],[.74,13,-1,0,0],[.86,8,1,0,2]];
- for(const [t,len,lean,fork,dn] of SP){const x=Math.round(lerp(hip[0],sh[0],t)),y=top(t)+dn;
-  for(let k=0;k<len;k++){const q=k/len,xx=x+Math.round(lean*q*q),w=q<.55?2:1;R(xx,y+k,w,1,INK);}
-  if(fork){L(x+1,y+4,x+4,y+8,INK,1);}R(x+2,y,1,3,IN2);}
- // haunch: rings of stripe around the thigh
- for(const [a,r] of [[-2.2,7],[-1.3,7],[2.6,6]])L(hip[0]+Math.cos(a)*r,hip[1]+by+Math.sin(a)*r,hip[0]+Math.cos(a)*(r-4),hip[1]+by+Math.sin(a)*(r-4),INK,1);
- if(two){for(let i=0;i<10;i++){const t=.05+i*.085,x=Math.round(lerp(hip[0],sh[0],t)),y=top(t),h=2+(i%3);L(x,y,x-2,y-h,F3,1);R(x-2,y-h,1,1,F5);}
-  for(const [x,y] of [[33,24],[36,23],[39,24]])L(x,y+by,x-3,y+7+by,'#c02830',1);}
- limb(legs.nh,0);limb(legs.nf,0);
- // head
- const hx=sh[0]+13+(Q.hd?Q.hd[0]:0),hy=sh[1]-7+by+(Q.hd?Q.hd[1]:0),m=Q.mouth||0;
- // neck and ruff
- E(hx-7,hy+5,8,8,F0);E(hx-7,hy+5,7,7,F2);E(hx-7,hy+3,5,4,F3);
- // ears: dark backs with the white spot
- E(hx-1,hy-8,3,3,F0);E(hx-1,hy-8,2,2,F1);E(hx-6,hy-7,4,4,F0);E(hx-6,hy-7,3,3,F1);R(hx-7,hy-8,2,2,F5);R(hx-5,hy-6,1,1,PINK);
- // skull
- E(hx,hy,10,8,F0);E(hx,hy,9,7,F3);E(hx+1,hy-2,7,5,F4);R(hx-3,hy-6,7,1,F5);
- // sideburns sweeping back
- for(let i=0;i<4;i++){L(hx-6,hy+2+i*2,hx-12,hy+3+i*3,F0,2);L(hx-6,hy+2+i*2,hx-11,hy+3+i*3,i%2?F3:F4,1);}
- // forehead mark and cheek stripes
- R(hx-1,hy-6,5,1,INK);R(hx-1,hy-4,5,1,INK);R(hx+1,hy-6,1,4,INK);
- L(hx-7,hy-1,hx-3,hy,INK,1);L(hx-7,hy+2,hx-3,hy+3,INK,1);L(hx-6,hy+5,hx-3,hy+5,INK,1);
- // eye
- const eye=two?'#ff4030':'#8ae8ff';R(hx+2,hy-1,6,3,INK);R(hx+3,hy-1,4,2,eye);R(hx+5,hy-1,1,2,INK);R(hx+3,hy-1,1,1,F5);R(hx+2,hy-2,6,1,F1);
- if(two){L(hx+1,hy,hx-6,hy-2,'#ff4030',1);R(hx-8,hy-3,2,1,'#ff9060');}
- // muzzle, nose, whisker pad, jaw
- const jy=m===2?4:m===1?2:0;
- E(hx+8,hy+3,6,4,F0);E(hx+8,hy+3,5,3,F4);R(hx+6,hy+1,5,1,F5);R(hx+12,hy,3,2,PINK);R(hx+13,hy+2,2,1,F0);
- for(const [x,y] of [[hx+7,hy+3],[hx+9,hy+4],[hx+7,hy+5]])R(x,y,1,1,F1);
- L(hx+4,hy+3,hx-2,hy+2,F5,1);L(hx+4,hy+5,hx-1,hy+6,F5,1);
- if(m){R(hx+3,hy+5,11,2+jy,INK);R(hx+4,hy+6,9,jy,'#6a1820');R(hx+11,hy+5,1,2,F5);R(hx+5,hy+5,1,2,F5);if(m===2){R(hx+11,hy+5+jy,1,2,F5);R(hx+6,hy+5+jy,1,2,F5);}
-  E(hx+7,hy+8+jy,5,2,F0);E(hx+7,hy+8+jy,4,1,F3);}
- else{L(hx+6,hy+6,hx+12,hy+4,INK,1);E(hx+6,hy+8,4,2,F3);}
- // shimenawa: the sacred rope at the neck, paper streamers and a bronze bell; snapped in the second form
- const rope=(x0,y0,x1,y1)=>{const n=Math.round(Math.hypot(x1-x0,y1-y0)/2);for(let i=0;i<=n;i++){const x=lerp(x0,x1,i/n),y=lerp(y0,y1,i/n);R(x-1,y-1,3,3,F0);}
-  for(let i=0;i<=n;i++){const x=lerp(x0,x1,i/n),y=lerp(y0,y1,i/n);R(x-1,y,3,2,i%2?RP2:RP);R(x,y,1,1,RP3);}};
+  RP='#c8a458',RP2='#8a6a2c',RP3='#f0d890',PAPER='#f4f0e4',BR='#a06a28',BR2='#e0a848',PINK='#d88898',EYE=two?'#ff4030':'#8ae8ff';
+ const cx=38,top=by+cr,tail=(Q.tail||[[50,30],[58,24],[62,16],[61,8],[57,4],[53,5]]).map(([x,y])=>[76-x,y]);
+ // tail behind the right shoulder: banded, dark tip
+ for(let i=0;i<tail.length-1;i++){const [x0,y0]=tail[i],[x1,y1]=tail[i+1];L(x0,y0+top,x1,y1+top,F0,5);}
+ for(let i=0;i<tail.length-1;i++){const [x0,y0]=tail[i],[x1,y1]=tail[i+1],tip=i>=tail.length-2;L(x0,y0+top,x1,y1+top,tip?INK:F3,3);
+  if(!tip){L(x0-1,y0+top,x1-1,y1+top,F4,1);R((x0+x1)/2-1,(y0+y1)/2+top-1,3,2,INK);}}
+ // the back and haunches behind, in shadow
+ E(cx,31+top,22,9,F0);E(cx,31+top,21,8,F1);E(cx-2,28+top,17,5,F2);R(cx-12,24+top,20,1,F3);
+ for(const x of [-14,-7,0,7,14])L(cx+x,24+top+Math.abs(x)*.15,cx+x+(x<0?-2:2),31+top,INK,1);
+ for(const s of [-1,1]){const hx=cx+s*19;E(hx,42+top,7,10,F0);E(hx,42+top,6,9,s<0?F2:F1);E(hx-s,39+top,3,4,s<0?F3:F2);L(hx-3,38+top,hx+3,41+top,INK,1);L(hx-3,44+top,hx+3,46+top,INK,1);
+  // hind paws, further back
+  E(hx,56,5,2,F0);E(hx,55,4,2,s<0?F2:F1);R(hx-2,56,1,1,F0);R(hx+1,56,1,1,F0);}
+ // shoulders and chest
+ for(const s of [-1,1]){const sx=cx+s*11;E(sx,35+top,10,10,F0);E(sx,35+top,9,9,s<0?F3:F2);E(sx-s*2,32+top,5,5,s<0?F4:F3);L(sx+s*5,38+top,sx+s*9,40+top,INK,1);}
+ E(cx,38+top,9,9,F0);E(cx,38+top,8,8,F4);E(cx-2,35+top,4,4,F5);
+ for(let i=0;i<3;i++){const y=42+top+i*2;R(cx-4+(i%2)*2,y,2,2,F3);R(cx+2-(i%2)*2,y,2,2,F3);}
+ // front legs: planted, or one lifted with the claws out
+ const paw=Q.paw||[cx-12,59,cx+12,59];
+ const leg=(s,px2,py2)=>{const sx=cx+s*10,lit=s<0;L(sx,40+top,px2,py2-3,F0,10);L(sx,40+top,px2,py2-3,lit?F3:F2,8);L(sx-1,40+top,px2-1,py2-3,lit?F4:F3,4);
+  for(const t of [.3,.62]){const x=sx+(px2-sx)*t,y=40+top+(py2-3-40-top)*t;R(s<0?x-4:x+1,y,3,2,INK);}
+  E(px2,py2,6,3,F0);E(px2,py2-1,5,2,lit?F4:F3);for(const k of [-3,0,3])R(px2+k,py2,1,2,F1);};
+ leg(-1,paw[0],paw[1]);
+ if(Q.raise===1){const px2=paw[2],py2=paw[3];L(cx+10,38+top,px2,py2+3,F0,10);L(cx+10,38+top,px2,py2+3,F3,8);L(cx+9,38+top,px2-1,py2+3,F4,3);R(cx+13,30+top,3,2,INK);R(cx+15,24+top,3,2,INK);
+  E(px2,py2,6,5,F0);E(px2,py2,5,4,F4);R(px2-3,py2+1,6,2,PINK);for(const k of [-4,-1,2,5]){L(px2+k,py2-4,px2+k+(k>0?1:-1),py2-8,F0,2);L(px2+k,py2-5,px2+k+(k>0?1:-1),py2-8,F5,1);}}
+ else leg(1,paw[2],paw[3]);
+ // the rope across the chest, paper streamers, the bell; snapped in the second form
+ const rope=(x0,y0,x1,y1,sag)=>{const n=12;let px2=null;for(let i=0;i<=n;i++){const t=i/n,x=x0+(x1-x0)*t,y=y0+(y1-y0)*t+Math.sin(t*Math.PI)*sag;R(x-1,y-1,3,4,F0);}
+  for(let i=0;i<=n;i++){const t=i/n,x=x0+(x1-x0)*t,y=y0+(y1-y0)*t+Math.sin(t*Math.PI)*sag;R(x-1,y,3,2,i%2?RP2:RP);R(x,y,1,1,RP3);}};
  const shide=(x,y)=>{R(x,y,3,2,PAPER);R(x+1,y+2,3,2,PAPER);R(x,y+4,3,2,PAPER);R(x+1,y+6,2,1,PAPER);R(x+1,y+2,1,1,'#c8c0a8');};
- if(!two){rope(hx-11,hy-5,hx-5,hy+10);shide(hx-12,hy+2);shide(hx-7,hy+11);E(hx-4,hy+13,3,3,F0);E(hx-4,hy+13,2,2,BR);R(hx-5,hy+12,2,1,BR2);R(hx-4,hy+15,1,1,F0);}
- else{rope(hx-11,hy-5,hx-8,hy+3);L(hx-8,hy+4,hx-12,hy+9,RP2,2);L(hx-12,hy+9,hx-14,hy+9,RP3,1);L(hx-12,hy+9,hx-13,hy+12,RP,1);R(hx-6,hy+6,2,3,PAPER);}
+ if(!two){rope(cx-15,31+top,cx+15,31+top,6);shide(cx-10,36+top);shide(cx+8,36+top);E(cx,40+top,3,3,F0);E(cx,40+top,2,2,BR);R(cx-1,39+top,2,1,BR2);R(cx,42+top,1,1,F0);}
+ else{rope(cx-15,31+top,cx-3,36+top,1);L(cx-3,37+top,cx-1,43+top,RP2,2);L(cx-1,43+top,cx-2,46+top,RP3,1);R(cx+12,32+top,3,2,RP);R(cx+14,34+top,2,3,RP2);shide(cx-11,35+top);}
+ // the head
+ const hx=cx+(Q.hd?Q.hd[0]:0),hy=18+by+(Q.hd?Q.hd[1]:0)+Math.round(cr*.6),m=Q.mouth||0;
+ // ruff flaring out to the sides
+ for(const s of [-1,1]){for(let i=0;i<4;i++){const y=hy+i*3,len=two?16:14;L(hx+s*9,y,hx+s*(len+(i===1?1:0)),y+3,F0,5);L(hx+s*9,y,hx+s*(len-1+(i===1?1:0)),y+3,(s<0)?(i%2?F3:F4):(i%2?F2:F3),3);}
+  if(two)for(let i=0;i<3;i++){const y=hy+i*3+1;R(hx+s*17-(s<0?1:0),y+2,2,1,F4);}}
+ // ears: white inner fur, dark rims and backs
+ for(const s of [-1,1]){const ex=hx+s*10,ey=hy-10;E(ex,ey,4,4,F0);E(ex,ey,3,3,INK);E(ex,ey+1,2,2,F4);R(ex-1+(s>0?0:0),ey+1,2,1,PINK);}
+ // skull
+ E(hx,hy,13,11,F0);E(hx,hy,12,10,F3);E(hx-1,hy-2,10,7,F4);R(hx-5,hy-9,9,1,F5);
+ // forehead mark and brow stripes
+ R(hx-2,hy-7,5,1,INK);R(hx-2,hy-5,5,1,INK);R(hx,hy-7,1,4,INK);R(hx-2,hy-3,5,1,IN2);
+ for(const s of [-1,1]){L(hx+s*4,hy-6,hx+s*8,hy-4,INK,1);L(hx+s*8,hy+1,hx+s*11,hy+2,INK,2);L(hx+s*7,hy+5,hx+s*10,hy+6,INK,1);}
+ // eyes
+ for(const s of [-1,1]){const ex=hx+s*6-(s<0?3:0);R(ex,hy-1,4,3,INK);R(ex+(s<0?1:0),hy-1,3,2,EYE);R(ex+(s<0?2:1),hy-1,1,2,INK);R(ex+(s<0?1:2),hy-1,1,1,F5);R(ex-1,hy-2,6,1,F1);
+  if(two)R(ex+(s<0?1:0),hy-2,3,1,'#ff9070');}
+ // muzzle: nose, whisker pads, jaw
+ E(hx,hy+5,7,5,F0);E(hx-3,hy+5,4,3,F5);E(hx+3,hy+5,4,3,F4);R(hx-2,hy+2,5,2,PINK);R(hx-1,hy+4,3,1,PINK);R(hx-1,hy+2,1,1,'#ffc0c8');R(hx,hy+5,1,2,INK);
+ for(const [x,y] of [[-4,5],[-2,6],[2,6],[4,5]])R(hx+x,hy+y,1,1,F1);
+ for(const s of [-1,1]){L(hx+s*6,hy+5,hx+s*10,hy+5,F5,1);L(hx+s*6,hy+7,hx+s*9,hy+8,F4,1);}
+ if(m){const jy=m===2?5:3;R(hx-4,hy+7,9,jy,INK);R(hx-3,hy+8,7,jy-1,'#6a1820');R(hx-3,hy+7,1,2,F5);R(hx+3,hy+7,1,2,F5);if(m===2){R(hx-3,hy+6+jy,1,2,F5);R(hx+3,hy+6+jy,1,2,F5);}
+  E(hx,hy+9+jy,5,2,F0);E(hx,hy+9+jy,4,1,F4);}
+ else{R(hx-3,hy+8,3,1,INK);R(hx+1,hy+8,3,1,INK);E(hx,hy+10,4,2,F4);}
+ if(two){L(hx+5,hy-6,hx+8,hy+2,'#9a1820',1);L(hx+7,hy-6,hx+10,hy+1,'#9a1820',1);}
 }
 const TIG_POSES={
  idle0:{},
- idle1:{b:1,tail:[[14,25],[8,23],[4,17],[4,10],[7,6],[11,4]]},
- atk:{mouth:2,hd:[1,-2],sh:[54,24],legs:{nf:[[51,31],[59,39],[64,47]],ff:[[57,30],[65,37],[70,43]]},tail:[[14,23],[8,23],[3,20],[1,14],[2,9],[5,6]]}};
-BART['THE WHITE TIGER']=Object.assign(p=>tigDraw(p,TIG_POSES[p.f===2?'atk':p.f===1?'idle1':'idle0']),{fw:92,fh:60,raw:1,sc:1,posed:{draw:tigDraw,poses:TIG_POSES,anim:{},roar:'atk'}});
+ idle1:{b:1,tail:[[50,30],[58,25],[63,18],[63,10],[59,5],[55,5]]},
+ atk:{mouth:2,hd:[-2,-1],dy:-1,raise:1,paw:[26,60,60,14],tail:[[50,30],[59,27],[65,21],[67,13],[65,7],[61,6]]}};
+BART['THE WHITE TIGER']=Object.assign(p=>tigDraw(p,TIG_POSES[p.f===2?'atk':p.f===1?'idle1':'idle0']),{fw:76,fh:64,raw:1,sc:1.05,posed:{draw:tigDraw,poses:TIG_POSES,anim:{},roar:'atk'}});
 
 // ---- the posed sheet: idle, breathing and attack frames first (so everything that reads frames 0-2 still works),
 // then every pose, and a picker that plays the right frames for the attack under way
