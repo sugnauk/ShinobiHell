@@ -233,7 +233,8 @@ BOSS[1].r=12;BOSS[1].spd=46;
 // of its stage (about 90-230), assuming you are shooting ~60% of the time, minus the time its event and storm keep it
 // invulnerable, and allowing for its own shields (Hotaru's lanterns, the spider's ceiling, Tetsuo's armour, the Abbot's monks).
 // Targets: Akagane ~70s, about 10s longer for each boss after, the Emperor ~3 min.
-{const HPT=[2400,2600,2000,2900,4300,3300,3000,12300,10800,11000,10500,25000];BOSS.forEach((b,i)=>{b.hp=Math.round(HPT[i]/BOSSHP);});}
+{const HPT=[4800,5200,4000,5800,8600,6600,6000,24600,21600,22000,21000,50000]; // doubled in 0.6.6 (bosses felt too short)
+ BOSS.forEach((b,i)=>{b.hp=Math.round(HPT[i]/BOSSHP);});}
 // stage story lines follow their new guardians
 DUN[4].story='THE RONIN SEVEN HOLD THE PASS WAYSTATION';DUN[8].story='KAGE WAITS ON THE ROOFS OF THE KEEP';DUN[10].story='THE BLACK HORSE GENERAL GUARDS THE LAST COURT';
 // the abbot fights on a 90 bpm beat: his theme plays at the same tempo

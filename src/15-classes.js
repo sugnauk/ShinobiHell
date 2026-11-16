@@ -205,3 +205,5 @@ function ultBlast(f){
  for(const e of enemies){if(e.dead||e.air)continue;if(los(f.x,f.y,e.x,e.y)&&Math.hypot(e.x-f.x,e.y-f.y)<f.r+e.r){hurtE(e,f.dm||S.atk*7*(1+.25*S.epow)*AP(),f.met?60:170,{slash:true,el:'burn'});if(!e.dead&&!e.boss){e.act=null;e.tele=0;e.stun=f.met?.5:1.2;}}}
  for(const q of projs)if(q.from==='e'&&Math.hypot(q.x-f.x,q.y-f.y)<f.r)q.dead=true;
 }
+// while an ult plays out (up to 6.5s: the Shinobi clones last 6), small freeze-frames from its many hits and stuns are skipped so it never stutters
+{const _u=castUlt;castUlt=function(){const b=P&&P.ab.e;const r=_u.apply(this,arguments);if(P&&P.ab.e!==b)hsCool=Math.max(hsCool,6.5);return r;};}
