@@ -34,3 +34,10 @@ const FLOORART=[
  for(const r of map.rooms){if(r.k!=='room'||!['combat','elite','ambush','challenge'].includes(r.type)||r.w<9||r.h<9)continue;const cx=r.x+r.w/2-.5,cy=r.y+r.h/2-.5;
   floorTiles(r,(x,y,X,Y)=>art(g,r,cx,cy,x,y,X,Y));}
  return M;};}
+
+// ---------- mood: a soft vignette in each stage's own light, drawn under the HUD ----------
+const MOOD=[['#0a1a08',.38],['#08201c',.38],['#0a0614',.6],['#3a0800',.42],['#c8dcf0',.22],['#0a0a10',.34],['#1a0a04',.26],['#000000',.62],['#0a0a14',.32],['#2a0a1a',.2],['#06140e',.26],['#200006',.5]];
+const MOODC={};
+function moodCanvas(di){const key=di+":"+W+"x"+H;if(MOODC[key])return MOODC[key];const [c,a]=MOOD[di]||['#000',.3];return MOODC[key]=mk(W,H,g=>{const gr=g.createRadialGradient(W/2,H/2+6,Math.min(W,H)*.32,W/2,H/2+6,Math.max(W,H)*.66);
+ const h=c.slice(1),n=parseInt(h,16),rgb=(n>>16)+','+((n>>8)&255)+','+(n&255);gr.addColorStop(0,'rgba('+rgb+',0)');gr.addColorStop(1,'rgba('+rgb+','+a+')');g.fillStyle=gr;g.fillRect(0,0,W,H);});}
+{const _dre=drawRoomEvents;drawRoomEvents=function(){_dre.apply(this,arguments);if(map&&!map.train&&R&&MOOD[R.di])ctx.drawImage(moodCanvas(R.di),0,0);};}
