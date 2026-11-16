@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.6.3: patterns, progression and fairness
+## 0.6.4: patterns, progression and fairness
 
 ### Bullet patterns (research-led)
 Every new pattern is built on the basic shmup building blocks: fixed, aimed and random angles, combined into rings, fans and stacks.
