@@ -56,11 +56,11 @@ function castHeavy(){
  const p=P;if(!p||p.ab.h>0||p.stag>0)return;const v=p.lo.h,a=p.aim,bp=BP()*(p.mik>0?1.6:1)*(p.hFull?1.5:1);p.mik=0;p.ab.h=spellCd('h')/S.aspd;
  const fire=a2=>{
   if(v===0){
-   const rr=42*(1+S.rangeM*.5);coneHit(p.x,p.y,a2,rr,1.9,e=>hurtE(e,S.atk*1.5*bp,26,{slash:true,kb:Math.atan2(e.y-p.y,e.x-p.x)}));
+   const rr=42*(1.12+S.rangeM*.6);coneHit(p.x,p.y,a2,rr,1.9,e=>hurtE(e,S.atk*1.5*bp,26,{slash:true,kb:Math.atan2(e.y-p.y,e.x-p.x)}));
    if(p.hFull)for(const q of projs)if(q.from==='e'&&!q.peril&&dist(q,p)<rr+4&&Math.abs(angDiff(Math.atan2(q.y-p.y,q.x-p.x),a2))<1){q.dead=true;spark(q.x,q.y,'#c8f',4,50);}
    fx.push({k:'slash',x:p.x,y:p.y,a:a2,arc:1.9,r:rr,t:.16,dur:.16,col:'#c8f'});sfx('dash');
   }else if(v===3){
-   const rr=58*(1+S.rangeM*.5);coneHit(p.x,p.y,a2,rr,2.5,e=>hurtE(e,S.atk*2.2*bp,34,{slash:true,kb:Math.atan2(e.y-p.y,e.x-p.x)}));
+   const rr=58*(1.12+S.rangeM*.6);coneHit(p.x,p.y,a2,rr,2.5,e=>hurtE(e,S.atk*2.2*bp,34,{slash:true,kb:Math.atan2(e.y-p.y,e.x-p.x)}));
    if(p.hFull)for(const q of projs)if(q.from==='e'&&!q.peril&&dist(q,p)<rr+4&&Math.abs(angDiff(Math.atan2(q.y-p.y,q.x-p.x),a2))<1.3){q.dead=true;spark(q.x,q.y,'#e0f0ff',4,50);}
    projs.push(mkProj('p',p.x+Math.cos(a2)*8,p.y+Math.sin(a2)*8,a2,240,S.atk*1.6*bp,{r:6,pd:16,life:.55*(1+S.rangeM),col:'#e0f0ff',pierce:99,main:true,crescent:1,cut:p.hFull?1:0}));
    fx.push({k:'slash',x:p.x,y:p.y,a:a2,arc:2.5,r:rr,t:.2,dur:.2,col:'#e0f0ff'});fx.push({k:'slash',x:p.x,y:p.y,a:a2,arc:2.2,r:rr-10,t:.16,dur:.16,col:'#8cf'});sfx('dash');shake=Math.max(shake,3);hitstop=Math.max(hitstop,.03);
@@ -131,9 +131,9 @@ function castChain(){
 // R - ultimate
 function castUlt(){
  const p=P;if(!p||p.ab.e>0||p.stag>0)return;const v=p.lo.e,ep=(1+.25*S.epow)*(1+.06*RK());p.ab.e=spellCd('e');
- if(v===0){const mw=mouseWorld();let tx=mw.x,ty=mw.y;const d=Math.hypot(tx-p.x,ty-p.y);if(d>170){tx=p.x+(tx-p.x)/d*170;ty=p.y+(ty-p.y)/d*170;}sfx('boss');fx.push({k:'ult',x:tx,y:ty,t:.9,dur:.9,r:58*Math.sqrt(ep),done:false});}
+ if(v===0){const mw=mouseWorld();let tx=mw.x,ty=mw.y;const d=Math.hypot(tx-p.x,ty-p.y);if(d>240){tx=p.x+(tx-p.x)/d*240;ty=p.y+(ty-p.y)/d*170;}sfx('boss');fx.push({k:'ult',x:tx,y:ty,t:.9,dur:.9,r:58*Math.sqrt(ep),done:false});}
  else if(v===1){p.storm=4*ep;p.stormT=0;p.stormA=p.aim;sfx('boss');setToast('TALISMAN STORM','#ff8a30',1.5);}
- else if(v===3){const mw=mouseWorld();let tx=mw.x,ty=mw.y;const d=Math.hypot(tx-p.x,ty-p.y);if(d>170){tx=p.x+(tx-p.x)/d*170;ty=p.y+(ty-p.y)/d*170;}sfx('boss');setToast('METEOR RAIN','#ff6030',1.5);
+ else if(v===3){const mw=mouseWorld();let tx=mw.x,ty=mw.y;const d=Math.hypot(tx-p.x,ty-p.y);if(d>240){tx=p.x+(tx-p.x)/d*240;ty=p.y+(ty-p.y)/d*170;}sfx('boss');setToast('METEOR RAIN','#ff6030',1.5);
   const n=14+Math.floor(RK()/2);for(let i=0;i<n;i++){const a=Math.random()*TAU,rr=Math.sqrt(Math.random())*85;fx.push({k:'ult',x:tx+Math.cos(a)*rr,y:ty+Math.sin(a)*rr,wait:i*.22,t:.6,dur:.6,r:30*Math.sqrt(ep),col:'#ff6030',dm:S.atk*3.2*ep*AP(),done:false,met:1});}}
  else{freezeT=3.5*(1+.15*S.epow);sfx('boss');setToast('TIME STOPS','#8cf',2);for(const e of enemies)if(!e.dead){e.act=null;e.tele=0;e.air=false;e.z=0;}}
 }

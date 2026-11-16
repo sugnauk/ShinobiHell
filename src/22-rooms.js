@@ -50,7 +50,7 @@ function interact(){
   else applyItem(p.item);}
  else if(p.k==='altar'){if(p.curse)takeCurse(p);else openShrine(p);}
  else if(p.k==='gong'){const r=p.room;if(r.ev&&r.ev.state===0){p.used=true;startChallenge(r);}}
- else if(p.k==='blantern'){if(p.lit>0||p.cd>0){sfx('block');txtFx(p.x,p.y-10,p.lit>0?'ALREADY LIT':'STILL COOLING','#888');return;}p.lit=7;sfx('heal');fxRing(p.x,p.y,24,'#ffe080',.4);setToast('THE LANTERN BURNS - SHE IS DRAWN TO THE LIGHT','#ffe080',2.5);}
+
 }
 // spirit shrines: each belongs to one animal spirit with its own colour, temperament and three offerings
 const bless=(k,n)=>{R.bless=R.bless||{};R.bless[k]=(R.bless[k]||0)+n;S=calcStats();};

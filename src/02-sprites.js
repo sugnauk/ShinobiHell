@@ -49,7 +49,7 @@ function buildWiz(stage){return buildHero(WIZEVO[stage],stage>=9);}
 function buildHero(EV,star,back){const stage=star?9:0;
  const FW=20,FH=24,N=16,C=Object.assign({o:'#14101a',hat:'#2e3a8a',hatL:'#4656b4',band:'#e8c050',skin:'#e0b080',beard:'#eceef6',beardS:'#b8bccc',robe:'#5a2e9a',robeS:'#3e1e70',trim:'#e8c050',staff:'#8a5a2a',staffL:'#b07a40',orb:'#ff8a30',orbL:'#ffe080',boot:'#2a2236'},EV.C);
  const sheet=mk(FW*N,FH,()=>{}),sg=sheet.getContext('2d');
- const CK={staff:'wiz',katana:'sam',bokken:'sam',bow:'arc',kunai:'nin',gohei:'onm'}[EV.wpn||'staff']||'wiz';
+ const CK={staff:'wiz',katana:'sam',bokken:'sam',bow:'arc',kunai:'nin',gohei:'onm',gun:'arc',spear:'sam'}[EV.wpn||'staff']||'wiz';
  for(let f0=0;f0<N;f0++){
   // a class pose (cz) replaces the arms + weapon for this frame; for the wizard the new frames reuse his own poses
   let cz=HPOSE[CK][f0],f=f0;if(typeof cz==='number'){f=cz;cz=null;}
@@ -80,6 +80,8 @@ function buildHero(EV,star,back){const stage=star?9:0;
      if(fx==='pull'){L(hx0,hy0-6,7,2.4,'#e8e8f0');L(hx0,hy0+6,7,-2.4,'#e8e8f0');L(hx0-5,hy0,8,0,'#d8c8a0');R(hx0+3,hy0,1,1,'#e8eef6');R(hx0-6,hy0-1,1,3,'#c02030');} // string drawn back to the chest
      else{R(hx0,hy0-6,1,13,'#e8e8f0');if(fx==='loose'){L(hx0+3,hy0,4,0,'#d8c8a0');R(hx0+7,hy0,1,1,'#e8eef6');R(hx0-2,hy0-2,1,1,'#ffffff');R(hx0-2,hy0+2,1,1,'#ffffff');}
       else if(fx==='nock'){L(hx0-4,hy0+1,6,0,'#d8c8a0');}else if(f===7||f===6)L(hx0-5,hy0,7,0,'#d8c8a0');}}
+    else if(WP==='spear'){L(hx0,hy0,6,ang+Math.PI,'#5a3a22');L(hx0,hy0,15,ang,'#7a5a3a');const tx=Math.round(hx0+Math.cos(ang)*15),ty=Math.round(hy0+Math.sin(ang)*15);L(tx,ty,4,ang,'#e8eef6');R(tx,ty,1,1,EV.C.trim||'#c02020');}
+    else if(WP==='gun'){const ga=fx==='loose'||f===7?0:ang;L(hx0,hy0,4,ga+Math.PI,'#6a4a2a');L(hx0,hy0,11,ga,'#3a3a44');L(hx0+Math.round(Math.cos(ga+1.57)),hy0+Math.round(Math.sin(ga+1.57)),5,ga,'#6a4a2a');if(fx==='loose'){const tx=Math.round(hx0+Math.cos(ga)*12),ty=Math.round(hy0+Math.sin(ga)*12);R(tx,ty-1,2,2,'#ffd060');R(tx+1,ty,1,1,'#fff');}else R(hx0+1,hy0-1,1,1,'#ff8030');}
     else if(WP==='kunai'){
      if(fx==='throw'){R(hx0+3,hy0-1,4,1,'#d0d8e0');R(hx0+6,hy0-1,1,1,'#ffffff');R(hx0+1,hy0-1,1,1,'#c02030');for(let i=0;i<3;i++)R(hx0-2-i*2,hy0+1+i,1,1,'#9aa');} // the kunai leaves the hand
      else if(fx==='smoke'){for(const [x,y] of [[3,18],[15,17],[5,11],[14,10],[9,8]])R(x,y,2,2,'#c8c8d0');}

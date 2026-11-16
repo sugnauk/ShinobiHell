@@ -9,6 +9,9 @@ function setView(wide){const nw=wide?448:320,nh=wide?252:180;if(nw===W)return;W=
 function fit(){const s=Math.max(1,Math.floor(Math.min(innerWidth/W,innerHeight/H)));cv.style.width=W*s+'px';cv.style.height=H*s+'px';cv.style.left=Math.floor((innerWidth-W*s)/2)+'px';cv.style.top=Math.floor((innerHeight-H*s)/2)+'px';}
 addEventListener('resize',fit);fit();
 
+// the game's version, shown on the title screen. Bump it with every change that reaches main.
+const GAME_VERSION='0.6.1';
+
 // ---------- utils ----------
 const rnd=(a,b)=>a+Math.random()*(b-a),ri=(a,b)=>Math.floor(rnd(a,b+1)),pick=a=>a[Math.floor(Math.random()*a.length)];
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
