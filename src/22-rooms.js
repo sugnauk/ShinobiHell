@@ -1,5 +1,5 @@
 'use strict';
-const SHOPX=1.25; // shop prices (raised 25% in 0.7.0)
+const SHOPX=1.25; // shop prices (raised 25% in 0.6.2)
 // HELL OF THE EMPEROR - rooms, props, shop, shrines, traps (part of the former game.js; files load in numeric order, see index.html)
 // ---------- rooms, props, shop, shrines, traps ----------
 const ROOMCOL={treasure:'#fd4',shop:'#4cf',shrine:'#c6f',rest:'#6f6',elite:'#f84',trap:'#f44',altar:'#f33',ambush:'#f66',challenge:'#fc4'};
