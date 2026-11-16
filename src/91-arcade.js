@@ -74,7 +74,7 @@ const trailInfo=()=>trailOwned().length+'/12 WON - BEAT A BOSS WITHOUT BEING HIT
 function cycleTrail(d){const own=[-1].concat(trailOwned());if(own.length<2)return;const i=own.indexOf(OPT().trail==null?-1:OPT().trail);OPT().trail=own[(i+d+own.length*2)%own.length];sfx('coin');}
 
 // a boss falls: rank the fight, award score, its relic and (on a no-hit) its spirit trail
-{const _od=onBossDead;onBossDead=function(e){const res=_od(e);if(R&&!R.training){const di=e.di,hits=e.hitsT||0,ri=bossRank(hits),Rk=RANKS[ri],secs=e.fight0!=null?R.time-e.fight0:0;
+{const _od=onBossDead;onBossDead=function(e){const res=_od(e);if(R&&!R.training&&!R.test){const di=e.di,hits=e.hitsT||0,ri=bossRank(hits),Rk=RANKS[ri],secs=e.fight0!=null?R.time-e.fight0:0;
    const pts=SCORE.boss*Rk.m*(1+di*.25)+Math.max(0,180-secs)*20;addScore(pts);
    meta.ranks=meta.ranks||{};if(meta.ranks[di]==null||ri<meta.ranks[di])meta.ranks[di]=ri;
    let msg='RANK '+Rk.r+'  +'+Math.round(pts);if(hits===0){meta.cos=meta.cos||{};if(!meta.cos[di]){meta.cos[di]=1;msg+='  NO HIT! TRAIL WON: '+TRAILS[di].n;}else msg+='  NO HIT!';}

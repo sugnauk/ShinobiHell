@@ -43,7 +43,10 @@ file with a number after anything it uses, and add its `<script>` tag to `index.
 
 `GAME_VERSION` in `src/00-core.js` is shown on the title screen. Bump it with every change that reaches `main`.
 
-## Testing a boss quickly
+## Testing levels and bosses
 
-Open the browser console on `index.html` and run `meta.trained=true;__dbg.start(N)` (N = stage 0-11), then
-`__dbg.teleportBoss()` and `__dbg.god()`.
+Press **T** on the title screen or in the hub for TEST MODE (`src/99-testmode.js`): pick any stage, any character, where to
+start (stage start, boss arena, boss at half health, boss event, boss last phase, the Moth Queen), god mode, gear quality,
+extra power, difficulty and New Game+. In a test run press **`** for the test panel; its number keys are commands (god mode,
+teleport to the boss, boss to half health, boss to its next event, kill the boss, next stage, a legendary, heal and reset
+cooldowns, gold and a relic, reveal the map). Test runs never save and never change gold, unlocks, ranks or trails.

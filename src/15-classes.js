@@ -59,7 +59,7 @@ const CLASSES=[
  {k:'samurai',n:'SAMURAI',col:'#f55',d:'BLADES CUT BULLETS. GUARD COUNTERS. +35% HP, +3 DEF.',hp:1.35,spd:.97,dash:1.1,def:3,kit:{m:4,h:4,q:4,w:4,f:4,e:4}},
  {k:'shinobi',n:'SHINOBI',col:'#9a7aff',d:'BLINKS AND POISON. BLADES CUT BULLETS. SWIFT.',hp:.82,spd:1.15,dash:.65,def:0,kit:{m:4,h:6,q:6,w:6,f:6,e:6}},
  {k:'onmyoji',n:'ONMYOJI',col:'#f0e8d0',d:'SUMMONS SPIRITS, SHIELDS AND HEALS.',hp:.95,spd:1,dash:1,def:1,kit:{m:7,h:7,q:7,w:7,f:7,e:7}}];
-const CLS=()=>CLASSES[(meta&&meta.cls)||0];
+const CLS=()=>CLASSES[(R&&R.testCls!=null)?R.testCls:((meta&&meta.cls)||0)]; // a test run (99-testmode.js) plays its own character
 // class stat modifiers + the deathblow item effect, layered on top of the base stat calculation
 {const cs0=calcStats;calcStats=function(){const s=cs0(),c=CLS();s.maxhp=Math.round(s.maxhp*c.hp);s.atk*=c.pw||1;s.spd*=c.spd;s.dashCd*=c.dash;s.def+=c.def;
  // skill tree nodes (temple)
