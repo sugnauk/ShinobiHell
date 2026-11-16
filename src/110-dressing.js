@@ -71,3 +71,11 @@ function addCover(m,di){const SH=[[[0,0]],[[0,0],[1,0]],[[0,0],[0,1]],[[0,0],[1,
    if(!ok)continue;m.cover=m.cover||new Uint8Array(MW*MH);for(const [x,y] of cells){m.t[y*MW+x]=0;m.cover[y*MW+x]=1;}placed.push([gx,gy]);changed=true;}
   r.cover=placed.length;}
  if(changed)rebuildVis(m);}
+
+// ---------- sway: tall plants and cloth move a little in the breeze ----------
+const SWAYK={bamboo:1,reeds:1,tallgrass:1,sakura:1,maple:1,pine:1,banner:1,scarecrow:1,deadtree:1,tent:1};
+const SWAYV={};
+function swayVariant(k,v){const key=k+v;if(SWAYV[key])return SWAYV[key];const s=DECOSPR[k],c=s.base||s.c,h=c.height,w=c.width,cut=Math.round(h*.5),mid=Math.round(h*.25);
+ return SWAYV[key]=mk(w,h,g=>{g.drawImage(c,0,cut,w,h-cut,0,cut,w,h-cut);g.drawImage(c,0,mid,w,cut-mid,Math.round(v/2),mid,w,cut-mid);g.drawImage(c,0,0,w,mid,v,0,w,mid);});}
+{const _dd=drawDeco;drawDeco=function(o){const s=DECOSPR[o.k];if(!s||!SWAYK[o.k]||o.onliq)return _dd(o);if(!s.base)s.base=s.c;
+ const v=Math.max(-1,Math.min(1,Math.round(Math.sin(time*1.4+o.ph)*1.3)));s.c=v?swayVariant(o.k,v):s.base;_dd(o);s.c=s.base;};}
