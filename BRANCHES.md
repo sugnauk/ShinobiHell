@@ -42,7 +42,8 @@ file with a number after anything it uses, and add its `<script>` tag to `index.
 
 ## Versions
 
-`GAME_VERSION` in `src/00-core.js` is shown on the title screen. Bump it with every change that reaches `main`.
+`GAME_VERSION` in `src/00-core.js` is shown on the title screen. Bump it with every change that reaches `main`, and change the
+`?v=` on every script tag in `index.html` to match, so browsers load the new files instead of cached old ones.
 
 ## Testing levels and bosses
 

@@ -227,6 +227,8 @@ const PRANGE=170; // world units: about the edge of the visible screen around yo
 {const _lh=lineHit;lineHit=function(x,y,a,len,wid,fn){return _lh.call(this,x,y,a,Math.min(len,PRANGE),wid,fn);};}
 
 // ---------- the trader buys: a hint when you walk into a shop ----------
+// fallbacks in case an older cached src/12-loot.js loaded without the selling helpers
+if(typeof window.inShop!=='function')window.inShop=function(){if(!map||!map.roomOf||!P)return false;const ri=map.roomOf[(P.y/T|0)*MW+(P.x/T|0)];return ri>=0&&!!map.rooms[ri]&&map.rooms[ri].type==='shop';};
 {const _up=updPlay;updPlay=function(dt){_up.apply(this,arguments);if(!P||!map||map.train)return;const s=inShop();if(s&&!R._inShop)setToast('TRADER: OPEN YOUR INVENTORY (TAB) AND RMB AN ITEM TO SELL IT','#ffd040',3);R._inShop=s;};}
 
 // ---------- trophies: every boss you beat adds one piece of gear you can see (any class), and says what it is ----------
