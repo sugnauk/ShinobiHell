@@ -160,7 +160,7 @@ function barrageTick(e,K,dt){const B=K.barrage;if(e.air)return;if(e.A&&B.during!
 function kitStart(e,K){if(e.kitOn)return;e.kitOn=1;if(e.r0==null){e.r0=e.r;e.spd0=e.spd;}Object.assign(e,{evSeen:{},bgT:null,bgN:0,brq:[],ph:1,half:0,evDone:0,EV:null,A:null,gapT:1.4,spdK:1,lastA:null,say:null,mins:[]});e.drawAfter=bossDrawAfter;if(K.draw)e.drawFn=K.draw;if(K.init)K.init(e);}
 function defaultMove(e,dt,d,a,K){const pref=K.pref||e.pref||70;if(d>pref+12)steer(e,a,e.spd,dt);else if(d<pref-20)steer(e,a+Math.PI,e.spd*.8,dt);else steer(e,a+Math.PI/2*e.sdir,e.spd*.6,dt);if(Math.random()<dt*.3)e.sdir*=-1;}
 function chooseAtk(e,K,d){let L=K.atks.filter(x=>(x.half==null||(x.half===1)===!!e.half)&&(!x.ok||x.ok(e,d)));if(L.length>1){const L2=L.filter(x=>x.n!==e.lastA);if(L2.length)L=L2;}if(!L.length)return null;return wpick(L);}
-function startAtk(e,at){e.A={n:at.n,t:0,run:at.run,end:at.end,gap:at.gap};e.lastA=at.n;}
+function startAtk(e,at){e.A={n:at.n,nm:at.n,t:0,run:at.run,end:at.end,gap:at.gap};e.lastA=at.n;} // nm keeps the name (some attacks reuse A.n as a counter)
 function cancelAtk(e){if(e.A&&e.A.end)e.A.end(e,e.A);e.A=null;e.tele=0;e.air=false;e.z=0;}
 function doHalf(e,K){e.half=1;e.phase=2;e.spdK=K.spdK||1.2;cancelAtk(e);clearEnemyShots(true,1);e.iv=1.4;e.gapT=1.6;
  if(!K.keepSpr)e.sprOv=bossHurtSpr(e.di);if(K.onHalf)K.onHalf(e);

@@ -28,7 +28,7 @@ function drawEnemy(e){
  shadow(X,Y-2,Math.round(e.r*2+6));
  if(e.elite){ctx.globalAlpha=.7;wcirc(e.x,e.y,e.r+3+Math.sin(time*6),ELMOD[e.elite].c);ctx.globalAlpha=1;}
  const blink=e.tele>0&&Math.floor(time*16)%2===0;
- const flip=(!!s.animal||!!s.bossSpr)&&sx(P.x,P.y)<X;if(s.bossSpr)frame=e.act||e.storm>0?2:Math.floor(time*2.5)%2;const fy=e.t&&e.t.fly?Math.round(6+Math.sin(time*5+e.wob)*2):0;drawSpr(s,X,Y-e.z-fy,e.flash>0||blink,frame,flip);
+ const flip=(!!s.animal||!!s.bossSpr)&&sx(P.x,P.y)<X;if(s.bossSpr)frame=s.pick?s.pick(e):(e.act||e.storm>0?2:Math.floor(time*2.5)%2);const fy=e.t&&e.t.fly?Math.round(6+Math.sin(time*5+e.wob)*2):0;drawSpr(s,X,Y-e.z-fy,e.flash>0||blink,frame,flip);
  if(e.mode&&((e.mode.k==='dashes'||e.mode.k==='stampede')&&e.mode.ph===0||e.mode.k==='cavalry'&&e.mode.ph===1)&&e.mode.da!=null){const wide=e.mode.k==='stampede'||e.mode.k==='cavalry';ctx.fillStyle=Math.floor(time*16)%2?'rgba(255,60,60,.9)':'rgba(255,200,80,.9)';
   if(wide)for(const off of [-e.r,e.r])for(let r=8;r<300;r+=4){const x=e.x+Math.cos(e.mode.da)*r-Math.sin(e.mode.da)*off,y=e.y+Math.sin(e.mode.da)*r+Math.cos(e.mode.da)*off;ctx.fillRect(sx(x,y)-1,sy(x,y),2,1);}
   for(let r=8;r<(wide?300:115);r+=3){const x=e.x+Math.cos(e.mode.da)*r,y=e.y+Math.sin(e.mode.da)*r;ctx.fillRect(sx(x,y)-1,sy(x,y),3,1);}}
