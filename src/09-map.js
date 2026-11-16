@@ -179,9 +179,44 @@ const SPECFLOOR={
   if(Math.abs(d-4)<.6){P1(g,'#f33',X-4,Y+7,8,1);P1(g,'#ff8080',X-1,Y+7,2,1);}
   if(h<.3){isoLn(g,'#1a0608',X-6,Y+5,4,1);isoLn(g,'#1a0608',X+2,Y+7,3,-1);}if(h>.93)P1(g,'#6a0a14',X-2,Y+6,4,2);}},
  treasure:{fl:['#5a4a2a','#65532f'],deco:(g,X,Y,x,y,h)=>{if(x%2===0)isoLn(g,'#c8a040',X-16,Y+HY,8,1);if(y%2===0)isoLn(g,'#c8a040',X,Y,8,1);if(h>.9){P1(g,'#ffe080',X-1,Y+6,2,1);P1(g,'#fff',X-1,Y+6,1,1);}}}};
+// Door sills feather the event-room material into the adjoining walkable floor.
+const ROOM_SILLS={shop:['#b08c53','#715338'],shrine:['#9983bb','#4b3d63'],altar:['#c26d65','#5c343b']};
+function floorRoom(x,y){
+ const i=map.roomOf?.[y*MW+x];
+ return i>=0?map.rooms[i]:null;
+}
+function drawRoomSill(g,X,Y,x,y,room,fl,neighbors){
+ const own=room?.type,materials=[];
+ for(const n of neighbors){
+  const nx=x+n.dx,ny=y+n.dy;
+  if(nx<0||ny<0||nx>=MW||ny>=MH||!map.t[ny*MW+nx]||map.liq[ny*MW+nx])continue;
+  const other=floorRoom(nx,ny)?.type,inside=ROOM_SILLS[own],outside=ROOM_SILLS[other];
+  if(own===other||(!inside&&!outside))continue;
+  materials.push({u:n.u,v:n.v,sill:inside||outside,color:SPECFLOOR[inside?own:other].fl[(x+y)&1],inside:!!inside});
+ }
+ if(!materials.length)return;
+ for(let py=1;py<TILEH-1;py++){
+  const hw=dHalf(py);
+  for(let px=1-hw;px<hw-1;px++){
+   const u=(py/HY+(px+.5)/16)/2,v=(py/HY-(px+.5)/16)/2;
+   for(const m of materials){
+    const d=m.u?(m.u<0?u:1-u):(m.v<0?v:1-v);
+    const noise=hash(x*31+px,y*29+py),width=m.inside?.24:.31;
+    if(d>=width*(.7+noise*.58)||d<0)continue;
+    const along=m.u?v:u,metal=d<.075&&along>.13&&along<.87;
+    g.fillStyle=metal?m.sill[noise>.26?0:1]:noise>.52?m.color:shade(fl,-.16);
+    g.fillRect(X+px,Y+py,1,1);break;
+   }
+  }
+ }
+}
 // Pre-renders the floor as 32x16 diamonds into one big canvas, and builds wall-cube sprites (drawn depth-sorted at runtime).
 function renderMap(th){
  const FW=(MW+MH)*16,FH=(MW+MH)*HY+TILEH+WH,edges=th.fl.map(c=>shade(c,-.14));
+ const [ox,oy]=tileR(0,0);
+ const neighbors=[[1,0],[-1,0],[0,1],[0,-1]].map(([dx,dy])=>{
+  const [u,v]=tileR(dx,dy);return {dx,dy,u:u-ox,v:v-oy};
+ });
  const floor=mk(FW,FH,g=>{
   g.fillStyle='#07060a';g.fillRect(0,0,FW,FH);
   for(let y=0;y<MH;y++)for(let x=0;x<MW;x++){
@@ -189,10 +224,11 @@ function renderMap(th){
    // place the tile by its position in the rotated grid (the camera angle)
    const [tu,tv]=tileR(x,y),X=(tu-tv+RMH)*16,Y=(tu+tv)*HY,ci=(x+y)&1,h=hash(x,y),lq=map.liq[y*MW+x];
    if(lq){drawLiquidTile(g,X,Y,x,y,lq,h,tu,tv);continue;}
-   const rm=map.roomOf&&map.roomOf[y*MW+x]>=0?map.rooms[map.roomOf[y*MW+x]]:null,SF=rm&&SPECFLOOR[rm.type];
+   const rm=floorRoom(x,y),SF=rm&&SPECFLOOR[rm.type];
    const fl=SF?SF.fl:th.fl,ed=SF?SF.fl.map(c=>shade(c,-.18)):edges;
    for(let j=0;j<TILEH;j++){const half=dHalf(j);g.fillStyle=ed[ci];g.fillRect(X-half,Y+j,half*2,1);if(j>0&&j<TILEH-1&&half>2){g.fillStyle=fl[ci];g.fillRect(X-half+2,Y+j,half*2-4,1);}}
    if(SF)SF.deco(g,X,Y,x,y,h,rm);else floorDeco(g,X,Y,x,y,h,th);
+   drawRoomSill(g,X,Y,x,y,rm,fl[ci],neighbors);
    g.fillStyle='rgba(0,0,0,.3)';
    if(!floorAtR(tu-1,tv))for(let j=0;j<HY;j++)g.fillRect(X-Math.round((j+1)/ISOK),Y+j,6,2);
    if(!floorAtR(tu,tv-1))for(let j=0;j<HY;j++)g.fillRect(X+Math.round((j+1)/ISOK)-6,Y+j,6,2);

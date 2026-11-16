@@ -424,7 +424,7 @@ function drawTooltip(){
  if(RK()>0&&k!=='m'&&k!=='h')L.push('RANK '+(RK()+1)+': +'+Math.round(RK()*10)+'% POWER  -'+RK()*2+'% CD');
  if(k==='m')L.push('FROM YOUR WEAPON: '+(R.eq.wpn?R.eq.wpn.name:'NONE'),'NEW WEAPON TYPES CHANGE THIS ATTACK');
  else{for(const e of [...new Set(R.ench||[])]){const E=ENCH.find(x=>x.k===e),n=R.ench.filter(x=>x===e).length;L.push({s:'ENCHANT '+fxLabel(E.n,Math.min(5,n))+': '+E.d.replace('ABILITY HITS ',''),c:E.c});}
-  const ad=R.addon&&R.addon[k];if(ad)for(const a of ADDONS)if(ad[a.k])L.push({s:'SCROLL '+fxLabel(a.n,a.tier),c:a.c});}
+  const ad=R.addon&&R.addon[k];if(ad)for(const a of SCROLL_ADDONS)if(ad[a.k])L.push({s:'SCROLL '+fxLabel(a.n,a.tier),c:a.c});}
  const S2=s=>typeof s==='string'?s:s.s,w=Math.max(...L.map(s=>txtW(S2(s))))+8,h=L.length*8+4,x=Math.max(2,W-2-w),y=H-34-h;
  ctx.fillStyle='rgba(8,6,12,.92)';ctx.fillRect(x,y,w,h);ctx.fillStyle=sp.c;ctx.fillRect(x,y,w,1);ctx.fillRect(x,y+h-1,w,1);
  L.forEach((s,i)=>txt(S2(s),x+4,y+3+i*8,typeof s==='object'?s.c:i===0?sp.c:i===1?'#fff':'#bbb',1,false));

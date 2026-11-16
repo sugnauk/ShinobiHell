@@ -38,7 +38,11 @@ function interact(){
  if(portal&&!portal.pending&&dist(portal,P)<20){if(R.training){finishTraining();return;}if(R.di>=DUN.length-1)finishRun(true);else openMaster();return;}
  const p=nearProp();if(!p)return;
  if(p.k==='chest'){
-  p.used=true;sfx('pickup');dropPickup(p.x,p.y+6,'item',0,randItem(['rez'],Math.random()<.5?1:0).id);
+  p.used=true;sfx('pickup');
+  const items=[{t:'relic',id:randItem(['rez'],Math.random()<.5?1:0).id}];
+  if(Math.random()<.35)items.push(mkEnch());
+  if(Math.random()<.40)items.push({t:'scroll',regular:true});
+  pickups.push({x:p.x,y:p.y+6,k:'bag',tier:10,items,t:0,z:2,vx:0,vy:0,vz:75});
   for(let i=0;i<5;i++)dropPickup(p.x,p.y,'sen',Math.round(rnd(3,6)*(1+R.di*.3)*S.sen));
   if(Math.random()<.22){setToast('AMBUSH!','#f55',2);for(let i=0;i<3+Math.floor(R.di/3);i++){const a=i/4*TAU,x=p.x+Math.cos(a)*40,y=p.y+Math.sin(a)*40;if(blocked(x,y,6))continue;const e=mkEnemy(pick(DUN[R.di].pool),x,y,p.room,R.di);e.awake=true;enemies.push(e);spark(x,y,'#f55',8,60);}}
  }else if(p.k==='spring'){p.used=true;P.hp=Math.min(S.maxhp,P.hp+S.maxhp*.35);sfx('heal');setToast('THE SPRING RESTORES YOU','#6f6',2);fxRing(P.x,P.y,24,'#6f6',.4);}
