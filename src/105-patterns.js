@@ -85,3 +85,16 @@ function spawnLanterns(r){const pats=[{pat:'dspiral',arms:2,spin:.28,sp:48},{pat
  return _ur.apply(this,arguments);};}
 // broken lanterns pay out
 {const _ke=killE;if(typeof _ke==='function')killE=function(e){if(e&&e.lantern&&!e.dead){R.sen+=4+(R.di||0);txtFx(e.x,e.y,'+'+(4+(R.di||0))+' GOLD','#ffd040');}return _ke.apply(this,arguments);};}
+
+// ---------- formation squads: some fight rooms hold a line of ranged foes that fire in a rolling rhythm ----------
+// A third of combat rooms (from stage II on) add a squad of three to five of one ranged type, standing in a line across the
+// room. Their attack timers are staggered, so their volleys ripple down the line like a shmup formation.
+const FORMTYPES=['archer','monk','priest','shaman','sniper','crane','raven','salamander','viper','kitsune','owl','toad','wraith','bat'];
+{const _pr=populateRoom;populateRoom=function(r,di){_pr.apply(this,arguments);if(r.type!=='combat'||di<1||Math.random()>.33)return;
+ const pool=DUN[di].pool.filter(t=>FORMTYPES.includes(t));if(!pool.length)return;const type=pick(pool),n=3+Math.min(2,Math.floor(di/4)),c=roomCenter(r);
+ const horiz=r.w>=r.h,len=(horiz?r.w:r.h)*T*.6;
+ for(let i=0;i<n;i++){const f=n>1?i/(n-1)-.5:0,x=horiz?c.x+f*len:c.x-r.w*T*.25,y=horiz?c.y-r.h*T*.25:c.y+f*len;if(solid(x,y))continue;
+  const e=mkEnemy(type,x,y,r,di);e.squad=1;e.cd=1+i*.35;e.spd*=.5;enemies.push(e);}
+ r.squad=type;};}
+// squad members show a small banner so you can tell them apart
+{const _de=drawEnemy;drawEnemy=function(e){_de.apply(this,arguments);if(e.squad&&!e.dead){const X=sx(e.x,e.y),Y=sy(e.x,e.y)-e.r*2-12;ctx.fillStyle='#3a2418';ctx.fillRect(X+5,Y,1,8);ctx.fillStyle='#d02030';ctx.fillRect(X+6,Y,3,4);}};}
