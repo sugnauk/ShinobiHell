@@ -20,7 +20,7 @@ addEventListener('keyup',e=>{keys[e.code]=false;});
 addEventListener('blur',()=>{for(const k in keys)keys[k]=false;mouse.down=mouse.rdown=false;if(mode==='play')paused=true;});
 function setMouse(e){const r=cv.getBoundingClientRect();mouse.x=(e.clientX-r.left)/r.width*W;mouse.y=(e.clientY-r.top)/r.height*H;}
 cv.addEventListener('mousemove',setMouse);
-cv.addEventListener('mousedown',e=>{setMouse(e);if(mode==='play'&&invOpen){invClick(e.button);return;}if(e.button===0){mouse.down=true;if(mode==='play'&&!paused&&(meta.opt.autoFire|0)===1&&!hoverSlot()){fireOn=!fireOn;txtFx&&P&&txtFx(P.x,P.y-14,fireOn?'AUTO FIRE ON':'AUTO FIRE OFF',fireOn?'#ffd080':'#888');}if(mode==='choose')clickChoose();else if(mode==='master')masterKey('Enter');else if(mode==='scroll')clickScroll();else if(mode==='select')selClick();else if(mode==='title'||mode==='dead'||mode==='win'||mode==='tut')onKey('Enter');}if(e.button===2)mouse.rdown=true;});
+cv.addEventListener('mousedown',e=>{setMouse(e);if(mode==='play'&&invOpen){invClick(e.button);return;}if(e.button===0){mouse.down=true;if(mode==='play'&&!paused&&(meta.opt.autoFire|0)===1&&!hoverSlot()){fireOn=!fireOn;txtFx&&P&&txtFx(P.x,P.y-14,fireOn?'AUTO FIRE ON':'AUTO FIRE OFF',fireOn?'#ffd080':'#888');}if(mode==='choose')clickChoose();else if(mode==='master')masterClick();else if(mode==='scroll')clickScroll();else if(mode==='lootConfirm')clickLootConfirm();else if(mode==='select')selClick();else if(mode==='title'||mode==='dead'||mode==='win'||mode==='tut')onKey('Enter');}if(e.button===2)mouse.rdown=true;});
 addEventListener('mouseup',e=>{if(e.button===0)mouse.down=false;if(e.button===2)mouse.rdown=false;});
 cv.addEventListener('contextmenu',e=>e.preventDefault());
 
@@ -41,7 +41,8 @@ function onKey(c){
   if(paused){pauseKey(c);return;} // the pause menu (src/102-menus.js)
   if(c===KB.dash)tryDash();else if(c===KB.q)castChain();else if(c===KB.w)castWard();else if(c===KB.f)castF();else if(c===KB.e)castUlt();else if(c===KB.heal)useGourd();else if(c===KB.use)interact();return;}
  if(mode==='choose'){if(c==='Digit1'||c==='Digit2'||c==='Digit3')pickChoice(+c.slice(5)-1);return;}
- if(mode==='scroll'){if(/^Digit[1-3]$/.test(c))pickScroll(+c.slice(5)-1);return;}
+ if(mode==='scroll'){if(/^Digit[1-3]$/.test(c))pickScroll(+c.slice(5)-1);else if(c==='Escape')closeScroll();return;}
+ if(mode==='lootConfirm'){lootConfirmKey(c);return;}
  if(mode==='event'){if(/^Digit[1-4]$/.test(c))pickEvent(+c.slice(5)-1);else if(c==='Escape')pickEvent(3);return;}
  if(mode==='dead'||mode==='win'){if(c==='Enter'||c==='Space'){openSelect('end');}} // after a run: back to character select (with upgrades)
 }

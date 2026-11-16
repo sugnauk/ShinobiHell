@@ -38,7 +38,7 @@ const enchN=k=>R&&R.ench?R.ench.filter(x=>x===k).length:0;
 // everything extra an ability slot does: enchant chances (all abilities) + guaranteed scroll add-ons (that slot only)
 function abFx(k){const a=(R&&R.addon&&R.addon[k])||{};
  return {burn:.35*enchN('fire')+(a.burn?1:0),chill:.3*enchN('frost')+(a.chill?1:0),shock:.2*enchN('shock')+(a.shock?1:0),poison:enchN('poison')||a.poison?1:0,
-  blast:enchN('blast'),leech:enchN('leech'),gale:enchN('gale'),crit:.25*(a.crit||0),pierce:2*(a.pierce||0),cd:a.cd?1:0};}
+  blast:enchN('blast'),leech:enchN('leech'),gale:enchN('gale'),crit:.25*(a.crit||0)+(a.edge?.08:0),pierce:2*(a.pierce||0),cd:a.cd?1:0};}
 // rarity is gated by depth: epics from dungeon III, legendaries (named) only in gold bags
 function rollQ(di,bias){const w=[Math.max(12,60-6*di),28,8+2.5*di,2+2*di];let r=Math.random()*w.reduce((a,b)=>a+b,0),q=0;for(;q<3;q++){if((r-=w[q])<0)break;}q=clamp(q+(bias||0),0,3);if(di<2)q=Math.min(q,2);if(di<1&&!bias)q=Math.min(q,1);return q;}
 const tierFor=(di,b)=>clamp(Math.floor(di*1.35)+ri(0,1)+(b||0),0,TMAX);
@@ -74,7 +74,7 @@ const LEGLOOK={'CRIMSON MOON KATANA':['#c0c8d4','#d02838',2],'THUNDERCLAP NAGINA
  'SHINOBI GARB':['#2a2a3a','#c8f'],'CRANE CASTLE ARMOUR':['#8a6a40','#e0b040'],'HIGH PRIEST VESTMENT':['#e8e0c0','#d02030'],'BLOOD ROBE':['#8a1020','#ff4050'],
  'RING OF ECHOES':['#c0c8d4','#8cf'],'FROSTBOUND BAND':['#a8d0f0','#fff'],'STORM SIGNET':['#e0b040','#ff6'],'RING OF GREED':['#e0b040','#40c080']};
 const ICONC={};
-function itemIcon(it){const key=it.t==='gear'?it.slot+it.tier+'_'+(it.q||0)+(it.rare?it.name:'')+(it.slot==='wpn'?wtName(it):''):it.t+(it.s||it.k||'');if(ICONC[key])return ICONC[key];
+function itemIcon(it){const key=it.t==='gear'?it.slot+it.tier+'_'+(it.q||0)+(it.rare?it.name:'')+(it.slot==='wpn'?wtName(it):''):it.t+(it.s||it.k||(it.regular?'regular':''));if(ICONC[key])return ICONC[key];
  const fr=mk(12,12,g=>{const R=(x,y,w,h,c)=>{g.fillStyle=c;g.fillRect(x,y,w,h);};
   if(it.t==='gear'){const L=it.rare?LEGLOOK[it.name]:null,q=it.rare?4:(it.q||0),m=L?L[0]:MATC[it.tier],gem=L?L[1]:QUAL[q].c;
    // palette for the pixel maps: m material (tier), M its shadow, g quality accent, w glint, s/S steel, h grip, y gold, r red, p paper
@@ -93,7 +93,7 @@ function itemIcon(it){const key=it.t==='gear'?it.slot+it.tier+'_'+(it.q||0)+(it.
     for(let y=0;y<12;y++)for(let x=0;x<12;x++){if(d[(y*12+x)*4+3])continue;let n=false;for(const [ax,ay] of [[1,0],[-1,0],[0,1],[0,-1]]){const X=x+ax,Y=y+ay;if(X>=0&&Y>=0&&X<12&&Y<12&&d[(Y*12+X)*4+3]>200){n=true;break;}}if(n)g.fillRect(x,y,1,1);}
     if(q>=4){R(0,0,1,1,'#fff6c0');R(11,6,1,1,'#fff6c0');R(1,1,1,1,'#ffd040');}}}
   else if(it.t==='hp'||it.t==='stat'){const c=it.t==='hp'?'#e33':STATS.find(s=>s.k===it.s).c;R(5,0,2,2,'#c8a070');R(4,2,4,1,'#ddd');R(3,3,6,8,'#ddd');R(4,5,4,5,c);R(4,5,1,2,'#fff');}
-  else if(it.t==='scroll'){R(2,2,8,8,'#f0e0b0');R(1,1,10,2,'#c89a50');R(1,9,10,2,'#c89a50');R(4,4,4,1,'#d02030');R(4,6,3,1,'#d02030');R(5,7,2,1,'#ffe060');}
+  else if(it.t==='scroll'){R(2,2,8,8,'#f0e0b0');const ribbon=it.regular?'#579a9f':'#c89a50',ink=it.regular?'#34656d':'#d02030';R(1,1,10,2,ribbon);R(1,9,10,2,ribbon);R(4,4,4,1,ink);R(4,6,3,1,ink);R(5,7,2,1,it.regular?'#8bced7':'#ffe060');}
   else if(it.t==='ench'){const c=ENCH.find(x=>x.k===it.k).c;R(5,0,2,12,c);R(0,5,12,2,c);R(3,3,6,6,c);R(4,4,4,4,'#14101a');R(5,5,2,2,'#fff');}
   else if(it.t==='relic'){R(3,2,6,8,'#e0b040');R(4,3,4,6,'#fff0a0');R(5,0,2,2,'#e0b040');}});
  return ICONC[key]=outlined(fr);}
@@ -126,13 +126,13 @@ function applyEnch(it){syncLMB();if(!R.eq.wpn){setToast('EQUIP A WEAPON TO ENCHA
  // enchants stack: a second FLAME is FLAME II (more chance), and so on. 5 enchants in total; a 6th replaces the oldest
  G('n',it.k);let lost='';if(R.ench.length>=ENCHMAX)lost=' (REPLACES '+ENCH.find(x=>x.k===R.ench.shift()).n+')';R.ench.push(it.k);S=calcStats();
  const st=R.ench.filter(x=>x===it.k).length;setToast(R.eq.wpn.name+' ENCHANTED: '+fxLabel(E.n,Math.min(5,st))+lost,E.c,3);sfx('rare');spark(P.x,P.y,E.c,20,80);trainEv('ench');return true;}
-function itemName(it){return it.t==='ench'?'ENCHANT '+ENCH.find(x=>x.k===it.k).n+' I: '+ENCH.find(x=>x.k===it.k).d:it.t==='scroll'?'LEGENDARY SCROLL: CHOOSE 1 OF 3 POWERS':it.t==='hp'?'HP POTION':it.t==='stat'?'POTION OF '+STATS.find(s=>s.k===it.s).n:it.t==='relic'?ITEMBY[it.id].name:it.name;}
-function itemCol(it){if(it.t==='gear')return QUAL[it.q||0].c;if(it.t==='ench')return ENCH.find(x=>x.k===it.k).c;return it.t==='scroll'?(Math.floor(time*4)%2?'#ffe060':'#fff'):it.t==='hp'?'#e33':it.t==='stat'?STATS.find(s=>s.k===it.s).c:it.t==='relic'?RCOL[ITEMBY[it.id].r]:it.rare?'#fd4':'#ddd';}
+function itemName(it){return it.t==='ench'?'ENCHANT '+ENCH.find(x=>x.k===it.k).n+' I: '+ENCH.find(x=>x.k===it.k).d:it.t==='scroll'?(it.regular?'TECHNIQUE SCROLL':'LEGENDARY SCROLL'):it.t==='hp'?'HP POTION':it.t==='stat'?'POTION OF '+STATS.find(s=>s.k===it.s).n:it.t==='relic'?ITEMBY[it.id].name:it.name;}
+function itemCol(it){if(it.t==='gear')return QUAL[it.q||0].c;if(it.t==='ench')return ENCH.find(x=>x.k===it.k).c;return it.t==='scroll'?(it.regular?'#93d6de':Math.floor(time*4)%2?'#ffe060':'#fff'):it.t==='hp'?'#e33':it.t==='stat'?STATS.find(s=>s.k===it.s).c:it.t==='relic'?RCOL[ITEMBY[it.id].r]:it.rare?'#fd4':'#ddd';}
 // bag tiers: 0 brown (common), 1 purple (potions/gear), 2 gold (rare gear)
 function bagContents(tier,boss){
  const di=R.di,it=[],slot=()=>pick(['wpn','arm','ring']),gear=(b,q)=>mkGear(slot(),tierFor(di,b),false,q==null?rollQ(di,0):q);
  if(tier===1||tier===2){ // green pack / blue satchel: a decent piece of gear plus extras
-  it.push(gear(0,rollQ(di,tier-1)));if(Math.random()<.1)it.push({t:'hp'});if(tier===2&&Math.random()<.3)it.push({t:'stat',s:pick(STATS).k});if(Math.random()<.1*tier)it.push(mkEnch());}
+  it.push(gear(0,rollQ(di,tier-1)));if(Math.random()<.1)it.push({t:'hp'});if(tier===2&&Math.random()<.3)it.push({t:'stat',s:pick(STATS).k});if(Math.random()<.1*tier)it.push(mkEnch());if(tier===2&&Math.random()<.14)it.push({t:'scroll',regular:true});}
  else if(tier===0){ // brown: 1-3 small things
   if(Math.random()<.08)it.push({t:'hp'});if(Math.random()<.45||!it.length)it.push(gear(-1,rollQ(di,-1)));if(di>=1&&Math.random()<.08)it.push(mkEnch());}
  else if(tier===3){ // purple: 2-4 things, better gear
@@ -144,7 +144,7 @@ function bagContents(tier,boss){
  else if(tier===7){ // war chest: two epic pieces, one of them a weapon
   it.push(mkGear('wpn',tierFor(di,1),false,3),gear(1,3));}
  else if(tier===8){ // shogun's trophy (the usual boss bag): two epics, maybe a scroll and an enchant, an elixir
-  it.push(mkGear('wpn',tierFor(di,1),false,3),gear(1,3),{t:'stat',s:pick(STATS).k});if(Math.random()<.07)it.unshift({t:'scroll'});if(Math.random()<.5)it.push(mkEnch());}
+  it.push(mkGear('wpn',tierFor(di,1),false,3),gear(1,3),{t:'stat',s:pick(STATS).k});if(Math.random()<.07)it.unshift({t:'scroll'});if(Math.random()<.5)it.push(mkEnch());if(!it.some(o=>o.t==='scroll')&&Math.random()<.45)it.push({t:'scroll',regular:true});}
  else if(tier===9){ // jade casket: an epic ring and elixirs
   it.push(mkGear('ring',tierFor(di,1),false,3),{t:'stat',s:pick(STATS).k});if(Math.random()<.4)it.push({t:'stat',s:pick(STATS).k});}
  else if(tier===10){ // monk's bundle: relics, sometimes a potion
@@ -174,13 +174,12 @@ function dropBag(x,y,tier,boss){const a=Math.random()*TAU,s=rnd(15,35);
 function bagLand(k){const c=BAGCOL[k.tier];spark(k.x,k.y,k.tier===0?'#8a7a60':c,k.tier===4?16:6,k.tier===4?70:40);
  if(k.tier===4){fxRing(k.x,k.y,22,'#ffd040',.4);fxRing(k.x,k.y,12,'#fff',.25);shake=Math.max(shake,3);sfx('coin');}}
 const nearBag=()=>{let best=null,bd=14;for(const k of pickups){if(k.k!=='bag'||k.dead)continue;const d=dist(k,P);if(d<bd){bd=d;best=k;}}return best;};
-function lootBag(b){ // auto-collect potions/relics, auto-equip into empty slots; better gear waits for G
+function lootBag(b){ // potions, elixirs and empty gear slots are automatic; build choices wait for input
  if(!b.opened){for(const it of b.items)if(it.t==='gear'&&it.rare)codexAdd('gear',it.name);b.opened=true;b.pop=.25;spark(b.x,b.y,BAGCOL[b.tier],b.tier===4?40:10,b.tier===4?140:60);
   if(b.tier===4){spark(b.x,b.y,'#fff',16,100);fxRing(b.x,b.y,34,'#ffd040',.5);fxRing(b.x,b.y,20,'#fff',.3);sfx('rare');hitstop=Math.max(hitstop,.06);}}
  for(let i=b.items.length-1;i>=0;i--){const it=b.items[i];let took=false;
   if(it.t==='hp'){if(R.pots<POTMAX){R.pots++;took=true;txtFx(P.x,P.y,'+HP POTION','#e33');}}
   else if(it.t==='stat'){const st=STATS.find(s=>s.k===it.s);G('t',it.s);if(meta.stats[it.s]<STATMAX){meta.stats[it.s]++;saveMeta();S=calcStats();setToast(st.n+' +1  ('+meta.stats[it.s]+'/'+STATMAX+')',st.c,2.5);}else{R.sen+=40;txtFx(P.x,P.y,st.n+' MAXED +40 GOLD','#fc4');}took=true;}
-  else if(it.t==='relic'){applyItem(it.id);took=true;}
   else if(it.t==='gear'&&!R.eq[it.slot]){R.eq[it.slot]=it;S=calcStats();setToast('EQUIPPED '+it.name,itemCol(it),2.5);took=true;}
   if(took){b.items.splice(i,1);sfx('pickup');}
  }
@@ -198,54 +197,152 @@ function drawBagPanel(b){const n=Math.min(6,b.items.length);if(!n)return;G('b',b
 function itemCat(it){
  if(it.t==='gear')return it.slot==='wpn'?{n:'WEAPON',c:'#e8eef6',d:'SETS YOUR LMB ATTACK'}:{n:'GEAR',c:'#aaa',d:'STATS'};
  if(it.t==='ench')return {n:'ENCHANT',c:ENCH.find(x=>x.k===it.k).c,d:'ON-HIT EFFECT FOR ALL ABILITIES'};
- if(it.t==='scroll')return {n:'SCROLL',c:'#ffe060',d:'REWRITES ONE ABILITY'};
+ if(it.t==='scroll')return it.regular?{n:'TECHNIQUE',c:'#93d6de',d:'IMPROVES ONE ABILITY'}:{n:'LEGENDARY',c:'#ffe060',d:'EMPOWERS ONE ABILITY'};
  if(it.t==='hp')return {n:'POTION',c:'#e55',d:'HEAL WITH C'};
  if(it.t==='stat')return {n:'ELIXIR',c:'#f9c',d:'PERMANENT STAT, KEPT FOREVER'};
  if(it.t==='relic')return {n:'RELIC',c:'#c6f',d:'RUN-WIDE RULE'};
  return {n:'ITEM',c:'#aaa',d:''};}
-function takeItem(b,i){const it=b.items[i];if(!it)return;let ok=true;
+function takeItem(b,i){const it=b.items[i];if(!it)return;
  if(it.t==='gear'){const old=R.eq[it.slot];R.eq[it.slot]=it;b.items.splice(i,1);if(old){if(R.pack.length<PACKMAX)R.pack.push(old);else b.items.push(old);}syncLMB();S=calcStats();P.hp=Math.min(S.maxhp,P.hp);
   setToast('EQUIPPED '+it.name+(it.slot==='wpn'&&old&&old.ench&&old.ench.length?' - '+old.ench.length+' ENCHANTS STAY ON YOUR OLD WEAPON':''),itemCol(it),2.5);sfx('pickup');if(it.rare)codexAdd('gear',it.name);}
- else if(it.t==='scroll'){const bb={items:[it]};learnScroll(bb);b.items.splice(i,1);}
- else if(it.t==='ench'){ok=applyEnch(it);if(ok)b.items.splice(i,1);}
+ else if(it.t==='scroll')learnScroll(b,i);
+ else if(it.t==='ench'||it.t==='relic')openLootConfirm(b,it);
  else if(it.t==='hp'){if(R.pots<POTMAX){R.pots++;b.items.splice(i,1);sfx('pickup');}else{P.hp=Math.min(S.maxhp,P.hp+S.maxhp*.2);b.items.splice(i,1);sfx('heal');}}
  else{lootBag(b);}
  if(!b.items.length)b.dead=true;}
-function takeAll(b){for(let i=b.items.length-1;i>=0;i--){const it=b.items[i];
-  if(it.t==='gear'){if(!R.eq[it.slot])takeItem(b,i);else if(R.pack.length<PACKMAX){R.pack.push(it);b.items.splice(i,1);}}
-  else if(it.t==='scroll'||it.t==='ench'||it.t==='hp')takeItem(b,i);}
- sfx('pickup');if(b.items.length)setToast('PACK FULL - SOME ITEMS LEFT','#f66',1.5);if(!b.items.length)b.dead=true;}
+function takeAll(b){
+ let next=null;
+ for(let i=b.items.length-1;i>=0;i--){
+  const it=b.items[i];
+  if(it.t==='gear'){
+   if(!R.eq[it.slot])takeItem(b,i);else if(R.pack.length<PACKMAX){R.pack.push(it);b.items.splice(i,1);}
+  }else if(it.t==='hp')takeItem(b,i);
+  else if(it.t==='scroll'||it.t==='ench'||it.t==='relic')next=it;
+ }
+ if(next)takeItem(b,b.items.indexOf(next));
+ else if(b.items.length)setToast('PACK FULL - SOME ITEMS LEFT','#f66',1.5);
+ if(!b.items.length)b.dead=true;
+}
+let lootConfirm=null;
+function openLootConfirm(b,it){lootConfirm={b,it};mode='lootConfirm';sfx('tool');}
+function finishLootConfirm(accept){
+ if(!lootConfirm)return;
+ const {b,it}=lootConfirm,i=b.items.indexOf(it);
+ if(accept&&i>=0&&!b.dead){
+  if(it.t==='ench'&&!applyEnch(it))return;
+  if(it.t==='relic'){applyItem(it.id);sfx('pickup');}
+  b.items.splice(i,1);if(!b.items.length)b.dead=true;
+ }
+ lootConfirm=null;mode='play';
+}
+function lootConfirmKey(c){
+ if(c==='Enter'||c==='Space')finishLootConfirm(true);
+ else if(c==='Escape')finishLootConfirm(false);
+}
+function lootConfirmButtons(){
+ const x=Math.round(W/2-112),y=Math.round(H/2+28);
+ return [{x,y,w:107,label:'ENTER  ACCEPT'},{x:x+117,y,w:107,label:'ESC  LEAVE'}];
+}
+function clickLootConfirm(){
+ lootConfirmButtons().forEach(({x,y,w},i)=>{
+  if(mouse.x>=x&&mouse.x<x+w&&mouse.y>=y&&mouse.y<y+17)finishLootConfirm(i===0);
+ });
+}
+function renderLootConfirm(){
+ renderPlay();
+ if(!lootConfirm)return;
+ const {it}=lootConfirm,ench=it.t==='ench',o=ench?ENCH.find(e=>e.k===it.k):ITEMBY[it.id];
+ const title=ench?o.n:o.name,col=itemCol(it),x=Math.round(W/2-122),y=Math.round(H/2-54);
+ ctx.fillStyle='rgba(4,3,8,.70)';ctx.fillRect(0,0,W,H);
+ ctx.fillStyle='#211824';ctx.fillRect(x,y,244,112);
+ ctx.fillStyle='#110e18';ctx.fillRect(x+1,y+1,242,110);
+ ctx.fillStyle=col;ctx.fillRect(x,y,244,2);
+ ctx.drawImage(itemIcon(it),x+12,y+14,24,24);
+ txt(ench?'ENCHANT':'RELIC',x+46,y+12,col);txt(title,x+46,y+24,'#fff0d5');
+ wrapTxt(o.d,49).forEach((line,i)=>txt(line,x+12,y+45+i*8,'#ddd'));
+ if(ench&&R.ench.length>=ENCHMAX){
+  const old=ENCH.find(e=>e.k===R.ench[0]);
+  if(old)txt('REPLACES OLDEST ENCHANT: '+old.n,x+12,y+68,'#ffa487');
+ }else if(ench)txt('APPLIES TO YOUR EQUIPPED WEAPON',x+12,y+68,'#b9a2ba');
+ for(const {x:bx,y:by,w,label} of lootConfirmButtons()){
+  const hover=mouse.x>=bx&&mouse.x<bx+w&&mouse.y>=by&&mouse.y<by+17;
+  ctx.fillStyle=hover?'#605141':'#352838';ctx.fillRect(bx,by,w,17);
+  ctxt2(label,bx,w,by+6,hover?'#fff3d1':'#e2cedf');
+ }
+}
 // ---- legendary scrolls: choose 1 of 3. REPLACE swaps a slot's whole spell; ADD-ON keeps it and stacks an effect on top ----
 // scroll add-ons are guaranteed and only for the chosen slot (unlike enchants, which are chances on every ability)
 const ADDONS=[{k:'burn',n:'ALWAYS BURNS',tier:3},{k:'chill',n:'ALWAYS CHILLS',tier:3},{k:'shock',n:'ALWAYS SHOCKS + ARCS',tier:3},{k:'poison',n:'ALWAYS POISONS',tier:3},
  {k:'crit',n:'+25% CRIT CHANCE',tier:3},{k:'pierce',n:'SHOTS PIERCE +2',tier:2},{k:'cd',n:'COOLDOWN -40%',tier:3},{k:'emp',n:'EMPOWERED: +60% POWER -30% COOLDOWN',tier:4}];
+const TECHNIQUES=[
+ {k:'focus',n:'+10% ABILITY POWER',tier:1,c:'#93d6de'},
+ {k:'tempo',n:'12% SHORTER COOLDOWN',tier:1,c:'#93d6de'},
+ {k:'edge',n:'+8% CRIT CHANCE',tier:1,c:'#93d6de'}
+];
 ADDONS.forEach(a=>a.c=fxCol(a.k));
+const SCROLL_ADDONS=[...ADDONS,...TECHNIQUES];
 const fxLabel=(n,t)=>n+' '+ROM[t-1];
-let scrollOpts=null;
-function rollScrollOpts(){const slots=[...'hqwfe'],used=new Set();
+let scrollOpts=null,scrollSource=null;
+function rollScrollOpts(){const slots=[...'hqwfe'].filter(k=>!P.lock?.[k]),used=new Set();if(!slots.length)return [];
  // replacements lean toward the slot's legendary spell, so a scroll is a real upgrade, not a sidegrade
  const rep=()=>{for(let t=0;t<40;t++){const k=pick(slots);if(used.has(k))continue;const vs=[];for(let v=0;v<SPELLS[k].length;v++)if(v!==P.lo[k])vs.push(v);if(!vs.length)continue;used.add(k);
   return {kind:'rep',k,v:P.lo[k]!==3&&Math.random()<.6?3:pick(vs)};}return null;};
  const add=()=>{for(let t=0;t<40;t++){const k=pick(slots);if(used.has(k))continue;const L=ADDONS.filter(a=>!(a.k==='emp'&&P.emp&&P.emp[k]));used.add(k);return {kind:'add',k,a:pick(L).k};}return null;};
  return [rep()||add(),add()||rep(),Math.random()<.5?(rep()||add()):(add()||rep())].filter(Boolean);}
-function learnScroll(b){const i=b.items.findIndex(it=>it.t==='scroll');if(i<0)return false;b.items.splice(i,1);if(!b.items.length)b.dead=true;
- G('s','scroll');scrollOpts=rollScrollOpts();if(scrollOpts.length){mode='scroll';sfx('rare');}return true;}
-function pickScroll(i){const o=scrollOpts&&scrollOpts[i];if(!o)return;const k=o.k,cur=SPELLS[k][P.lo[k]];
- // every legendary scroll also empowers the slot it touches (+60% power, -30% cooldown): always a power spike
- P.emp=P.emp||{};const wasEmp=!!P.emp[k];P.emp[k]=1;flashT=Math.max(flashT,.18);flashCol='#ffe060';hitstop=Math.max(hitstop,.08);
- setTimeout(()=>{if(P)txtFx(P.x,P.y-16,wasEmp?'POWER SURGE':'EMPOWERED!','#ffe060',2);},50);
- if(o.kind==='rep'){P.lo[k]=o.v;if(o.v===3)codexAdd('sp',k);setToast(SLOTKEY[k]+' REPLACED: '+cur.n+' > '+SPELLS[k][o.v].n,'#ff9040',3.5);}
- else if(o.a==='emp'){P.emp=P.emp||{};P.emp[k]=1;setToast(cur.n+' EMPOWERED','#ffe060',3);}
- else{R.addon=R.addon||{};R.addon[k]=R.addon[k]||{};R.addon[k][o.a]=(R.addon[k][o.a]||0)+1;const A=ADDONS.find(a=>a.k===o.a);setToast(cur.n+': '+fxLabel(A.n,A.tier),A.c,3);}
- if(k==='w')P.ab.rmb=0;else P.ab[k]=0;
- scrollOpts=null;mode='play';trainEv('scroll');sfx('rare');impact(P.x,P.y,'#ffe060',6,true);fxRing(P.x,P.y,40,'#ffe060',.5);spark(P.x,P.y,'#fff',20,100);}
+function rollTechniques(){
+ const slots=[...'hqwfe'].filter(k=>!P.lock?.[k]),pool=[];
+ for(const k of slots)for(const a of TECHNIQUES)if(!R.addon?.[k]?.[a.k])pool.push({kind:'add',k,a:a.k});
+ const choices=[];
+ while(pool.length&&choices.length<3){
+  const option=pool.splice(ri(0,pool.length-1),1)[0];
+  choices.push(option);
+  if(pool.some(o=>o.k!==option.k))for(let i=pool.length-1;i>=0;i--)if(pool[i].k===option.k)pool.splice(i,1);
+ }
+ return choices;
+}
+function learnScroll(b,i){
+ const it=b.items[i];
+ if(it?.t!=='scroll')return false;
+ const valid=o=>!P.lock?.[o.k]&&(o.kind==='rep'?P.lo[o.k]!==o.v:it.regular?!R.addon?.[o.k]?.[o.a]:o.a!=='emp'||!P.emp?.[o.k]);
+ scrollOpts=(it.choices||[]).filter(valid);
+ if(!scrollOpts.length)scrollOpts=(it.regular?rollTechniques():rollScrollOpts()).filter(valid);
+ it.choices=scrollOpts;
+ if(!scrollOpts.length){setToast(it.regular?'ALL TECHNIQUES LEARNED':'NO AVAILABLE ABILITY SLOTS','#93d6de',2);return false;}
+ scrollSource={b,it};mode='scroll';sfx(it.regular?'tool':'rare');return true;
+}
+function closeScroll(){scrollOpts=null;scrollSource=null;mode='play';}
+function pickScroll(i){
+ const o=scrollOpts?.[i];
+ if(!o||!scrollSource)return;
+ const {b,it}=scrollSource,index=b.items.indexOf(it);
+ if(index<0||b.dead){closeScroll();return;}
+ const k=o.k,cur=SPELLS[k][P.lo[k]],regular=it.regular,col=regular?'#93d6de':'#ffe060';
+ b.items.splice(index,1);if(!b.items.length)b.dead=true;
+ G('s',regular?'technique':'scroll');
+ if(!regular){
+  P.emp=P.emp||{};P.emp[k]=1;flashT=Math.max(flashT,.18);flashCol=col;hitstop=Math.max(hitstop,.08);
+  txtFx(P.x,P.y-16,'EMPOWERED!',col,2);
+ }
+ if(o.kind==='rep'){
+  P.lo[k]=o.v;if(o.v===3)codexAdd('sp',k);setToast(SLOTKEY[k]+' REPLACED: '+cur.n+' > '+SPELLS[k][o.v].n,'#ff9040',3.5);
+ }else if(o.a==='emp')setToast(cur.n+' EMPOWERED',col,3);
+ else{
+  R.addon=R.addon||{};R.addon[k]=R.addon[k]||{};R.addon[k][o.a]=(R.addon[k][o.a]||0)+1;
+  const a=SCROLL_ADDONS.find(a=>a.k===o.a);setToast(cur.n+': '+a.n,a.c,3);
+ }
+ if(!regular){if(k==='w')P.ab.rmb=0;else P.ab[k]=0;}
+ closeScroll();trainEv('scroll');sfx(regular?'pickup':'rare');
+ fxRing(P.x,P.y,regular?24:40,col,.5);spark(P.x,P.y,col,regular?8:20,100);
+}
 const SCARD={w:96,gap:6,y:38,h:126};
 function scrollCardX(i){const n=scrollOpts.length;return Math.round((W-(n*SCARD.w+(n-1)*SCARD.gap))/2)+i*(SCARD.w+SCARD.gap);}
 function clickScroll(){if(!scrollOpts)return;for(let i=0;i<scrollOpts.length;i++){const x=scrollCardX(i);if(mouse.x>=x&&mouse.x<=x+SCARD.w&&mouse.y>=SCARD.y&&mouse.y<=SCARD.y+SCARD.h){pickScroll(i);return;}}}
 function wrapTxt(s,n){const L=[];let c='';for(const w of s.split(' ')){if(c&&(c+' '+w).length>n){L.push(c);c=w;}else c=c?c+' '+w:w;}if(c)L.push(c);return L;}
 function renderScroll(){
  renderPlay();ctx.fillStyle='rgba(0,0,0,.8)';ctx.fillRect(0,0,W,H);
- ctxt('LEGENDARY SCROLL',8,'#ffe060',2);ctxt('CHOOSE ONE  (CLICK OR PRESS 1 2 3)',26,'#ccc');
+ const regular=scrollSource?.it.regular;
+ ctxt(regular?'TECHNIQUE SCROLL':'LEGENDARY SCROLL',8,regular?'#93d6de':'#ffe060',2);
+ ctxt('CHOOSE ONE  (1-'+scrollOpts.length+')   ESC LEAVE',26,'#ccc');
  const {w:cw,y,h}=SCARD;
  scrollOpts.forEach((o,i)=>{const x=scrollCardX(i),rep=o.kind==='rep',tc=rep?'#ff9040':'#6f6',hov=mouse.x>=x&&mouse.x<=x+cw&&mouse.y>=y&&mouse.y<=y+h,cur=SPELLS[o.k][P.lo[o.k]];
   ctx.fillStyle=hov?'#2a1a30':'#160e1a';ctx.fillRect(x,y,cw,h);ctx.fillStyle=tc;ctx.fillRect(x,y,cw,2);ctx.fillRect(x,y+h-1,cw,1);ctx.fillRect(x,y,1,h);ctx.fillRect(x+cw-1,y,1,h);
@@ -258,10 +355,10 @@ function renderScroll(){
    ctxt2('V',x,cw,y+37,tc);ctxt2(nw.n,x,cw,y+46,nw.c);if(nw.rare)ctxt2('LEGENDARY SPELL',x,cw,y+55,'#ffe060');
    wrapTxt(nw.d,22).slice(0,4).forEach((l,j)=>ctxt2(l,x,cw,y+66+j*8,'#ccc'));
    ctxt2('+ EMPOWERED',x,cw,y+h-30,'#ffe060');ctxt2('CHANGES THE',x,cw,y+h-20,tc);ctxt2('WHOLE ATTACK',x,cw,y+h-12,tc);}
-  else{const A=ADDONS.find(a=>a.k===o.a);
-   ctxt2(cur.n,x,cw,y+28,cur.c);ctxt2('+',x,cw,y+38,tc);wrapTxt(fxLabel(A.n,A.tier),22).forEach((l,j)=>ctxt2(l,x,cw,y+47+j*8,A.c));
+  else{const A=SCROLL_ADDONS.find(a=>a.k===o.a);
+   ctxt2(cur.n,x,cw,y+28,cur.c);ctxt2('+',x,cw,y+38,tc);wrapTxt(regular?A.n:fxLabel(A.n,A.tier),22).forEach((l,j)=>ctxt2(l,x,cw,y+47+j*8,A.c));
    wrapTxt(cur.d,22).slice(0,3).forEach((l,j)=>ctxt2(l,x,cw,y+72+j*8,'#888'));
-   if(o.a!=='emp')ctxt2('+ EMPOWERED',x,cw,y+h-30,'#ffe060');ctxt2('KEEPS YOUR',x,cw,y+h-20,tc);ctxt2('ATTACK',x,cw,y+h-12,tc);}
+   if(!regular&&o.a!=='emp')ctxt2('+ EMPOWERED',x,cw,y+h-30,'#ffe060');ctxt2('KEEPS YOUR',x,cw,y+h-20,tc);ctxt2('ATTACK',x,cw,y+h-12,tc);}
  });
 }
 function swapGear(b){const i=b.items.findIndex(it=>it.t==='gear');if(i<0)return false;const g=b.items[i],old=R.eq[g.slot];b.items.splice(i,1);
