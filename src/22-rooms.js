@@ -38,7 +38,7 @@ function interact(){
  if(portal&&!portal.pending&&dist(portal,P)<20){if(R.training){finishTraining();return;}if(R.di>=DUN.length-1)finishRun(true);else openMaster();return;}
  const p=nearProp();if(!p)return;
  if(p.k==='chest'){
-  p.used=true;sfx('pickup');
+  p.used=true;p.openedAt=time;sfx('pickup');
   const items=[{t:'relic',id:randItem(['rez'],Math.random()<.5?1:0).id}];
   if(Math.random()<.35)items.push(mkEnch());
   if(Math.random()<.40)items.push({t:'scroll',regular:true});
