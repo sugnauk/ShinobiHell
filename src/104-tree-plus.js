@@ -59,4 +59,4 @@ function stDrawBuild(){
 {const _uk=upgradesKey;upgradesKey=function(c){if(c==='KeyB'){stBuild=!stBuild;sfx('coin');return;}if(c==='KeyR'){stRespec();return;}if(stBuild&&c==='Escape'){stBuild=false;return;}return _uk(c);};}
 
 // the temple's summary shows the mastery tier of each region as pips
-{const _hs=skillHubSummary;skillHubSummary=function(row){_hs(row);STB.forEach((_,b)=>{const x=20+b*36,tier=stTier(b);for(let i=0;i<3;i++){ctx.fillStyle=i<tier?STB[b].c:'#2a2034';ctx.fillRect(x+14+i*5,146,4,4);}});};}
+{const _hs=skillHubSummary;skillHubSummary=function(row){_hs(row);STB.forEach((_,b)=>{const x=20+b*36,tier=stTier(b);for(let i=0;i<3;i++){ctx.fillStyle=i<tier?STB[b].c:'#2a2034';ctx.fillRect(x+20+i*5,147,4,3);}});};}

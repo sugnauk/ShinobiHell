@@ -725,7 +725,7 @@ function renderHub(){
  [...SLOTS].forEach((k,i)=>{const sp=SPELLS[k][CLS().kit[k]];txt((SLOTKEY[k]+'   ').slice(0,4),24,66+i*8,'#888');txt(sp.n,44,66+i*8,sp.c);txt(sp.d.slice(0,32),128,66+i*8,'#777');});
  sep(16,113,288);
  skillHubSummary(row); // the temple skill tree (src/98-skilltree.js)
- const tip=hubSel===0&&meta.asc>0?'ASC '+meta.asc+': FOES +'+meta.asc*15+'% HP, FASTER SHOTS. +'+meta.asc*20+'% GOLD':savedRun()?'C CONTINUE SAVED RUN  O OPTIONS  Y TRAINING':'W/S SELECT  A/D CHANGE  ENTER START  O OPTIONS  Y TRAIN';
+ const tip=hubSel===0&&meta.asc>0?'ASC '+meta.asc+': FOES +'+meta.asc*15+'% HP, FASTER SHOTS. +'+meta.asc*20+'% GOLD':savedRun()?'C CONTINUE SAVED RUN  O OPTIONS  Y TRAINING':'W/S SELECT  ENTER START  O OPTIONS  Y TRAIN  B BOSS RUSH';
  ctxt(tip,171,'#aaa');
  if(codexOpen)drawCodex();
 }
