@@ -5,7 +5,7 @@
 //  - 30% less damage from bullets
 //  - a 40% longer untouchable window on the dash
 //  - blade hits heal 0.5% max HP each (at most 4% a second)
-const MELEE=()=>{const k=CLS().k;return k==='samurai'||k==='shinobi';};
+const MELEE=()=>{const k=CLS().k;return k==='samurai'||k==='shinobi'||k==='lancer';};
 // each strike cuts at most 5 bullets, nearest first, from a budget of 6 a second: it opens a path through a pattern, it is not a wall
 function bladeCut(test){if(!P||!R||!MELEE())return;const hit=[];for(const q of projs){if(q.from!=='e'||q.dead||q.peril)continue;if(test(q))hit.push(q);}
  hit.sort((a,b)=>Math.hypot(a.x-P.x,a.y-P.y)-Math.hypot(b.x-P.x,b.y-P.y));const now=R.time;P.cutBud=Math.min(6,(P.cutBud==null?6:P.cutBud)+(now-(P.cutT||now))*6);P.cutT=now;const take=Math.min(5,Math.floor(P.cutBud));P.cutBud-=take;let n=0;for(const q of hit.slice(0,take)){q.dead=true;n++;spark(q.x,q.y,'#e8eef6',3,50);}
