@@ -38,6 +38,7 @@ file with a number after anything it uses, and add its `<script>` tag to `index.
 | Arcade layer | `91-arcade.js` score, boss ranks, the bullets-cleared reward, dash flash, boss relics, spirit trails, New Game+ |
 | Items and loot (`feature/items-loot`) | `07-items.js`, `12-loot.js`, `21-items-extra.js`, `96-gear-powers.js` (gear abilities, legendaries), `97-item-icons.js`, `98-skilltree.js` (the temple skill tree) |
 | UI and menus (`feature/ui-menus`) | `26-render.js`, `27-menus.js`, `index.html` |
+| Scenery and story | `100-scenery.js`: each stage's story, borders (bamboo, reeds, rock, hedges, walls), terrain beyond the walls, boss arena seals, the screen-wide range cap, selling to the trader, boss trophies on the player |
 
 ## Versions
 

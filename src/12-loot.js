@@ -277,7 +277,12 @@ function dropGear(g){pickups.push({x:P.x+rnd(-6,6),y:P.y+rnd(-6,6),k:'bag',tier:
 // layout: panel 300x158; equipped column on the left, 4x2 pack grid on the right, details strip below
 const INVX=10,INVY=10,invSlots=()=>{const L=[];['wpn','arm','ring'].forEach((s,i)=>L.push({x:INVX+10,y:INVY+28+i*22,eq:s}));for(let i=0;i<PACKMAX;i++)L.push({x:INVX+196+(i%4)*22,y:INVY+28+((i/4)|0)*22,pi:i});return L;};
 function invAt(){return invSlots().findIndex(s=>mouse.x>=s.x-1&&mouse.x<s.x+15&&mouse.y>=s.y-1&&mouse.y<s.y+15);}
+// selling: inside a trader's shop, RMB on an item sells it for a small price (about a fifth of what the trader would ask)
+function inShop(){if(!map||!map.roomOf||!P)return false;const ri=map.roomOf[(P.y/T|0)*MW+(P.x/T|0)];return ri>=0&&map.rooms[ri]&&map.rooms[ri].type==='shop';}
+function sellPrice(g){return Math.round((6+3*(g.tier||0))*[1,1.4,2,3,5][g.q||0]*(g.rare?2:1)*(1+.1*((R&&R.di)||0)));}
+function sellGear(g){const v=sellPrice(g);R.sen+=v;txtFx(P.x,P.y-10,'+'+v+' GOLD','#ffd040');setToast('SOLD '+g.name+' FOR '+v+' GOLD','#ffd040',1.8);sfx('coin');}
 function invClick(btn){const k=invAt();if(k<0)return;const s=invSlots()[k];
+ if(btn===2&&inShop()){const g=s.pi!==undefined?R.pack[s.pi]:R.eq[s.eq];if(!g)return;if(s.pi!==undefined)R.pack.splice(s.pi,1);else R.eq[s.eq]=null;sellGear(g);S=calcStats();P.hp=Math.min(S.maxhp,P.hp);return;}
  if(s.pi!==undefined){const g=R.pack[s.pi];if(!g)return;if(btn===0)equipFromPack(s.pi);else if(btn===2){R.pack.splice(s.pi,1);dropGear(g);setToast('DROPPED '+g.name,'#aaa',1.5);}}
  else{const g=R.eq[s.eq];if(!g)return;if(btn===0){if(R.pack.length>=PACKMAX){setToast('PACK FULL','#f66',1.5);return;}R.pack.push(g);R.eq[s.eq]=null;}else if(btn===2){R.eq[s.eq]=null;dropGear(g);}S=calcStats();P.hp=Math.min(S.maxhp,P.hp);sfx('tool');}}
 function panel(x,y,w,h,title,acc){ctx.fillStyle='rgba(0,0,0,.55)';ctx.fillRect(0,0,W,H);ctx.fillStyle='#120e18';ctx.fillRect(x,y,w,h);ctx.fillStyle='#1e1828';ctx.fillRect(x,y,w,12);ctx.fillStyle=acc||'#d02030';ctx.fillRect(x,y,w,1);ctx.fillRect(x,y+h-1,w,1);ctx.fillRect(x,y+12,w,1);if(title)txt(title,x+4,y+4,acc||'#d02030');}
@@ -294,10 +299,10 @@ function drawInv(){
  if(g){const L=gearLines(g),cur=s.pi!==undefined?R.eq[g.slot]:null;drawItemIcon(g,INVX+10,INVY+101);txt(g.name,INVX+30,INVY+101,itemCol(g));txt(L[0],INVX+30,INVY+108,'#aaa');
   L.slice(1).forEach((l,i)=>txt(l.slice(0,34),INVX+10+((i/3)|0)*146,INVY+118+(i%3)*8,'#ccc'));
   if(cur){const c=cmpLine(g);txt(c.s,INVX+w-8-txtW(c.s),INVY+101,c.c);}
-  txt(s.pi!==undefined?'LMB EQUIP  RMB DROP':'LMB TO PACK  RMB DROP',INVX+w-8-txtW(s.pi!==undefined?'LMB EQUIP  RMB DROP':'LMB TO PACK  RMB DROP'),INVY+108,'#8cf');}
+  {const hint=(s.pi!==undefined?'LMB EQUIP  ':'LMB TO PACK  ')+(inShop()?'RMB SELL +'+sellPrice(g):'RMB DROP');txt(hint,INVX+w-8-txtW(hint),INVY+108,inShop()?'#ffd040':'#8cf');}}
  else{const SLN=setLines();if(SLN.length)SLN.forEach((l,i)=>txt(l.s.slice(0,72),INVX+10,INVY+102+i*8,l.c));else txt('HOVER AN ITEM TO INSPECT IT',INVX+10,INVY+102,'#666');
   txt('POWER '+Math.round(S.atk)+'   HP '+S.maxhp+'   DEF '+S.def+'   CRIT '+Math.round(S.crit*100)+'%',INVX+10,INVY+126,'#aaa');}
- ctxt('TAB / ESC CLOSE      X SWAPS WEAPON      1-6 TAKE FROM BAG',INVY+h+3,'#777');
+ ctxt(inShop()?'IN THE SHOP: RMB AN ITEM TO SELL IT TO THE TRADER':'TAB / ESC CLOSE      X SWAPS WEAPON      1-6 TAKE FROM BAG',INVY+h+3,inShop()?'#ffd040':'#777');
 }
 // rare gear sets: wear 2 or 3 pieces of one set for extra powers
 const SETS={

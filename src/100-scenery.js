@@ -219,3 +219,31 @@ function drawSeal(k,cx,cy,R0,c,t){
  ctx.globalAlpha=live?.55:.3;wcirc(cx,cy,R0,c);wcirc(cx,cy,R0-4,c);
  for(let i=0;i<12;i++){const a=i/12*TAU+time*.15,rr=R0-2,x=cx+Math.cos(a)*rr,y=cy+Math.sin(a)*rr;ctx.fillStyle=c;ctx.fillRect(sx(x,y)-1,sy(x,y)-1,3,3);}
  drawSeal(S.seal,cx,cy,R0-6,c,time);ctx.globalAlpha=1;};}
+
+// ---------- range: nothing you fire reaches past the screen, and long-range shots fly 15% less far ----------
+const PRANGE=170; // world units: about the edge of the visible screen around you
+{const _mp=mkProj;mkProj=function(from,x,y,a,sp,dmg,o){const p=_mp.apply(this,arguments);
+ if(from==='p'&&sp>=40&&!p.orbit&&!p.orb){p.life*=.85;p.life=Math.min(p.life,PRANGE/sp);}return p;};}
+{const _lh=lineHit;lineHit=function(x,y,a,len,wid,fn){return _lh.call(this,x,y,a,Math.min(len,PRANGE),wid,fn);};}
+
+// ---------- the trader buys: a hint when you walk into a shop ----------
+{const _up=updPlay;updPlay=function(dt){_up.apply(this,arguments);if(!P||!map||map.train)return;const s=inShop();if(s&&!R._inShop)setToast('TRADER: OPEN YOUR INVENTORY (TAB) AND RMB AN ITEM TO SELL IT','#ffd040',3);R._inShop=s;};}
+
+// ---------- trophies: every boss you beat adds one piece of gear you can see (any class), and says what it is ----------
+const EVOGEAR=['','RED SCARF','WAR BANNER','SPIRIT WISP','GOLD PAULDRONS','HALO','BANNER CREST','SHADOW CAPE','WISP TRIO','GOLDEN AURA'];
+function evoBack(st,X,Y,f,c){
+ if(st>=7){const sw=Math.round(Math.sin(time*3)*1);ctx.fillStyle='#7a1020';ctx.fillRect(X-4-f*2+sw,Y-17,8,13);ctx.fillStyle='#a02030';ctx.fillRect(X-4-f*2+sw,Y-17,2,13);ctx.fillStyle='#e0b040';ctx.fillRect(X-4-f*2+sw,Y-5,8,1);}
+ if(st>=2){const bx=X-f*5,big=st>=6;ctx.fillStyle='#3a2418';ctx.fillRect(bx,Y-(big?33:30),1,big?20:17);
+  const wv=Math.round(Math.sin(time*4)),fw=big?7:5,fh=big?9:7;ctx.fillStyle=c;ctx.fillRect(bx-(f>0?fw:-1),Y-(big?33:30)+wv*0,fw,fh);ctx.fillStyle='#14101a';ctx.fillRect(bx-(f>0?fw:-1),Y-(big?33:30)+fh-1,fw,1);
+  if(big){ctx.fillStyle='#e0b040';ctx.fillRect(bx-(f>0?fw:-1)+2,Y-30,3,3);ctx.fillStyle='#fff0a0';ctx.fillRect(bx-(f>0?fw:-1)+3,Y-29,1,1);}}
+ if(st>=1){const L=6;for(let i=0;i<L;i++){const wx=X-f*(3+i*1.6),wy=Y-15+i*.6+Math.sin(time*7-i*.8)*1.2;ctx.fillStyle=i===L-1&&st>=6?'#e0b040':i%2?'#c01820':'#e02830';ctx.fillRect(Math.round(wx),Math.round(wy),2,2);}}}
+function evoFront(st,X,Y,f){
+ if(st>=4){ctx.fillStyle='#a07020';ctx.fillRect(X-6,Y-15,3,2);ctx.fillRect(X+3,Y-15,3,2);ctx.fillStyle='#ffd050';ctx.fillRect(X-6,Y-15,3,1);ctx.fillRect(X+3,Y-15,3,1);}
+ if(st>=5){const gold=st>=9,y=Y-27+Math.round(Math.sin(time*2));ctx.fillStyle=gold?'#ffd040':'#d8f0ff';ctx.fillRect(X-3,y,7,1);ctx.fillRect(X-4,y+1,1,1);ctx.fillRect(X+4,y+1,1,1);ctx.fillRect(X-3,y+2,7,1);
+  if(gold){ctx.fillRect(X-2,y-2,1,2);ctx.fillRect(X,y-3,1,3);ctx.fillRect(X+2,y-2,1,2);}}
+ const nw=st>=8?3:st>=3?1:0;for(let i=0;i<nw;i++){const a=time*2.2+i*TAU/3,wx=X+Math.round(Math.cos(a)*11),wy=Y-12+Math.round(Math.sin(a)*4);ctx.globalAlpha=.35;ctx.fillStyle='#8cf';ctx.fillRect(wx-1,wy-1,3,3);ctx.globalAlpha=1;ctx.fillStyle='#fff';ctx.fillRect(wx,wy,1,1);}
+ if(st>=9)for(let i=0;i<6;i++){const ph=(time*1.5+i/6)%1,ax=X-7+((i*37)%15),ay=Y-2-ph*16;ctx.globalAlpha=1-ph;ctx.fillStyle=i%2?'#ffd040':'#ff9020';ctx.fillRect(ax,Math.round(ay),1,2);}ctx.globalAlpha=1;}
+{const _dp=drawPlayer;drawPlayer=function(){const st=P&&!(P.dying>0)?Math.min(9,P.evo||0):0;if(!st)return _dp();
+ const X=sx(P.x,P.y),Y=sy(P.x,P.y)+3,f=P.dash>0?(scrVec(P.dx,P.dy)[0]<0?-1:1):(P.face<0?-1:1),c=(CLS()&&CLS().col)||'#c02020';
+ evoBack(st,X,Y,f,c);_dp();evoFront(st,X,Y,f);};}
+{const _ev=evolve;evolve=function(){const b=P&&P.evo||0;_ev();const st=P&&P.evo||0;if(st!==b&&EVOGEAR[st])setToast('NEW TROPHY: '+EVOGEAR[st],'#ffe060',3.5);};}

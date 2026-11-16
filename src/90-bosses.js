@@ -283,10 +283,10 @@ BKIT['AKAGANE, THE RED OX']={director:bossDirector,pref:85,gap:1.25,halfName:'HE
     const fire=()=>{bfan(e,e.x,e.y,A.a,3,1.05,120,10,{spr:'naginata',r:5,col:BC.aim,st:'decel',dec:1.1,minSp:38,life:3.6});sfx('slash');};
     if(at(A,.6*k)){e.tele=0;fire();}if(e.half&&at(A,.85*k)){A.a=aimAt(e);fire();}return A.t>(e.half?1.1:.9)*k;}},
   // Arrow rain: "LOOSE!" - a grid of landing shadows, shifted half a cell each volley; stand in a cell the next grid misses
-  {n:'rain',wt:2,ok:e=>!e.half||Math.random()<.5,run(e,A){const k=1/e.spdK,S=46,vol=e.half?3:3;if(!A.go){A.go=1;AKA.order(e,'LOOSE!');A.cx=P.x;A.cy=P.y;}
-    for(let v=0;v<vol;v++)if(at(A,(.35+v*.8)*k)){const ox=v%2?S/2:0;for(let gx=-3;gx<=3;gx++)for(let gy=-3;gy<=3;gy++){const x=A.cx+gx*S+ox,y=A.cy+gy*S+ox;if(Math.hypot(x-A.cx,y-A.cy)>150||blocked(x,y,2))continue;
-      mark({k:'c',x,y,r:15,t:.85*k,dmg:13*e.dm,col:'#3a2a20',src:e,on:m=>{for(let i=0;i<3;i++)particles.push({x:m.x+rnd(-6,6),y:m.y+rnd(-6,6),vx:0,vy:60,t:.25,col:'#e8eef6'});}});}sfx('shoot');}
-    return A.t>(.35+vol*.8+.6)*k;}},
+  {n:'rain',wt:2,ok:e=>!e.half||Math.random()<.5,run(e,A){const k=1/e.spdK,S=74,vol=e.half?3:3; // bigger circles, wider gaps, longer warning (easier to read)if(!A.go){A.go=1;AKA.order(e,'LOOSE!');A.cx=P.x;A.cy=P.y;}
+    for(let v=0;v<vol;v++)if(at(A,(.35+v*1.05)*k)){const ox=v%2?S/2:0;for(let gx=-3;gx<=3;gx++)for(let gy=-3;gy<=3;gy++){const x=A.cx+gx*S+ox,y=A.cy+gy*S+ox;if(Math.hypot(x-A.cx,y-A.cy)>170||blocked(x,y,2))continue;
+      mark({k:'c',x,y,r:23,t:1.3*k,dmg:13*e.dm,col:'#3a2a20',src:e,on:m=>{for(let i=0;i<3;i++)particles.push({x:m.x+rnd(-6,6),y:m.y+rnd(-6,6),vx:0,vy:60,t:.25,col:'#e8eef6'});}});}sfx('shoot');}
+    return A.t>(.35+vol*1.05+1)*k;}},
   // Ox charge: hoof scrape, head lowered, red line to the wall; dust puffs on the path burst sideways after 0.5s
   {n:'charge',wt:3,run(e,A,dt){const k=1/e.spdK;
     if(!A.go){A.go=1;A.ph=0;A.b=e.half?1:0;AKA.order(e,'CHARGE!');sfx('dash');A.tell=.75*k;}
@@ -316,16 +316,16 @@ BKIT['AKAGANE, THE RED OX']={director:bossDirector,pref:85,gap:1.25,halfName:'HE
     move(e,Math.cos(A.a)*380*dt,Math.sin(A.a)*380*dt,e.r);A.dt+=dt;if(Math.random()<dt*28)bsh(e,e.x,e.y,A.a+Math.PI/2*(Math.random()<.5?1:-1),32,8,{spr:'arrow',col:BC.fix,r:2,life:1.8});
     if(A.dt>.3){A.ph=0;A.n++;enemyShoot(e,{pat:'flower',cnt:12+(e.half?4:0),sp:56,spr:'drum',col:'#e0b040',dmg:9},0);shake=Math.max(shake,3);}return false;}},
   // War stomp (half health): two rings with a gap, the second turned
-  {n:'stomp',wt:2,half:1,run(e,A){if(!A.go){A.go=1;e.tele=2;mark({k:'c',x:e.x,y:e.y,r:34,t:.5,col:BC.fix,dmg:14*e.dm,src:e});}
-    if(at(A,.5)){e.tele=0;shake=Math.max(shake,6);sfx('break');const g=Math.random()*TAU;bring(e,e.x,e.y,26,62,9,{col:BC.fix,r:4},0,g,.42);}
-    if(at(A,.85)){bring(e,e.x,e.y,26,55,9,{col:BC.fix,r:4},.12,aimAt(e)+Math.PI*.6,.42);}return A.t>1.1;}},
+  {n:'stomp',wt:2,half:1,run(e,A){if(!A.go){A.go=1;e.tele=2;mark({k:'c',x:e.x,y:e.y,r:42,t:.8,col:BC.fix,dmg:14*e.dm,src:e});}
+    if(at(A,.8)){e.tele=0;shake=Math.max(shake,6);sfx('break');const g=Math.random()*TAU;bring(e,e.x,e.y,26,62,9,{col:BC.fix,r:4},0,g,.42);}
+    if(at(A,1.2)){bring(e,e.x,e.y,26,55,9,{col:BC.fix,r:4},.12,aimAt(e)+Math.PI*.6,.42);}return A.t>1.5;}},
  ],
  // EVENT 70%: the gate squad rushes in. Cut them all down in 20s or the survivors join the fight
  event:{at:.7,dur:20,name:'ASHIGARU SQUAD',hint:'CUT THEM DOWN IN 20S OR THEY JOIN HIM',
   start(e,E){const A=arenaOf(e);E.mins=[];for(let i=0;i<7;i++)E.mins.push(bMin(e,i<6?'ashigaru':'archer',A.cx+(i-3)*22,A.y1-24));e.ev.mins=E.mins;E.home=freeSpot(e,A.cx,A.y0+60);E.rt=2.5;},
   tick(e,dt,E){e.x+=(E.home.x-e.x)*Math.min(1,dt*3);e.y+=(E.home.y-e.y)*Math.min(1,dt*3);
    E.dr=(E.dr==null?1:E.dr)-dt;if(E.dr<=0){E.dr=1.05;E.dk=(E.dk||0)+1;bossBarrage(e,E.dk%2?{pat:'gapring',cnt:26,gw:.42,sp:52,spr:'drum',col:'#e0b040',burst:2,gap:.3}:{pat:'wall',cnt:15,sp:68,r:3,col:BC.aim,burst:2,gap:.4});sfx('beat');}
-   E.rt-=dt;if(E.rt<=0){E.rt=4.5;say(e,'LOOSE!','#c02020',.8);const cx=P.x,cy=P.y;for(let i=0;i<5;i++){const a=i/5*TAU+Math.random(),r=i?36:0;mark({k:'c',x:cx+Math.cos(a)*r,y:cy+Math.sin(a)*r,r:15,t:1,dmg:12*e.dm,col:'#3a2a20',src:e});}}
+   E.rt-=dt;if(E.rt<=0){E.rt=4.5;say(e,'LOOSE!','#c02020',.8);const cx=P.x,cy=P.y;for(let i=0;i<5;i++){const a=i/5*TAU+Math.random(),r=i?56:0;mark({k:'c',x:cx+Math.cos(a)*r,y:cy+Math.sin(a)*r,r:21,t:1.4,dmg:12*e.dm,col:'#3a2a20',src:e});}}
    if(E.mins.every(m=>m.dead)&&E.t>2){E.done=1;setToast('SQUAD ROUTED','#ffd040',2);}},
   end(e,E){const left=E.mins.filter(m=>!m.dead).length;if(left)setToast(left+' ASHIGARU JOIN THE FIGHT','#ff8080',2.5);}},
 };

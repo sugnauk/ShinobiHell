@@ -429,20 +429,24 @@ function drawTooltip(){
  ctx.fillStyle='rgba(8,6,12,.92)';ctx.fillRect(x,y,w,h);ctx.fillStyle=sp.c;ctx.fillRect(x,y,w,1);ctx.fillRect(x,y+h-1,w,1);
  L.forEach((s,i)=>txt(S2(s),x+4,y+3+i*8,typeof s==='object'?s.c:i===0?sp.c:i===1?'#fff':'#bbb',1,false));
 }
+// a gold coin and a revive (a blue spirit flame) for the counters along the bottom
+function hudCoin(x,y){ctx.fillStyle='#7a5a10';ctx.fillRect(x+1,y,5,7);ctx.fillRect(x,y+1,7,5);ctx.fillStyle='#e0b040';ctx.fillRect(x+1,y+1,5,5);ctx.fillStyle='#fff0a0';ctx.fillRect(x+2,y+1,2,1);ctx.fillRect(x+1,y+2,1,2);ctx.fillStyle='#7a5a10';ctx.fillRect(x+3,y+2,1,3);}
+function hudRevive(x,y){const f=Math.floor(time*6)%2;ctx.fillStyle='#2a6aa0';ctx.fillRect(x+1,y+3,5,4);ctx.fillRect(x+2,y+1,3,2);ctx.fillRect(x+3-f,y,1,1);ctx.fillStyle='#8cf';ctx.fillRect(x+2,y+3,3,3);ctx.fillRect(x+3,y+2,1,1);ctx.fillStyle='#fff';ctx.fillRect(x+3,y+4,1,2);}
 function drawHUD(){
  syncLMB();
- bar(6,6,90,8,P.hp/S.maxhp,'#c22','#3a1010');txt(Math.ceil(P.hp)+'/'+S.maxhp,9,8,'#fff');
- bar(6,17,90,5,P.pos/S.maxpos,P.stag>0?'#f84':'#fd4','#3a3010');
- txt('REZ '+P.rez,6,26,'#fd4');
+ // bottom left: health (with the stun bar under it), then the gold coin and revive counters
+ {const y=H-17;bar(6,y,96,8,P.hp/S.maxhp,'#c22','#3a1010');txt(Math.ceil(P.hp)+'/'+S.maxhp,9,y+2,'#fff');bar(6,y+10,96,3,P.pos/S.maxpos,P.stag>0?'#f84':'#fd4','#3a3010');
+  hudCoin(108,y);txt(String(R.sen),117,y+1,'#fc4');hudRevive(108,y+8);txt('X'+P.rez,117,y+9,P.rez>0?'#bfe8ff':'#777');}
  // HP potions live in the ability bar: C is effectively your heal ability
  {const x=slotX(0)-24,y=SLOTY(),has=R.pots>0;ctx.fillStyle='#000';ctx.fillRect(x-1,y-1,15,15);ctx.fillStyle=has?'#e33':'#555';ctx.fillRect(x,y,13,13);ctx.fillStyle='#14101a';ctx.fillRect(x+1,y+1,11,11);
   if(!has)ctx.globalAlpha=.4;ctx.fillStyle='#c8a070';ctx.fillRect(x+5,y+2,3,1);ctx.fillStyle='#ddd';ctx.fillRect(x+5,y+3,3,2);ctx.fillStyle='#e33';ctx.fillRect(x+3,y+5,7,6);ctx.fillRect(x+4,y+4,5,1);ctx.fillStyle='#ff8080';ctx.fillRect(x+4,y+6,1,3);ctx.globalAlpha=1;
   txt(String(R.pots),x+10,y+8,has?'#fff':'#888');txt('C',x+5,y+15,has?'#ccc':'#777');
   for(let i=0;i<POTMAX;i++){ctx.fillStyle=i<R.pots?'#e33':'#3a2030';ctx.fillRect(x+1+i*4,y+22,3,2);}}
- {let gx=7;for(const s of ['wpn','arm','ring']){const g=R.eq[s];drawItemIcon(g,gx,48);gx+=18;}txt('TAB '+R.pack.length+'/'+PACKMAX,gx,53,R.pack.length>=PACKMAX?'#f66':'#888');}
- txt('GOLD '+R.sen,6,34,'#fc4');if(P.oocRun)txt('SWIFT',60,34,Math.floor(time*4)%2?'#8cf':'#cef');
- if(curseCount()){const cn={};for(const k of (R.cnames||[]))cn[k]=(cn[k]||0)+1;if(R.curse&&!cn.frail)cn.frail=R.curse;let cx=6;txt('CURSES',cx,42,'#c6f');cx+=28;
-  for(const k in cn){const C=CURSES[k];if(!C)continue;const s=C.n.split(' ').pop()+(cn[k]>1?' '+ROM[Math.min(4,cn[k])]:'');txt(s,cx,42,C.c);cx+=txtW(s)+6;}}
+ // top left: your gear, then your relics, then curses
+ {let gx=6;for(const s of ['wpn','arm','ring']){const g=R.eq[s];drawItemIcon(g,gx,6);gx+=18;}txt('TAB '+R.pack.length+'/'+PACKMAX,gx,11,R.pack.length>=PACKMAX?'#f66':'#888');if(P.oocRun)txt('SWIFT',gx+38,11,Math.floor(time*4)%2?'#8cf':'#cef');}
+ {const ids=Object.keys(R.inv),per=11;let shown=0;ids.forEach((id,i)=>{if(i>=per*2)return;const ix=6+(i%per)*13,iy=24+((i/per)|0)*13;relicBox(ix,iy,id,11);if(R.inv[id]>1)txt(R.inv[id],ix+7,iy+8,'#fff');shown++;});if(shown<ids.length)txt('+'+(ids.length-shown),6+per*13,37,'#aaa');}
+ if(curseCount()){const cn={};for(const k of (R.cnames||[]))cn[k]=(cn[k]||0)+1;if(R.curse&&!cn.frail)cn.frail=R.curse;const cy=Object.keys(R.inv).length>11?52:Object.keys(R.inv).length?39:26;let cx=6;txt('CURSES',cx,cy,'#c6f');cx+=28;
+  for(const k in cn){const C=CURSES[k];if(!C)continue;const s=C.n.split(' ').pop()+(cn[k]>1?' '+ROM[Math.min(4,cn[k])]:'');txt(s,cx,cy,C.c);cx+=txtW(s)+6;}}
  // spell bar: LMB / RMB attacks, Q E F abilities, R ultimate
  [...SLOTS].forEach((k,i)=>{
   const sp=SPELLS[k][P.lo[k]],x=slotX(i),y=SLOTY(),cd=slotCd(k);
@@ -467,7 +471,7 @@ function drawHUD(){
  if(P.storm>0)ctxt('STORM '+P.storm.toFixed(1),H-52,'#ff8a30');
  if(freezeT>0)ctxt('TIME STOPPED '+freezeT.toFixed(1),H-52,'#8cf');
  const nm=R.training?'TRAINING GROUNDS':ROMAN[R.di]+'. '+DUN[R.di].name;txt(nm,Math.round((W-txtW(nm))/2),4,'#ddd');
- {const ids=Object.keys(R.inv),lim=(boss&&boss.awake&&!boss.dead)?44:222;let ix=6,shown=0;for(const id of ids){if(ix>lim)break;relicBox(ix,H-15,id,11);if(R.inv[id]>1)txt(R.inv[id],ix+7,H-7,'#fff');ix+=13;shown++;}if(shown<ids.length)txt('+'+(ids.length-shown),ix,H-12,'#aaa');}
+
  if(P.hCh>0){const k=Math.min(1,P.hCh/HCHARGE);ctx.fillStyle='#14101a';ctx.fillRect(Math.round(W/2-9),H/2+17,18,3);ctx.fillStyle=k>=1?(Math.floor(time*12)%2?'#fff':'#fd4'):'#a89ab8';ctx.fillRect(Math.round(W/2-8),H/2+18,Math.round(16*k),1);}
  if(P.dashCd>0){ctx.fillStyle='#fff';ctx.fillRect(Math.round(W/2-8),H/2+14,Math.round(16*(1-P.dashCd/S.dashCd)),1);}
  // survival phase: big countdown while the boss is invulnerable
