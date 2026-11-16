@@ -337,7 +337,7 @@ function hitPlayer(raw,sx,sy,o){
   if(S.thorn)shockwave(p.x,p.y,36,S.atk*S.thorn*.8);
   return 'perfect';
  }
- const dmg=Math.max(raw*.25,raw-S.def)*S.dr*(p.stag>0?1.4:1)*(o.peril?1.5:1);
+ const dmg=Math.max(raw*.6,raw-S.def)*Math.max(.55,S.dr)*(p.stag>0?1.4:1)*(o.peril?1.5:1);
  p.hp-=dmg;p.combatT=3;p.pos+=raw*.35;p.pdelay=1.4;if(!o.bullet)p.hurtIv=.4;p.flash=.2;shake=Math.max(shake,4);sfx('hurt');hurtT=.45;
  txtFx(p.x,p.y,Math.round(dmg),'#f55');spark(p.x,p.y,'#c22',10,80);
  if(p.pos>=S.maxpos&&p.stag<=0){p.stag=1.2;p.guard=false;p.pos=S.maxpos*.4;txtFx(p.x,p.y,'STUNNED','#f84');sfx('break');}
