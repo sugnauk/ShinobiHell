@@ -11,6 +11,8 @@ const CLSINFO={
  onmyoji:{role:'SUMMONER - CONTROL',diff:3,lore:'BINDS SPIRITS TO FIGHT AND SHIELD.'},
  gunner:{role:'RANGED - ARTILLERY',diff:2,lore:'A MATCHLOCK, A TURRET, A LOT OF POWDER.'},
  lancer:{role:'MELEE - REACH',diff:2,lore:'THE LONGEST REACH. HOLDS THE LINE.'}};
+// the final form: always previewed in a box at the top-left of the showcase; F or a click swaps it onto the pedestal
+let selFinal=false;const FINBOX={x:6,y:18,w:42,h:66};
 let selChgT=0,selPrev=-1,selAb=0,selAbT=0,selAbHover=false;
 // your record with each hero
 meta.cst=meta.cst||{};
@@ -23,9 +25,9 @@ selCardAt=function(x,y){for(let i=0;i<CLASSES.length;i++){const rx=rstX(i);if(x>
  if(x>=8&&x<128&&y>=20&&y<150)return selIdx; // the showcase itself
  return -1;};
 const abAt=(x,y)=>{for(let i=0;i<6;i++)if(x>=ABX(i)-1&&x<ABX(i)+14&&y>=ABY-1&&y<ABY+14)return i;return -1;};
-{const _sk=selectKey;selectKey=function(c){if(!selLock&&selTab===0&&!isLocked(selIdx)){if(c==='ArrowUp'||c==='KeyW'){selAb=(selAb+5)%6;selAbT=time+6;sfx('coin');return;}if(c==='ArrowDown'||c==='KeyS'){selAb=(selAb+1)%6;selAbT=time+6;sfx('coin');return;}}return _sk(c);};}
+{const _sk=selectKey;selectKey=function(c){if(!selLock&&selTab===0&&!isLocked(selIdx)){if(c==='KeyF'){selFinal=!selFinal;selChgT=time;sfx(selFinal?'rare':'coin');return;}if(c==='ArrowUp'||c==='KeyW'){selAb=(selAb+5)%6;selAbT=time+6;sfx('coin');return;}if(c==='ArrowDown'||c==='KeyS'){selAb=(selAb+1)%6;selAbT=time+6;sfx('coin');return;}}return _sk(c);};}
 {const _sc=selConfirm;selConfirm=function(){const was=selLock;_sc();if(selLock&&!was){selT=time;}};}
-{const _sl=selClick;selClick=function(){if(selTab===0&&!selLock&&abAt(mouse.x,mouse.y)>=0)return;return _sl();};}
+{const _sl=selClick;selClick=function(){if(selTab===0&&!selLock&&mouse.x>=FINBOX.x&&mouse.x<FINBOX.x+FINBOX.w&&mouse.y>=FINBOX.y&&mouse.y<FINBOX.y+FINBOX.h){if(!isLocked(selIdx)){selFinal=!selFinal;selChgT=time;sfx(selFinal?'rare':'coin');}return;}if(selTab===0&&!selLock&&abAt(mouse.x,mouse.y)>=0)return;return _sl();};}
 
 const hexA=(c,a)=>{let h=c.slice(1);if(h.length===3)h=h.split('').map(x=>x+x).join('');const n=parseInt(h,16);return 'rgba('+(n>>16)+','+((n>>8)&255)+','+(n&255)+','+a+')';};
 function segBar(x,y,f,col,n){n=n||10;const k=Math.round(clamp(f,0,1)*n);for(let i=0;i<n;i++){ctx.fillStyle=i<k?col:'#2a2030';ctx.fillRect(x+i*6,y,5,4);if(i<k){ctx.fillStyle='rgba(255,255,255,.25)';ctx.fillRect(x+i*6,y,5,1);}}}
@@ -37,7 +39,7 @@ renderSelect=function(){
  bg();ctx.fillStyle='rgba(8,4,12,.72)';ctx.fillRect(0,0,W,H);
  if(selTab===1){renderUpgrades();return;}
  if(!selLock&&(mouse.x!==selMX||mouse.y!==selMY)){const h=selCardAt(mouse.x,mouse.y);if(h>=0&&h!==selIdx){selIdx=h;sfx('coin');}const a=abAt(mouse.x,mouse.y);selAbHover=a>=0;if(a>=0)selAb=a;selMX=mouse.x;selMY=mouse.y;}
- if(selIdx!==selPrev){selPrev=selIdx;selChgT=time;selAbT=time+2.5;}
+ if(selIdx!==selPrev){selPrev=selIdx;selChgT=time;selAbT=time+2.5;selFinal=false;}
  const C=CLASSES[selIdx],I=CLSINFO[C.k]||{role:'',diff:2,lore:''},lk=isLocked(selIdx),col=lk?'#6a6074':C.col,e=clamp((time-selChgT)/.22,0,1),ease=1-(1-e)*(1-e);
  if(!selAbHover&&time>selAbT){selAb=(selAb+1)%6;selAbT=time+2.5;}
  // ---- header ----
@@ -52,14 +54,24 @@ renderSelect=function(){
  ctx.fillStyle='#1a1220';for(let y=0;y<9;y++){const w=Math.round(38*Math.sqrt(1-((y-4)/4.6)**2));ctx.fillRect(cx-w,fy-4+y,w*2,1);}
  ctx.fillStyle='#2e2438';for(let y=0;y<5;y++){const w=Math.round(34*Math.sqrt(1-((y-2)/2.6)**2));ctx.fillRect(cx-w,fy-4+y,w*2,1);}
  for(let i=0;i<24;i++){const a=i/24*TAU+time*.6;ctx.fillStyle=i%2?col:shade(col,-.4);ctx.fillRect(Math.round(cx+Math.cos(a)*30),Math.round(fy-2+Math.sin(a)*3),1,1);}
- const sp=heroSpr(C.k,0),SC=4,slide=Math.round((1-ease)*14),fr=selLock?(WIZ.atk||WIZ.idle)[Math.min((WIZ.atk||[0]).length-1,Math.floor((time-selT)/.1))]:heroPose(selIdx,time);
+ const fin=selFinal&&!lk;if(fin)glowDisc(cx,fy-40,52,'#ffd040',.9);
+ const sp=heroSpr(C.k,fin?9:0),SC=4,slide=Math.round((1-ease)*14),fr=selLock?(WIZ.atk||WIZ.idle)[Math.min((WIZ.atk||[0]).length-1,Math.floor((time-selT)/.1))]:heroPose(selIdx,time);
  const dx=Math.round(cx-sp.fw*SC/2)+slide,dy=fy-sp.fh*SC+2;
  ctx.globalAlpha=.35*ease;ctx.fillStyle='#000';for(let y=0;y<4;y++){const w=Math.round(22*Math.sqrt(1-((y-1.5)/2.2)**2));ctx.fillRect(cx-w,fy-2+y,w*2,1);}ctx.globalAlpha=ease;
  if(lk){ctx.globalAlpha=.5*ease;for(const o of [[-1,0],[1,0],[0,-1]])ctx.drawImage(sp.wc,fr*sp.fw,0,sp.fw,sp.fh,dx+o[0],dy+o[1],sp.fw*SC,sp.fh*SC);ctx.globalAlpha=ease;ctx.drawImage(silOf(sp,C.k),fr*sp.fw,0,sp.fw,sp.fh,dx,dy,sp.fw*SC,sp.fh*SC);padlock(cx-3,fy-54,'#e0c070');}
  else{ctx.drawImage(sp.c,fr*sp.fw,0,sp.fw,sp.fh,dx,dy,sp.fw*SC,sp.fh*SC);if(selLock){const fl=clamp(1-(time-selT)/.4,0,1);if(fl>0){ctx.globalAlpha=fl;ctx.drawImage(sp.wc,fr*sp.fw,0,sp.fw,sp.fh,dx,dy,sp.fw*SC,sp.fh*SC);}}}
  ctx.globalAlpha=1;
  // name plate
- {const nm=lk?'? ? ?':C.n;txt(nm,cx-Math.round(txtW(nm,2)/2),fy+7,col,2);const r=I.role;txt(r,cx-Math.round(txtW(r)/2),fy+20,lk?'#666':'#bbb');}
+ {const nm=lk?'? ? ?':fin?heroEV(C.k,9).n:C.n;{const sz=txtW(nm,2)>124?1:2;txt(nm,cx-Math.round(txtW(nm,sz)/2),fy+(sz===2?7:10),col,sz);}const r=fin?'FINAL FORM OF THE '+C.n:I.role;txt(r,cx-Math.round(txtW(r)/2),fy+20,lk?'#666':'#bbb');}
+ // ---- the final form preview (or the starting form while the final one is on the pedestal) ----
+ {const B=FINBOX,hov=mouse.x>=B.x&&mouse.x<B.x+B.w&&mouse.y>=B.y&&mouse.y<B.y+B.h&&!lk,st=fin?0:9,sp2=heroSpr(C.k,st),gold='#ffd040';
+  ctx.fillStyle='rgba(14,9,20,.92)';ctx.fillRect(B.x,B.y,B.w,B.h);ctx.fillStyle=lk?'#3a2e44':hov?'#fff':fin?col:gold;ctx.fillRect(B.x,B.y,B.w,1);ctx.fillRect(B.x,B.y+B.h-1,B.w,1);ctx.fillRect(B.x,B.y,1,B.h);ctx.fillRect(B.x+B.w-1,B.y,1,B.h);
+  if(!lk&&!fin)glowDisc(B.x+B.w/2,B.y+28,22,gold,.6);
+  const f2=WIZ.idle[Math.floor(time*2.5)%2],dx2=B.x+Math.round(B.w/2-sp2.fw),dy2=B.y+4;
+  if(lk){ctx.globalAlpha=.6;ctx.drawImage(silOf(sp2,C.k+'f'),f2*sp2.fw,0,sp2.fw,sp2.fh,dx2,dy2,sp2.fw*2,sp2.fh*2);ctx.globalAlpha=1;txt('?',B.x+B.w/2-2,B.y+22,'#777');}
+  else ctx.drawImage(sp2.c,f2*sp2.fw,0,sp2.fw,sp2.fh,dx2,dy2,sp2.fw*2,sp2.fh*2);
+  const lab=fin?'START':'FINAL',ls=lk?'#666':fin?'#bbb':gold;txt(lab,B.x+Math.round((B.w-txtW(lab))/2),B.y+B.h-14,ls);
+  if(!lk){const k='F';txt(k,B.x+Math.round((B.w-txtW(k))/2),B.y+B.h-7,hov?'#fff':'#777');}}
  // ---- right panel ----
  const px=134,pw=W-px-6;ctx.fillStyle='rgba(16,10,22,.9)';ctx.fillRect(px-4,20,pw+4,127);ctx.fillStyle=col;ctx.fillRect(px-4,20,pw+4,1);ctx.fillRect(px-4,20,1,127);
  ctx.globalAlpha=ease;
@@ -98,7 +110,7 @@ renderSelect=function(){
   txt(String(i+1),x+2,y+2,sel?'#fff':'#555');});
  {const l=rstX(0)-8,r=rstX(CLASSES.length-1)+RST.w+4,b=Math.floor(time*3)%2;txt('<',l-(b?1:0),RST.y+7,'#888');txt('>',r+(b?1:0),RST.y+7,'#888');}
  // ---- footer: key hints ----
- {const hint=selLock?'':lk?'A/D CHOOSE   ESC BACK':'A/D CHOOSE   W/S ABILITIES   ENTER START   TAB SKILL TREE ('+meta.sen+' JADE)   K GUIDE';txt(hint,Math.round((W-txtW(hint))/2),H-6,'#777');}
+ {const hint=selLock?'':lk?'A/D CHOOSE   ESC BACK':'A/D HERO   W/S SKILL   F FINAL FORM   ENTER START   TAB TREE   K GUIDE';txt(hint,Math.round((W-txtW(hint))/2),H-6,'#777');}
  // ---- confirm: a READY banner sweeps across with a burst ----
  if(selLock){const t=time-selT,k=clamp(t/.25,0,1),bw=Math.round(W*k);ctx.fillStyle='rgba(0,0,0,.6)';ctx.fillRect(0,64,bw,26);ctx.fillStyle=C.col;ctx.fillRect(0,64,bw,1);ctx.fillRect(0,89,bw,1);
   if(k>=1){const s=C.n+' - READY';txt(s,Math.round((W-txtW(s,2))/2),71,'#fff',2);}
