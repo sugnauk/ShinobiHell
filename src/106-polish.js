@@ -32,3 +32,14 @@ function unstickPortal(){if(!portal)return;if(blocked(portal.x,portal.y,9)){cons
  for(const k of pickups)if(!k.dead&&solid(k.x,k.y)){const s=openSpotNear(k.x,k.y,4);k.x=s.x;k.y=s.y;}}
 {const _ob=onBossDead;onBossDead=function(e){const r=_ob.apply(this,arguments);unstickPortal();return r;};}
 {const _up=updPlay;updPlay=function(dt){_up.apply(this,arguments);if(portal&&map&&blocked(portal.x,portal.y,9))unstickPortal();};}
+
+// ---------- the Ronin Seven: tougher, and they line up in the middle of the arena for the intro ----------
+// Each ronin had only a seventh of the guardian's health and fell very fast. They now have 1.8x, and the seven stand in a
+// line across the middle of the arena while the camera and the name card introduce them; after the intro the ones
+// waiting their turn walk back to the porch.
+{const K=BKIT['THE RONIN SEVEN'];if(K&&K.init){const _in=K.init;K.init=function(e){_in.apply(this,arguments);const A=arenaOf(e);
+ e.maxhp*=1.8;e.hp=e.maxhp;
+ const n=e.r7.length;e.r7.forEach((m,i)=>{m.hp*=1.8;m.maxhp*=1.8;const s=freeSpot(e,A.cx+(i-(n-1)/2)*30,A.cy+30,6);m.x=s.x;m.y=s.y;});
+ e.introAt={x:A.cx,y:A.cy+30};};}}
+{const _up=updPlay;updPlay=function(dt){_up.apply(this,arguments);if(introE&&introE.introAt&&!introE.__p){const e=introE;introE={name:e.name,x:e.introAt.x,y:e.introAt.y,__p:1};}};}
+{const _u=update;update=function(dt){const was=introT>0;_u.apply(this,arguments);if(!was&&introT>0&&introE&&introE.introAt){const e=introE;introE={name:e.name,x:e.introAt.x,y:e.introAt.y,__p:1};}};}
