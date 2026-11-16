@@ -45,7 +45,7 @@ function storyCampaign(){
 // a boss's movement-mode shots are tinted with its own colour so every fight has one visual language
 const bShot=(e,o)=>enemyShoot(e,Object.assign({sp:62,dmg:10,pd:8,col:'#f8c',cnt:1},o,e.boss?{col:bsty(e).c}:{}),Math.atan2(P.y-e.y,P.x-e.x));
 // fire one of the boss's signature barrages (bursts are queued and fired over the next frames)
-function bossBarrage(e,cfg){bossPressure(e);const o=Object.assign({sp:62,dmg:9+2*e.phase,pd:8,cnt:1},cfg),n=o.burst||1;e.brq=e.brq||[];
+function bossBarrage(e,cfg){if(e.danmakuCast)return;bossPressure(e);const o=Object.assign({sp:62,dmg:9+2*e.phase,pd:8,cnt:1},cfg),n=o.burst||1;e.brq=e.brq||[];
  for(let i=0;i<n;i++)e.brq.push({t:i*(o.gap||.1),o});}
 function tickBarrage(e,dt){if(!e.brq||!e.brq.length)return;for(const b of e.brq){b.t-=dt;if(b.t<=0){b.done=true;enemyShoot(e,b.o,Math.atan2(P.y-e.y,P.x-e.x));}}e.brq=e.brq.filter(b=>!b.done);}
 // how close a boss gets when it hunts or walks toward you: near enough to pressure, never on top of you
