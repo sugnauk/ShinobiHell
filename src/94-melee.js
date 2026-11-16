@@ -17,7 +17,8 @@ function bladeCut(test){if(!P||!R||!MELEE())return;const hit=[];for(const q of p
 // tougher against bullets
 {const _hp=hitPlayer;hitPlayer=function(raw,sx2,sy2,o){if(o&&o.bullet&&R&&MELEE())raw*=.7;return _hp(raw,sx2,sy2,o);};}
 // a longer dash dodge
-{const _cs=calcStats;calcStats=function(){const s=_cs();if(meta&&CLASSES&&MELEE()&&s.dashIv)s.dashIv*=1.4;return s;};}
+// longer reach for everyone: every projectile, beam and arc that scales with range (+35% base)
+{const _cs=calcStats;calcStats=function(){const s=_cs();s.rangeM=(s.rangeM||0)+.35;if(meta&&CLASSES&&MELEE()&&s.dashIv)s.dashIv*=1.4;return s;};}
 // blade hits mend you
 {const _he=hurtE;hurtE=function(e,dmg,pd,o){const r=_he(e,dmg,pd,o);if(o&&o.slash&&P&&R&&MELEE()&&!e.prop){const now=R.time;if(now-(P.lsW||0)>1){P.lsW=now;P.lsN=0;}if((P.lsN||0)<.04){P.lsN=(P.lsN||0)+.005;P.hp=Math.min(S.maxhp,P.hp+S.maxhp*.005);}}return r;};}
 // the Wizard and Archer are the two starting characters (the class list was reordered: old saves keep their class)

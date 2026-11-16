@@ -357,18 +357,23 @@ function drawMinimap(){
  const k=64/(MW+MH),mw=Math.round((MW+MH)*k),mh=mw,ox=W-mw-3,oy=3,mp=(x,y)=>{const [u,v]=tileR(x,y);return [ox+Math.round((u-v+RMH)*k),oy+Math.round((u+v)*k)];};
  ctx.fillStyle='rgba(0,0,0,.55)';ctx.fillRect(ox-1,oy-1,mw+2,mh+2);
  if(R.fog===R.di){ctx.fillStyle='rgba(150,140,170,.25)';for(let i=0;i<14;i++){const a=time*.3+i;ctx.fillRect(ox+((i*23+Math.round(time*6))%(mw-10)),oy+(i*11)%(mh-4),10,3);}txt('FOG',ox+mw/2-5,oy+mh/2-2,'#b8b0c8');const q=[ox+mw/2,oy+mh/2];return;}
- ctx.fillStyle='rgba(170,170,200,.7)';
- // explored floor, plus the edges where a seen path leads into unexplored floor (pulsing gold = somewhere left to explore)
+ // a quiet, mostly grey map: explored floor grey, finished rooms a lighter grey. Colour is kept for what you look for:
+ // the unexplored edges (a pulsing gold glow), you, the boss and the portal.
+ ctx.fillStyle='rgba(120,120,130,.75)';
  const fr=[],un=(x,y)=>x>=0&&y>=0&&x<MW&&y<MH&&map.t[y*MW+x]&&!map.expl[y*MW+x];
  for(let y=0;y<MH;y++)for(let x=0;x<MW;x++)if(map.expl[y*MW+x]&&map.t[y*MW+x]){const q=mp(x,y);ctx.fillRect(q[0],q[1],1,1);if(un(x+1,y)||un(x-1,y)||un(x,y+1)||un(x,y-1))fr.push(q);}
- ctx.fillStyle=Math.floor(time*3)%2?'#ffd040':'#c08a10';for(const q of fr)ctx.fillRect(q[0],q[1],1,1);
- // completed rooms: floor tinted green so you can see at a glance what's finished
- ctx.fillStyle='rgba(110,210,130,.75)';
- for(const r of map.rooms){if(!r.done)continue;for(let y=r.y;y<r.y+r.h;y++)for(let x=r.x;x<r.x+r.w;x++)if(map.t[y*MW+x]){const q=mp(x,y);ctx.fillRect(q[0],q[1],1,1);}}
- // ordinary rooms stay blank; only shops, challenges, curse altars and wells get a marker (the boss has its own). Done ones fade, with a green tick
+ ctx.fillStyle='rgba(200,200,210,.8)';
+ for(const r of map.rooms){if(!r.done)continue;for(let y=r.y;y<r.y+r.h;y++)for(let x=r.x;x<r.x+r.w;x++)if(map.t[y*MW+x]&&map.expl[y*MW+x]){const q=mp(x,y);ctx.fillRect(q[0],q[1],1,1);}}
+ // unexplored edges: a soft halo and a bright core, pulsing, so the way on is obvious at a glance
+ {const k2=.5+.5*Math.sin(time*5);ctx.fillStyle='rgba(255,190,40,'+(.1+.15*k2)+')';for(const q of fr){ctx.fillRect(q[0]-1,q[1],3,1);ctx.fillRect(q[0],q[1]-1,1,3);}ctx.fillStyle=k2>.5?'#fff0a0':'#ffc030';for(const q of fr)ctx.fillRect(q[0],q[1],1,1);}
+ // shops, challenges, curse altars and wells: small grey shapes (done ones fade)
  for(const r of map.rooms){if(!['shop','challenge','altar','rest'].includes(r.type))continue;const cx=r.x+(r.w>>1),cy=r.y+(r.h>>1);if(!map.expl[cy*MW+cx])continue;const q=mp(cx,cy);
-  ctx.globalAlpha=r.done?.4:1;ctx.fillStyle=ROOMCOL[r.type]||'#fff';ctx.fillRect(q[0]-1,q[1]-1,3,3);ctx.globalAlpha=1;
-  if(r.done){ctx.fillStyle='#3f3';ctx.fillRect(q[0]-1,q[1],1,1);ctx.fillRect(q[0],q[1]+1,1,1);ctx.fillRect(q[0]+1,q[1]-1,1,2);}}
+  ctx.globalAlpha=r.done?.35:.95;ctx.fillStyle='#e8e8f0';
+  if(r.type==='shop'){ctx.fillRect(q[0]-1,q[1]-1,3,3);ctx.fillStyle='#14101a';ctx.fillRect(q[0],q[1],1,1);}
+  else if(r.type==='challenge'){ctx.fillRect(q[0],q[1]-1,1,3);ctx.fillRect(q[0]-1,q[1],3,1);}
+  else if(r.type==='altar'){ctx.fillRect(q[0]-1,q[1]-1,1,1);ctx.fillRect(q[0]+1,q[1]-1,1,1);ctx.fillRect(q[0],q[1],1,1);ctx.fillRect(q[0]-1,q[1]+1,1,1);ctx.fillRect(q[0]+1,q[1]+1,1,1);}
+  else{ctx.fillRect(q[0]-1,q[1],3,1);ctx.fillRect(q[0],q[1]+1,1,1);}
+  ctx.globalAlpha=1;}
  const br=map.bossRoom;if(!map.train&&(boss||!portal)){const q=mp(br.x+(br.w>>1),br.y+(br.h>>1));ctx.fillStyle=Math.floor(time*3)%2?'#f33':'#a22';ctx.fillRect(q[0]-1,q[1]-1,3,3);}
  if(portal){const q=mp(portal.x/T|0,portal.y/T|0);ctx.fillStyle='#8cf';ctx.fillRect(q[0]-1,q[1]-1,3,3);}
  const q=mp(P.x/T|0,P.y/T|0);ctx.fillStyle='#fff';ctx.fillRect(q[0]-1,q[1]-1,3,3);
