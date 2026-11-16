@@ -115,28 +115,10 @@ function drawGround(){
  for(const d of dh){const k=1-d.t/d.dur;ctx.globalAlpha=.22;wdisc(d.x,d.y,d.r*Math.min(1,k*1.1),d.col||'#f22');ctx.globalAlpha=1;wcirc(d.x,d.y,d.r,d.col||'#f55');}
  for(const e of enemies)if(!e.dead&&e.act&&e.act.ph===0)drawTele(e);
 }
-function drawEntrance(p,X,Y){
- const boss=p.gate==='boss',edge=boss?'#a84843':'#578b76',glow=boss?'#f4b472':'#b8e6ad';
- const px=(x,y,w,h,c)=>{ctx.fillStyle=c;ctx.fillRect(X+x,Y+y,w,h);};
- if(p.k==='doorpost'){
-  shadow(X,Y,13);
-  px(-5,-4,10,4,'#27232b');px(-4,-5,8,2,'#72605c');
-  px(-2,-27,4,23,'#352631');px(-2,-25,1,19,edge);
-  px(-5,-27,10,3,'#2b222d');px(-7,-28,14,1,edge);
-  px(-4,-23,8,8,'#211b28');px(-3,-22,6,6,edge);
-  px(-2,-21,4,4,glow);px(-1,-20,2,2,'#fff0bd');
-  px(-1,-16,2,2,glow);
- }else{
-  shadow(X,Y,14);px(-2,-15,3,15,'#402f32');
-  px(-12,-22,24,10,'#241b27');px(-11,-21,22,8,edge);px(-10,-20,20,6,'#272330');
-  const label=boss?'BOSS':'SHOP';
-  txt(label,X-Math.round(txtW(label)/2),Y-19,glow);
- }
-}
 function drawProp(p){
+ if(p.k==='doorpost'||p.k==='entrancePlaque'){drawEntrance(p,sx(p.x,p.y),sy(p.x,p.y));return;}
  const X=sx(p.x,p.y),Y=sy(p.x,p.y);
- if(p.k==='doorpost'||p.k==='entrancePlaque')drawEntrance(p,X,Y);
- else if(p.k==='chest'){ // red lacquered treasure chest with gold bands; glows until opened, open lid shows the empty gold-lined inside
+ if(p.k==='chest'){ // red lacquered treasure chest with gold bands; glows until opened, open lid shows the empty gold-lined inside
   shadow(X,Y,22);const o=p.used;
   if(!o){ctx.globalAlpha=.18+.08*Math.sin(time*3);disc(X,Y-8,15,'#ffd040');ctx.globalAlpha=1;}
   ctx.fillStyle='#14101a';ctx.fillRect(X-11,Y-(o?21:15),22,o?21:15);
@@ -555,6 +537,24 @@ function sceneTiles(M){
 function visibleTileRows(rows,top,bottom,visit){
  const first=Math.max(0,Math.ceil((cam.y-top)/HY)),end=Math.min(rows.length-1,Math.floor((cam.y+H+bottom)/HY));
  for(let i=first;i<=end;i++)if(rows[i])for(const o of rows[i])visit(o);
+}
+function drawEntrance(p,X,Y){
+ const boss=p.gate==='boss',edge=boss?'#a84843':'#578b76',glow=boss?'#f4b472':'#b8e6ad';
+ const px=(x,y,w,h,c)=>{ctx.fillStyle=c;ctx.fillRect(X+x,Y+y,w,h);};
+ if(p.k==='doorpost'){
+  shadow(X,Y,13);
+  px(-5,-4,10,4,'#27232b');px(-4,-5,8,2,'#72605c');
+  px(-2,-27,4,23,'#352631');px(-2,-25,1,19,edge);
+  px(-5,-27,10,3,'#2b222d');px(-7,-28,14,1,edge);
+  px(-4,-23,8,8,'#211b28');px(-3,-22,6,6,edge);
+  px(-2,-21,4,4,glow);px(-1,-20,2,2,'#fff0bd');
+  px(-1,-16,2,2,glow);
+ }else{
+  shadow(X,Y,14);px(-2,-15,3,15,'#402f32');
+  px(-12,-22,24,10,'#241b27');px(-11,-21,22,8,edge);px(-10,-20,20,6,'#272330');
+  const label=boss?'BOSS':'SHOP';
+  txt(label,X-Math.round(txtW(label)/2),Y-19,glow);
+ }
 }
 function drawWall(o){ctx.drawImage(o.sprite,o.x-cam.x-16,o.y-cam.y-WH);}
 function drawLiquids(rows){
