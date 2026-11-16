@@ -112,7 +112,7 @@ function classCast(k){const p=P,v=p.lo[k],a=p.aim,em=EMP(k),A=S.atk,bp=BP()*(p.m
   case 52:{const t=clampT(160);zones.push({k:'rain',x:t.x,y:t.y,r:42*AZ(),t:1.6,tk:0,dm:A*.35*qm*em});sfx('shoot');break;}
   case 53:{const ra=a+Math.PI;zones.push({k:'trap',x:p.x,y:p.y,r:16,t:10,tk:0,dm:A*3*ap*em});p.dx=Math.cos(ra);p.dy=Math.sin(ra);p.dash=.2;p.iv=Math.max(p.iv,.4);sfx('dash');break;}
   case 54:{zones.push({k:'hawk',x:p.x,y:p.y,r:0,t:8,tk:.3,dm:A*.5*ap*em,ang:0});sfx('rare');break;}
-  case 55:{const t=clampT(170);sfx('boss');setToast('ARROW STORM','#e8dcb0',1.2);for(let i=0;i<30;i++){const an=Math.random()*TAU,rr=Math.sqrt(Math.random())*70;fx.push({k:'ult',x:t.x+Math.cos(an)*rr,y:t.y+Math.sin(an)*rr,wait:i*.09,t:.35,dur:.35,r:16,col:'#e8dcb0',dm:A*.8*ep*em,met:1,done:false});}break;}
+  case 55:{const t=clampT(170);sfx('boss');setToast('ARROW STORM','#e8dcb0',1.2);ultSlow=Math.max(ultSlow,3.1);for(let i=0;i<30;i++){const an=Math.random()*TAU,rr=Math.sqrt(Math.random())*70;fx.push({k:'ult',x:t.x+Math.cos(an)*rr,y:t.y+Math.sin(an)*rr,wait:i*.09,t:.35,dur:.35,r:16,col:'#e8dcb0',dm:A*.8*ep*em,met:1,done:false});}break;}
   // ---------- SHINOBI ----------
   case 60:{for(const o of [-.07,.07])pShot(p.x+Math.cos(a)*5,p.y+Math.sin(a)*5,a+o,290,A*.6*bp*em,{r:2,arrow:true,col:'#d0d8e0'});p.atkCd=.2/S.aspd;sfx('shoot');break;}
   case 61:{const n=p.hFull?7:5;for(let i=0;i<n;i++)pShot(p.x,p.y,a+(i/(n-1)-.5)*.9,210,A*.75*bp*em,{r:2,col:'#c8c8d0',pierce:1+S.pierce,cut:p.hFull?1:0});sfx('shoot');break;}
@@ -186,8 +186,12 @@ castBolt=lockW(castBolt,'m');castHeavy=lockW(castHeavy,'h');castChain=lockW(cast
  castBolt=srcW(castBolt,'m');castHeavy=srcW(castHeavy,'h');castChain=srcW(castChain,'q');castWard=srcW(castWard,'w');castF=srcW(castF,'f');castUlt=srcW(castUlt,'e');}
 // one action at a time: every cast briefly locks out the others, and nothing else fires while RMB is charging
 {const LOCK={m:.06,h:.15,q:.3,w:.3,f:.3,e:.4};
- const actW=(fn,k,get)=>function(){if(!P)return;if(P.lockT>0)return;if(k!=='h'&&P.hCh>0)return;
-  const b=get();const r=fn.apply(this,arguments);if(get()!==b)P.lockT=LOCK[k];return r;};
+ // abilities (Q, E ward, F, R) fire the instant they are off cooldown: no lock ever blocks them (dash + ward together is fine),
+ // and they work while RMB charges. Each one briefly pauses the basic attack, so a held LMB never gets in their way.
+ const actW=(fn,k,get)=>function(){if(!P)return;const ab=k!=='m'&&k!=='h';
+  if(P.lockT>0&&!ab)return;
+  if(!ab&&k!=='h'&&P.hCh>0)return;
+  const b=get();const r=fn.apply(this,arguments);if(get()!==b&&!(ab&&P.lockT>LOCK[k])){P.lockT=LOCK[k];P.lockK=k;}return r;};
  castBolt=actW(castBolt,'m',()=>P.atkCd);castHeavy=actW(castHeavy,'h',()=>P.ab.h);castChain=actW(castChain,'q',()=>P.ab.q);
  castWard=actW(castWard,'w',()=>P.ab.rmb);castF=actW(castF,'f',()=>P.ab.f);castUlt=actW(castUlt,'e',()=>P.ab.e);}
 function smite(f){ // Heavenly Judgment: a bolt from the sky on each target
@@ -197,7 +201,9 @@ function smite(f){ // Heavenly Judgment: a bolt from the sky on each target
 }
 function ultBlast(f){
  {const gz=zones.find(z=>z.k==='grav'&&Math.hypot(z.x-f.x,z.y-f.y)<z.r);if(gz&&!f.sing){f.sing=1;f.dm=(f.dm||S.atk*7*(1+.25*S.epow)*AP())*1.5;f.r*=1.3;txtFx(f.x,f.y,'SINGULARITY','#c080ff',2);fxRing(f.x,f.y,f.r*1.6,'#c080ff',.6);}}
- const c=f.col||'#fd4';if(f.met){impact(f.x,f.y,c,6);sfx('hit');sfx('break');}else{impact(f.x,f.y,c,12,true);hitstop=.12;sfx('break');}fxRing(f.x,f.y,f.r*1.2,c,.5);spark(f.x,f.y,c,f.met?20:40,160);spark(f.x,f.y,'#fff',f.met?6:16,110);
+ const c=f.col||'#fd4';if(f.met){const hs=hitstop;impact(f.x,f.y,c,6);hitstop=hs;sfx('hit');}else{impact(f.x,f.y,c,12,true);hitstop=.12;sfx('break');}fxRing(f.x,f.y,f.r*1.2,c,.5);spark(f.x,f.y,c,f.met?20:40,160);spark(f.x,f.y,'#fff',f.met?6:16,110);
  for(const e of enemies){if(e.dead||e.air)continue;if(los(f.x,f.y,e.x,e.y)&&Math.hypot(e.x-f.x,e.y-f.y)<f.r+e.r){hurtE(e,f.dm||S.atk*7*(1+.25*S.epow)*AP(),f.met?60:170,{slash:true,el:'burn'});if(!e.dead&&!e.boss){e.act=null;e.tele=0;e.stun=f.met?.5:1.2;}}}
  for(const q of projs)if(q.from==='e'&&Math.hypot(q.x-f.x,q.y-f.y)<f.r)q.dead=true;
 }
+// while an ult plays out (up to 6.5s: the Shinobi clones last 6), small freeze-frames from its many hits and stuns are skipped so it never stutters
+{const _u=castUlt;castUlt=function(){const b=P&&P.ab.e;const r=_u.apply(this,arguments);if(P&&P.ab.e!==b)hsCool=Math.max(hsCool,6.5);return r;};}

@@ -2,7 +2,7 @@
 // HELL OF THE EMPEROR - run and dungeon setup (part of the former game.js; files load in numeric order, see index.html)
 // ---------- run / dungeon setup ----------
 function startRun(start,resume){
- if(!resume)clearRun(); // a new run replaces any saved one
+ ultSlow=0;if(!resume)clearRun(); // a new run replaces any saved one
  if(!meta.tut3){meta.tut3=true;saveMeta();} // the training grounds replace the old auto tutorial pages
  R={di:start,inv:{},eq:{wpn:{t:'gear',slot:'wpn',tier:0,rare:false,wt:WSIG[CLS().k],name:'T0 '+WSIG[CLS().k],starter:true},arm:null,ring:null},pack:[],pots:1,asc:meta.asc||0,sen:0,kills:0,time:0,start,deathblows:0,perfect:0};
  S=calcStats();

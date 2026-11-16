@@ -20,7 +20,7 @@ addEventListener('keyup',e=>{keys[e.code]=false;});
 addEventListener('blur',()=>{for(const k in keys)keys[k]=false;mouse.down=mouse.rdown=false;if(mode==='play')paused=true;});
 function setMouse(e){const r=cv.getBoundingClientRect();mouse.x=(e.clientX-r.left)/r.width*W;mouse.y=(e.clientY-r.top)/r.height*H;}
 cv.addEventListener('mousemove',setMouse);
-cv.addEventListener('mousedown',e=>{setMouse(e);if(mode==='play'&&invOpen){invClick(e.button);return;}if(e.button===0){mouse.down=true;if(mode==='choose')clickChoose();else if(mode==='master')masterKey('Enter');else if(mode==='scroll')clickScroll();else if(mode==='select')selClick();else if(mode==='title'||mode==='dead'||mode==='win'||mode==='tut')onKey('Enter');}if(e.button===2)mouse.rdown=true;});
+cv.addEventListener('mousedown',e=>{setMouse(e);if(mode==='play'&&invOpen){invClick(e.button);return;}if(e.button===0){mouse.down=true;if(mode==='play'&&!paused&&(meta.opt.autoFire|0)===1&&!hoverSlot()){fireOn=!fireOn;txtFx&&P&&txtFx(P.x,P.y-14,fireOn?'AUTO FIRE ON':'AUTO FIRE OFF',fireOn?'#ffd080':'#888');}if(mode==='choose')clickChoose();else if(mode==='master')masterKey('Enter');else if(mode==='scroll')clickScroll();else if(mode==='select')selClick();else if(mode==='title'||mode==='dead'||mode==='win'||mode==='tut')onKey('Enter');}if(e.button===2)mouse.rdown=true;});
 addEventListener('mouseup',e=>{if(e.button===0)mouse.down=false;if(e.button===2)mouse.rdown=false;});
 cv.addEventListener('contextmenu',e=>e.preventDefault());
 

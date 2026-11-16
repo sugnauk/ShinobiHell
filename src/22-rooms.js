@@ -1,4 +1,5 @@
 'use strict';
+const SHOPX=1.25; // shop prices (raised 25% in 0.6.2)
 // HELL OF THE EMPEROR - rooms, props, shop, shrines, traps (part of the former game.js; files load in numeric order, see index.html)
 // ---------- rooms, props, shop, shrines, traps ----------
 const ROOMCOL={treasure:'#fd4',shop:'#4cf',shrine:'#c6f',rest:'#6f6',elite:'#f84',trap:'#f44',altar:'#f33',ambush:'#f66',challenge:'#fc4'};
@@ -7,7 +8,7 @@ function spotIn(r){let x,y,tries=0;do{x=ri(r.x+1,r.x+r.w-2);y=ri(r.y+1,r.y+r.h-2
 // ---- the shop: three relic stands (rerollable) plus a weapon, an enchant, a potion and a reroll stand ----
 const SHOPLINES=['WELCOME, TRAVELLER','FINE WARES FOR A FINE WARRIOR','GOLD SPEAKS LOUDER THAN STEEL','EVERYTHING HERE HAS A STORY','MIND THE BOSS AHEAD - BUY WISELY'];
 function stockRelics(c,r,di){for(const p of props)if(p.room===r&&p.relicStand)p.gone=true;props=props.filter(p=>!p.gone);
- const ex=['rez'];for(let i=0;i<3;i++){const it=randItem(ex);ex.push(it.id);props.push({k:'pedestal',relicStand:true,x:c.x-26+i*26,y:c.y+10,room:r,item:it.id,price:Math.round([35,60,100,170][it.r]*(1+.15*di)),name:it.name});}}
+ const ex=['rez'];for(let i=0;i<3;i++){const it=randItem(ex);ex.push(it.id);props.push({k:'pedestal',relicStand:true,x:c.x-26+i*26,y:c.y+10,room:r,item:it.id,price:Math.round(SHOPX*[35,60,100,170][it.r]*(1+.15*di)),name:it.name});}}
 function roomCenter(r){return {x:(r.x+(r.w>>1))*T+8,y:(r.y+(r.h>>1))*T+8};}
 function populateRoom(r,di){
  const th=DUN[di],c=roomCenter(r);
@@ -20,10 +21,10 @@ function populateRoom(r,di){
   case 'challenge':r.ev={k:'challenge',state:0};props.push({k:'gong',x:c.x,y:c.y,room:r});break;
   case 'shop':{props.push({k:'merchant',x:c.x,y:c.y-22,room:r,line:pick(SHOPLINES)});stockRelics(c,r,di);
    // second row: a weapon from your family, an enchant, a potion, and a reroll stand
-   {const g=mkGear('wpn',tierFor(di,1),false,Math.random()<.35?3:2);props.push({k:'pedestal',x:c.x-39,y:c.y+38,room:r,gear:g,price:Math.round((g.q===3?180:110)*(1+.2*di)),name:g.name});}
-   {const en=mkEnch();props.push({k:'pedestal',x:c.x-13,y:c.y+38,room:r,ench:en,price:Math.round(90*(1+.2*di)),name:'ENCHANT '+ENCH.find(x=>x.k===en.k).n});}
-   props.push({k:'pedestal',x:c.x+13,y:c.y+38,room:r,heal:true,price:Math.round(60*(1+.2*di)),name:'HP POTION'});
-   props.push({k:'pedestal',x:c.x+39,y:c.y+38,room:r,reroll:true,price:Math.round(25*(1+.2*di)),name:'REROLL THE RELICS'});break;}
+   {const g=mkGear('wpn',tierFor(di,1),false,Math.random()<.35?3:2);props.push({k:'pedestal',x:c.x-39,y:c.y+38,room:r,gear:g,price:Math.round(SHOPX*(g.q===3?180:110)*(1+.2*di)),name:g.name});}
+   {const en=mkEnch();props.push({k:'pedestal',x:c.x-13,y:c.y+38,room:r,ench:en,price:Math.round(SHOPX*90*(1+.2*di)),name:'ENCHANT '+ENCH.find(x=>x.k===en.k).n});}
+   props.push({k:'pedestal',x:c.x+13,y:c.y+38,room:r,heal:true,price:Math.round(SHOPX*60*(1+.2*di)),name:'HP POTION'});
+   props.push({k:'pedestal',x:c.x+39,y:c.y+38,room:r,reroll:true,price:Math.round(SHOPX*25*(1+.2*di)),name:'REROLL THE RELICS'});break;}
   case 'shrine':{const gk=pick(Object.keys(GODS));props.push({k:'altar',x:c.x,y:c.y,room:r,col:GODS[gk].c,god:gk});break;}
   case 'rest':props.push({k:'spring',x:c.x,y:c.y,room:r});break;
   case 'trap':{const n=ri(20,30)+di*2;for(let k=0;k<n;k++){const tx=ri(r.x+1,r.x+r.w-2),ty=ri(r.y+1,r.y+r.h-2);if(map.t[ty*MW+tx]&&!traps.some(t=>t.tx===tx&&t.ty===ty))traps.push({tx,ty,ph:((tx+ty)%3)*1.07});}addE(ri(2,3));break;}
@@ -58,7 +59,7 @@ const GODS={
  fox:{n:'SHRINE OF THE FOX',sub:'THE TRICKSTER LOVES A WAGER',c:'#ff9040',O:[
   {t:'WAGER 40 GOLD',d:'A RANDOM RELIC. 25% CHANCE OF NOTHING',ok:()=>R.sen>=40,fn:()=>{R.sen-=40;if(Math.random()<.25)setToast('THE FOX LAUGHS AND KEEPS YOUR GOLD','#c55',2.5);else applyItem(randItem(['rez']).id);}},
   {t:'DOUBLE OR NOTHING',d:'50%: DOUBLE YOUR GOLD. 50%: LOSE HALF',ok:()=>R.sen>=20,fn:()=>{if(Math.random()<.5){R.sen*=2;setToast('THE FOX PAYS OUT - GOLD DOUBLED','#ffd040',2.5);}else{R.sen=Math.floor(R.sen/2);setToast('THE FOX TAKES HALF','#c55',2.5);}}},
-  {t:'FOXFIRE TRICK',d:'TRADE YOUR WEAPON FOR A RANDOM ONE A TIER HIGHER',ok:()=>!!R.eq.wpn,fn:()=>{const w=R.eq.wpn,g=mkGear('wpn',Math.min(14,(w.tier||0)+2),false,Math.random()<.3?3:2);pickups.push({x:P.x,y:P.y+18,k:'bag',tier:5,items:[g],vx:0,vy:0,t:0,z:2,vz:80});setToast('A NEW BLADE APPEARS IN FOXFIRE','#ff9040',2.5);}}]},
+  {t:'FOXFIRE TRICK',d:'TRADE YOUR WEAPON FOR A RANDOM ONE A TIER HIGHER',ok:()=>!!R.eq.wpn,fn:()=>{const w=R.eq.wpn,g=mkGear('wpn',Math.min(14,(w.tier||0)+2),false,Math.random()<.3?3:2);R.eq.wpn=g;S=calcStats();P.hp=Math.min(S.maxhp,P.hp);spark(P.x,P.y,'#ff9040',24,90);setToast('THE FOX TAKES YOUR '+w.name+'. YOU NOW WIELD '+g.name,'#ff9040',3.5);}}]},
  crane:{n:'SHRINE OF THE CRANE',sub:'THE HEALER OF A THOUSAND YEARS',c:'#70e090',O:[
   {t:'PRAY FOR MENDING',d:'HEAL 40% HP',ok:()=>P.hp<S.maxhp,fn:()=>{P.hp=Math.min(S.maxhp,P.hp+S.maxhp*.4);setToast('THE CRANE MENDS YOUR WOUNDS','#6f6',2);}},
   {t:'LONG LIFE',d:'+25 MAX HP FOR THE REST OF THE RUN',ok:()=>true,fn:()=>{bless('hp',25);P.hp+=25;setToast('YOU FEEL HARDIER','#6f6',2);}},

@@ -9,7 +9,7 @@ function addScore(n,x,y,col){if(!R||R.training)return;R.score=(R.score||0)+Math.
 {const _ld=loadDungeon;loadDungeon=function(di){if(R){if(R.score==null)R.score=0;if(R.ngp==null)R.ngp=!!(meta.ngUnlocked&&OPT().ngp);}return _ld(di);};}
 {const _g=graze;graze=function(q){_g(q);addScore(SCORE.graze);};}
 {const _k=killE;killE=function(e){const was=!e.dead;_k(e);if(was&&e.dead&&!e.prop)addScore(e.boss?0:e.elite?SCORE.elite:SCORE.kill);};}
-{const _h=drawHUD;drawHUD=function(){_h();if(!R||R.training||!P)return;txt('SCORE '+(R.score||0),48,26,'#fff8c0');
+{const _h=drawHUD;drawHUD=function(){_h();if(!R||R.training||!P)return;{const sc='SCORE '+(R.score||0);txt(sc,W-6-txtW(sc),56,'#fff8c0');}
   // the boss fight clock and hits taken, so a no-hit run is visible while it lasts
   const b=boss;if(b&&b.awake&&!b.dead&&b.fight0!=null){const s=(b.hitsT?b.hitsT+' HITS':'NO HIT')+'  '+Math.floor(R.time-b.fight0)+'S';txt(s,W-6-txtW(s),H-48,b.hitsT?'#aaa':'#ffd040');}
   if(BX.warn)for(const w of BX.warn){ctx.globalAlpha=Math.min(1,w.t*2);ctx.fillStyle=Math.floor(time*10)%2?'#ff4040':'#ffd040';ctx.fillRect(w.sx-3,w.sy-3,7,7);ctx.fillStyle='#14101a';ctx.fillRect(w.sx-1,w.sy-2,2,4);ctx.globalAlpha=1;}};}
