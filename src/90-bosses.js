@@ -229,6 +229,10 @@ rebrand(7,'ONIKUMA, THE JAILER',{r:13,spd:34});
 rebrand(8,'KAGE, THE SHINOBI MASTER',{r:8,spd:60});
 rebrand(10,'LORD KUROGANE',{r:13,spd:60});
 BOSS[1].r=12;BOSS[1].spd=46;
+// health tuned to the plan's fight lengths (2-3 min for the first boss up to 8-10 for the Emperor). Measured with a bot holding
+// attack at each stage's start (about 90-230 damage a second), assuming a player is shooting ~60% of the time, and allowing for
+// each fight's shields, armour and invulnerable phases (the Abbot's monks, Tetsuo's armour, the spider's ceiling time).
+{const HPK=[.8,.65,.6,.6,.55,.5,.45,.85,.75,1,.9,1];BOSS.forEach((b,i)=>{b.hp=Math.round(b.hp*HPK[i]);});}
 // stage story lines follow their new guardians
 DUN[4].story='THE RONIN SEVEN HOLD THE PASS WAYSTATION';DUN[8].story='KAGE WAITS ON THE ROOFS OF THE KEEP';DUN[10].story='THE BLACK HORSE GENERAL GUARDS THE LAST COURT';
 // the abbot fights on a 90 bpm beat: his theme plays at the same tempo
