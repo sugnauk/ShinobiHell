@@ -10,6 +10,34 @@ const SHOPLINES=['WELCOME, TRAVELLER','FINE WARES FOR A FINE WARRIOR','GOLD SPEA
 function stockRelics(c,r,di){for(const p of props)if(p.room===r&&p.relicStand)p.gone=true;props=props.filter(p=>!p.gone);
  const ex=['rez'];for(let i=0;i<3;i++){const it=randItem(ex);ex.push(it.id);props.push({k:'pedestal',relicStand:true,x:c.x-26+i*26,y:c.y+10,room:r,item:it.id,price:Math.round(SHOPX*[35,60,100,170][it.r]*(1+.15*di)),name:it.name});}}
 function roomCenter(r){return {x:(r.x+(r.w>>1))*T+8,y:(r.y+(r.h>>1))*T+8};}
+function dressBossApproach(r){
+ const y=(r.y+r.h/2)*T,x=(r.x+r.w-.55)*T;
+ for(const side of [-1,1])props.push({k:'doorpost',x,y:y+side*26,used:true,room:r,gate:'boss'});
+ props.push({k:'entrancePlaque',x:x-25,y:y-22,used:true,room:r,gate:'boss'});
+}
+function dressShopEntrance(r){
+ const index=map.rooms.indexOf(r),c=roomCenter(r);
+ let best=null,score=Infinity;
+ for(let y=r.y;y<r.y+r.h;y++)for(let x=r.x;x<r.x+r.w;x++){
+  const i=y*MW+x;
+  if(!map.t[i]||map.liq[i]||map.roomOf[i]!==index)continue;
+  const exits=[[1,0],[-1,0],[0,1],[0,-1]].filter(([dx,dy])=>{
+   const nx=x+dx,ny=y+dy,v=ny*MW+nx;
+   return nx>0&&ny>0&&nx<MW-1&&ny<MH-1&&map.t[v]&&!map.liq[v]&&map.roomOf[v]<0;
+  });
+  for(const [dx,dy] of exits){
+   const wx=(x+.5)*T,wy=(y+.5)*T,d=Math.hypot(wx-c.x,wy-c.y);
+   if(d<score){score=d;best={x:wx,y:wy,dx,dy};}
+  }
+ }
+ if(!best)return;
+ const {x,y,dx,dy}=best;
+ for(const side of [-1,1]){
+  const wx=x-dy*side*14,wy=y+dx*side*14;
+  if(!solid(wx,wy))props.push({k:'doorpost',x:wx,y:wy,used:true,room:r,gate:'shop'});
+ }
+ props.push({k:'entrancePlaque',x,y,used:true,room:r,gate:'shop'});
+}
 function populateRoom(r,di){
  const th=DUN[di],c=roomCenter(r);
  const addE=(n,awake)=>{for(let k=0;k<n;k++){const s=spotIn(r),e=mkEnemy(pick(th.pool),s.x,s.y,r,di);if(awake)e.awake=true;enemies.push(e);}};
@@ -19,7 +47,7 @@ function populateRoom(r,di){
   case 'altar':{const ck=pick(Object.keys(CURSES));props.push({k:'altar',x:c.x,y:c.y,room:r,col:CURSES[ck].c,curse:true,ck});addE(ri(1,2));break;}
   case 'ambush':r.ev={k:'ambush',state:0};addE(2);break;
   case 'challenge':r.ev={k:'challenge',state:0};props.push({k:'gong',x:c.x,y:c.y,room:r});break;
-  case 'shop':{props.push({k:'merchant',x:c.x,y:c.y-22,room:r,line:pick(SHOPLINES)});stockRelics(c,r,di);
+  case 'shop':{dressShopEntrance(r);props.push({k:'merchant',x:c.x,y:c.y-22,room:r,line:pick(SHOPLINES)});stockRelics(c,r,di);
    // second row: a weapon from your family, an enchant, a potion, and a reroll stand
    {const g=mkGear('wpn',tierFor(di,1),false,Math.random()<.35?3:2);props.push({k:'pedestal',x:c.x-39,y:c.y+38,room:r,gear:g,price:Math.round(SHOPX*(g.q===3?180:110)*(1+.2*di)),name:g.name});}
    {const en=mkEnch();props.push({k:'pedestal',x:c.x-13,y:c.y+38,room:r,ench:en,price:Math.round(SHOPX*90*(1+.2*di)),name:'ENCHANT '+ENCH.find(x=>x.k===en.k).n});}
@@ -116,7 +144,7 @@ function updRoomDone(dt){
   if(!r.visited){if(inRoom(r,P.x,P.y,0)){r.visited=true;r.hadFoes=enemies.some(e=>!e.dead&&e.room===r);}else continue;}
   if(!roomComplete(r))continue;
   r.done=true;revealRoom(r);
-  if(r.hadFoes||r.ev||props.some(p=>p.room===r&&p.used))txtFx(P.x,P.y-14,'ROOM COMPLETE','#7fe08a');}}
+  if(r.hadFoes||r.ev||props.some(p=>p.room===r&&p.used&&p.k!=='doorpost'&&p.k!=='entrancePlaque'))txtFx(P.x,P.y-14,'ROOM COMPLETE','#7fe08a');}}
 function updRoomEvents(dt){
  updRoomDone(dt);
  for(const r of map.rooms){const ev=r.ev;if(!ev||ev.state>=2)continue;

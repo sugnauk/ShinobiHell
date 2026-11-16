@@ -379,24 +379,26 @@ function renderEnd(){
  const K=n=>n>=1e6?(n/1e6).toFixed(1)+'M':n>=1e4?Math.round(n/1e3)+'K':n>=1e3?(n/1e3).toFixed(1)+'K':String(Math.round(n));
  ctxt(d.win?'VICTORY':'DEATH',4,d.win?'#fd4':'#c01020',3);
  ctxt(C.n+' ('+heroEV(C.k,d.evo||0).n+')  -  '+(d.win?'THE CORRUPT EMPEROR IS DEAD':'FELL IN '+ROMAN[d.di]+'. '+DUN[d.di].name),23,'#aaa');
+ if(!d.win&&d.cause)ctxt('KILLED BY '+d.cause,30,'#f39a8b');
  // run stats
- box(6,32,110,82,'#d02030');txt('RUN',10,35,'#d02030');
+ const top=d.win?32:39;
+ box(6,top,110,82,'#d02030');txt('RUN',10,top+3,'#d02030');
  [['JADE EARNED',d.sen,'#5fd08a'],['ENEMIES SLAIN',d.kills,'#ddd'],['DEATHBLOWS',d.db,'#ddd'],['PERFECT DODGES',d.pf,'#8cf'],['BEST COMBO',d.combo||0,'#f84'],['TIME',Math.floor(d.time/60)+'M '+Math.floor(d.time%60)+'S','#ddd']]
-  .forEach(([n,v,c],i)=>{const y=46+i*10;txt(n,10,y,'#999');const s=String(v);txt(s,112-txtW(s),y,c);});
+  .forEach(([n,v,c],i)=>{const y=top+14+i*10;txt(n,10,y,'#999');const s=String(v);txt(s,112-txtW(s),y,c);});
  // damage dealt by each ability
  const DM=d.dmg||{},keys=['m','h','q','w','f','e','x'],tot=keys.reduce((a,k)=>a+(DM[k]||0),0)||1,mx=Math.max(1,...keys.map(k=>DM[k]||0));
- box(120,32,W-126,82,C.col);txt('DAMAGE BY ABILITY',124,35,C.col);{const s='TOTAL '+K(tot);txt(s,W-10-txtW(s),35,'#fff');}
- keys.forEach((k,i)=>{const y=46+i*9,v=DM[k]||0,sp=k==='x'?null:SPELLS[k][(d.lo||{})[k]]||null,nm=k==='x'?'RELICS + EFFECTS':sp?sp.n:'-',col=k==='x'?'#c6f':sp?sp.c:'#777';
+ box(120,top,W-126,82,C.col);txt('DAMAGE BY ABILITY',124,top+3,C.col);{const s='TOTAL '+K(tot);txt(s,W-10-txtW(s),top+3,'#fff');}
+ keys.forEach((k,i)=>{const y=top+14+i*9,v=DM[k]||0,sp=k==='x'?null:SPELLS[k][(d.lo||{})[k]]||null,nm=k==='x'?'RELICS + EFFECTS':sp?sp.n:'-',col=k==='x'?'#c6f':sp?sp.c:'#777';
   txt(k==='x'?'*':SLOTKEY[k],124,y,'#777');txt(nm.slice(0,16),142,y,v?col:'#555');
   const bw=Math.round(56*v/mx);ctx.fillStyle='#2a2030';ctx.fillRect(210,y,56,5);ctx.fillStyle=col;ctx.fillRect(210,y,bw,5);
   const s=K(v)+' '+Math.round(v/tot*100)+'%';txt(s,W-10-txtW(s),y,v?'#ddd':'#555');});
  // loadout at the end: gear, enchants, relics and scroll add-ons
- box(6,118,W-12,38,'#888');txt('LOADOUT',10,121,'#aaa');
- let x=10;for(const s of ['wpn','arm','ring']){drawItemIcon(d.eq&&d.eq[s],x,130);x+=18;}
- x+=4;for(const k of d.ench||[]){ctx.drawImage(itemIcon({t:'ench',k}),x,131);x+=14;}
- x+=4;for(const id in d.inv||{}){const it=ITEMBY[id];if(!it||x>W-24)continue;relicBox(x,131,id,11);if(d.inv[id]>1)txt('X'+d.inv[id],x+1,143,'#fff');x+=13;}
+ const ly=top+86;box(6,ly,W-12,31,'#888');txt('LOADOUT',10,ly+3,'#aaa');
+ let x=10;for(const s of ['wpn','arm','ring']){drawItemIcon(d.eq&&d.eq[s],x,ly+12);x+=18;}
+ x+=4;for(const k of d.ench||[]){ctx.drawImage(itemIcon({t:'ench',k}),x,ly+13);x+=14;}
+ x+=4;for(const id in d.inv||{}){const it=ITEMBY[id];if(!it||x>W-24)continue;relicBox(x,ly+13,id,11);if(d.inv[id]>1)txt('X'+d.inv[id],x+1,ly+25,'#fff');x+=13;}
  {const A=[];for(const k in d.addon||{})for(const a of SCROLL_ADDONS)if(d.addon[k][a.k])A.push(SLOTKEY[k]+' '+fxLabel(a.n,a.tier));
-  if(A.length)txt(('SCROLLS: '+A.join(', ')).slice(0,Math.floor((W-60)/4)),60,121,'#ffe060');}
+  if(A.length)txt(('SCROLLS: '+A.join(', ')).slice(0,Math.floor((W-60)/4)),60,ly+3,'#ffe060');}
  if(d.unlock)ctxt('NEW CHARACTER UNLOCKED: '+d.unlock.n,160,Math.floor(time*4)%2?d.unlock.col:'#fff');
  if(Math.floor(time*2)%2===0)ctxt('PRESS ENTER: CHARACTER SELECT',171,'#fff');
 }
@@ -475,7 +477,7 @@ function renderOptions(){
  ctxt('UP/DOWN SELECT   ESC BACK',167,'#666');}
 // debug / balance overlay: frame rate, live counts and your damage per second over the last 5 seconds
 const DBG={fps:60,hist:[]};
-function updDbg(dt){DBG.fps=DBG.fps*.95+(dt>0?1/dt:60)*.05;if(!R||!R.dmg)return;const tot=Object.values(R.dmg).reduce((a,b)=>a+b,0);DBG.hist.push([R.time,tot]);while(DBG.hist.length&&DBG.hist[0][0]<R.time-5)DBG.hist.shift();}
+function updDbg(){if(!R||!R.dmg)return;const tot=Object.values(R.dmg).reduce((a,b)=>a+b,0);DBG.hist.push([R.time,tot]);while(DBG.hist.length&&DBG.hist[0][0]<R.time-5)DBG.hist.shift();}
 function drawDbg(){if(!OPT().dbg||mode!=='play'||!P)return;const h=DBG.hist,dps=h.length>1?(h[h.length-1][1]-h[0][1])/Math.max(.5,h[h.length-1][0]-h[0][0]):0;
  const L=['FPS '+Math.round(DBG.fps),'FOES '+enemies.filter(e=>!e.dead).length+'  SHOTS '+projs.filter(q=>q.from==='e').length,'DPS '+Math.round(dps)+'  POWER '+Math.round(S.atk),'STAGE '+(R.di+1)+'  '+DF().n+(R.asc?' ASC '+R.asc:''),boss&&!boss.dead?'BOSS '+Math.round(boss.hp)+'/'+Math.round(boss.maxhp)+' PH'+boss.phase:'ROOMS DONE '+map.rooms.filter(r=>r.done).length+'/'+map.rooms.length];
  ctx.fillStyle='rgba(0,0,0,.6)';ctx.fillRect(2,H-74,112,L.length*8+3);L.forEach((s,i)=>txt(s,4,H-72+i*8,'#9f9'));}

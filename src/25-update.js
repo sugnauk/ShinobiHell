@@ -81,7 +81,7 @@ function updProjs(dt){
   if(q.home){let tg=null,bd=q.rare?150:110;for(const e of enemies){if(e.dead||e.air)continue;const d=dist(e,q);if(d<bd){bd=d;tg=e;}}if(tg){const cur=Math.atan2(q.vy,q.vx),df=clamp(angDiff(angTo(q,tg),cur),-5*dt,5*dt),sp=Math.hypot(q.vx,q.vy);q.vx=Math.cos(cur+df)*sp;q.vy=Math.sin(cur+df)*sp;}}
   if(q.st)stepStyle(q,dt);if(q.dead)continue;
   q.x+=q.vx*dt;q.y+=q.vy*dt;q.life-=dt;
-  if(q.life<=0){if(q.st==='split')splitShot(q);if(q.pool)hz.push({x:q.x,y:q.y,r:q.pool.r||12,t:q.pool.t||3.5,dps:q.pool.dps||10,col:q.pool.col||q.col});q.dead=true;continue;}
+  if(q.life<=0){if(q.st==='split')splitShot(q);if(q.pool)hz.push({own:q.own,x:q.x,y:q.y,r:q.pool.r||12,t:q.pool.t||3.5,dps:q.pool.dps||10,col:q.pool.col||q.col});q.dead=true;continue;}
   if(solid(q.x,q.y)){
    // bouncing shots ricochet off walls a couple of times
    if(q.st==='bounce'&&q.bn>0){q.bn--;q.x-=q.vx*dt;q.y-=q.vy*dt;const hx=solid(q.x+q.vx*dt,q.y),hy=solid(q.x,q.y+q.vy*dt);if(hx)q.vx*=-1;if(hy)q.vy*=-1;if(!hx&&!hy){q.vx*=-1;q.vy*=-1;}spark(q.x,q.y,q.col,2,30);continue;}

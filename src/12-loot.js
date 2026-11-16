@@ -438,7 +438,12 @@ function hitPlayer(raw,sx,sy,o){
  p.hp-=dmg;p.combatT=3;p.pos+=raw*.35;p.pdelay=1.4;if(!o.bullet)p.hurtIv=.4;p.flash=.2;shake=Math.max(shake,4);sfx('hurt');hurtT=.45;
  txtFx(p.x,p.y,Math.round(dmg),'#f55');spark(p.x,p.y,'#c22',10,80);
  if(p.pos>=S.maxpos&&p.stag<=0){p.stag=1.2;p.guard=false;p.pos=S.maxpos*.4;txtFx(p.x,p.y,'STUNNED','#f84');sfx('break');}
- if(p.hp<=0)die();
+ if(p.hp<=0&&!p.dying){
+  const source=o.src?.d?.id||o.src?.name||o.src?.t?.n||o.src?.bossOwned?.name;
+  p.deathCause=o.cause||(source?(o.bullet?source+' PROJECTILE':source):o.bullet?'ENEMY PROJECTILE':o.peril?'ARENA HAZARD':'ENEMY ATTACK');
+  die();
+  if(!p.dying)p.deathCause=null;
+ }
  return 'hit';
 }
 function die(){
@@ -473,13 +478,13 @@ function drawDeathBody(){const p=P,e=DEATHT-p.dying,X=sx(p.x,p.y),Y=sy(p.x,p.y)+
  if(e>1.6){const u=e-1.6;ctx.globalAlpha=Math.max(0,.7-u*.45);drawSpr(s,X,Y-6-u*26,true,0,flip);ctx.globalAlpha=1;}}
 function drawDeathOverlay(){const e=DEATHT-P.dying,d=clamp(e/DEATHT,0,1);
  ctx.fillStyle='rgba(10,0,4,'+(d*.55).toFixed(3)+')';ctx.fillRect(0,0,W,H);vignette('#600010',Math.min(.75,d*.9));
- if(e>1.7){const a=clamp((e-1.7)/.6,0,1);ctx.globalAlpha=a;ctxt('YOU HAVE FALLEN',28,'#d02030',3);ctxt(ROMAN[R.di]+'. '+DUN[R.di].name,52,'#aaa');ctx.globalAlpha=1;}}
+ if(e>1.7){const a=clamp((e-1.7)/.6,0,1);ctx.globalAlpha=a;ctxt('YOU HAVE FALLEN',28,'#d02030',3);ctxt(ROMAN[R.di]+'. '+DUN[R.di].name,52,'#aaa');if(P.deathCause)ctxt('KILLED BY '+P.deathCause,64,'#f39a8b');ctx.globalAlpha=1;}}
 function finishRun(win){
  clearRun();
  R.sen=Math.round(R.sen*(1+.2*(R.asc||0)));meta.sen+=R.sen+(win?200:0);meta.runs++;if(win){meta.wins++;if(R.asc>=meta.ascMax&&meta.ascMax<10){meta.ascMax=R.asc+1;setToast('ASCENSION '+meta.ascMax+' UNLOCKED','#f5a',4);}}meta.reached=Math.max(meta.reached,Math.min(DUN.length-1,R.di));
  let unlock=null;if(!R.training&&meta.unlocked<CLASSES.length){unlock=CLASSES[meta.unlocked];meta.unlocked++;}
  saveMeta();
- deadInfo={win,sen:R.sen+(win?200:0),di:R.di,kills:R.kills,time:R.time,db:R.deathblows,pf:R.perfect,unlock,
+ deadInfo={win,cause:win?null:P.deathCause,sen:R.sen+(win?200:0),di:R.di,kills:R.kills,time:R.time,db:R.deathblows,pf:R.perfect,unlock,
   cls:CLS(),dmg:Object.assign({},R.dmg||{}),lo:Object.assign({},P.lo),eq:Object.assign({},R.eq),inv:Object.assign({},R.inv),ench:(R.ench||[]).slice(),addon:JSON.parse(JSON.stringify(R.addon||{})),combo:R.bestCombo||0,evo:P.evo||0};
  mode=win?'win':'dead';if(win)sfx('win');else sfx('hurt');
  hubStart=Math.min(hubStart,meta.reached);

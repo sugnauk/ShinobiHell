@@ -180,6 +180,7 @@ function drawChest(p,X,Y){
  }
 }
 function drawProp(p){
+ if(p.k==='doorpost'||p.k==='entrancePlaque'){drawEntrance(p,sx(p.x,p.y),sy(p.x,p.y));return;}
  const X=sx(p.x,p.y),Y=sy(p.x,p.y);
  if(p.k==='chest')drawChest(p,X,Y);
  else if(p.k==='altar'){ // shrine: a wooden offering table with shide streamers and a violet spirit orb; curse: an obsidian block with a floating red-eyed skull
@@ -251,7 +252,8 @@ const PSPR={
  spear(X,Y,ux,uy,q){for(let i=-6;i<=2;i++){ctx.fillStyle=i>0?'#e8eef6':'#7a5a3a';ctx.fillRect(Math.round(X+ux*i),Math.round(Y+uy*i),1,1);}ctx.fillStyle=q.col;ctx.fillRect(Math.round(X+ux*3),Math.round(Y+uy*3),1,1);},
 };
 function drawProj(q){
- const X=sx(q.x,q.y),Y=sy(q.x,q.y)-7;
+ const X=sx(q.x,q.y),Y=sy(q.x,q.y)-7,pad=q.st==='lance'&&q.wait>0?144:32;
+ if(q.dead||X<-pad||X>W+pad||Y<-pad||Y>H+pad)return;
  ctx.fillStyle='rgba(0,0,0,.3)';ctx.fillRect(X-1,Y+7,3,1);
  if(q.spr&&PSPR[q.spr]){const [vx,vy]=q.vx||q.vy?scrVec(q.vx,q.vy):[1,0],l=Math.hypot(vx,vy)||1;
   if(q.st==='lance'&&q.wait>0){const lv=scrVec(q.lvx,q.lvy),ll=Math.hypot(lv[0],lv[1])||1;ctx.globalAlpha=Math.floor(time*16)%2?.55:.3;ctx.fillStyle=q.col;for(let r=4;r<140;r+=3)ctx.fillRect(Math.round(X+lv[0]/ll*r),Math.round(Y+lv[1]/ll*r),1,1);ctx.globalAlpha=1;PSPR[q.spr](X,Y,lv[0]/ll,lv[1]/ll,q);return;}
@@ -573,24 +575,55 @@ function drawHUD(){
  if(toast.t>0){ctx.globalAlpha=Math.min(1,toast.t);ctxt(toast.s,24,toast.c,1);ctx.globalAlpha=1;}
  if(P.hp<S.maxhp*.3){ctx.fillStyle='rgba(180,0,0,'+(.12+.06*Math.sin(time*6))+')';ctx.fillRect(0,0,W,H);}
 }
-function drawWall(o){
- // faces and position come from the wall's place in the rotated grid (camera angle)
- const tx=o.tx,ty=o.ty,[tu,tv]=tileR(tx,ty),mask=(floorAtR(tu,tv+1)?1:0)|(floorAtR(tu+1,tv)?2:0);
- ctx.drawImage(mapCanvas.walls[mask*2+(hash(tx,ty)<.5?0:1)],(tu-tv+RMH)*T-cam.x-16,(tu+tv)*HY-cam.y-WH);
+function sceneTiles(M){
+ if(M.scene)return M.scene;
+ const walls=[],liquids=[];
+ for(let ty=0;ty<MH;ty++)for(let tx=0;tx<MW;tx++){
+  const i=ty*MW+tx,wall=!map.t[i]&&map.vis[i];
+  if(!wall&&!map.liq[i])continue;
+  const [u,v]=tileR(tx,ty),row=u+v,x=(u-v+RMH)*T,y=row*HY,h=hash(tx,ty);
+  if(wall){
+   const mask=(floorAtR(u,v+1)?1:0)|(floorAtR(u+1,v)?2:0);
+   (walls[row]??=[]).push({wall:true,d:(row+1)*T,x,y,sprite:M.walls[mask*2+(h<.5?0:1)]});
+  }else (liquids[row]??=[]).push({x,y,h});
+ }
+ return M.scene={walls,liquids};
 }
-// animated shimmer, ripples and bubbles on top of the baked liquid tiles
-function drawLiquids(){
+function visibleTileRows(rows,top,bottom,visit){
+ const first=Math.max(0,Math.ceil((cam.y-top)/HY)),end=Math.min(rows.length-1,Math.floor((cam.y+H+bottom)/HY));
+ for(let i=first;i<=end;i++)if(rows[i])for(const o of rows[i])visit(o);
+}
+function drawEntrance(p,X,Y){
+ const boss=p.gate==='boss',edge=boss?'#a84843':'#578b76',glow=boss?'#f4b472':'#b8e6ad';
+ const px=(x,y,w,h,c)=>{ctx.fillStyle=c;ctx.fillRect(X+x,Y+y,w,h);};
+ if(p.k==='doorpost'){
+  shadow(X,Y,13);
+  px(-5,-4,10,4,'#27232b');px(-4,-5,8,2,'#72605c');
+  px(-2,-27,4,23,'#352631');px(-2,-25,1,19,edge);
+  px(-5,-27,10,3,'#2b222d');px(-7,-28,14,1,edge);
+  px(-4,-23,8,8,'#211b28');px(-3,-22,6,6,edge);
+  px(-2,-21,4,4,glow);px(-1,-20,2,2,'#fff0bd');
+  px(-1,-16,2,2,glow);
+ }else{
+  shadow(X,Y,14);px(-2,-15,3,15,'#402f32');
+  px(-12,-22,24,10,'#241b27');px(-11,-21,22,8,edge);px(-10,-20,20,6,'#272330');
+  const label=boss?'BOSS':'SHOP';
+  txt(label,X-Math.round(txtW(label)/2),Y-19,glow);
+ }
+}
+function drawWall(o){ctx.drawImage(o.sprite,o.x-cam.x-16,o.y-cam.y-WH);}
+function drawLiquids(rows){
  const L=map.env.lc,lq0=map.env.liq;
- for(const i of map.liqList){
-  const tx=i%MW,ty=(i/MW)|0,[tu,tv]=tileR(tx,ty),X=(tu-tv+RMH)*16-cam.x,Y=(tu+tv)*HY-cam.y;if(X<-20||X>W+20||Y<-20||Y>H+4)continue;
-  const h=hash(tx,ty),ph=time*(lq0===2?1.6:1.1)+h*TAU,s=Math.sin(ph);
-  if(lq0===4){if(s>.96){ctx.fillStyle='#fff';ctx.fillRect(X-4+((h*9)|0),Y+6,1,1);}continue;}
+ visibleTileRows(rows,20,4,({x,y,h})=>{
+  const X=x-cam.x,Y=y-cam.y;if(X<-20||X>W+20)return;
+ const ph=time*(lq0===2?1.6:1.1)+h*TAU,s=Math.sin(ph);
+  if(lq0===4){if(s>.96){ctx.fillStyle='#fff';ctx.fillRect(X-4+((h*9)|0),Y+6,1,1);}return;}
   ctx.fillStyle=L[2];ctx.globalAlpha=lq0===2?.55:.35;
   const ox=Math.round(Math.sin(ph*.7)*3);ctx.fillRect(X-5+ox,Y+7+((h*3)|0),4+((s+1)*1.5|0),1);
   if(h>.6){ctx.fillRect(X+2-ox,Y+10,3,1);}
   ctx.globalAlpha=1;
   if((lq0===2||lq0===3)&&s>.92){ctx.fillStyle=L[2];ctx.fillRect(X-1+((h*7)|0)%5,Y+5-((s-.92)*40|0),1,1);}
- }
+ });
 }
 // red screen edges when hurt / low on health
 function vignette(col,a){ctx.fillStyle=col;for(let i=0;i<10;i++){ctx.globalAlpha=a*(1-i/10)*.55;ctx.fillRect(0,i*2,W,2);ctx.fillRect(0,H-2-i*2,W,2);ctx.fillRect(i*3,0,3,H);ctx.fillRect(W-3-i*3,0,3,H);}ctx.globalAlpha=1;}
@@ -608,14 +641,19 @@ function renderPlay(){
  cam.x=Math.round(isoX(fcx,fcy)-W/2+shx);cam.y=Math.round(isoY(fcx,fcy)-(H/2+6)+shy);
  const M=mapCanvas;
  {const x0=Math.max(0,cam.x),y0=Math.max(0,cam.y),x1=Math.min(M.FW,cam.x+W),y1=Math.min(M.FH,cam.y+H);if(x1>x0&&y1>y0)ctx.drawImage(M.floor,x0,y0,x1-x0,y1-y0,x0-cam.x,y0-cam.y,x1-x0,y1-y0);}
- drawLiquids();
+ const tiles=sceneTiles(M);
+ drawLiquids(tiles.liquids);
  drawGround();
- const dr=[],ptx=P.x/T|0,pty=P.y/T|0;
- for(let ty=Math.max(0,pty-15);ty<=Math.min(MH-1,pty+15);ty++)for(let tx=Math.max(0,ptx-15);tx<=Math.min(MW-1,ptx+15);tx++){const i=ty*MW+tx;if(map.t[i]||!map.vis[i])continue;const [tu,tv]=tileR(tx,ty);dr.push({d:(tu+tv+1)*T,wall:1,tx,ty});}
+ const dr=[];
+ visibleTileRows(tiles.walls,30,WH+16,o=>{if(o.x>=cam.x-32&&o.x<=cam.x+W+32)dr.push(o);});
  // draw order follows depth in the rotated view, so walls and sprites overlap correctly at every camera angle
  for(const e of enemies){if(e.dead)continue;const X=sx(e.x,e.y),Y=sy(e.x,e.y);if(X<-60||X>W+60||Y<-80||Y>H+70)continue;dr.push({d:dep(e.x,e.y),e});}
- for(const k of pickups)dr.push({d:dep(k.x,k.y)-3,k});
- for(const p of props)dr.push({d:dep(p.x,p.y),p});
+ const onScreen=(o,pad)=>{
+  const x=sx(o.x,o.y),y=sy(o.x,o.y);
+  return x>=-pad&&x<=W+pad&&y>=-pad&&y<=H+pad;
+ };
+ for(const k of pickups)if(!k.dead&&onScreen(k,65))dr.push({d:dep(k.x,k.y)-3,k});
+ for(const p of props)if(onScreen(p,72))dr.push({d:dep(p.x,p.y),p});
  for(const o of decos){const X=sx(o.x,o.y),Y=sy(o.x,o.y);if(X<-40||X>W+40||Y<-10||Y>H+50)continue;dr.push({d:dep(o.x,o.y)-((DECOSPR[o.k].flat||o.onliq)?60:0),dc:o});}
  dr.push({d:dep(P.x,P.y),pl:1});
  dr.sort((a,b)=>a.d-b.d);
