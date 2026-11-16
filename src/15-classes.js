@@ -73,12 +73,12 @@ function mixC(a,b,t){const p=s=>[1,3,5].map(i=>parseInt(s.slice(i,i+2),16)),A=p(
 function heroEV(cls,st){if(cls==='wizard')return WIZEVO[st];const t=st/9,n=EVONAMES[cls][st];
  if(cls==='samurai')return {n,hat:st<3?'kasa':'kabuto',crest:st>=6,beard:st>=8?1:0,wpn:st<1?'bokken':'katana',C:{hat:st<3?'#c8a050':mixC('#5a4a3a','#8a1818',t),hatL:st<3?'#e0c070':'#c8c8d0',band:st>=4?'#e0b040':'#6a5a4a',robe:mixC('#6a5a4a','#a02020',t),robeS:mixC('#4a3a2a','#5a1010',t),trim:st>=4?'#e0b040':'#3a2a1a',beard:'#3a3a3a',beardS:'#2a2a2a'}};
  if(cls==='archer')return {n,hat:st<6?'hood':'kasa',beard:0,wpn:'bow',C:{hat:mixC('#5a5a3a','#2e6a2a',t),hatL:mixC('#7a7a5a','#4a9a3a',t),band:st>=6?'#c8c8d0':'#4a4a2a',robe:mixC('#6a6a4a','#2e7a3a',t),robeS:mixC('#4a4a2a','#1e4a22',t),trim:st>=5?'#c8c8d0':'#5a4a2a'}};
- if(cls==='shinobi')return {n,hat:'mask',beard:0,wpn:'kunai',C:{hat:mixC('#4a4a52','#1a1628',t),hatL:'#5a5a6a',band:st>=2?mixC('#802020','#e02040',t):'#3a3a42',robe:mixC('#4a4a52','#1e1a30',t),robeS:mixC('#32323a','#100c1c',t),trim:st>=4?'#9a7aff':'#2a2a32'}};
+ if(cls==='shinobi')return {n,hat:'mask',beard:0,wpn:'kunai',C:{hat:mixC('#2a3147','#1a1628',t),hatL:'#5a5a6a',band:st>=2?mixC('#802020','#e02040',t):'#ac5462',robe:mixC('#38435b','#1e1a30',t),robeS:mixC('#32323a','#100c1c',t),trim:st>=4?'#9a7aff':'#2a2a32'}};
  return {n,hat:st<2?'hood':'eboshi',beard:st>=7?1:0,wpn:'gohei',C:{hat:st<2?'#a8a090':'#1a1a1a',hatL:st<2?'#c8c0b0':'#3a3a3a',band:st>=5?'#8a3ac8':'#a8a090',robe:mixC('#c8c0b0','#f4f4fc',t),robeS:mixC('#a8a090','#c8c8e0',t),trim:st>=3?mixC('#c03030','#8a3ac8',t):'#a8a090',beard:'#2a2a2a',beardS:'#1a1a1a'}};}
 const HEROC={};
 function heroSpr(cls,st,back){const k=cls+st+(back?'b':'');if(HEROC[k])return HEROC[k];
- if(!back)return HEROC[k]=cls==='wizard'?WIZSPR[st]:buildHero(heroEV(cls,st),false);
- return HEROC[k]=cls==='wizard'?buildHero(WIZEVO[st],st>=9,true):buildHero(heroEV(cls,st),false,true);}
+ if(cls==='wizard')return HEROC[k]=back?buildWiz(st,true):WIZSPR[st];
+ return HEROC[k]=buildHero({...heroEV(cls,st),detail:cls},false,back);}
 const evoName=st=>heroEV(CLS().k,st).n;
 // class ability helpers
 const EMP=k=>P&&P.emp&&P.emp[k]?1.6:1;

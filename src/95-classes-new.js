@@ -1,7 +1,7 @@
 'use strict';
 // HELL OF THE EMPEROR - two more characters.
 //  GUNNER: a matchlock teppo soldier. Slow, hard-hitting piercing shots at long range, grapeshot, a powder-keg roll, a tripod gun
-//          and a cannon barrage. Sturdy (+2 DEF) but slower.
+//          and a siege cannon. Sturdy (+2 DEF) but slower.
 //  LANCER: a yari spearman. The longest melee reach in the game, a lunging spiral thrust, a wheel sweep, a deflecting parry that
 //          throws bullets back, a war banner and a thousand-thrust flurry. A melee class: blades cut bullets (94-melee.js).
 // Spells sit at SPELLS[slot][8] (gunner) and [9] (lancer); their LMB weapons are types 16 (TANEGASHIMA) and 17 (YARI).
@@ -15,7 +15,7 @@ SPELLS.w.push({n:'POWDER ROLL',g:'<',c:'#ff8030',cd:5,d:'ROLL BACK, LEAVE A KEG 
  {n:'DEFLECT',g:'D',c:'#e0b040',cd:6,d:'1S: BULLETS NEAR YOU FLY BACK AS YOURS',dm:.6,db:'a'});
 SPELLS.f.push({n:'TRIPOD GUN',g:'T',c:'#ffd060',cd:14,d:'A GUN ON A TRIPOD FIRES FOR 7S',dm:.55,db:'a',dx:' EVERY 0.25S'},
  {n:'WAR BANNER',g:'B',c:'#e04030',cd:16,d:'PLANT A BANNER: +30% DAMAGE, HEAL 2%/S INSIDE',dm:0,db:'a'});
-SPELLS.e.push({n:'CANNON BARRAGE',g:'#',c:'#ff8030',cd:32,d:'SIX CANNONBALLS POUND THE AIM LINE',dm:3.5,db:'e',dx:' X 6'},
+SPELLS.e.push({n:'SIEGEBREAKER',g:'#',c:'#ffad5f',cd:32,d:'FIRES A WIDE CANNON BLAST THAT CLEARS SHOTS',dm:7,db:'e'},
  {n:'THOUSAND THRUSTS',g:'!',c:'#c8e0ff',cd:30,d:'A FLURRY OF THRUSTS FOR 1.6S',dm:.9,db:'e',dx:' X 20'});
 Object.assign(WTYPES,{TANEGASHIMA:16,YARI:17});Object.assign(LMBRATE,{16:.55,17:.3});
 Object.assign(WFAM,{gunner:['TANEGASHIMA','REPEATER'],lancer:['YARI','NAGINATA']});Object.assign(WSIG,{gunner:'TANEGASHIMA',lancer:'YARI'});
@@ -24,7 +24,7 @@ CLASSES.push({k:'gunner',n:'GUNNER',col:'#ffb060',d:'MATCHLOCK: SLOW, PIERCING S
 EVONAMES.gunner=['RECRUIT','LOADER','MUSKETEER','SHARP GUN','GUN CAPTAIN','TEPPO','FIRE LANCE','THUNDER GUN','CANNONEER','GUN SAINT'];
 EVONAMES.lancer=['SPEAR BOY','PIKEMAN','YARI-ASHIGARU','LANCER','SPEAR CAPTAIN','HATAMOTO','SPIRAL SPEAR','HEAVEN PIERCER','DRAGON LANCE','SPEAR SAINT'];
 {const _he=heroEV;heroEV=function(cls,st){const t=st/9,n=(EVONAMES[cls]||[])[st];
-  if(cls==='gunner')return {n,hat:st<5?'kasa':'kabuto',crest:st>=7,beard:st>=8?1:0,wpn:'gun',C:{hat:st<5?'#8a6a40':mixC('#3a3a44','#6a4a20',t),hatL:st<5?'#a8885a':'#c0a040',band:st>=4?'#ffb060':'#5a4a3a',robe:mixC('#5a4a3a','#3a3a48',t),robeS:mixC('#3a2a1a','#22222c',t),trim:st>=3?'#ffb060':'#3a2a1a',beard:'#3a3a3a',beardS:'#2a2a2a'}};
+  if(cls==='gunner')return {n,hat:st<2?'teppo':st<5?'kasa':'kabuto',crest:st>=7,beard:st>=8?1:0,wpn:'gun',C:{hat:st<2?'#3b4557':st<5?'#8a6a40':mixC('#3a3a44','#6a4a20',t),hatL:st<2?'#798795':st<5?'#a8885a':'#c0a040',band:st>=4?'#ffb060':'#c77d54',robe:mixC('#5f4a48','#3a3a48',t),robeS:mixC('#3a2a1a','#22222c',t),trim:st>=3?'#ffb060':'#3a2a1a',beard:'#3a3a3a',beardS:'#2a2a2a'}};
   if(cls==='lancer')return {n,hat:st<3?'kasa':'kabuto',crest:st>=5,beard:st>=8?1:0,wpn:'spear',C:{hat:st<3?'#7a8a9a':mixC('#3a4a5a','#203a6a',t),hatL:st<3?'#9aaaba':'#c8e0ff',band:st>=4?'#80c0ff':'#4a5a6a',robe:mixC('#5a6a7a','#20406a',t),robeS:mixC('#3a4a5a','#10203a',t),trim:st>=4?'#c8e0ff':'#2a3a4a',beard:'#3a3a3a',beardS:'#2a2a2a'}};
   return _he(cls,st);};}
 // the lancer fights at blade range: MELEE() in 94-melee.js includes it, so blades cut bullets for it too
@@ -39,7 +39,11 @@ const NEWCAST={
  82:(c)=>{const {p,a,A,qm,em}=c;for(let i=0;i<11;i++){const o=(i/10-.5)*.9+rnd(-.04,.04);pShot(p.x+Math.cos(a)*6,p.y+Math.sin(a)*6,a+o,rnd(260,320),A*.55*qm*em,{r:2,col:'#c8c8d0',life:.45*(1+S.rangeM)});}impact(p.x,p.y,'#c8c8d0',4);sfx('break');},
  83:(c)=>{const {p,a,A,ap,em}=c;zones.push({k:'gkeg',x:p.x,y:p.y,r:50*AZ(),t:.8,tk:0,dm:A*3*ap*em});const ra=a+Math.PI;p.dx=Math.cos(ra);p.dy=Math.sin(ra);p.dash=.2;p.iv=Math.max(p.iv,.45);sfx('dash');},
  84:(c)=>{const {p,A,ap,em}=c;zones.push({k:'tripod',x:p.x,y:p.y,r:0,t:7,tk:.3,dm:A*.55*ap*em});sfx('tool');},
- 85:(c)=>{const {p,a,A,ep,em}=c;sfx('boss');setToast('CANNON BARRAGE','#ff8030',1.2);for(let i=0;i<6;i++){const d=40+i*34,x=p.x+Math.cos(a)*d,y=p.y+Math.sin(a)*d;fx.push({k:'ult',x,y,wait:.25+i*.14,t:.35,dur:.35,r:34,col:'#ff8030',dm:A*3.5*ep*em,met:1,done:false});}},
+ 85:({p,a,A,ep,em})=>{
+  const len=rayLen(p.x,p.y,a,Math.min(200,164*(1+.3*S.rangeM)));
+  zones.push({k:'siege',src:'e',x:p.x,y:p.y,a,len,r:24,t:.36,tk:.36,dm:A*7*ep*em});
+  setToast('SIEGEBREAKER','#ffad5f',1.5);sfx('tool');
+ },
  // LANCER
  170:(c)=>{const {p,a,A,bp,em}=c;const cont=R.time-(p.lastSw||-9)<.8;p.combo=cont?((p.combo||0)+1)%3:0;p.lastSw=R.time;const fin=p.combo===2,len=70*(1.12+S.rangeM*.5);
   for(const o of fin?[-.22,0,.22]:[0]){lineHit(p.x,p.y,a+o,len,9,e=>hurtE(e,A*1.3*(fin?1.1:1)*bp*em,16,{slash:true,kb:a}));fx.push({k:'line',x:p.x,y:p.y,a:a+o,len,t:.12,dur:.12,col:fin?'#ffffff':'#c8e0ff'});}
@@ -58,6 +62,19 @@ const NEWCAST={
   fn({p,a:p.aim,A,bp,em,ap,qm,ep});setCd(k);};}
 // ---------- their zones ----------
 Object.assign(CZ,{
+ siege:(z)=>{
+  if(z.tk>0)return;
+  const c=Math.cos(z.a),s=Math.sin(z.a),x=z.x+c*z.len,y=z.y+s*z.len;
+  lineHit(z.x,z.y,z.a,z.len,z.r,e=>hurtE(e,z.dm,48,{kb:z.a}));
+  for(const q of projs){
+   if(q.dead||q.from!=='e'||q.peril)continue;
+   const dx=q.x-z.x,dy=q.y-z.y,d=dx*c+dy*s;
+   if(d>=0&&d<=z.len&&Math.abs(-dx*s+dy*c)<z.r&&los(z.x,z.y,q.x,q.y))q.dead=true;
+  }
+  for(const offset of [-18,-9,0,9,18])fx.push({k:'line',x:z.x-s*offset,y:z.y+c*offset,a:z.a,len:z.len,t:.22,dur:.22,col:offset?'#ff8845':'#fff0bd'});
+  for(let i=0;i<=4;i++)spark(z.x+c*z.len*i/4,z.y+s*z.len*i/4,'#ffad5f',5,90);
+  fxRing(x,y,28,'#ffab67',.38);impact(z.x,z.y,'#ffad5f',8,true);sfx('boss');sfx('break');z.t=0;
+ },
  gkeg:(z)=>{if(z.t<=dt0()){impact(z.x,z.y,'#ff8030',8,true);fxRing(z.x,z.y,z.r,'#ff8030',.4);sfx('break');for(const e of enemies)if(!e.dead&&!e.air&&Math.hypot(e.x-z.x,e.y-z.y)<z.r+e.r&&los(z.x,z.y,e.x,e.y))hurtE(e,z.dm,40,{nost:true,kb:Math.atan2(e.y-z.y,e.x-z.x)});
    for(const q of projs)if(q.from==='e'&&!q.peril&&Math.hypot(q.x-z.x,q.y-z.y)<z.r)q.dead=true;z.t=0;}},
  tripod:(z)=>{if(z.tk<=0){z.tk=.25;const e=nearestFoe(z.x,z.y,240);if(e){const a=Math.atan2(e.y-z.y,e.x-z.x);projs.push(mkProj('p',z.x,z.y-4,a,320,z.dm,{r:2,col:'#ffd060',life:.9,pd:6,pierce:1}));sfx('shoot');}}},
@@ -66,11 +83,18 @@ Object.assign(CZ,{
  flurry:(z)=>{z.x=P.x;z.y=P.y;if(z.tk<=0){z.tk=.08;const a=P.aim+rnd(-.35,.35),len=100*(1+S.rangeM*.4);lineHit(P.x,P.y,a,len,8,e=>hurtE(e,z.dm,8,{slash:true}));fx.push({k:'line',x:P.x,y:P.y,a,len,t:.08,dur:.08,col:Math.random()<.5?'#fff':'#c8e0ff'});if(Math.random()<.5)sfx('slash');}}});
 let _dt0=.016;const dt0=()=>_dt0;{const _uw=updWorld;updWorld=function(dt){_dt0=dt;_uw(dt);};}
 Object.assign(CZD,{
+ siege:z=>{
+  const c=Math.cos(z.a),s=Math.sin(z.a);
+  ctx.globalAlpha=.58;
+  for(const offset of [-z.r,z.r])wline(z.x-s*offset,z.y+c*offset,z.a,0,z.len,'#ffc274',0);
+  ctx.globalAlpha=1;
+  wcirc(z.x,z.y,8+Math.round((.36-z.t)*20),'#ffe1a0');
+ },
  gkeg:z=>{const X=sx(z.x,z.y),Y=sy(z.x,z.y);ctx.fillStyle='#14101a';ctx.fillRect(X-4,Y-8,9,9);ctx.fillStyle='#7a4a20';ctx.fillRect(X-3,Y-7,7,7);ctx.fillStyle='#3a3a40';ctx.fillRect(X-3,Y-5,7,1);ctx.fillStyle=Math.floor(time*16)%2?'#ffe060':'#ff6020';ctx.fillRect(X,Y-10,1,2);ctx.globalAlpha=.15;wcirc(z.x,z.y,z.r,'#ff8030');ctx.globalAlpha=1;},
  tripod:z=>{const X=sx(z.x,z.y),Y=sy(z.x,z.y);ctx.fillStyle='#5a3a22';ctx.fillRect(X-4,Y-2,1,3);ctx.fillRect(X+3,Y-2,1,3);ctx.fillRect(X,Y-3,1,3);ctx.fillStyle='#3a3a44';ctx.fillRect(X-3,Y-6,8,2);ctx.fillStyle='#ffd060';ctx.fillRect(X+5,Y-6,1,1);},
  deflect:z=>{ctx.globalAlpha=.5+.3*Math.sin(time*20);wcirc(P.x,P.y,z.r,'#ffd040');ctx.globalAlpha=1;},
  banner:z=>{ctx.globalAlpha=.12;wdisc(z.x,z.y,z.r,'#e04030');ctx.globalAlpha=1;wcirc(z.x,z.y,z.r,'#e04030');const X=sx(z.x,z.y),Y=sy(z.x,z.y);ctx.fillStyle='#3a2a1a';ctx.fillRect(X,Y-26,1,26);ctx.fillStyle='#c02020';ctx.fillRect(X+1,Y-25,7,10);ctx.fillStyle='#e0b040';ctx.fillRect(X+3,Y-22,3,3);},
  flurry:z=>{}});
 // hotbar icons for the new abilities (first matching rule wins, so these go in front)
-SPRULES.unshift([/TANEGASHIMA|HEAVY SLUG/,'orb'],[/GRAPESHOT/,'shards'],[/POWDER ROLL/,'meteor'],[/TRIPOD GUN/,'totem'],[/CANNON BARRAGE/,'meteor'],
+SPRULES.unshift([/TANEGASHIMA|HEAVY SLUG/,'orb'],[/GRAPESHOT/,'shards'],[/POWDER ROLL/,'meteor'],[/TRIPOD GUN/,'totem'],[/SIEGEBREAKER/,'meteor'],
  [/YARI THRUST|SPIRAL LUNGE|THOUSAND THRUSTS/,'arrow'],[/WHEEL SWEEP/,'whirl'],[/DEFLECT/,'mirror'],[/WAR BANNER/,'shout']);
