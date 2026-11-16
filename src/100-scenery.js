@@ -251,7 +251,5 @@ function evoFront(st,X,Y,f){
   if(gold){ctx.fillRect(X-2,y-2,1,2);ctx.fillRect(X,y-3,1,3);ctx.fillRect(X+2,y-2,1,2);}}
  const nw=st>=8?3:st>=3?1:0;for(let i=0;i<nw;i++){const a=time*2.2+i*TAU/3,wx=X+Math.round(Math.cos(a)*11),wy=Y-12+Math.round(Math.sin(a)*4);ctx.globalAlpha=.35;ctx.fillStyle='#8cf';ctx.fillRect(wx-1,wy-1,3,3);ctx.globalAlpha=1;ctx.fillStyle='#fff';ctx.fillRect(wx,wy,1,1);}
  if(st>=9)for(let i=0;i<6;i++){const ph=(time*1.5+i/6)%1,ax=X-7+((i*37)%15),ay=Y-2-ph*16;ctx.globalAlpha=1-ph;ctx.fillStyle=i%2?'#ffd040':'#ff9020';ctx.fillRect(ax,Math.round(ay),1,2);}ctx.globalAlpha=1;}
-{const _dp=drawPlayer;drawPlayer=function(){const st=P&&!(P.dying>0)?Math.min(9,P.evo||0):0;if(!st)return _dp();
- const X=sx(P.x,P.y),Y=sy(P.x,P.y)+3,f=P.dash>0?(scrVec(P.dx,P.dy)[0]<0?-1:1):(P.face<0?-1:1),c=(CLS()&&CLS().col)||'#c02020';
- evoBack(st,X,Y,f,c);_dp();evoFront(st,X,Y,f);};}
-{const _ev=evolve;evolve=function(){const b=P&&P.evo||0;_ev();const st=P&&P.evo||0;if(st!==b&&EVOGEAR[st])setToast('NEW TROPHY: '+EVOGEAR[st],'#ffe060',3.5);};}
+// The trophies are no longer drawn on the player: in a bullet hell nothing should crowd the hitbox. Your form still
+// changes with each boss (the hero sprites themselves evolve). evoBack/evoFront are kept for menus that may show them.
