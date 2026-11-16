@@ -109,6 +109,87 @@ const AKA_ANIM={crescent:[['cr1','cr2','cr3'],[0,.55,.75]],rain:[['rn1','rn2'],[
  rush:[['ru1','ru2'],'ph'],stomp:[['st1','st2'],[0,.75]]};
 BART['AKAGANE, THE RED OX']=Object.assign(p=>akaDraw(p,AKA_POSES[p.f===2?'atk':p.f===1?'idle1':'idle0']),{fw:72,fh:76,raw:1,sc:1.1,posed:{draw:akaDraw,poses:AKA_POSES,anim:AKA_ANIM}});
 
+// THE WHITE TIGER: a sacred temple tiger, side on. Layered white fur shaded to ice-blue, ink stripes that wrap the body,
+// the forehead mark, a shimenawa rope with paper streamers and a bronze bell at the neck. Second form (seal broken): the
+// rope snapped and trailing, the fur bristling along the spine, claw scars, burning red eyes and a snarl.
+// pose: dx/dy, b (breath), hip/sh body anchors, hd head offset, mouth (0 shut, 1 snarl, 2 roar), legs {fh,ff,nh,nf}
+// as [[top],[joint],[paw]], tail (list of points from the rump), crouch (flattens the body)
+function tigDraw(p,Q){const {R:R_,E:E_,L:L_}=p,two=ARTHURT,ox=Q.dx||0,oy=Q.dy||0,by=Q.b||0;
+ const R=(x,y,w,h,c)=>R_(x+ox,y+oy,w,h,c),E=(x,y,rx,ry,c)=>E_(x+ox,y+oy,rx,ry,c),L=(a,b2,c2,d,c,t)=>L_(a+ox,b2+oy,c2+ox,d+oy,c,t);
+ const F0='#1a1e2c',F1='#566a84',F2='#93a9c0',F3='#cad8e2',F4='#eef3f2',F5='#ffffff',INK='#161824',IN2='#2e3448',
+  RP='#c8a458',RP2='#8a6a2c',RP3='#f0d890',PAPER='#f4f0e4',BR='#a06a28',BR2='#e0a848',PINK='#c87888';
+ const D={fh:[[30,32],[36,44],[33,55]],ff:[[57,33],[60,45],[62,55]],nh:[[24,33],[30,44],[24,55]],nf:[[51,34],[51,45],[51,55]],tail:[[14,24],[8,22],[4,16],[5,9],[9,5],[13,4]]};
+ const hip=Q.hip||[25,28],sh=Q.sh||[53,27],legs=Object.assign({},D,Q.legs||{}),tail=Q.tail||D.tail,crouch=Q.crouch||0;
+ const lerp=(a,b,t)=>a+(b-a)*t,RY=9-crouch;
+ // a limb: thick upper, slimmer lower, wide paw; stripes ring it
+ const limb=(Lg,far)=>{const [[ax,ay],[kx,ky],[px2,py2]]=Lg,c1=far?F1:F2,c2=far?F2:F3,c3=F4;
+  L(ax,ay+by,kx,ky,F0,8);L(kx,ky,px2,py2-2,F0,6);L(ax,ay+by,kx,ky,c1,6);L(kx,ky,px2,py2-2,c1,4);L(ax-1,ay+by,kx-1,ky,c2,3);L(kx-1,ky,px2-1,py2-2,c2,2);
+  if(!far){L(ax-1,ay+by,kx-1,ky,c3,1);L(kx-1,ky,px2-1,py2-3,c3,1);}
+  for(const t of [.3,.65]){const x=lerp(kx,px2,t),y=lerp(ky,py2-2,t);R(x-1,y,3,1,far?F0:INK);}
+  {const x=lerp(ax,kx,.55),y=lerp(ay+by,ky,.55);R(x-2,y,3,1,far?F0:INK);R(x-1,y+2,3,1,far?F0:INK);}
+  E(px2+1,py2,4,2,F0);E(px2+1,py2-1,3,1,far?F2:F4);R(px2+2,py2,1,1,F1);R(px2+4,py2,1,1,F1);if(!far)R(px2-1,py2-2,3,1,F5);};
+ // tail (behind everything): banded, dark tip
+ const tw=i=>Math.max(2,3-Math.floor(i/3));
+ for(let i=0;i<tail.length-1;i++){const [x0,y0]=tail[i],[x1,y1]=tail[i+1];L(x0,y0+by,x1,y1+by,F0,tw(i)+2);}
+ for(let i=0;i<tail.length-1;i++){const [x0,y0]=tail[i],[x1,y1]=tail[i+1],tip=i>=tail.length-2;L(x0,y0+by,x1,y1+by,tip?INK:F3,tw(i));if(!tip){L(x0,y0+by,x1,y1+by,F4,1);const mx=(x0+x1)/2,my=(y0+y1)/2+by;R(mx-1,my-1,3,2,INK);}}
+ limb(legs.fh,1);limb(legs.ff,1);
+ // body: a shaded capsule from haunch to chest
+ const cap=(s2,offy,c)=>{for(let i=0;i<=12;i++){const t=i/12,x=lerp(hip[0],sh[0],t),y=lerp(hip[1],sh[1],t)+by,r=lerp(10,11,t)-s2;if(r<1)continue;E(x,y+offy,r+3,Math.max(1,RY+lerp(0,1,t)-s2),c);}};
+ cap(-1,0,F0);cap(0,0,F1);cap(1.2,-1,F2);cap(3,-2,F3);cap(5.5,-3,F4);
+ const top=t=>Math.round(lerp(hip[1],sh[1],t)+by-RY-lerp(0,1,t))+1,bot=t=>Math.round(lerp(hip[1],sh[1],t)+by+RY+lerp(0,1,t));
+ for(let i=1;i<12;i++){const t=i/12,x=lerp(hip[0],sh[0],t);R(x-2,top(t),4,1,F5);}
+ // belly: soft pale fur hanging under, tufted
+ for(let x=hip[0]+6;x<sh[0]-3;x+=3){const t=(x-hip[0])/(sh[0]-hip[0]),y=bot(t);R(x,y-2,3,2,F3);R(x+1,y,1,1,F2);}
+ // haunch and shoulder masses
+ E(hip[0],hip[1]+by,8,8,F2);E(hip[0]-1,hip[1]+by-1,6,6,F3);E(hip[0]-2,hip[1]+by-3,4,3,F4);
+ E(sh[0],sh[1]+by+1,7,8,F2);E(sh[0]-1,sh[1]+by-1,5,6,F3);E(sh[0]-2,sh[1]+by-3,3,3,F4);
+ // stripes: wavy, tapered, some forked, running from the spine down the flank
+ const SP=[[.12,14,-5,0,0],[.22,7,-3,0,3],[.31,12,-4,1,1],[.44,15,-3,0,0],[.53,6,-2,0,4],[.62,12,-2,1,1],[.74,13,-1,0,0],[.86,8,1,0,2]];
+ for(const [t,len,lean,fork,dn] of SP){const x=Math.round(lerp(hip[0],sh[0],t)),y=top(t)+dn;
+  for(let k=0;k<len;k++){const q=k/len,xx=x+Math.round(lean*q*q),w=q<.55?2:1;R(xx,y+k,w,1,INK);}
+  if(fork){L(x+1,y+4,x+4,y+8,INK,1);}R(x+2,y,1,3,IN2);}
+ // haunch: rings of stripe around the thigh
+ for(const [a,r] of [[-2.2,7],[-1.3,7],[2.6,6]])L(hip[0]+Math.cos(a)*r,hip[1]+by+Math.sin(a)*r,hip[0]+Math.cos(a)*(r-4),hip[1]+by+Math.sin(a)*(r-4),INK,1);
+ if(two){for(let i=0;i<10;i++){const t=.05+i*.085,x=Math.round(lerp(hip[0],sh[0],t)),y=top(t),h=2+(i%3);L(x,y,x-2,y-h,F3,1);R(x-2,y-h,1,1,F5);}
+  for(const [x,y] of [[33,24],[36,23],[39,24]])L(x,y+by,x-3,y+7+by,'#c02830',1);}
+ limb(legs.nh,0);limb(legs.nf,0);
+ // head
+ const hx=sh[0]+13+(Q.hd?Q.hd[0]:0),hy=sh[1]-7+by+(Q.hd?Q.hd[1]:0),m=Q.mouth||0;
+ // neck and ruff
+ E(hx-7,hy+5,8,8,F0);E(hx-7,hy+5,7,7,F2);E(hx-7,hy+3,5,4,F3);
+ // ears: dark backs with the white spot
+ E(hx-1,hy-8,3,3,F0);E(hx-1,hy-8,2,2,F1);E(hx-6,hy-7,4,4,F0);E(hx-6,hy-7,3,3,F1);R(hx-7,hy-8,2,2,F5);R(hx-5,hy-6,1,1,PINK);
+ // skull
+ E(hx,hy,10,8,F0);E(hx,hy,9,7,F3);E(hx+1,hy-2,7,5,F4);R(hx-3,hy-6,7,1,F5);
+ // sideburns sweeping back
+ for(let i=0;i<4;i++){L(hx-6,hy+2+i*2,hx-12,hy+3+i*3,F0,2);L(hx-6,hy+2+i*2,hx-11,hy+3+i*3,i%2?F3:F4,1);}
+ // forehead mark and cheek stripes
+ R(hx-1,hy-6,5,1,INK);R(hx-1,hy-4,5,1,INK);R(hx+1,hy-6,1,4,INK);
+ L(hx-7,hy-1,hx-3,hy,INK,1);L(hx-7,hy+2,hx-3,hy+3,INK,1);L(hx-6,hy+5,hx-3,hy+5,INK,1);
+ // eye
+ const eye=two?'#ff4030':'#8ae8ff';R(hx+2,hy-1,6,3,INK);R(hx+3,hy-1,4,2,eye);R(hx+5,hy-1,1,2,INK);R(hx+3,hy-1,1,1,F5);R(hx+2,hy-2,6,1,F1);
+ if(two){L(hx+1,hy,hx-6,hy-2,'#ff4030',1);R(hx-8,hy-3,2,1,'#ff9060');}
+ // muzzle, nose, whisker pad, jaw
+ const jy=m===2?4:m===1?2:0;
+ E(hx+8,hy+3,6,4,F0);E(hx+8,hy+3,5,3,F4);R(hx+6,hy+1,5,1,F5);R(hx+12,hy,3,2,PINK);R(hx+13,hy+2,2,1,F0);
+ for(const [x,y] of [[hx+7,hy+3],[hx+9,hy+4],[hx+7,hy+5]])R(x,y,1,1,F1);
+ L(hx+4,hy+3,hx-2,hy+2,F5,1);L(hx+4,hy+5,hx-1,hy+6,F5,1);
+ if(m){R(hx+3,hy+5,11,2+jy,INK);R(hx+4,hy+6,9,jy,'#6a1820');R(hx+11,hy+5,1,2,F5);R(hx+5,hy+5,1,2,F5);if(m===2){R(hx+11,hy+5+jy,1,2,F5);R(hx+6,hy+5+jy,1,2,F5);}
+  E(hx+7,hy+8+jy,5,2,F0);E(hx+7,hy+8+jy,4,1,F3);}
+ else{L(hx+6,hy+6,hx+12,hy+4,INK,1);E(hx+6,hy+8,4,2,F3);}
+ // shimenawa: the sacred rope at the neck, paper streamers and a bronze bell; snapped in the second form
+ const rope=(x0,y0,x1,y1)=>{const n=Math.round(Math.hypot(x1-x0,y1-y0)/2);for(let i=0;i<=n;i++){const x=lerp(x0,x1,i/n),y=lerp(y0,y1,i/n);R(x-1,y-1,3,3,F0);}
+  for(let i=0;i<=n;i++){const x=lerp(x0,x1,i/n),y=lerp(y0,y1,i/n);R(x-1,y,3,2,i%2?RP2:RP);R(x,y,1,1,RP3);}};
+ const shide=(x,y)=>{R(x,y,3,2,PAPER);R(x+1,y+2,3,2,PAPER);R(x,y+4,3,2,PAPER);R(x+1,y+6,2,1,PAPER);R(x+1,y+2,1,1,'#c8c0a8');};
+ if(!two){rope(hx-11,hy-5,hx-5,hy+10);shide(hx-12,hy+2);shide(hx-7,hy+11);E(hx-4,hy+13,3,3,F0);E(hx-4,hy+13,2,2,BR);R(hx-5,hy+12,2,1,BR2);R(hx-4,hy+15,1,1,F0);}
+ else{rope(hx-11,hy-5,hx-8,hy+3);L(hx-8,hy+4,hx-12,hy+9,RP2,2);L(hx-12,hy+9,hx-14,hy+9,RP3,1);L(hx-12,hy+9,hx-13,hy+12,RP,1);R(hx-6,hy+6,2,3,PAPER);}
+}
+const TIG_POSES={
+ idle0:{},
+ idle1:{b:1,tail:[[14,25],[8,23],[4,17],[4,10],[7,6],[11,4]]},
+ atk:{mouth:2,hd:[1,-2],sh:[54,24],legs:{nf:[[51,31],[59,39],[64,47]],ff:[[57,30],[65,37],[70,43]]},tail:[[14,23],[8,23],[3,20],[1,14],[2,9],[5,6]]}};
+BART['THE WHITE TIGER']=Object.assign(p=>tigDraw(p,TIG_POSES[p.f===2?'atk':p.f===1?'idle1':'idle0']),{fw:92,fh:60,raw:1,sc:1,posed:{draw:tigDraw,poses:TIG_POSES,anim:{},roar:'atk'}});
+
 // ---- the posed sheet: idle, breathing and attack frames first (so everything that reads frames 0-2 still works),
 // then every pose, and a picker that plays the right frames for the attack under way
 {const _ba=bossArt;bossArt=function(name){const D=BART[name];if(!D||!D.posed)return _ba.apply(this,arguments);
@@ -119,7 +200,7 @@ BART['AKAGANE, THE RED OX']=Object.assign(p=>akaDraw(p,AKA_POSES[p.f===2?'atk':p
    const L=(x0,y0,x1,y1,c,t)=>{const n=Math.max(Math.abs(x1-x0),Math.abs(y1-y0))||1;for(let i=0;i<=n;i++)R(x0+(x1-x0)*i/n,y0+(y1-y0)*i/n,t||1,t||1,c);};
    PS.draw({R,E,L,f,b:0,atk:false,sh:(c,k)=>shade(c,k==null?-.3:k)},PS.poses[nm]);});sg.drawImage(outlined(fr),f*FW,0);});
  const pick=e=>{const A=e.A,an=A&&PS.anim[A.nm||A.n];
-  if(e.phx)return idx.rn1!=null?idx.rn1:2; // roaring through the transformation
+  if(e.phx){const r=idx[PS.roar||'rn1'];return r!=null?r:2;} // roaring through the transformation
   if(an){const [fr,tm]=an,t=A.t||0;if(tm==='run')return idx[fr[Math.floor(t*8)%fr.length]];if(tm==='ph')return idx[fr[Math.min(fr.length-1,A.ph||0)]];let k=0;for(let i=0;i<tm.length;i++)if(t>=tm[i]*(1/(e.spdK||1)))k=i;return idx[fr[k]];}
   if(e.act||e.storm>0)return 2;return Math.floor(time*2.5)%2;};
  return {c:sheet,wc:whiteOf(sheet),fw:FW,fh:FH,frames:N,sc:D.sc||1.05,ok:true,bossSpr:1,pick};};}
