@@ -55,8 +55,13 @@ function stDrawBuild(){
  // respec confirmation
  if(stUI.respecT&&time-stUI.respecT<3){const s='PRESS R AGAIN TO REFUND '+stSpent()+' JADE';const w=txtW(s)+10,x=111-Math.floor(w/2);ctx.fillStyle='#2a1018';ctx.fillRect(x,126,w,11);ctx.fillStyle='#e06070';ctx.fillRect(x,126,w,1);txt(s,x+5,129,'#ffd0d0');}
  // the two new keys in the footer
- txt('B BUILD   R RESPEC',W-6-txtW('B BUILD   R RESPEC'),H-8,'#776');};}
+ txt('B BUILD   R RESPEC',150,13,'#8a7a8a');};}
 {const _uk=upgradesKey;upgradesKey=function(c){if(c==='KeyB'){stBuild=!stBuild;sfx('coin');return;}if(c==='KeyR'){stRespec();return;}if(stBuild&&c==='Escape'){stBuild=false;return;}return _uk(c);};}
 
 // the temple's summary shows the mastery tier of each region as pips
 {const _hs=skillHubSummary;skillHubSummary=function(row){_hs(row);STB.forEach((_,b)=>{const x=20+b*36,tier=stTier(b);for(let i=0;i<3;i++){ctx.fillStyle=i<tier?STB[b].c:'#2a2034';ctx.fillRect(x+20+i*5,147,4,3);}});};}
+
+// ---------- what a node does to your totals: "POWER +19% > +22%" under its description ----------
+{const _sd=stDetails;stDetails=function(n,route){_sd(n,route);if(!n.eff||stLv(n.k)>=n.max)return;const t=stTot(),ks=Object.keys(n.eff).filter(k=>STAT_TXT[k]);if(!ks.length)return;
+ const k=ks[0],now=t[k]||0,next=now+n.eff[k],fmt=v=>STAT_TXT[k](Math.round(v*1000)/1000);
+ const a=fmt(now).split(' ')[0],b=fmt(next).split(' ')[0],s='NOW '+(now?a:'0')+' > '+b;stCenter(s,221,92,119,'#8fd8a8');};}
