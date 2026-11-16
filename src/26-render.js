@@ -115,18 +115,73 @@ function drawGround(){
  for(const d of dh){const k=1-d.t/d.dur;ctx.globalAlpha=.22;wdisc(d.x,d.y,d.r*Math.min(1,k*1.1),d.col||'#f22');ctx.globalAlpha=1;wcirc(d.x,d.y,d.r,d.col||'#f55');}
  for(const e of enemies)if(!e.dead&&e.act&&e.act.ph===0)drawTele(e);
 }
+// Lacquered tansu chest. Pixel-rasterized faces keep the angled boards crisp on the game canvas.
+const CHEST_ART=Array.from({length:4},(_,frame)=>outlined(mk(36,31,g=>{
+ const px=(x,y,w,h,c)=>{g.fillStyle=c;g.fillRect(x,y,w,h);};
+ const face=(points,c)=>{
+  const xs=points.map(p=>p[0]),ys=points.map(p=>p[1]);
+  g.fillStyle=c;
+  for(let y=Math.min(...ys);y<Math.max(...ys);y++){
+   const crossings=[];
+   for(let i=0;i<points.length;i++){
+    const [x0,y0]=points[i],[x1,y1]=points[(i+1)%points.length];
+    if((y0>y+.5)!==(y1>y+.5))crossings.push(x0+(y+.5-y0)/(y1-y0)*(x1-x0));
+   }
+   crossings.sort((a,b)=>a-b);
+   for(let i=0;i+1<crossings.length;i+=2){
+    const x=Math.ceil(crossings[i]-.5),right=Math.ceil(crossings[i+1]-.5);
+    g.fillRect(x,y,right-x,1);
+   }
+  }
+ };
+ const amber=frame?'#ba8548':'#ecb65b',brass='#925432',shade='#641f28';
+ // Feet, tapered end panel and recessed front board.
+ px(7,25,4,4,'#5e3335');px(23,25,4,4,'#5e3335');px(30,20,3,4,'#492530');
+ face([[26,17],[33,13],[33,23],[26,28]],shade);
+ face([[4,17],[26,17],[26,28],[4,28]],'#a63538');
+ px(5,19,20,1,'#d05a4a');px(6,21,18,5,'#842831');px(7,22,16,1,'#a53636');px(5,27,21,1,'#63212c');
+ face([[26,25],[33,20],[33,22],[26,27]],brass);
+ px(7,18,2,9,brass);px(8,18,1,8,amber);px(22,18,2,9,brass);px(22,18,1,8,amber);
+ px(5,26,4,1,amber);px(22,26,4,1,amber);
+ face([[4,17],[12,12],[33,12],[26,17]],'#c19359');
+ face([[7,16],[13,13],[30,13],[24,16]],'#2c1822');
+ if(!frame){
+  face([[4,14],[11,9],[32,9],[26,14]],'#d95547');
+  face([[26,14],[32,9],[33,13],[26,18]],'#8b3034');
+  px(4,14,22,4,'#b6403c');px(5,17,21,1,amber);
+  face([[7,14],[14,9],[16,9],[9,14]],amber);
+  face([[22,14],[29,9],[31,9],[24,14]],amber);
+  px(8,14,1,3,amber);px(22,14,1,3,amber);
+  px(13,16,5,5,brass);px(14,16,3,4,'#ffe08d');px(15,17,1,2,'#452731');
+ }else{
+  const lift=[0,3,7,10][frame],rise=[0,3,5,6][frame];
+  face([[11-rise,11-lift],[31-rise,11-lift],[33,12],[12,12]],'#883038');
+  face([[12-rise,12-lift],[31-rise,12-lift],[31,11],[13,11]],'#542533');
+  px(12-rise,11-lift,19,1,amber);
+  if(frame>1){
+   face([[13-rise,13-lift],[15-rise,13-lift],[15,11],[13,11]],brass);
+   face([[27-rise,13-lift],[29-rise,13-lift],[29,11],[27,11]],brass);
+  }
+  px(13,17,5,3,brass);px(14,17,3,1,'#c49862');
+ }
+})));
+function drawChest(p,X,Y){
+ const age=p.openedAt==null?1:time-p.openedAt;
+ const frame=p.used?Math.min(3,1+Math.floor(Math.max(0,age)/.065)):0;
+ shadow(X+1,Y,28);
+ ctx.drawImage(CHEST_ART[frame],Math.round(X-17),Math.round(Y-29));
+ if(!p.used){
+  // A tiny glint on the clasp, timed per chest so multiple chests don't blink in sync.
+  const glint=(time+hash(Math.floor(p.x),Math.floor(p.y))*2)%3.1;
+  if(glint<.27){
+   ctx.fillStyle='#fff3bd';ctx.fillRect(Math.round(X-4),Math.round(Y-14),5,1);
+   ctx.fillRect(Math.round(X-2),Math.round(Y-16),1,5);
+  }
+ }
+}
 function drawProp(p){
  const X=sx(p.x,p.y),Y=sy(p.x,p.y);
- if(p.k==='chest'){ // red lacquered treasure chest with gold bands; glows until opened, open lid shows the empty gold-lined inside
-  shadow(X,Y,22);const o=p.used;
-  if(!o){ctx.globalAlpha=.18+.08*Math.sin(time*3);disc(X,Y-8,15,'#ffd040');ctx.globalAlpha=1;}
-  ctx.fillStyle='#14101a';ctx.fillRect(X-11,Y-(o?21:15),22,o?21:15);
-  ctx.fillStyle='#8a1a20';ctx.fillRect(X-10,Y-8,20,7);ctx.fillStyle='#a82830';ctx.fillRect(X-10,Y-8,20,1);
-  ctx.fillStyle='#e0b040';ctx.fillRect(X-10,Y-2,20,1);ctx.fillRect(X-7,Y-8,2,7);ctx.fillRect(X+5,Y-8,2,7);
-  if(o){ctx.fillStyle='#6a1018';ctx.fillRect(X-10,Y-20,20,6);ctx.fillStyle='#e0b040';ctx.fillRect(X-10,Y-15,20,1);ctx.fillStyle='#3a2a10';ctx.fillRect(X-9,Y-10,18,2);}
-  else{ctx.fillStyle='#a82830';ctx.fillRect(X-10,Y-14,20,6);ctx.fillStyle='#c84040';ctx.fillRect(X-10,Y-14,20,1);ctx.fillStyle='#e0b040';ctx.fillRect(X-7,Y-14,2,6);ctx.fillRect(X+5,Y-14,2,6);ctx.fillRect(X-10,Y-9,20,1);
-   ctx.fillStyle='#ffe080';ctx.fillRect(X-1,Y-10,3,3);ctx.fillStyle='#14101a';ctx.fillRect(X,Y-9,1,1);
-   if(Math.random()<.05)particles.push({x:p.x+rnd(-8,8),y:p.y+rnd(-6,6),vx:0,vy:-12,t:.6,col:'#ffe080'});}}
+ if(p.k==='chest')drawChest(p,X,Y);
  else if(p.k==='altar'){ // shrine: a wooden offering table with shide streamers and a violet spirit orb; curse: an obsidian block with a floating red-eyed skull
   shadow(X,Y,20);const cu=p.curse;
   ctx.fillStyle='#14101a';ctx.fillRect(X-10,Y-12,20,12);
