@@ -229,10 +229,11 @@ rebrand(7,'ONIKUMA, THE JAILER',{r:13,spd:34});
 rebrand(8,'KAGE, THE SHINOBI MASTER',{r:8,spd:60});
 rebrand(10,'LORD KUROGANE',{r:13,spd:60});
 BOSS[1].r=12;BOSS[1].spd=46;
-// health tuned to the plan's fight lengths (2-3 min for the first boss up to 8-10 for the Emperor). Measured with a bot holding
-// attack at each stage's start (about 90-230 damage a second), assuming a player is shooting ~60% of the time, and allowing for
-// each fight's shields, armour and invulnerable phases (the Abbot's monks, Tetsuo's armour, the spider's ceiling time).
-{const HPK=[.8,.65,.6,.6,.55,.5,.45,.85,.75,1,.9,1];BOSS.forEach((b,i)=>{b.hp=Math.round(b.hp*HPK[i]);});}
+// fight length: 1 to 3 minutes. Each boss's health (at NORMAL) is set from a bot measurement of damage per second at the start
+// of its stage (about 90-230), assuming you are shooting ~60% of the time, minus the time its event and storm keep it
+// invulnerable, and allowing for its own shields (Hotaru's lanterns, the spider's ceiling, Tetsuo's armour, the Abbot's monks).
+// Targets: Akagane ~70s, about 10s longer for each boss after, the Emperor ~3 min.
+{const HPT=[2400,2600,2000,2900,4300,3300,3000,12300,10800,11000,10500,25000];BOSS.forEach((b,i)=>{b.hp=Math.round(HPT[i]/BOSSHP);});}
 // stage story lines follow their new guardians
 DUN[4].story='THE RONIN SEVEN HOLD THE PASS WAYSTATION';DUN[8].story='KAGE WAITS ON THE ROOFS OF THE KEEP';DUN[10].story='THE BLACK HORSE GENERAL GUARDS THE LAST COURT';
 // the abbot fights on a 90 bpm beat: his theme plays at the same tempo
@@ -1376,3 +1377,6 @@ const R7BAR={JUBEI:[{pat:'gapring',cnt:14,gw:.5,sp:55,col:'#f0f0f4'},{cnt:3,spre
  HANZO:[{cnt:5,spread:.5,sp:120,spr:'arrow',col:BC.aim,burst:2,gap:.18},{pat:'curtain',cnt:7,sp:90,col:BC.aim2}],OKICHI:[{pat:'orbitring',cnt:8,ow:3,orv:34,col:BC.haz},{pat:'flower',cnt:12,sp:50,col:BC.haz}],
  TETSUGORO:[{pat:'flower',cnt:14,sp:44,st:'big',col:'#4060c0'},{pat:'gapring',cnt:16,gw:.5,sp:48,st:'big',col:'#4060c0'}],TWINS:[{pat:'stream',cnt:5,sp:100,st:'zig',col:'#ff9030'},{cnt:3,spread:.4,sp:100,col:'#ff9030'}],
  MURAMASA:[{pat:'spiral',arms:4,spin:.4,sp:58,spr:'petal',col:'#ff80c0',burst:6,gap:.1},{pat:'gapring',cnt:20,gw:.42,sp:55,spr:'petal',col:'#ff80c0'}]};
+
+// with fights of 1-3 minutes the invulnerable phases are shorter too: events ~13s, storms 7s, the Emperor's last stand 18s
+for(const k in BKIT){const K=BKIT[k];if(!K.director)continue;if(K.event)K.event.dur=Math.max(10,Math.round(K.event.dur*.65));if(K.storm)K.storm.dur=7;K._evs=null;}
