@@ -23,6 +23,8 @@ function genMap(di){
  // assign room types (shuffled so specials land in different places every run)
  const mids=rooms.filter(r=>r.k==='room');for(let i=mids.length-1;i>0;i--){const j=ri(0,i);[mids[i],mids[j]]=[mids[j],mids[i]];}
  mids.forEach((r,i)=>r.type=ROOMORDER[i]||'combat');
+ // the trader only sets up shop every other stage (II, IV, VI...): on the others that room is a fight
+ if(di%2===0)for(const r of mids)if(r.type==='shop')r.type='combat';
  // the shop sits in one of the last rooms before the boss: swap it into a room among the closest to the boss room
  {const br=rooms.find(r=>r.k==='boss'),bd=r=>Math.hypot(r.x+r.w/2-br.x-br.w/2,r.y+r.h/2-br.y-br.h/2),sh=mids.find(r=>r.type==='shop');
   if(sh){const near=[...mids].sort((a,b)=>bd(a)-bd(b)).slice(0,2),tg=pick(near);if(tg!==sh){const t=tg.type;tg.type='shop';sh.type=t;}}}
