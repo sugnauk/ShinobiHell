@@ -15,7 +15,8 @@
  // marsh
  defDeco('scarecrow',13,22,(R)=>{R(6,4,1,18,'#5a3a22');R(0,7,13,1,'#5a3a22');R(3,0,7,3,'#c8a050');R(2,3,9,1,'#a08040');R(4,4,5,5,'#c8b88a');R(5,5,1,1,'#2a2010');R(7,5,1,1,'#2a2010');R(3,9,7,7,'#6a5a8a');R(3,9,7,1,'#8a7aaa');R(0,8,2,4,'#c8b060');R(11,8,2,4,'#c8b060');},{big:1});
  // caverns
- defDeco('web',18,10,(R)=>{const c='#d8d0e0';for(let i=0;i<9;i++)R(i*2,5-Math.round(i*.5),1,1,c);for(let i=0;i<9;i++)R(i*2,5+Math.round(i*.5),1,1,c);R(0,5,18,1,c);R(9,0,1,10,c);for(const r of [3,6])for(let a=0;a<12;a++){const x=9+Math.round(Math.cos(a/12*6.28)*r*1.4),y=5+Math.round(Math.sin(a/12*6.28)*r*.6);R(x,y,1,1,c);}},{big:0,flat:1});
+ defDeco('web',20,12,(R)=>{const c='#d8d0e0',c2='#9a92a8',cx=10,cy=6;for(let a=0;a<8;a++){const an=a/8*6.283;for(let r=1;r<10;r++){R(cx+Math.round(Math.cos(an)*r),cy+Math.round(Math.sin(an)*r*.55),1,1,c);}}
+  for(const r of [3,5.5,8])for(let a=0;a<24;a++){const an=a/24*6.283;R(cx+Math.round(Math.cos(an)*r),cy+Math.round(Math.sin(an)*r*.55),1,1,r>7?c2:c);}R(cx,cy,1,1,'#fff');},{big:0,flat:1});
  defDeco('crates',14,16,(R)=>{const cr=(x,y,w,h)=>{R(x,y,w,h,'#9a6a34');R(x,y,w,1,'#c08a48');R(x,y,1,h,'#6a4820');R(x+w-1,y,1,h,'#6a4820');R(x,y+h-1,w,1,'#6a4820');R(x+1,y+1,w-2,1,'#6a4820');};cr(0,7,9,9);cr(6,9,8,7);cr(2,0,8,8);R(4,3,4,1,'#3a2a14');},{big:1});
  // burnt town
  defDeco('rubble',16,7,(R)=>{blob(R,8,4,7,3,'#3a2a22');R(2,2,4,2,'#5a4a3a');R(9,1,5,2,'#4a3a2e');R(6,0,1,3,'#2a1a12');R(12,3,1,1,'#ff6020');R(4,5,1,1,'#ff8a30');},{big:0});
@@ -34,7 +35,9 @@
  defDeco('armour',12,22,(R)=>{R(5,18,2,4,'#3a2418');R(1,20,10,2,'#3a2418');R(2,7,8,10,'#8a1818');R(2,7,8,1,'#e0b040');R(1,8,2,4,'#a02020');R(9,8,2,4,'#a02020');R(3,1,6,6,'#2a2a30');R(2,0,8,2,'#3a3a42');R(4,3,4,2,'#e0b040');R(1,0,1,3,'#e0b040');R(10,0,1,3,'#e0b040');},{big:1});
  defDeco('vase',7,10,(R)=>{blob(R,3,6,3,3,'#3a6aa0');R(2,1,3,3,'#3a6aa0');R(1,0,5,1,'#2a4a7a');R(2,5,1,2,'#e8eef6');R(4,7,1,1,'#e8eef6');},{big:0});
  // jade palace and throne room
- defDeco('jadestatue',12,24,(R)=>{R(1,20,10,4,'#8a8a82');R(1,20,10,1,'#b0b0a8');R(3,8,6,12,'#3e9a6a');R(3,8,2,12,'#5ec08a');R(4,3,4,5,'#3e9a6a');R(3,2,6,2,'#2e7a52');R(2,10,1,6,'#2e7a52');R(9,10,1,6,'#2e7a52');R(5,4,1,1,'#1a3a2a');},{big:1});
+ defDeco('jadestatue',14,26,(R)=>{R(1,22,12,4,'#8a8a82');R(1,22,12,1,'#b0b0a8');R(0,25,14,1,'#5a5a54');
+  R(3,10,8,12,'#3e9a6a');R(3,10,2,12,'#5ec08a');R(10,10,1,12,'#2e7a52');R(2,19,10,3,'#2e7a52');R(4,14,6,2,'#2e7a52');R(5,13,4,3,'#5ec08a');
+  R(4,4,6,6,'#3e9a6a');R(4,4,2,6,'#5ec08a');R(5,6,1,1,'#1a3a2a');R(8,6,1,1,'#1a3a2a');R(3,2,8,2,'#2e7a52');R(6,0,2,2,'#e0b040');R(2,9,10,1,'#2e7a52');},{big:1});
  defDeco('goldbrazier',12,14,(R)=>{R(5,6,2,8,'#a07020');R(2,13,8,1,'#a07020');R(0,3,12,3,'#e0b040');R(0,3,12,1,'#fff0a0');R(1,6,10,1,'#a07020');R(1,2,10,1,'#ff6020');},{big:0,fire:{y:-13,s:3},glow:{c:'#ffb040',y:-14,r:12}});
 })();
 // what each stage is furnished with (index = stage). Keys from the shared set and the new story props above.
