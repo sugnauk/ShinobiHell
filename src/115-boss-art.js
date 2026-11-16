@@ -28,15 +28,19 @@ BART['AKAGANE, THE RED OX']=Object.assign(p=>{const {R,E,L,b,atk}=p,two=ARTHURT;
  if(!two){E(cx,37+by,3,3,G1);E(cx,37+by,2,2,G2);R(cx-3,34+by,1,2,H2);R(cx+3,34+by,1,2,H2);R(cx,36+by,1,1,G3);}
  else{L(cx-6,31+by,cx+2,40+by,K0,1);L(cx+2,40+by,cx-2,45+by,K0,1);L(cx+5,32+by,cx+8,38+by,K0,1);R(cx-4,35+by,6,4,S2);R(cx-3,35+by,4,1,S3);R(cx-2,37+by,2,1,S1);}
  // ---- arms in black mail with gold-edged plates, big gauntleted fists
- const arm=(sx,hx,hy)=>{L(sx,29+by,hx,hy,R0,7);L(sx,29+by,hx,hy,R2,5);L(sx-1,28+by,hx-1,hy-1,R4,1);const mx=(sx+hx)/2,my=(29+by+hy)/2;R(mx-3,my,6,2,G1);E(hx,hy,3,3,K0);E(hx,hy-1,2,2,K2);R(hx-3,hy-3,6,1,G2);};
+ // arms: a red sleeve to the elbow, a black iron forearm with gold bands, a leather-gloved fist; outlined so they read
+ const seg=(x0,y0,x1,y1,w,c,lite)=>{L(x0,y0,x1,y1,K0,w+2);L(x0,y0,x1,y1,c,w);L(x0-1,y0-1,x1-1,y1-1,lite,1);};
+ const arm=(s0,e0,h0)=>{const [sx,sy]=s0,[ex,ey]=e0,[hx2,hy2]=h0;seg(sx,sy+by,ex,ey+by,4,R2,R4);seg(ex,ey+by,hx2,hy2,3,'#4a4454','#8a8498');
+  const mx=(ex+hx2)/2,my=(ey+by+hy2)/2;R(mx-2,my-1,4,2,G1);E(ex,ey+by,2,2,K0);E(ex,ey+by,1,1,G2);
+  E(hx2,hy2,3,3,K0);E(hx2,hy2,2,2,'#6a4a2a');R(hx2-1,hy2-2,2,1,'#9a7048');};
  // ---- the great naginata (behind the near arm when held, swung across when attacking)
  const nag=(x0,y0,x1,y1)=>{L(x0,y0,x1,y1,K1,3);L(x0,y0-1,x1,y1-1,'#6a4a2a',1);const a=Math.atan2(y1-y0,x1-x0),bx=x1+Math.cos(a)*14,by2=y1+Math.sin(a)*14;
   L(x1,y1,bx,by2,'#9aa4b4',3);L(x1,y1-1,bx,by2-1,'#e8eef6',1);L(bx,by2,bx+Math.cos(a+1.2)*4,by2+Math.sin(a+1.2)*4,'#e8eef6',2);R(x1-2,y1-2,5,4,G1);R(x1-1,y1-2,3,1,G2);};
  if(atk)nag(4,60,50,14);else nag(46,70,50,8);
  // ---- sode: the great shoulder guards (the near one is torn off in the second form)
- const sode=(x,lean)=>{for(let r=0;r<5;r++){const yy=24+by+r*3;R(x+lean*r,yy,11,3,r%2?R3:R2);R(x+lean*r,yy,11,1,R4);R(x+lean*r+2,yy+1,1,1,G1);R(x+lean*r+6,yy+1,1,1,G1);R(x+lean*r+10,yy,1,3,R1);}R(x,23+by,11,1,G2);};
+ const sode=(x,lean)=>{for(let r=0;r<3;r++){const yy=24+by+r*3;R(x+lean*r,yy,11,3,r%2?R3:R2);R(x+lean*r,yy,11,1,R4);R(x+lean*r+2,yy+1,1,1,G1);R(x+lean*r+6,yy+1,1,1,G1);R(x+lean*r+10,yy,1,3,R1);}R(x,23+by,11,1,G2);};
+ if(atk){arm([19,29],[12,38],[22,43]);arm([49,29],[55,20],[39,25]);}else{arm([19,29],[11,39],[13,50]);arm([49,29],[57,38],[48,47]);}
  sode(12,-1);if(!two)sode(45,1);else{R(46,25+by,5,4,K1);R(47,26+by,3,1,K3);}
- if(atk){arm(22,20,46);arm(46,40,26);}else{arm(21,17,47);arm(47,50,42);}
  // ---- head
  const hx=cx,hy=12+by;
  if(!two){
