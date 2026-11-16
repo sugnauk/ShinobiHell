@@ -37,6 +37,19 @@ function bsh(e,x,y,a,sp,dmg,o){o=o||{};const q=mkProj('e',x,y,a,sp,dmg*e.dm,Obje
 function bring(e,x,y,n,sp,dmg,o,off,ga,gw){for(let i=0;i<n;i++){const a=(off||0)+i/n*TAU;if(ga!=null&&Math.abs(angDiff(a,ga))<gw)continue;bsh(e,x,y,a,sp,dmg,o);}}
 // a fan of n bullets centred on a, total width w
 function bfan(e,x,y,a,n,w,sp,dmg,o){for(let i=0;i<n;i++)bsh(e,x,y,a+(n>1?(i/(n-1)-.5)*w:0),sp,dmg,o);}
+// A full ring closes the stationary side lanes. Two faster shots ask for a second,
+ // smaller dodge after the ring, with a lead based on the player's current movement.
+function bossPressure(e){
+ if(!e.boss||e.air||e.ghost||e.hid||e.dead||!P||eShots()>165*BHK())return;
+ const now=R.time;
+ if(now<(e.pressureAt||0))return;
+ e.pressureAt=now+(e.storm>0?1.6:2.2)/Math.sqrt(BHK());
+ const a=aimAt(e),lead=Math.atan2(P.y+(P.mvy||0)*19-e.y,P.x+(P.mvx||0)*19-e.x);
+ bring(e,e.x,e.y,12,58,7,{r:2,col:BC.fix2,life:2.2},a+(e.pressureTurn||0));
+ e.pressureTurn=(e.pressureTurn||0)+.29;
+ bsh(e,e.x,e.y,a,105,8,{col:BC.aim,r:2,life:1.8});
+ if(Math.abs(angDiff(lead,a))>.085)bsh(e,e.x,e.y,lead,98,8,{col:BC.aim2,r:2,life:1.8});
+}
 function clearEnemyShots(keepPeril,cash){if(cash&&typeof cashOut==='function')cashOut(keepPeril);for(const q of projs)if(q.from==='e'&&!(keepPeril&&q.peril))q.dead=true;fakes.length=0;}
 function say(e,s,c,t){e.say={s,c:c||'#fff',t:t||1};}
 
@@ -158,6 +171,7 @@ function startEvent(e,K,ev){ev=ev||K.event;e.EVdef=ev;cancelAtk(e);e.brq=[];clea
  e.storm=ev.dur;e.stormMax=ev.dur;e.ev={name:ev.name,mins:[]};if(ev.start)ev.start(e,e.EV);
  const c=bsty(e).c;sfx('boss');shake=Math.max(shake,8);fxRing(e.x,e.y,80,c,.5);txtFx(e.x,e.y-16,ev.name,c,2);setToast(ev.name+' - '+(ev.hint||'SURVIVE!'),c,3.5);}
 function runEvent(e,K,dt){const ev=e.EVdef||K.event,E=e.EV;E.t+=dt;e.iv=999;e.storm=Math.max(0,ev.dur-E.t);if(ev.tick)ev.tick(e,dt,E);
+ if(!ev.storm&&!ev.quiet&&E.t>.8)bossPressure(e);
  if(!ev.storm&&K.barrage&&!ev.quiet&&!e.ghost&&!e.air){E.bb=(E.bb==null?1.5:E.bb)-dt;if(E.bb<=0){E.bb=(K.barrage.rate||[1])[0]*1.7/BHK();if(eShots()<160){const L=K.barrage.ph1;bossBarrage(e,L[(E.bk=(E.bk||0)+1)%L.length]);}}}
  if(E.t>=ev.dur||(E.done)){if(ev.end)ev.end(e,E);if(ev.storm)clearEnemyShots(true,1);e.EV=null;e.ev=null;e.storm=0;e.iv=.5;e.gapT=1.2;e.air=false;e.z=0;e.alpha=null;sfx('break');fxRing(e.x,e.y,60,'#fff',.4);setToast(ev.name+' ENDS - STRIKE NOW!','#fff',2.2);}}
 // speech bubble over the boss, and the generic sprite extras
@@ -184,13 +198,13 @@ function bossWorld(dt){tickMarks(dt);tickFakes(dt);
  // a posture break interrupts whatever the boss was doing
  if(boss&&boss.A&&boss.stag>0)cancelAtk(boss);}
 {const _br=bossReset;bossReset=function(e){const K=BKIT[e.name];if(K&&K.director){cancelAtk(e);killOwned(e);BMK.length=0;fakes.length=0;BX.dark=0;BX.wind=null;BX.smoke=null;
-   if(K.reset)K.reset(e);if(e.r0!=null){e.r=e.r0;e.spd=e.spd0;}e.kitOn=0;e.sprOv=null;e.corpse=null;e.fan=0;e.mounted=0;e.downT=0;e.stunT=0;e.EV=null;e.ev=null;e.storm=0;e.alpha=null;e.drawFn=null;e.air=false;e.z=0;e.ghost=false;}
+   if(K.reset)K.reset(e);if(e.r0!=null){e.r=e.r0;e.spd=e.spd0;}e.kitOn=0;e.pressureAt=0;e.pressureTurn=0;e.sprOv=null;e.corpse=null;e.fan=0;e.mounted=0;e.downT=0;e.stunT=0;e.EV=null;e.ev=null;e.storm=0;e.alpha=null;e.drawFn=null;e.air=false;e.z=0;e.ghost=false;}
   return _br(e);};}
 {const _od=onBossDead;onBossDead=function(e){const K=BKIT[e.name];if(K&&K.director){if(K.onDeath)K.onDeath(e);killOwned(e);BMK.length=0;fakes.length=0;BX.dark=0;BX.wind=null;BX.smoke=null;if(P){P.slowT=0;P.revT=0;}
    clearEnemyShots(false,1);}return _od(e);};}
 // HUD: the health bar shows its four damage steps and where the event triggers; the arena hint line
 {const _hud=drawHUD;drawHUD=function(){_hud();const b=boss;if(!b||!b.awake||b.dead)return;const K=BKIT[b.name];if(!K||!K.director)return;
-  const w=150,x=Math.round((W-w)/2)-20;if(!K.noTicks){ctx.fillStyle='#14101a';for(const k of [.25,.5,.75])ctx.fillRect(x+Math.round(w*k),H-22,1,6);bossEvents(K).forEach((ev,i)=>{if(b.evSeen&&b.evSeen[i])return;ctx.fillStyle='#ffd040';ctx.fillRect(x+Math.round(w*ev.at)-1,H-24,3,2);});}
+  const {x,y,w}=bossBarBox();if(!K.noTicks){ctx.fillStyle='#14101a';for(const k of [.25,.5,.75])ctx.fillRect(x+Math.round(w*k),y,1,6);bossEvents(K).forEach((ev,i)=>{if(b.evSeen&&b.evSeen[i])return;ctx.fillStyle='#ffd040';ctx.fillRect(x+Math.round(w*ev.at)-1,y-2,3,2);});}
   if(!b.EV&&K.hud){const s=K.hud(b);if(s)ctxt(s,H-40,K.hudC||'#e0b040');}
   if(K.hudExtra)K.hudExtra(b);};}
 // projectile art for the new bullets
@@ -333,82 +347,191 @@ BKIT['AKAGANE, THE RED OX']={director:bossDirector,pref:85,gap:1.25,halfName:'HE
 // ================================================================ II. THE WHITE TIGER - tracking unseen threats
 // A sacred tiger that stalks you through the reeds: invisible in them, only bending stalks show his path. When the stalks
 // go still he is about to strike. Your shots cut the reeds for good; a shrine lantern you shoot lights him up.
-BART['THE WHITE TIGER']=Object.assign(p=>{const {R,E,L,f,atk}=p,W0='#f0f0f4',W1='#c8c8d8',K0='#14101a',b=f===1?1:0,hurt=ARTHURT;
- // tail curling up behind
- for(let i=0;i<12;i++){const x=14-i*.9,y=24-Math.sin(i/11*2.6)*12+b;R(x,y,3,3,i%3===2?K0:W0);}
- // hind and fore legs (the fore legs reach out when pouncing)
- const fl=atk?8:0;R(18,32,6,12,W1);R(25,32,5,11,W0);R(44+fl,30,5,13-(atk?4:0),W0);R(50+fl,31,5,12-(atk?4:0),W1);
- for(const x of [18,25,44+fl,50+fl])R(x,42-(x>40&&atk?4:0),6,2,W0);
- // long body with stripes
- E(35,26+b,18,9,W0);E(35,30+b,16,5,W1);for(const x of [22,27,32,38,43])L(x,18+b,x+2,26+b,K0);
- // head: ears, muzzle, glass-blue eyes, open jaws when striking
- E(56,20+b,9,8,W0);R(50,11+b,4,4,W0);R(59,11+b,4,4,W0);R(51,12+b,2,2,'#e8a0b0');R(60,12+b,2,2,'#e8a0b0');
- R(55,13+b,2,4,K0);R(52,15+b,1,3,K0);R(60,15+b,1,3,K0);R(52,18+b,3,1,'#60c8ff');R(59,18+b,3,1,'#60c8ff');
- E(62,24+b,5,4,W0);R(64,21+b,3,2,'#e8a0b0');if(atk){R(58,26,9,3,'#5a0a10');R(59,26,1,2,'#fff');R(64,26,1,2,'#fff');}else R(60,26+b,5,1,K0);
- if(hurt){// frenzy: hackles up, red eyes, jaws open, breath steaming
-  for(let x=20;x<48;x+=3)R(x,15+b-(x%2),2,3,W0);R(52,18+b,3,1,'#ff3020');R(59,18+b,3,1,'#ff3020');R(58,26,9,3,'#5a0a10');R(59,26,1,2,'#fff');R(64,26,1,2,'#fff');for(let i=0;i<3;i++)R(68+i*2,22-i+f,1,1,'#e8eef6');}},{sc:1.15,fw:72,fh:46,raw:1});
+BART['THE WHITE TIGER']=Object.assign(({R,E,L,f,atk})=>{
+ const ice='#f5f2e3',white='#cad8db',shade='#8399ae',dark='#43536a',ink='#24273a';
+ const gold='#dfaa61',red='#a85158',eye=ARTHURT?'#ff826b':'#89ffff';
+ const back=atk?3:0,head=atk?5:0,top=atk?3:f,step=f===1?3:0;
+ // The far legs sit below the rib cage. The near shoulder and haunch overlap them.
+ L(22,33,19+step,45,dark,6);R(18+step,46,8,3,shade);
+ L(46,31,49+head,44,dark,6);R(48+head,45,8,3,shade);
+ for(let i=0;i<16;i++){
+  const x=17-i,y=30-Math.sin(i/16*2.3)*(atk?7:17)+top;
+  R(x,y,4,4,i%6<2||i>13?dark:white);
+  if(i%6>=2&&i<14)R(x,y,3,1,ice);
+ }
+ E(30+back,30+top,16,9,shade);E(42,26+top,15,11,white);
+ E(29+back,26+top,15,8,white);E(32+back,23+top,14,4,ice);
+ E(42,24+top,12,7,ice);E(42,32+top,11,5,shade);
+ E(21+back,30+top,8,10,white);E(45,31+top,8,10,white);
+ L(22+back,34+top,20-step,46,white,6);L(46,33+top,50+head,46,white,6);
+ R(18-step,46,11,3,ice);R(49+head,46,11,3,ice);
+ for(const x of [23-step,26-step,55+head,58+head])R(x,48,1,1,dark);
+ for(const [x,y,dx,dy] of [[15,23,5,6],[23,19,4,8],[30,17,3,8],[37,16,1,9],[44,17,-3,10],[16,33,5,1],[23,39,4,1],[44,35,7,-1],[47,40,5,-1]]){
+  L(x,y+top,x+dx,y+dy+top,ink,2);L(x+dx,y+dy+top,x+dx+1,y+dy+1+top,dark);
+ }
+ // Rope and bronze charm. The snapped rope and burning eyes mark the second form.
+ if(!ARTHURT){L(48,22+top,50,36+top,'#95633f',3);L(49,22+top,51,36+top,gold);R(49,37+top,5,4,gold);R(51,39+top,2,1,red);}
+ else {L(47,24+top,49,29+top,red,2);L(49,32+top,54,35+top,red);L(32,21+top,29,30+top,red);L(35,21+top,32,28+top,red);}
+ const x=55+head,y=22+top;
+ E(x-3,y-7,4,5,dark);E(x+4,y-7,4,5,white);R(x+4,y-10,2,3,'#a66d83');
+ E(x,y,10,9,white);E(x+2,y-3,8,5,ice);E(x-4,y+5,6,5,ice);
+ L(x-7,y-4,x-2,y,ink,2);L(x-6,y+1,x-3,y+3,ink,2);L(x+2,y-7,x+3,y-2,ink,2);
+ L(x+5,y-5,x+5,y-2,ink);R(x+1,y-1,6,2,ink);R(x+2,y-1,4,1,eye);R(x+5,y-1,1,1,'#fff8de');
+ E(x+7,y+4,6,4,ice);R(x+11,y+1,3,2,red);R(x+11,y+2,3,1,ink);
+ R(x+7,y+3,1,1,dark);R(x+9,y+5,1,1,dark);
+ if(atk){E(x+7,y+8,6,3,ink);R(x+4,y+6,7,2,red);R(x+4,y+5,1,3,'#fff8de');R(x+10,y+5,1,3,'#fff8de');R(x+3,y+10,7,1,white);}
+ else L(x+5,y+7,x+11,y+5,ink);
+},{sc:1,fw:80,fh:53,raw:1});
 defProp('slantern','SHRINE LANTERN',99,6,miniSpr(10,18,R=>{R(2,15,6,3,'#8a8a90');R(4,9,2,6,'#9a9aa0');R(1,5,8,4,'#b0b0b8');R(0,3,10,2,'#8a8a90');R(3,0,4,3,'#9a9aa0');R(3,6,4,2,'#3a3a40');}));
 const TIG={inReed(e,x,y){for(const r of e.reeds)if(r.hp>0&&Math.hypot(x-r.x,y-r.y)<r.r)return r;return null;},
- lit(e){for(const l of e.lamps)if(l.lit>0&&Math.hypot(e.x-l.x,e.y-l.y)<90)return true;return false;}};
-BKIT['THE WHITE TIGER']={director:bossDirector,pref:110,gap:.9,halfName:'PELT TORN - FRENZY',noContact:true,
+ lit(e){return e.lamps.some(l=>l.lit>0&&Math.hypot(e.x-l.x,e.y-l.y)<90);},
+ mark(A,shape){const m=mark(shape);(A.marks??=[]).push(m);return m;},
+ cancel(e,A){for(const m of A.marks||[])if(!m.fired){m.dead=true;m.t=Infinity;}e.air=false;e.z=0;},
+ expose(e,t){e.recover=Math.max(e.recover,t);e.moving=false;e.alpha=1;e.hid=false;}};
+BKIT['THE WHITE TIGER']={director:bossDirector,pref:100,gap:.9,halfName:'SEAL BROKEN - FRENZY',noContact:true,
  style:{c:'#a8d8ff',t:['STALKING','ROAR STORM','FRENZY'],ph:[[],[],[]]},
- guide:['SKILL: TRACKING UNSEEN THREATS','INVISIBLE IN THE REEDS: WATCH THE STALKS BEND','WHEN THE STALKS GO STILL, HE POUNCES','SHOOT THE REEDS DOWN. SHOOT A LANTERN TO LIGHT HIM'],
+ guide:['WATCH THE REEDS AND DODGE AFTER THE POUNCE RING LOCKS','SHOOT A LANTERN, THEN BAIT A POUNCE INTO ITS LIGHT','A LANDING IN LIGHT STAGGERS HIM AND ENDS THE LAST HUNT','SHOOT REEDS TO CLEAR COVER BEFORE HE STRIKES'],
  init(e){const A=arenaOf(e);e.reeds=[];e.walks=[{x0:A.cx-160,x1:A.cx+160,y0:A.cy-100,y1:A.cy-78},{x0:A.cx-160,x1:A.cx+160,y0:A.cy+78,y1:A.cy+100}];
   for(let gx=-3;gx<=3;gx++)for(let gy=-3;gy<=3;gy++){const x=A.cx+gx*66+rnd(-12,12),y=A.cy+gy*66+rnd(-12,12);if(Math.random()<.4||blocked(x,y,8)||Math.hypot(x-A.cx,y-A.cy)<40)continue;if(e.walks.some(w=>y>w.y0-14&&y<w.y1+14&&x>w.x0&&x<w.x1))continue;
    const r=rnd(26,34),st=[];for(let i=0;i<46;i++){const a=Math.random()*TAU,d=Math.sqrt(Math.random())*r*.95;st.push({x:x+Math.cos(a)*d,y:y+Math.sin(a)*d,h:ri(9,15),c:pick(['#b8a050','#c8b060','#a89040','#d8c878'])});}e.reeds.push({x,y,r,hp:4,st});}
-  e.lamps=[[0,-.62],[-.62,.35],[.62,.35]].map(([a,b])=>bProp(e,'slantern',A.cx+a*A.R,A.cy+b*A.R,{lit:0,cd:0,onHurt:l=>{if(l.lit<=0&&l.cd<=0){l.lit=5;l.cd=12;sfx('heal');fxRing(l.x,l.y,90,'#ffe080',.5);txtFx(l.x,l.y-12,'LIT!','#ffe080');}return false;}}));
-  e.sang=Math.random()*TAU;e.alpha=1;},
+  e.lamps=[[0,-.62],[-.62,.35],[.62,.35]].map(([a,b])=>bProp(e,'slantern',A.cx+a*A.R,A.cy+b*A.R,{lit:0,cd:0,
+   drawAfter:l=>pxAt(l,px=>{if(l.lit>0){px(-3,-14,6,4,'#d48743');px(-2,-15,4,4,'#ffe7a2');}else if(l.cd<=0)px(-1,-13,2,2,'#e9bd77');}),
+   onHurt:l=>{if(l.lit<=0&&l.cd<=0){l.lit=5;l.cd=12;sfx('heal');fxRing(l.x,l.y,90,'#ffe080',.5);txtFx(l.x,l.y-12,'LIT!','#ffe080');}return false;}}));
+  e.sang=Math.random()*TAU;e.alpha=1;e.recover=0;e.hid=false;e.moving=false;
+  e.onHurt=()=>e.recover>0?1.25:e.hid?.45:1;},
+ draw(e){
+  if(!e.kitOn||!e.awake)return;
+  const sp=sprOf(e),X=sx(e.x,e.y),Y=sy(e.x,e.y)+Math.min(6,Math.round(e.r*.6))+2;
+  if(e.alpha>.05){
+   ctx.globalAlpha=e.alpha;
+   shadow(X,Y-2,e.r*2+6);
+   const frame=e.air||e.A?.wind||e.EV?.strike?.wind?2:e.moving?Math.floor(time*7)%2:0;
+   const dir=e.A?.dir??e.EV?.strike?.dir;
+   const facing=dir==null?sx(P.x,P.y)<X:scrVec(Math.cos(dir),Math.sin(dir))[0]<0;
+   drawSpr(sp,X,Y-e.z,e.flash>0&&meta.opt.flash,frame,facing);
+   ctx.globalAlpha=1;
+  }
+  if(e.recover>0)txt('OPEN',X-7,Y-58,'#ffe8a0');
+  return false;
+ },
  tick(e,dt,d,inEv){for(const l of e.lamps){if(l.lit>0)l.lit-=dt;else if(l.cd>0)l.cd-=dt;}
   // your shots cut the reeds (each patch takes 4 shots); cut reeds never grow back
   for(const q of projs)if(q.from==='p'&&!q.dead&&!q.reed){const r=TIG.inReed(e,q.x,q.y);if(r){q.reed=1;r.hp--;if(r.hp<=0){for(let i=0;i<14;i++)particles.push({x:r.x+rnd(-r.r,r.r)*.7,y:r.y+rnd(-r.r,r.r)*.7,vx:rnd(-30,30),vy:-rnd(10,40),t:.5,col:'#90b050'});sfx('slash');}}}
   // hidden in the reeds unless lit, attacking, or frenzied
-  const hide=!e.half&&!inEv&&TIG.inReed(e,e.x,e.y)&&!TIG.lit(e)&&!(e.A&&e.A.show);e.hid=hide;e.alpha=clamp(e.alpha+(hide?-dt*4:dt*5),0,1);
+  e.recover=Math.max(0,e.recover-dt);
+  const hide=!e.half&&!inEv&&e.recover<=0&&TIG.inReed(e,e.x,e.y)&&!TIG.lit(e)&&!e.A?.show;e.hid=hide;e.alpha=clamp(e.alpha+(hide?-dt*4:dt*5),0,1);
   // rustling stalks give him away while he moves
-  if(hide&&e.moving&&Math.random()<dt*18)particles.push({x:e.x+rnd(-8,8),y:e.y+rnd(-5,5),vx:0,vy:-14,t:.35,col:'#d8f0a0'});},
- move(e,dt,d,a){// stalk: circle you at a distance, preferring the reeds
+  if(hide&&e.moving&&Math.random()<dt*18)particles.push({x:e.x+rnd(-8,8),y:e.y+rnd(-5,5),vx:0,vy:-14,t:.35,col:'#d8f0a0'});
+  const f=e.hp/e.maxhp;
+  if(!inEv&&!e.A&&e.recover>0&&(f>=.30||e.evDone)&&(e.half||f>=.5))return true;
+ },
+ move(e,dt,d,a){
+  if(e.half){e.moving=true;steer(e,d>87?a:a+Math.PI*.56*e.sdir,e.spd*1.65,dt);return;}
+  // Circle the player at a distance, preferring cover.
   e.sang+=dt*.5*e.sdir;let best=null;for(let k=0;k<6;k++){const an=e.sang+(k%2?1:-1)*k*.3,x=P.x+Math.cos(an)*115,y=P.y+Math.sin(an)*115;if(TIG.inReed(e,x,y)&&!blocked(x,y,e.r)){best={x,y};e.sang=an;break;}}
   if(!best)best={x:P.x+Math.cos(e.sang)*115,y:P.y+Math.sin(e.sang)*115};const da=Math.atan2(best.y-e.y,best.x-e.x),dd=Math.hypot(best.x-e.x,best.y-e.y);e.moving=dd>6;if(e.moving)steer(e,da,Math.min(dd/dt,e.spd*1.4),dt);},
  floor(e){ctx.save();worldXf();ctx.fillStyle='#5a4028';ctx.globalAlpha=.9;for(const w of e.walks){ctx.fillRect(w.x0,w.y0,w.x1-w.x0,w.y1-w.y0);}ctx.fillStyle='#3a2a18';for(const w of e.walks)for(let x=w.x0;x<w.x1;x+=10)ctx.fillRect(x,w.y0,1.5,w.y1-w.y0);ctx.restore();ctx.globalAlpha=1;
-  for(const l of e.lamps)if(l.lit>0){ctx.globalAlpha=.12+.04*Math.sin(time*8);wdisc(l.x,l.y,90,'#ffe080');ctx.globalAlpha=1;}
+  for(const l of e.lamps)if(l.lit>0){
+   ctx.globalAlpha=.13;wdisc(l.x,l.y,90,'#ffe080');ctx.globalAlpha=.7;wcirc(l.x,l.y,90,'#ffe080');ctx.globalAlpha=1;
+  }
   // reed beds: stalks sway, and part around the tiger as he slips through
   for(const r of e.reeds){if(r.hp<=0)continue;ctx.globalAlpha=.45;wdisc(r.x,r.y,r.r,'#3a3018');ctx.globalAlpha=1;}
   for(const r of e.reeds){if(r.hp<=0)continue;for(const s of r.st){const X=sx(s.x,s.y),Y=sy(s.x,s.y),near=Math.hypot(e.x-s.x,e.y-s.y)<14&&e.moving,bend=Math.round(Math.sin(time*2+s.x*.3)*1+(near?Math.sin(time*30)*2:0));ctx.fillStyle=near?'#fff8c0':s.c;ctx.fillRect(X,Y-s.h,1,s.h);ctx.fillRect(X+bend,Y-s.h-3,1,3);ctx.fillStyle='#6a5020';ctx.fillRect(X+bend,Y-s.h-3,1,1);}}},
- hud:e=>'REED BEDS LEFT: '+e.reeds.filter(r=>r.hp>0).length+' - SHOOT THEM DOWN. SHOOT A LANTERN TO LIGHT HIM',
+ hud:e=>e.recover>0?'EXPOSED - STRIKE NOW':e.half?'FRENZY - WATCH FOR A SECOND POUNCE':'SHOOT A LANTERN. BAIT HIS POUNCE INTO THE LIGHT.',
  atks:[
-  // Pounce: the stalks go still, a growl, a shadow grows on you and locks, then he lands with a ring of reed shards
-  {n:'pounce',wt:3,half:0,ok:(e,d)=>d>55,run:(e,A,dt)=>TIG.pounce(e,A,dt,1,1/e.spdK)},
-  {n:'frenzy',wt:4,half:1,run:(e,A,dt)=>TIG.pounce(e,A,dt,3,.7/e.spdK)},
-  // Claw X: he bursts out at you; two slashes cross on you, then fly on as diagonal lines. Dash sideways
-  {n:'claw',wt:3,ok:(e,d)=>d<170,run(e,A,dt){const k=1/e.spdK;if(!A.go){A.go=1;e.moving=false;tone(90,.4,'sawtooth',.06,-20);}
-    if(A.t<.45*k)return false;
-    if(!A.m){A.show=1;const a=aimAt(e),tx=P.x-Math.cos(a)*45,ty=P.y-Math.sin(a)*45,p=freeSpot(e,tx,ty,e.r);e.x=p.x;e.y=p.y;spark(e.x,e.y,'#f0f0f4',14,90);sfx('dash');A.cx=P.x;A.cy=P.y;A.a=aimAt(e);
-     A.m=[];for(const s of [1,-1]){const la=A.a+s*Math.PI/4;A.m.push(mark({k:'l',x:A.cx-Math.cos(la)*80,y:A.cy-Math.sin(la)*80,a:la,len:160,w:14,t:.5*k,dmg:16*e.dm,col:BC.aim,src:e,
-      on:m=>{for(const dd of [0,Math.PI])bsh(e,A.cx,A.cy,m.a+dd,210,9,{spr:'blade',col:BC.fix,r:2,life:1.6});sfx('slash');}}));}e.tele=2;}
-    return A.t>1.15*k;}},
-  // Roar rings: he leaps onto a walkway (always visible there), rears up, three rings whose gap turns
-  {n:'roar',wt:2,run(e,A,dt){if(!A.go){A.go=1;A.show=1;const w=pick(e.walks),p=freeSpot(e,clamp(P.x,w.x0+20,w.x1-20),(w.y0+w.y1)/2,e.r);A.tx=p.x;A.ty=p.y;}
-    if(A.t<.5){e.x+=(A.tx-e.x)*Math.min(1,dt*9);e.y+=(A.ty-e.y)*Math.min(1,dt*9);return false;}
-    if(at(A,.5)){e.tele=2;tone(70,.7,'sawtooth',.08,-10);}const g=A.ga==null?(A.ga=aimAt(e)):A.ga;
-    for(let i=0;i<3;i++)if(at(A,1.1+i*.45)){e.tele=0;bring(e,e.x,e.y,26,58,9,{col:'#a8d8ff',r:4},i*.1,g+i*.9,.36);shake=Math.max(shake,4);}
-    return A.t>2.4;}},
-  // Tail sweep: up close only. The tail flicks twice, then a wide slow wave of marsh mud
-  {n:'tail',wt:3,ok:(e,d)=>d<75,run(e,A){const k=1/e.spdK;if(!A.go){A.go=1;A.show=1;A.a=aimAt(e);mark({k:'cone',x:e.x,y:e.y,a:A.a,r:72,arc:2.1,t:.55*k,dmg:15*e.dm,col:BC.aim,src:e});}
-    if(at(A,.15*k)||at(A,.35*k))sfx('dash');if(at(A,.55*k)){bfan(e,e.x,e.y,A.a,9,2.1,46,9,{st:'big',r:6,col:'#8a7050',life:2.4});sfx('break');}return A.t>.9*k;}},
+  {n:'pounce',wt:4,half:0,end:TIG.cancel,run:(e,A,dt)=>TIG.pounce(e,A,dt,1,.98)},
+  {n:'frenzy',wt:4,half:1,end:TIG.cancel,run:(e,A,dt)=>TIG.pounce(e,A,dt,2,.78)},
+  {n:'claw',wt:3,gap:.95,end:TIG.cancel,run(e,A){
+   const wind=e.half?.58:.72,duration=.22;
+   if(!A.go){
+    A.go=1;A.show=1;A.wind=1;e.moving=false;A.dir=aimAt(e);
+    const C=arenaOf(e);A.x=e.x;A.y=e.y;
+    const a=A.dir,max=rayLen(A.x,A.y,a,155),c=Math.cos(a),s=Math.sin(a);
+    for(A.len=0;A.len+4<=max;A.len+=4){
+     const x=A.x+c*(A.len+4),y=A.y+s*(A.len+4);
+     if(x<C.x0+8||x>C.x1-8||y<C.y0+8||y>C.y1-8||blocked(x,y,e.r))break;
+    }
+    if(A.len<16)return true;
+    TIG.mark(A,{k:'l',x:A.x,y:A.y,a,len:A.len,w:22,t:wind,dmg:17*e.dm,col:BC.aim,src:e,quiet:1,
+     on:()=>{sfx('slash');for(const side of [-1,1])for(let i=1;i<4;i++){
+      const d=A.len*i/4;bsh(e,A.x+c*d,A.y+s*d,a+side*Math.PI/2,65,8,{spr:'blade',col:BC.fix2,life:1.25});
+     }}});
+    tone(110,.32,'sawtooth',.055,-50);
+   }
+   if(A.t>=wind){
+    const k=clamp((A.t-wind)/duration,0,1);
+    e.x=A.x+Math.cos(A.dir)*A.len*k;e.y=A.y+Math.sin(A.dir)*A.len*k;
+    if(k<1&&Math.floor(A.t*60)%2===0)spark(e.x,e.y,'#9ac7c8',2,36);
+    A.wind=k<1;
+   }
+   return A.t>wind+duration+.42;
+  }},
+  {n:'roar',wt:2,gap:1.2,run(e,A){
+   if(!A.go){A.go=1;A.show=1;A.wind=1;e.moving=false;A.ga=aimAt(e);tone(70,.62,'sawtooth',.075,-10);}
+   const turn=e.half?.42:.25;
+   for(let i=0;i<3;i++)if(at(A,.68+i*.48)){
+    bring(e,e.x,e.y,24,62+i*5,9,{col:'#a8d8ff',r:3},i*.13,A.ga+i*turn,.53);
+    fxRing(e.x,e.y,27,'#a8d8ff',.28);sfx('dash');
+   }
+   if(at(A,.92))bossPressure(e);
+   if(A.t>1.75)A.wind=0;
+   return A.t>2.15;
+  }},
+  {n:'tail',wt:2,ok:(e,d)=>d<74,end:TIG.cancel,run(e,A){
+   const wind=e.half?.50:.62;
+   if(!A.go){A.go=1;A.show=1;A.wind=1;e.moving=false;A.dir=aimAt(e);
+    TIG.mark(A,{k:'cone',x:e.x,y:e.y,a:A.dir,r:68,arc:2.1,t:wind,dmg:14*e.dm,col:BC.aim,src:e,
+     on:()=>{sfx('slash');bfan(e,e.x,e.y,A.dir,7,1.9,49,8,{r:4,col:'#c4b791',life:1.8});}});
+   }
+   if(A.t>wind+.13)A.wind=0;
+   return A.t>wind+.72;
+  }},
  ],
- // EVENT 30%: roar storm. He climbs the shrine roof and roars from three points at once
- event:{at:.3,dur:20,name:'ROAR STORM',hint:'SURVIVE - FIND THE GAPS',
-  start(e,E){const A=arenaOf(e);E.home=freeSpot(e,A.cx,A.y0+50,e.r);E.pts=[{x:A.cx-150,y:A.y0+80},{x:A.cx+150,y:A.y0+80}];E.k=0;E.rt=1.2;},
-  tick(e,dt,E){e.alpha=1;e.x+=(E.home.x-e.x)*Math.min(1,dt*3);e.y+=(E.home.y-e.y)*Math.min(1,dt*3);E.rt-=dt;
-   if(E.rt<=0){E.rt=1.25;E.k++;const src=[{x:e.x,y:e.y}].concat(E.k%2?[E.pts[0]]:[E.pts[1]]);if(E.k%3===0)src.push(E.pts[E.k%2]);
-    for(const s of src){mark({k:'c',x:s.x,y:s.y,r:16,t:.35,col:'#a8d8ff',quiet:1});const g=Math.atan2(P.y-s.y,P.x-s.x)+rnd(-.8,.8);bring(e,s.x,s.y,22,48,9,{col:'#a8d8ff',r:4},E.k*.2,g,.4);}tone(70,.4,'sawtooth',.06,-10);}}},
- onHalf(e){e.alpha=1;},
+ event:{at:.30,dur:8,name:'THE LAST HUNT',hint:'BAIT A POUNCE INTO A LIT LANTERN',quiet:true,
+  start(e,E){E.strike={t:0};e.alpha=1;e.recover=0;},
+  tick(e,dt,E){
+   E.strike.t+=dt;
+   if(TIG.pounce(e,E.strike,dt,3,.86))E.done=true;
+  },
+  end(e,E){TIG.cancel(e,E.strike);TIG.expose(e,2);}
+ },
+ onHalf(e){e.alpha=1;e.recover=0;},
 };
-TIG.pounce=function(e,A,dt,n,k){if(!A.go){A.go=1;A.left=n;A.ph=0;}
- if(A.ph===0){e.moving=false;if(!A.m){if(n===1)tone(90,.5,'sawtooth',.06,-20);A.sx=e.x;A.sy=e.y;A.m=mark({k:'c',x:P.x,y:P.y,r:22,t:(.45+.6)*k,lock:.25*k,col:BC.aim,dmg:18*e.dm,src:e,follow:m=>{m.x=P.x;m.y=P.y;},
-   on:m=>{e.air=false;e.z=0;shake=Math.max(shake,6);sfx('break');for(let i=0;i<16;i++)bsh(e,m.x,m.y,i/16*TAU+.1,64,8,{col:'#d8f0a0',r:3,life:2});for(const r of e.reeds)if(r.hp>0&&Math.hypot(r.x-m.x,r.y-m.y)<r.r+14)r.hp=Math.min(r.hp,1);}});}
-  if(A.m.t<.45*k&&!A.lp){A.lp=1;A.show=1;A.lt=0;A.tx=A.m.x;A.ty=A.m.y;e.air=true;sfx('dash');}
-  if(A.lp){A.lt+=dt;const kk=clamp(A.lt/(.45*k),0,1);e.x=lerp(A.sx,A.tx,kk);e.y=lerp(A.sy,A.ty,kk);e.z=Math.sin(kk*Math.PI)*40;}
-  if(A.m.fired){e.air=false;e.z=0;A.m=null;A.lp=0;A.left--;if(A.left<=0)return true;}return false;}};
+TIG.pounce=function(e,A,dt,count,wind){
+ if(A.left==null)A.left=count;
+ if(A.pause>0){A.pause-=dt;return false;}
+ if(!A.m){
+  e.moving=false;A.wind=1;A.sx=e.x;A.sy=e.y;
+  tone(95,.45,'sawtooth',.06,-30);
+  const col=BC.aim,flight=.34;
+  A.m=TIG.mark(A,{k:'c',x:P.x,y:P.y,r:e.half?24:22,t:wind,lock:flight,col,dmg:18*e.dm,src:e,quiet:1,
+   follow:m=>{m.x=P.x;m.y=P.y;},
+   on:m=>{
+    e.x=m.x;e.y=m.y;e.air=false;e.z=0;A.wind=0;
+    shake=Math.max(shake,5);sfx('break');
+    fxRing(m.x,m.y,m.r+9,'#acd0c5',.4);spark(m.x,m.y,'#b5ddcd',14,85);
+    if(TIG.lit(e)){
+     A.trapped=true;TIG.expose(e,1.65);sfx('deflect');fxRing(e.x,e.y,48,'#ffde87',.5);
+    }else{
+     bossPressure(e);
+     const a=A.dir??aimAt(e);
+     bring(e,m.x,m.y,e.half?17:13,68,8,{col:'#c3ded2',r:3,life:1.7},a,a+Math.PI,.46);
+    }
+    for(const r of e.reeds)if(r.hp>0&&Math.hypot(r.x-m.x,r.y-m.y)<r.r+14)r.hp=0;
+   }});
+  A.flight=flight;
+ }
+ if(A.m.fired){
+  A.m=null;A.left--;A.pause=.43;
+  return A.trapped||A.left<=0;
+ }
+ if(A.m.t<=A.flight){
+  if(!e.air){A.show=1;A.dir=Math.atan2(A.m.y-A.sy,A.m.x-A.sx);e.air=true;sfx('dash');}
+  const k=clamp(1-A.m.t/A.flight,0,1);
+  e.x=lerp(A.sx,A.m.x,k);e.y=lerp(A.sy,A.m.y,k);e.z=Math.sin(k*Math.PI)*39;
+ }
+ return false;
+};
 
 // ================================================================ III. TSUCHIGUMO, THE EARTH SPIDER - arena control
 // Half the fight she is on the ceiling, only a shadow: spitting and dropping. On the floor she is open but her patterns
@@ -956,7 +1079,7 @@ BKIT['THE NINE-TAILED KITSUNE']={director:bossDirector,pref:110,gap:.75,halfName
   if(e.cloud<=0){ctx.save();worldXf();ctx.globalAlpha=.4;ctx.fillStyle='#0a0a20';ctx.beginPath();ctx.ellipse(e.x+10,e.y+14,e.r+3,e.r*1.7,.6,0,TAU);ctx.fill();ctx.restore();ctx.globalAlpha=1;}
   else{ctx.globalAlpha=.25;ctx.fillStyle='#0a0a20';ctx.fillRect(0,0,W,H);ctx.globalAlpha=1;}
   for(const g of e.torii){const X=sx(g.x,g.y),Y=sy(g.x,g.y),c=g.cd>0?'#7a3040':'#d02838';ctx.fillStyle='#14101a';ctx.fillRect(X-12,Y-30,25,4);ctx.fillStyle=c;ctx.fillRect(X-11,Y-29,23,2);ctx.fillRect(X-9,Y-24,19,2);ctx.fillRect(X-8,Y-26,2,26);ctx.fillRect(X+7,Y-26,2,26);ctx.fillStyle='#14101a';ctx.fillRect(X-8,Y,2,1);ctx.fillRect(X+7,Y,2,1);}},
- hudExtra(e){const n=KIT.tails(e),x=Math.round((W-150)/2)-20-66;txt('TAILS',x,H-22,'#c080ff');for(let i=0;i<9;i++){ctx.fillStyle=i<n?'#ff9040':'#3a2a40';ctx.fillRect(x+26+i*4,H-22,3,5);}},
+ hudExtra(e){const n=KIT.tails(e),{x,y}=bossBarBox(),left=x-66;txt('TAILS',left,y,'#c080ff');for(let i=0;i<9;i++){ctx.fillStyle=i<n?'#ff9040':'#3a2a40';ctx.fillRect(left+26+i*4,y,3,5);}},
  hud:e=>revealed()?'ILLUSIONS REVEALED':KIT.clones(e).length?'ONLY THE REAL FOX CASTS A SHADOW - TORII GATES REVEAL':null,hudC:'#c080ff',
  atks:[
   // make clones: 2-4 copies, and she swaps places with one of them
@@ -1332,10 +1455,6 @@ BART['THE NINE-TAILED KITSUNE']=Object.assign(p=>{const {R,E,L,b,atk,f}=p,two=AR
 // classic SURVIVAL storm as a second event (BKIT.storm) at whichever of 70% / 30% its own event does not use.
 // Colours follow the shared language: red aimed, pale fixed, green leaves a hazard, purple the Emperor.
 {const set=(n,b,st)=>{const K=BKIT[n];K.barrage=b;if(st)K.storm=st;K._evs=null;};
- set('THE WHITE TIGER',{rate:[.62,.45],during:'all',not:['pounce'],
-  ph1:[{pat:'gapring',cnt:26,gw:.42,sp:52,col:'#a8d8ff',burst:2,gap:.35},{cnt:5,spread:.5,sp:100,col:BC.aim,st:'boom',bT:1.5,burst:2,gap:.2},{pat:'cross',dirs:4,cnt:4,sp:70,col:BC.fix,rot:.3},{pat:'flower',cnt:22,sp:50,col:'#d8f0a0'},{pat:'curtain',cnt:9,sp:78,col:BC.aim2}],
-  half:[{pat:'gapring',cnt:32,gw:.38,sp:58,col:'#a8d8ff',burst:3,gap:.3},{cnt:7,spread:.8,sp:110,col:BC.aim,st:'boom',bT:1.4,burst:3,gap:.15},{pat:'spiral',arms:5,spin:.4,sp:62,col:BC.fix,burst:8,gap:.09},{pat:'cross',dirs:8,cnt:3,sp:72,st:'boom',bT:1.5,col:BC.aim2,rot:.25},{pat:'flower',cnt:26,sp:54,col:'#d8f0a0'}]},
-  {at:.7,dur:9,name:'STALKING FURY',rate:.38});
  set('TSUCHIGUMO, EARTH SPIDER',{rate:[.62,.46],during:'all',not:['climb'],
   ph1:[{pat:'web',cnt:10,rings:3,sp:55,col:BC.fix},{pat:'spiral',arms:5,spin:.32,sp:56,col:'#e8e8f0',burst:7,gap:.1},{cnt:5,spread:1,sp:55,st:'big',r:4,spr:'venom',col:BC.haz,pool:{r:10,t:2.5,dps:8,col:'#4a9a20'}},{pat:'flower',cnt:20,sp:50,st:'split',splitT:.9,col:'#c89040'},{cnt:7,spread:.6,sp:90,col:BC.aim,burst:2,gap:.18}],
   half:[{pat:'web',cnt:12,rings:3,sp:58,col:BC.fix,burst:2,gap:.4},{pat:'spiral',arms:7,spin:.36,sp:60,col:'#e8e8f0',burst:9,gap:.08},{cnt:7,spread:1.4,sp:58,st:'big',r:4,spr:'venom',col:BC.haz,pool:{r:10,t:2.5,dps:8,col:'#4a9a20'}},{pat:'flower',cnt:24,sp:52,st:'split',splitT:.9,col:'#c89040'},{pat:'gapring',cnt:30,gw:.4,sp:56,col:'#c89040',burst:2,gap:.3}]},

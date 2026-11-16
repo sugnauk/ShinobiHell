@@ -436,11 +436,14 @@ const JADEC='#5fd08a';
 function hudJade(x,y){ctx.fillStyle='#1e5a3a';ctx.fillRect(x+1,y,4,1);ctx.fillRect(x,y+1,6,3);ctx.fillRect(x+1,y+4,5,1);ctx.fillRect(x+3,y+5,3,1);ctx.fillRect(x+4,y+6,1,1);
  ctx.fillStyle='#5fd08a';ctx.fillRect(x+1,y+1,4,3);ctx.fillRect(x+2,y+4,3,1);ctx.fillStyle='#c8ffd8';ctx.fillRect(x+1,y+1,1,1);ctx.fillStyle='#1e5a3a';ctx.fillRect(x+2,y+2,1,1);}
 function hudRevive(x,y){const f=Math.floor(time*6)%2;ctx.fillStyle='#2a6aa0';ctx.fillRect(x+1,y+3,5,4);ctx.fillRect(x+2,y+1,3,2);ctx.fillRect(x+3-f,y,1,1);ctx.fillStyle='#8cf';ctx.fillRect(x+2,y+3,3,3);ctx.fillRect(x+3,y+2,1,1);ctx.fillStyle='#fff';ctx.fillRect(x+3,y+4,1,2);}
+const bossBarBox=()=>({x:Math.round((W-180)/2),y:14,w:180});
 function drawHUD(){
  syncLMB();
- // bottom left: health (with the stun bar under it), then the gold coin and revive counters
- {const y=H-17;bar(6,y,96,8,P.hp/S.maxhp,'#c22','#3a1010');txt(Math.ceil(P.hp)+'/'+S.maxhp,9,y+2,'#fff');bar(6,y+10,96,3,P.pos/S.maxpos,P.stag>0?'#f84':'#fd4','#3a3010');
-  hudCoin(108,y);txt(String(R.sen),117,y+1,'#fc4');hudRevive(108,y+8);txt('X'+P.rez,117,y+9,P.rez>0?'#bfe8ff':'#777');}
+ // Bottom centre: player health and posture. Gold and revives sit in the left corner.
+ {const y=H-16,w=116,x=Math.round((W-w)/2);
+  bar(x,y,w,8,P.hp/S.maxhp,'#c73445','#351420');ctxt('HP '+Math.ceil(P.hp)+' / '+S.maxhp,y+2,'#fff');
+  bar(x,y+10,w,3,P.pos/S.maxpos,P.stag>0?'#f84':'#fd4','#3a3010');
+  hudCoin(7,y);txt(String(R.sen),16,y+1,'#fc4');hudRevive(7,y+8);txt('X'+P.rez,16,y+9,P.rez>0?'#bfe8ff':'#777');}
  // HP potions live in the ability bar: C is effectively your heal ability
  {const x=slotX(0)-24,y=SLOTY(),has=R.pots>0;ctx.fillStyle='#000';ctx.fillRect(x-1,y-1,15,15);ctx.fillStyle=has?'#e33':'#555';ctx.fillRect(x,y,13,13);ctx.fillStyle='#14101a';ctx.fillRect(x+1,y+1,11,11);
   if(!has)ctx.globalAlpha=.4;ctx.fillStyle='#c8a070';ctx.fillRect(x+5,y+2,3,1);ctx.fillStyle='#ddd';ctx.fillRect(x+5,y+3,3,2);ctx.fillStyle='#e33';ctx.fillRect(x+3,y+5,7,6);ctx.fillRect(x+4,y+4,5,1);ctx.fillStyle='#ff8080';ctx.fillRect(x+4,y+6,1,3);ctx.globalAlpha=1;
@@ -474,23 +477,24 @@ function drawHUD(){
   ctx.globalAlpha=Math.min(1,(2-age)*2);txt(s,W-6-txtW(s,pop),H/2-20,c,pop);ctx.fillStyle=c;ctx.fillRect(W-6-40,H/2-20+(pop===2?12:7),Math.round(40*(1-age/2)),1);ctx.globalAlpha=1;}}
  if(P.storm>0)ctxt('STORM '+P.storm.toFixed(1),H-52,'#ff8a30');
  if(freezeT>0)ctxt('TIME STOPPED '+freezeT.toFixed(1),H-52,'#8cf');
- const nm=R.training?'TRAINING GROUNDS':ROMAN[R.di]+'. '+DUN[R.di].name;txt(nm,Math.round((W-txtW(nm))/2),4,'#ddd');
+ if(!boss?.awake||boss.dead)ctxt(R.training?'TRAINING GROUNDS':ROMAN[R.di]+'. '+DUN[R.di].name,4,'#ddd');
 
  if(P.hCh>0){const k=Math.min(1,P.hCh/HCHARGE);ctx.fillStyle='#14101a';ctx.fillRect(Math.round(W/2-9),H/2+17,18,3);ctx.fillStyle=k>=1?(Math.floor(time*12)%2?'#fff':'#fd4'):'#a89ab8';ctx.fillRect(Math.round(W/2-8),H/2+18,Math.round(16*k),1);}
  if(P.dashCd>0){ctx.fillStyle='#fff';ctx.fillRect(Math.round(W/2-8),H/2+14,Math.round(16*(1-P.dashCd/S.dashCd)),1);}
  // survival phase: big countdown while the boss is invulnerable
- if(boss&&boss.awake&&!boss.dead&&boss.storm>0){const c=bsty(boss).c,s='SURVIVE '+Math.ceil(boss.storm);txt(s,Math.round((W-txtW(s,2))/2),22,Math.floor(time*4)%2?c:'#fff',2);
-  bar(Math.round(W/2-60),36,120,3,boss.storm/(boss.stormMax||8),c,'#2a1a2a');ctxt('THE BOSS CANNOT BE HURT - DODGE!',42,'#ddd');}
+ if(boss&&boss.awake&&!boss.dead&&boss.storm>0){const c=bsty(boss).c,s='SURVIVE '+Math.ceil(boss.storm);txt(s,Math.round((W-txtW(s,2))/2),32,Math.floor(time*4)%2?c:'#fff',2);
+  bar(Math.round(W/2-60),46,120,3,boss.storm/(boss.stormMax||8),c,'#2a1a2a');ctxt(boss.EVdef?.hint||'THE BOSS CANNOT BE HURT - DODGE!',52,'#ddd');}
  // minion event: how many of the guard are left before the shield breaks
- if(boss&&boss.awake&&!boss.dead&&boss.ev&&boss.ev.mins.length){const n=boss.ev.mins.filter(m=>!m.dead).length;if(n){const c=bsty(boss).c,s=boss.ev.name;txt(s,Math.round((W-txtW(s,2))/2),boss.storm>0?50:22,c,2);ctxt('SHIELDED - DEFEAT THE GUARD: '+n+' LEFT',boss.storm>0?66:38,Math.floor(time*3)%2?'#fff':'#9cf');}}
+ if(boss&&boss.awake&&!boss.dead&&boss.ev&&boss.ev.mins.length){const n=boss.ev.mins.filter(m=>!m.dead).length;if(n){const c=bsty(boss).c,s=boss.ev.name;txt(s,Math.round((W-txtW(s,2))/2),boss.storm>0?62:32,c,2);ctxt('SHIELDED - DEFEAT THE GUARD: '+n+' LEFT',boss.storm>0?78:48,Math.floor(time*3)%2?'#fff':'#9cf');}}
  // arena mechanics the player can use
  if(boss&&boss.awake&&!boss.dead&&!boss.ev){const K=BKIT[boss.name];
   if(boss.banners){const n=boss.banners.filter(b=>!b.dead).length;if(n)ctxt('WAR BANNERS STANDING: '+n+'  (EACH CUTS HIS DAMAGE TAKEN 12%)',H-40,'#e0b040');}
   if(boss.dazzle>0)ctxt('DAZZLED! +35% DAMAGE',H-40,'#ffe080');
   if(boss.eggs&&boss.eggs.some(g=>!g.dead))ctxt('EGG SACS: '+boss.eggs.filter(g=>!g.dead).length+'  (THEY HATCH - BREAK THEM)',H-40,'#e8e0c8');}
- if(boss&&boss.awake&&!boss.dead){const w=150,x=Math.round((W-w)/2)-20;txt(boss.name,x+Math.round((w-txtW(boss.name))/2),H-30,'#f77');bar(x,H-22,w,6,boss.hp/boss.maxhp,'#c22','#3a1010');
-  if(boss.members){let mx=x;for(const m of boss.members){txt(m.ronin,mx,H-14,m.dead?'#444':m.labelC);if(m.dead){ctx.fillStyle='#c22';ctx.fillRect(mx-1,H-12,txtW(m.ronin)+2,1);}mx+=txtW(m.ronin)+8;}}
-  else bar(x,H-14,w,3,boss.posture/boss.maxPosture,'#fd4','#3a3010');}
+ if(boss&&boss.awake&&!boss.dead){const {x,y,w}=bossBarBox();
+  ctxt(boss.name,y-9,'#ffb7a4');bar(x,y,w,6,boss.hp/boss.maxhp,'#c73445','#351420');
+  if(boss.members){let mx=x;for(const m of boss.members){txt(m.ronin,mx,y+9,m.dead?'#666':m.labelC);if(m.dead){ctx.fillStyle='#c22';ctx.fillRect(mx-1,y+11,txtW(m.ronin)+2,1);}mx+=txtW(m.ronin)+8;}}
+  else bar(x,y+8,w,2,boss.posture/boss.maxPosture,'#fd4','#3a3010');}
  if(portal&&!portal.pending){const X=sx(portal.x,portal.y),Y=sy(portal.x,portal.y)-20;if(X<8||X>W-8||Y<8||Y>H-8){const a=Math.atan2(Y-H/2,X-W/2),ex=W/2+Math.cos(a)*Math.min(W/2-14,Math.abs((H/2-14)/(Math.sin(a)||1e-3))),ey=H/2+Math.sin(a)*Math.min(H/2-14,Math.abs((W/2-14)/(Math.cos(a)||1e-3)));const cx=clamp(ex,12,W-12),cy=clamp(ey,12,H-12),bl=Math.floor(time*4)%2;
   ctx.fillStyle='#14101a';ctx.fillRect(cx-4,cy-4,9,9);ctx.fillStyle=bl?'#8cf':'#fff';ctx.fillRect(cx-3,cy-3,7,7);ctx.fillStyle='#14101a';ctx.fillRect(Math.round(cx+Math.cos(a)*2),Math.round(cy+Math.sin(a)*2),2,2);txt('PORTAL',clamp(cx-11,2,W-26),clamp(cy+7,2,H-8),'#8cf');}}
  for(const k of pickups){if(k.k!=='bag'||k.tier!==4||k.dead||k.opened)continue;const X=sx(k.x,k.y),Y=sy(k.x,k.y)-8;if(X>=8&&X<=W-8&&Y>=8&&Y<=H-8)continue;
