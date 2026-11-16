@@ -12,6 +12,8 @@ const CLSINFO={
  gunner:{role:'RANGED - ARTILLERY',diff:2,lore:'A MATCHLOCK, A TURRET, A LOT OF POWDER.'},
  lancer:{role:'MELEE - REACH',diff:2,lore:'THE LONGEST REACH. HOLDS THE LINE.'}};
 // the final form: always previewed in a box at the top-left of the showcase; F or a click swaps it onto the pedestal
+const SELTREE={x:105,y:3,w:142,h:13};
+const inSelTree=()=>mouse.x>=SELTREE.x&&mouse.x<SELTREE.x+SELTREE.w&&mouse.y>=SELTREE.y&&mouse.y<SELTREE.y+SELTREE.h;
 let selFinal=false;const FINBOX={x:6,y:18,w:42,h:66};
 let selChgT=0,selPrev=-1,selAb=0,selAbT=0,selAbHover=false;
 // your record with each hero
@@ -27,7 +29,7 @@ selCardAt=function(x,y){for(let i=0;i<CLASSES.length;i++){const rx=rstX(i);if(x>
 const abAt=(x,y)=>{for(let i=0;i<6;i++)if(x>=ABX(i)-1&&x<ABX(i)+14&&y>=ABY-1&&y<ABY+14)return i;return -1;};
 {const _sk=selectKey;selectKey=function(c){if(!selLock&&selTab===0&&!isLocked(selIdx)){if(c==='KeyF'){selFinal=!selFinal;selChgT=time;sfx(selFinal?'rare':'coin');return;}if(c==='ArrowUp'||c==='KeyW'){selAb=(selAb+5)%6;selAbT=time+6;sfx('coin');return;}if(c==='ArrowDown'||c==='KeyS'){selAb=(selAb+1)%6;selAbT=time+6;sfx('coin');return;}}return _sk(c);};}
 {const _sc=selConfirm;selConfirm=function(){const was=selLock;_sc();if(selLock&&!was){selT=time;}};}
-{const _sl=selClick;selClick=function(){if(selTab===0&&!selLock&&mouse.x>=FINBOX.x&&mouse.x<FINBOX.x+FINBOX.w&&mouse.y>=FINBOX.y&&mouse.y<FINBOX.y+FINBOX.h){if(!isLocked(selIdx)){selFinal=!selFinal;selChgT=time;sfx(selFinal?'rare':'coin');}return;}if(selTab===0&&!selLock&&abAt(mouse.x,mouse.y)>=0)return;return _sl();};}
+{const _sl=selClick;selClick=function(){if(selTab===0&&!selLock&&inSelTree()){selectKey('Tab');return;}if(selTab===0&&!selLock&&mouse.x>=FINBOX.x&&mouse.x<FINBOX.x+FINBOX.w&&mouse.y>=FINBOX.y&&mouse.y<FINBOX.y+FINBOX.h){if(!isLocked(selIdx)){selFinal=!selFinal;selChgT=time;sfx(selFinal?'rare':'coin');}return;}if(selTab===0&&!selLock&&abAt(mouse.x,mouse.y)>=0)return;return _sl();};}
 
 const hexA=(c,a)=>{let h=c.slice(1);if(h.length===3)h=h.split('').map(x=>x+x).join('');const n=parseInt(h,16);return 'rgba('+(n>>16)+','+((n>>8)&255)+','+(n&255)+','+a+')';};
 function segBar(x,y,f,col,n){n=n||10;const k=Math.round(clamp(f,0,1)*n);for(let i=0;i<n;i++){ctx.fillStyle=i<k?col:'#2a2030';ctx.fillRect(x+i*6,y,5,4);if(i<k){ctx.fillStyle='rgba(255,255,255,.25)';ctx.fillRect(x+i*6,y,5,1);}}}
@@ -45,6 +47,13 @@ renderSelect=function(){
  // ---- header ----
  txt('CHOOSE YOUR WARRIOR',8,5,'#d02030',1);ctx.fillStyle='#d02030';ctx.fillRect(8,13,txtW('CHOOSE YOUR WARRIOR'),1);
  {const s=Math.min(meta.unlocked||2,CLASSES.length)+'/'+CLASSES.length+' UNLOCKED';txt(s,W-8-txtW(s),5,'#777');}
+ if(!selLock){
+  const {x,y,w,h}=SELTREE,hover=inSelTree(),ready=SKT.nodes.some(n=>stLv(n.k)<n.max&&stOpen(n)&&meta.sen>=stCost(n));
+  ctx.fillStyle=hover?'#d4be82':ready?'#ab995e':'#73634f';ctx.fillRect(x,y,w,h);
+  ctx.fillStyle=hover?'#3a3831':'#24222a';ctx.fillRect(x+1,y+1,w-2,h-2);
+  hudJade(x+6,y+3);txt('TEMPLE SKILL TREE',x+18,y+4,'#eedab0');
+  const tag=ready?'READY / TAB':'TAB';txt(tag,x+w-6-txtW(tag),y+4,ready?'#ffe08c':'#a8a2ae');
+ }
  // ---- showcase: beam, glow, pedestal, the hero ----
  const cx=68,fy=120;
  {const g=ctx.createLinearGradient(0,18,0,fy);g.addColorStop(0,'rgba(0,0,0,0)');g.addColorStop(1,hexA(col,.25));ctx.fillStyle=g;ctx.fillRect(cx-26,18,52,fy-18);}
@@ -110,7 +119,7 @@ renderSelect=function(){
   txt(String(i+1),x+2,y+2,sel?'#fff':'#555');});
  {const l=rstX(0)-8,r=rstX(CLASSES.length-1)+RST.w+4,b=Math.floor(time*3)%2;txt('<',l-(b?1:0),RST.y+7,'#888');txt('>',r+(b?1:0),RST.y+7,'#888');}
  // ---- footer: key hints ----
- {const hint=selLock?'':lk?'A/D CHOOSE   ESC BACK':'A/D HERO   W/S SKILL   F FINAL FORM   ENTER START   TAB TREE   K GUIDE';txt(hint,Math.round((W-txtW(hint))/2),H-6,'#777');}
+ {const hint=selLock?'':lk?'A/D CHOOSE   ESC BACK':'A/D HERO   W/S SKILL   F FINAL FORM   ENTER START   K GUIDE';txt(hint,Math.round((W-txtW(hint))/2),H-6,'#777');}
  // ---- confirm: a READY banner sweeps across with a burst ----
  if(selLock){const t=time-selT,k=clamp(t/.25,0,1),bw=Math.round(W*k);ctx.fillStyle='rgba(0,0,0,.6)';ctx.fillRect(0,64,bw,26);ctx.fillStyle=C.col;ctx.fillRect(0,64,bw,1);ctx.fillRect(0,89,bw,1);
   if(k>=1){const s=C.n+' - READY';txt(s,Math.round((W-txtW(s,2))/2),71,'#fff',2);}

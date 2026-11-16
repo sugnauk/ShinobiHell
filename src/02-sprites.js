@@ -33,7 +33,7 @@ const HPOSE={
   12:{hand:[13,6],ang:-1.9,arm:'up1'},13:{hand:[17,13],ang:-.5,arm:'fwd',fx:'charm'},14:{hand:[15,16],ang:.4,arm:'low'},15:{hand:[14,9],ang:-1.4,arm:'up1',fx:'float'}},
  wiz:{12:6,13:7,14:0,15:9}};
 // evolution stages: 0 apprentice (hood, stick), 1 adept (cap, small orb), 2 mage (pointed hat, short beard), 3 master (the full wizard)
-const WIZEVO=[{n:'APPRENTICE',hat:'hood',beard:0,orb:0,C:{hat:'#5a4028',hatL:'#7a5a3a',band:'#5a4028',robe:'#7a5a3a',robeS:'#5a4028',trim:'#6a4a2e',orb:'#b07a40',orbL:'#c8945a',boot:'#3a2a1e'}},
+const WIZEVO=[{n:'APPRENTICE',hat:'pilgrim',beard:0,orb:1,C:{hat:'#253955',hatL:'#507284',band:'#dfa55e',robe:'#456579',robeS:'#25394f',trim:'#e0c48b',orb:'#42d8d2',orbL:'#baffee',boot:'#272a3a'}},
  {n:'NOVICE',hat:'hood',beard:0,orb:0,C:{hat:'#3e4260',hatL:'#5a5e80',band:'#3e4260',robe:'#5a5e7a',robeS:'#3e4260',trim:'#8a8ea8',orb:'#60c8ff',orbL:'#e0f6ff'}},
  {n:'INITIATE',hat:'cap',beard:0,orb:1,C:{hat:'#1e5a5a',hatL:'#3a8a80',band:'#a0d0c8',robe:'#2e7a70',robeS:'#1e5a5a',trim:'#a0d0c8',orb:'#60f0d0',orbL:'#e0fff6'}},
  {n:'ADEPT',hat:'cap',beard:0,orb:1,C:{hat:'#1e3e70',hatL:'#3a5a9a',band:'#c8c8d0',robe:'#2e5a9a',robeS:'#1e3e70',trim:'#c8c8d0',orb:'#60c8ff',orbL:'#e0f6ff'}},
@@ -43,7 +43,7 @@ const WIZEVO=[{n:'APPRENTICE',hat:'hood',beard:0,orb:0,C:{hat:'#5a4028',hatL:'#7
  {n:'ARCHMAGE',hat:'pointed',beard:2,orb:1,C:{hat:'#1a2a6a',hatL:'#34489a',robe:'#24348a',robeS:'#16205a',beard:'#a8a8b4',beardS:'#80808c'}},
  {n:'ELDER',hat:'pointed',beard:2,orb:1,C:{hat:'#3a1a5a',hatL:'#5a3a8a',robe:'#4a2a7a',robeS:'#30184e'}},
  {n:'MASTER WIZARD',hat:'pointed',beard:2,orb:1,C:{}}];
-function buildWiz(stage){return buildHero(WIZEVO[stage],stage>=9);}
+function buildWiz(stage,back=false){return buildHero({...WIZEVO[stage],detail:'wizard'},stage>=9,back);}
 // generic hero sheet: robe body + a hat style + a weapon. Used by every character class and evolution stage.
 // back=true draws the same pose seen from behind (walking away from the camera): no face, back of the head/hood
 function buildHero(EV,star,back){const stage=star?9:0;
@@ -66,6 +66,33 @@ function buildHero(EV,star,back){const stage=star?9:0;
    for(let y=13;y<=21;y++){const hw=Math.round(3+(y-13)*.45),x0=10-hw-lean*(y>17?1:0);R(x0,y+bob*(y<18?1:0),hw*2+(lean&&y>17?1:0),1,'robe');R(x0,y+bob*(y<18?1:0),1,1,'robeS');}
    R(6,21,9,1,'trim');if(!back){R(10,14+bob,1,7,'robeS');R(8,13+bob,5,1,'trim');}else{R(8,13+bob,5,1,'robeS');R(7,16+bob,7,1,'robeS');}
    if(f===11){R(2,18,3,2,'robe');R(1,20,3,1,'robeS');} // trailing robe while dashing
+   // Class-specific clothing survives every evolution and every pose.
+   const waist=16+bob,hem=20-(f===11?1:0),detail=EV.detail;
+   if(detail==='wizard'){
+    R(7,13+bob,6,2,'trim');R(8,14+bob,5,1,'band');R(8,16+bob,1,4,'trim');
+    if(back){R(9,16+bob,3,4,'hat');R(10,17+bob,1,2,'orb');}
+    else{R(9,waist,2,1,'robeS');R(11,waist-1,1,3,'band');}
+   }else if(detail==='samurai'){
+    for(let j=0;j<3;j++){R(6,13+bob+j*2,8,1,'robeS');R(7,13+bob+j*2,6,1,'trim');}
+    R(4,13+bob,3,3,'hat');R(4,13+bob,3,1,'hatL');
+   }else if(detail==='archer'){
+    for(let j=0;j<6;j++)R(5+(back?Math.floor(j/2):0),12+bob+j,2,1,'robeS');
+    R(5,12+bob,1,4,'trim');R(4,11+bob,2,1,'#cfad76');R(5,10+bob,1,2,'#e4d6a1');
+    if(back)R(6,15+bob,3,4,'robeS');
+   }else if(detail==='shinobi'){
+    R(6,waist,8,1,'band');R(7,waist+1,3,1,'band');R(9,hem,2,2,'o');
+    R(5,hem,3,1,'hatL');R(12,hem,3,1,'hatL');
+   }else if(detail==='onmyoji'){
+    R(7,14+bob,2,6,'#f1e5d2');R(11,14+bob,2,6,'#f1e5d2');
+    R(7,waist,6,1,'trim');R(9,18+bob,3,2,'robeS');R(10,18+bob,1,1,'#f1e5d2');
+   }else if(detail==='gunner'){
+    R(5,13+bob,4,2,'hat');R(5,13+bob,4,1,'hatL');
+    for(let j=0;j<5;j++)R(7+j,13+bob+j,1,1,'#a86b44');
+    R(6,waist+1,3,3,'#68412e');R(6,waist+1,3,1,'#db985d');R(12,hem-1,3,1,'hat');
+   }else if(detail==='lancer'){
+    R(5,13+bob,3,3,'hat');R(5,13+bob,2,1,'hatL');R(7,waist,6,1,'trim');
+    R(9,18+bob,3,3,'band');R(9,18+bob,3,1,'hatL');
+   }
    // staff
    const WP=EV.wpn||'staff';
    if(WP!=='staff'){ // weapons drawn as a line from the hand at a per-pose angle
@@ -81,7 +108,7 @@ function buildHero(EV,star,back){const stage=star?9:0;
      else{R(hx0,hy0-6,1,13,'#e8e8f0');if(fx==='loose'){L(hx0+3,hy0,4,0,'#d8c8a0');R(hx0+7,hy0,1,1,'#e8eef6');R(hx0-2,hy0-2,1,1,'#ffffff');R(hx0-2,hy0+2,1,1,'#ffffff');}
       else if(fx==='nock'){L(hx0-4,hy0+1,6,0,'#d8c8a0');}else if(f===7||f===6)L(hx0-5,hy0,7,0,'#d8c8a0');}}
     else if(WP==='spear'){L(hx0,hy0,6,ang+Math.PI,'#5a3a22');L(hx0,hy0,15,ang,'#7a5a3a');const tx=Math.round(hx0+Math.cos(ang)*15),ty=Math.round(hy0+Math.sin(ang)*15);L(tx,ty,4,ang,'#e8eef6');R(tx,ty,1,1,EV.C.trim||'#c02020');}
-    else if(WP==='gun'){const ga=fx==='loose'||f===7?0:ang;L(hx0,hy0,4,ga+Math.PI,'#6a4a2a');L(hx0,hy0,11,ga,'#3a3a44');L(hx0+Math.round(Math.cos(ga+1.57)),hy0+Math.round(Math.sin(ga+1.57)),5,ga,'#6a4a2a');if(fx==='loose'){const tx=Math.round(hx0+Math.cos(ga)*12),ty=Math.round(hy0+Math.sin(ga)*12);R(tx,ty-1,2,2,'#ffd060');R(tx+1,ty,1,1,'#fff');}else R(hx0+1,hy0-1,1,1,'#ff8030');}
+    else if(WP==='gun'){const ga=fx==='loose'||f===7?0:ang;L(hx0,hy0,4,ga+Math.PI,'#6a4a2a');L(hx0,hy0,11,ga,'#464858');L(hx0,hy0-1,9,ga,'#9eabae');L(hx0-2,hy0+1,6,ga,'#8c5035');L(hx0+Math.round(Math.cos(ga+1.57)),hy0+Math.round(Math.sin(ga+1.57)),5,ga,'#6a4a2a');if(fx==='loose'){const tx=Math.round(hx0+Math.cos(ga)*12),ty=Math.round(hy0+Math.sin(ga)*12);R(tx,ty-1,2,2,'#ffd060');R(tx+1,ty,1,1,'#fff');}else R(hx0+1,hy0-1,1,1,'#ff8030');}
     else if(WP==='kunai'){
      if(fx==='throw'){R(hx0+3,hy0-1,4,1,'#d0d8e0');R(hx0+6,hy0-1,1,1,'#ffffff');R(hx0+1,hy0-1,1,1,'#c02030');for(let i=0;i<3;i++)R(hx0-2-i*2,hy0+1+i,1,1,'#9aa');} // the kunai leaves the hand
      else if(fx==='smoke'){for(const [x,y] of [[3,18],[15,17],[5,11],[14,10],[9,8]])R(x,y,2,2,'#c8c8d0');}
@@ -120,9 +147,20 @@ function buildHero(EV,star,back){const stage=star?9:0;
    // pointed hat with a bent tip, gold band and star
    const tx=f===11?-3:f===10?1:0;
    if(EV.hat==='hood'){R(7+hx,8+hy,7,2,'hat');R(6+hx,9+hy,2,6,'hat');R(13+hx,9+hy,1,4,'hat');R(5+hx-(tx<0?2:0),10+hy,2,3,'hat');R(8+hx,8+hy,3,1,'hatL');}
+   else if(EV.hat==='pilgrim'){
+    R(5+hx,9+hy,10,2,'hat');R(7+hx,7+hy,7,2,'hat');R(8+hx,5+hy,4,2,'hat');R(8+hx,5+hy,2,1,'hatL');
+    R(7+hx,8+hy,5,1,'hatL');R(7+hx,10+hy,6,1,'band');
+    R(5+hx,10+hy,2,4,'hat');if(!back)R(11+hx,11+hy,2,1,'o');
+   }
+   else if(EV.hat==='teppo'){
+    R(4+hx,9+hy,13,2,'hat');R(6+hx,7+hy,9,2,'hat');R(8+hx,6+hy,4,1,'hatL');
+    R(6+hx,8+hy,7,1,'hatL');R(5+hx,9+hy,10,1,'band');R(7+hx,11+hy,2,3,'hat');R(12+hx,12+hy,2,2,'hat');
+   }
    else if(EV.hat==='kasa'){R(3+hx,9+hy,15,1,'hat');R(5+hx,8+hy,11,1,'hat');R(7+hx,7+hy,7,1,'hatL');R(9+hx,6+hy,3,1,'hatL');R(4+hx,9+hy,2,1,'hatL');}
    else if(EV.hat==='kabuto'){R(6+hx,7+hy,9,3,'hat');R(5+hx,9+hy,2,4,'hat');R(14+hx,9+hy,1,4,'hat');R(7+hx,6+hy,7,1,'hatL');R(7+hx,9+hy,7,1,'band');if(EV.crest){R(8+hx,3+hy,1,4,'band');R(12+hx,3+hy,1,4,'band');R(9+hx,5+hy,3,1,'band');}}
-   else if(EV.hat==='mask'){R(7+hx,8+hy,7,3,'hat');R(6+hx,9+hy,2,6,'hat');R(13+hx,9+hy,1,5,'hat');R(8+hx,12+hy,5,2,'hat');if(back){R(8+hx,11+hy,5,1,'hat');R(9+hx,11+hy,3,1,'band');}else{R(8+hx,11+hy,5,1,'skin');R(11+hx,11+hy,1,1,'o');}R(4+hx-(f===11?3:0),11+hy+(f===11?0:1),3,1,'band');R(3+hx-(f===11?4:0),12+hy+(f===11?0:1),2,1,'band');}
+   else if(EV.hat==='mask'){R(7+hx,8+hy,7,3,'hat');R(6+hx,9+hy,2,6,'hat');R(13+hx,9+hy,1,5,'hat');R(8+hx,12+hy,5,2,'hat');R(8+hx,8+hy,4,1,'hatL');
+    if(back){R(8+hx,11+hy,5,1,'hat');R(9+hx,11+hy,3,1,'band');}
+    else{R(8+hx,11+hy,5,1,'skin');R(9+hx,11+hy,1,1,'o');R(11+hx,11+hy,1,1,'o');R(9+hx,12+hy,4,1,'band');}R(4+hx-(f===11?3:0),11+hy+(f===11?0:1),3,1,'band');R(3+hx-(f===11?4:0),12+hy+(f===11?0:1),2,1,'band');}
    else if(EV.hat==='eboshi'){R(8+hx,3+hy,5,7,'hat');R(9+hx,1+hy,4,2,'hat');R(8+hx,4+hy,1,5,'hatL');R(7+hx,9+hy,7,1,'band');}
    else if(EV.hat==='cap'){R(6+hx,9+hy,9,1,'hat');R(7+hx,8+hy,7,1,'band');R(7+hx,6+hy,7,2,'hat');R(8+hx,5+hy,5,1,'hat');R(10+hx+Math.round(tx/2),4+hy,3,1,'hatL');R(8+hx,6+hy,1,2,'hatL');}
    else{R(5+hx,9+hy,11,1,'hat');R(6+hx,8+hy,9,1,'hat');R(7+hx,7+hy,7,1,'band');
