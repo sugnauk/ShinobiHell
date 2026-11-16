@@ -35,7 +35,7 @@ const SPELLS={
 const SLOTKEY={m:'LMB',h:'RMB',q:'Q',w:'E',f:'F',e:'R'},SLOTS='mhqwfe';
 // spell rank grows with each dungeon: abilities +15% power, -3% cooldown, +4% size per rank; basic attacks +6% power
 const RK=()=>(R&&R.di)||0,AP=()=>1.25*(1+.1*RK()),BP=()=>1+.04*RK(),AZ=()=>1.12*(1+.03*RK());
-const spellCd=k=>SPELLS[k][P.lo[k]].cd*S.cdr*(k==='h'?1:1-.02*RK())*(P.emp&&P.emp[k]?.7:1)*(R&&R.addon&&R.addon[k]&&R.addon[k].cd?.6:1);
+const spellCd=k=>SPELLS[k][P.lo[k]].cd*S.cdr*(k==='h'?1:1-.02*RK())*(P.emp&&P.emp[k]?.7:1)*(R?.addon?.[k]?.cd?.6:1)*(R?.addon?.[k]?.tempo?.88:1);
 const slotCd=k=>k==='m'?P.atkCd:k==='w'?P.ab.rmb:P.ab[k];
 
 // LMB - main spell

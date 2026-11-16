@@ -24,9 +24,9 @@ function updWorld(dt){
   }
   if(tick)z.tk=.35;for(const e of enemies){if(e.dead||e.air)continue;if(los(z.x,z.y,e.x,e.y)&&Math.hypot(e.x-z.x,e.y-z.y)<z.r+e.r){e.zs=e.boss?.6:.35;if(tick){hurtE(e,z.dm||S.atk*.3,3,{nost:true});if(Math.random()<.35)applyStatus(e,'chill');}}}}
  castSrc=null;zones=zones.filter(z=>z.t>0);
- if(freezeT<=0){for(const d of dh){d.t-=dt;if(d.t<=0){d.dead=true;fxRing(d.x,d.y,d.r,d.col||'#f55',.25);spark(d.x,d.y,d.col||'#f55',8,70);shake=Math.max(shake,2);if(Math.hypot(P.x-d.x,P.y-d.y)<d.r+3)hitPlayer(d.dmg,d.x,d.y,{peril:true});}}dh=dh.filter(d=>!d.dead);}
- for(const h of hz){h.t-=dt;if(Math.hypot(P.x-h.x,P.y-h.y)<h.r+3)hitPlayer(h.dps*.5,h.x,h.y,{peril:true});}
+ if(freezeT<=0){for(const d of dh){d.t-=dt;if(d.t<=0){d.dead=true;fxRing(d.x,d.y,d.r,d.col||'#f55',.25);spark(d.x,d.y,d.col||'#f55',8,70);shake=Math.max(shake,2);if(Math.hypot(P.x-d.x,P.y-d.y)<d.r+3)hitPlayer(d.dmg,d.x,d.y,{peril:true,src:d.own,cause:d.own?undefined:'FALLING PROJECTILE'});}}dh=dh.filter(d=>!d.dead);}
+ for(const h of hz){h.t-=dt;if(Math.hypot(P.x-h.x,P.y-h.y)<h.r+3)hitPlayer(h.dps*.5,h.x,h.y,{peril:true,src:h.own,cause:h.cor?'CORRUPTION POOL':h.own?undefined:'LINGERING HAZARD'});}
  hz=hz.filter(h=>h.t>0);
- {const lq=liqAt(P.x,P.y);if((lq===2||lq===3)&&P.dash<=0&&P.iv<=0){const r=hitPlayer(lq===2?7+R.di:4+R.di*.6,P.x,P.y,{peril:true});if(r!=='dodge'){txtFx(P.x,P.y,lq===2?'BURNING':'POISON',lq===2?'#f80':'#c6f');P.iv=.6;}}}
- if(traps.length){const ptx=P.x/T|0,pty=P.y/T|0;for(const t of traps)if(t.tx===ptx&&t.ty===pty&&trapState(t)===2){hitPlayer(10*(1+.15*R.di),P.x,P.y,{peril:true});break;}}
+ {const lq=liqAt(P.x,P.y);if((lq===2||lq===3)&&P.dash<=0&&P.iv<=0){const r=hitPlayer(lq===2?7+R.di:4+R.di*.6,P.x,P.y,{peril:true,cause:lq===2?'LAVA':'POISON POOL'});if(r!=='dodge'){txtFx(P.x,P.y,lq===2?'BURNING':'POISON',lq===2?'#f80':'#c6f');P.iv=.6;}}}
+ if(traps.length){const ptx=P.x/T|0,pty=P.y/T|0;for(const t of traps)if(t.tx===ptx&&t.ty===pty&&trapState(t)===2){hitPlayer(10*(1+.15*R.di),P.x,P.y,{peril:true,cause:'FLOOR TRAP'});break;}}
 }

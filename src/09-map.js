@@ -1,6 +1,27 @@
 'use strict';
 // HELL OF THE EMPEROR - map generation and rendering (part of the former game.js; files load in numeric order, see index.html)
 // ---------- map generation ----------
+// Keep at least one room between the trade and curse encounters in the corridor graph.
+function spaceShopAndAltar(rooms,links,early){
+ const distance=(a,b)=>Math.hypot(a.x+a.w/2-b.x-b.w/2,a.y+a.h/2-b.y-b.h/2);
+ const shop=rooms.findIndex(r=>r.type==='shop'),altar=rooms.findIndex(r=>r.type==='altar');
+ if(shop<0||altar<0)return;
+ const edge=(i,j)=>links.has(Math.min(i,j)+'-'+Math.max(i,j));
+ const remote=(i,j)=>!edge(i,j)&&distance(rooms[i],rooms[j])>=36;
+ if(remote(shop,altar))return;
+ const eligible=rooms.map((r,i)=>r.k==='room'&&i!==shop&&i!==altar&&!early.has(r)&&r.shape!=='ring'?i:-1).filter(i=>i>=0);
+ const choices=[];
+ for(const s of [shop,...eligible])for(const a of [altar,...eligible]){
+  if(s===a||edge(s,a))continue;
+  const keepCombat=(s===shop||rooms[s].type==='combat'?8:0)+(a===altar||rooms[a].type==='combat'?8:0);
+  choices.push({s,a,score:(remote(s,a)?180:0)+(s===shop?40:0)+(a===altar?15:0)+keepCombat+distance(rooms[s],rooms[a])});
+ }
+ choices.sort((a,b)=>b.score-a.score);
+ if(!choices.length){rooms[altar].type='combat';return;} // a very small map has no legal separation
+ const {s,a}=choices[0];
+ [rooms[shop].type,rooms[s].type]=[rooms[s].type,'shop'];
+ [rooms[altar].type,rooms[a].type]=[rooms[a].type,'altar'];
+}
 function genMap(di){
  const t=new Uint8Array(MW*MH),rooms=[];
  const carve=(x,y,w,h)=>{for(let j=y;j<y+h;j++)for(let i=x;i<x+w;i++)if(i>0&&j>0&&i<MW-1&&j<MH-1)t[j*MW+i]=1;};
@@ -68,8 +89,17 @@ function genMap(di){
    x=clamp(x,2,MW-3);y=clamp(y,2,MH-3);brush(x,y,wd);}
   brush(bx,by,wd);};
  // tree: each room links to its nearest room further left; the boss room gets exactly one way in
- const links=new Set();
- for(let i=1;i<rooms.length;i++){let best=0,bd=1e9;for(let j=0;j<i;j++){const d=rd(rooms[i],rooms[j]);if(d<bd){bd=d;best=j;}}link(rooms[best],rooms[i]);links.add(best+'-'+i);}
+ const links=new Set(),bossRoom=rooms.find(r=>r.k==='boss');
+ const approach={x:bossRoom.x-4,y:cy(bossRoom)-4,w:4,h:8,k:'approach',type:'approach'};
+ for(let i=1;i<rooms.length;i++){
+  const target=rooms[i]===bossRoom?approach:rooms[i];
+  let best=0,bd=1e9;
+  for(let j=0;j<i;j++){const d=rd(rooms[j],target);if(d<bd){bd=d;best=j;}}
+  link(rooms[best],target);links.add(best+'-'+i);
+ }
+ // A quiet, separate vestibule outside the boss trigger; enter the arena through its narrow mouth.
+ carve(approach.x,approach.y,approach.w,approach.h);
+ carve(bossRoom.x-1,cy(bossRoom)-1,3,3);
  // a few loops so the dungeon is not a single line
  const nb=rooms.length-1;let loops=ri(2,3);for(let tr=0;tr<60&&loops>0;tr++){const i=ri(1,nb-1),j=ri(1,nb-1);if(i===j||links.has(Math.min(i,j)+'-'+Math.max(i,j))||rd(rooms[i],rooms[j])>44)continue;links.add(Math.min(i,j)+'-'+Math.max(i,j));link(rooms[i],rooms[j]);loops--;}
  // smoothing: fill sharp inside corners so rooms and passages flow into each other
@@ -82,22 +112,26 @@ function genMap(di){
    for(const d of [1,-1,MW,-MW]){const j=i+d;if(t[j]&&!seen[j]){seen[j]=1;q.push(j);}}}
   const isFight=k=>['combat','elite','ambush','trap'].includes(k);
   for(const r of first){if(r.k!=='room'||isFight(r.type))continue;
-   const sw=rooms.find(o=>o.k==='room'&&!first.has(o)&&o.type==='combat');if(sw){const k=r.type;r.type='combat';sw.type=k;}else r.type='combat';}}
+   const sw=rooms.find(o=>o.k==='room'&&!first.has(o)&&o.type==='combat');if(sw){const k=r.type;r.type='combat';sw.type=k;}else r.type='combat';}
+  spaceShopAndAltar(rooms,links,first);}
+ rooms.push(approach);
  // reopen room centres that corridors or shapes may have closed
  for(const r of rooms)if(r.shape!=='ring')set(cx(r),cy(r),1);
  // liquid pools (water, lava, poison...) inside rooms, kept away from room centres
  const env=ENV[di],liq=new Uint8Array(MW*MH);
- if(env.liq)for(const r of rooms){if(r.k==='start')continue;const n=Math.round(r.w*r.h*env.amt/6)+(Math.random()<env.amt*4?1:0);
+ if(env.liq)for(const r of rooms){if(r.k==='start'||r.k==='approach')continue;const n=Math.round(r.w*r.h*env.amt/6)+(Math.random()<env.amt*4?1:0);
   for(let b=0;b<n;b++){const bx=ri(r.x+1,r.x+r.w-2),by=ri(r.y+1,r.y+r.h-2),rx=rnd(1.2,r.k==='boss'?2.2:3.4),ry=rnd(1.2,r.k==='boss'?2.2:3.4);
    for(let j=Math.floor(by-ry);j<=by+ry;j++)for(let i=Math.floor(bx-rx);i<=bx+rx;i++){if(i<1||j<1||i>=MW-1||j>=MH-1||!t[j*MW+i])continue;const d=((i-bx)/rx)**2+((j-by)/ry)**2;if(d>1+.3*(hash(i,j)-.5))continue;if(Math.abs(i-cx(r))<=2&&Math.abs(j-cy(r))<=2)continue;liq[j*MW+i]=env.liq;}}}
  // swamps also flood parts of corridors
  if(env.k==='swamp')for(let j=1;j<MH-1;j++)for(let i=1;i<MW-1;i++)if(t[j*MW+i]&&!rooms.some(r=>i>=r.x&&i<r.x+r.w&&j>=r.y&&j<r.y+r.h)&&Math.sin(i*.35)+Math.cos(j*.4)>1.1)liq[j*MW+i]=1;
+ // Pools can extend past a room's bounds. Keep the vestibule and mouth dry.
+ for(let y=approach.y;y<approach.y+approach.h;y++)for(let x=approach.x;x<approach.x+approach.w+2;x++)liq[y*MW+x]=0;
  // which room each tile belongs to (special rooms get their own floors and props)
  const roomOf=new Int8Array(MW*MH).fill(-1);rooms.forEach((r,ri2)=>{for(let j=r.y;j<r.y+r.h;j++)for(let i=r.x;i<r.x+r.w;i++)if(t[j*MW+i])roomOf[j*MW+i]=ri2;});
  const vis=new Uint8Array(MW*MH);
  for(let y=0;y<MH;y++)for(let x=0;x<MW;x++){const i=y*MW+x;if(t[i])continue;let near=false;for(let j=-1;j<=1&&!near;j++)for(let k=-1;k<=1;k++){const xx=x+k,yy=y+j;if(xx>=0&&yy>=0&&xx<MW&&yy<MH&&t[yy*MW+xx]){near=true;break;}}if(near)vis[i]=(y+1<MH&&t[i+MW])?2:1;}
  const liqList=[];for(let i=0;i<MW*MH;i++)if(liq[i])liqList.push(i);
- return {t,vis,rooms,liq,liqList,env,roomOf,expl:new Uint8Array(MW*MH),startRoom:rooms.find(r=>r.k==='start'),bossRoom:rooms.find(r=>r.k==='boss')};
+ return {t,vis,rooms,liq,liqList,env,roomOf,approach,expl:new Uint8Array(MW*MH),startRoom:rooms.find(r=>r.k==='start'),bossRoom:rooms.find(r=>r.k==='boss')};
 }
 // ---- environment texturing (baked into the floor canvas) ----
 const P1=(g,c,x,y,w,h)=>{g.fillStyle=c;g.fillRect(x,y,w||1,h||1);};
@@ -167,6 +201,12 @@ function floorDeco(g,X,Y,x,y,h,th){
 // ---- special-room floors: each event room is tiled in its own style ----
 function diaIn(g,X,Y,ins,col){g.fillStyle=col;for(let j=ins;j<TILEH-ins;j++){const half=dHalf(j)-ins*2;if(half>0)g.fillRect(X-half,Y+j,half*2,1);}}
 const SPECFLOOR={
+ approach:{fl:['#35303a','#3b3440'],deco:(g,X,Y,x,y,h,r)=>{
+  const lane=Math.abs(y-(r.y+(r.h>>1)))<=1,edge=x===r.x+r.w-1;
+  if(lane){diaIn(g,X,Y,1,'#80614f');diaIn(g,X,Y,2,'#5c3d37');}
+  if(edge){isoLn(g,'#d2a872',X,Y,14,1);isoLn(g,'#9b7050',X-14,Y+HY-1,14,1);}
+  if(h>.72)P1(g,'#736576',X-3,Y+HY,4,1);
+ }},
  rest:{fl:['#34503a','#3a5840'],deco:(g,X,Y,x,y,h,r)=>{const d=Math.hypot(x-(r.x+(r.w>>1)),y-(r.y+(r.h>>1)));
   if(Math.abs(d-5.5)<.7){diaIn(g,X,Y,3,'#5a5a52');diaIn(g,X,Y,5,'#7a7a72');P1(g,'#9a9a90',X-2,Y+5,3,1);}
   else{if(h<.3)P1(g,'#c8c8b8',X-3+((h*40)|0)%6,Y+7,2,1);if(h>.82){P1(g,'#5a8a3a',X-4,Y+8,1,2);P1(g,'#6aa046',X-2,Y+7,1,3);P1(g,'#5a8a3a',X,Y+8,1,2);}}}},
@@ -179,9 +219,59 @@ const SPECFLOOR={
   if(Math.abs(d-4)<.6){P1(g,'#f33',X-4,Y+7,8,1);P1(g,'#ff8080',X-1,Y+7,2,1);}
   if(h<.3){isoLn(g,'#1a0608',X-6,Y+5,4,1);isoLn(g,'#1a0608',X+2,Y+7,3,-1);}if(h>.93)P1(g,'#6a0a14',X-2,Y+6,4,2);}},
  treasure:{fl:['#5a4a2a','#65532f'],deco:(g,X,Y,x,y,h)=>{if(x%2===0)isoLn(g,'#c8a040',X-16,Y+HY,8,1);if(y%2===0)isoLn(g,'#c8a040',X,Y,8,1);if(h>.9){P1(g,'#ffe080',X-1,Y+6,2,1);P1(g,'#fff',X-1,Y+6,1,1);}}}};
+// Each category has an inlay material. Standard combat rooms retain the dungeon's own palette.
+const ROOM_INLAY={
+ start:['#8e8b70','#535b50'],combat:['#7c7869','#4a4a44'],elite:['#9d7863','#574643'],
+ ambush:['#887456','#4b443a'],trap:['#a18a59','#554d3c'],challenge:['#8797a1','#464f5e'],
+ rest:['#799b70','#465f4c'],treasure:['#c19a57','#695232'],shop:['#b08c53','#715338'],
+ shrine:['#9983bb','#4b3d63'],altar:['#c26d65','#5c343b'],boss:['#d4b581','#776176']
+};
+const roomMaterial=r=>r?.type||r?.k||null;
+function drawRoomSill(g,X,Y,x,y,own,profiles,neighbors){
+ const materials=[];
+ for(const n of neighbors){
+  const nx=x+n.dx,ny=y+n.dy,i=ny*MW+nx;
+  if(nx<0||ny<0||nx>=MW||ny>=MH||!map.t[i]||map.liq[i])continue;
+  const other=map.roomOf[i];
+  if(own===other)continue;
+  const here=profiles[own+1],there=profiles[other+1],room=own>=0?here:there;
+  materials.push({u:n.u,v:n.v,edge:room.inlay,merge:there.fl[(nx+ny)&1],mortar:here.edge[(x+y)&1],stone:here.fl[(x+y)&1],emphasis:room.emphasis});
+ }
+ if(!materials.length)return;
+ for(let py=1;py<TILEH-1;py++){
+  const half=dHalf(py);
+  for(let px=1-half;px<half-1;px++){
+   const u=(py/HY+(px+.5)/16)/2,v=(py/HY-(px+.5)/16)/2;
+   for(const m of materials){
+    const dist=m.u?(m.u<0?u:1-u):(m.v<0?v:1-v);
+    if(dist<0||dist>.46)continue;
+    // Use the coordinate along the sill for grain, so the band remains continuous across adjoining tiles.
+    const along=m.u?v:u,grain=hash(x*41+Math.floor(u*12),y*43+Math.floor(v*12));
+    if(dist<.13){
+     const peg=along>.39&&along<.63;
+     g.fillStyle=dist<.052?m.edge[1]:m.edge[peg||m.emphasis?0:1];
+    }else if(dist<.21)g.fillStyle=m.mortar;
+    else if(grain<(1-dist/.5)*.88)g.fillStyle=m.merge;
+    else if(grain>.87&&dist<.34)g.fillStyle=m.stone;
+    else continue;
+    g.fillRect(X+px,Y+py,1,1);break;
+   }
+  }
+ }
+}
 // Pre-renders the floor as 32x16 diamonds into one big canvas, and builds wall-cube sprites (drawn depth-sorted at runtime).
 function renderMap(th){
- const FW=(MW+MH)*16,FH=(MW+MH)*HY+TILEH+WH,edges=th.fl.map(c=>shade(c,-.14));
+ const FW=(MW+MH)*16,FH=(MW+MH)*HY+TILEH+WH;
+ const profile=r=>{
+  const key=roomMaterial(r),special=SPECFLOOR[key];
+  const fl=special?special.fl:!r&&map.roomOf&&!map.train?th.fl.map(c=>shade(c,-.085)):th.fl;
+  return {fl,edge:fl.map(c=>shade(c,special?-.18:-.14)),inlay:ROOM_INLAY[key]||ROOM_INLAY.combat,emphasis:!!special||key==='boss'};
+ };
+ const profiles=[profile(null),...map.rooms.map(profile)];
+ const [ox,oy]=tileR(0,0);
+ const neighbors=[[1,0],[-1,0],[0,1],[0,-1]].map(([dx,dy])=>{
+  const [u,v]=tileR(dx,dy);return {dx,dy,u:u-ox,v:v-oy};
+ });
  const floor=mk(FW,FH,g=>{
   g.fillStyle='#07060a';g.fillRect(0,0,FW,FH);
   for(let y=0;y<MH;y++)for(let x=0;x<MW;x++){
@@ -189,10 +279,11 @@ function renderMap(th){
    // place the tile by its position in the rotated grid (the camera angle)
    const [tu,tv]=tileR(x,y),X=(tu-tv+RMH)*16,Y=(tu+tv)*HY,ci=(x+y)&1,h=hash(x,y),lq=map.liq[y*MW+x];
    if(lq){drawLiquidTile(g,X,Y,x,y,lq,h,tu,tv);continue;}
-   const rm=map.roomOf&&map.roomOf[y*MW+x]>=0?map.rooms[map.roomOf[y*MW+x]]:null,SF=rm&&SPECFLOOR[rm.type];
-   const fl=SF?SF.fl:th.fl,ed=SF?SF.fl.map(c=>shade(c,-.18)):edges;
+   const ri=map.roomOf?.[y*MW+x]??-1,rm=map.rooms[ri],SF=rm&&SPECFLOOR[rm.type];
+   const {fl,edge:ed}=profiles[ri+1];
    for(let j=0;j<TILEH;j++){const half=dHalf(j);g.fillStyle=ed[ci];g.fillRect(X-half,Y+j,half*2,1);if(j>0&&j<TILEH-1&&half>2){g.fillStyle=fl[ci];g.fillRect(X-half+2,Y+j,half*2-4,1);}}
    if(SF)SF.deco(g,X,Y,x,y,h,rm);else floorDeco(g,X,Y,x,y,h,th);
+   if(map.roomOf&&!map.train)drawRoomSill(g,X,Y,x,y,ri,profiles,neighbors);
    g.fillStyle='rgba(0,0,0,.3)';
    if(!floorAtR(tu-1,tv))for(let j=0;j<HY;j++)g.fillRect(X-Math.round((j+1)/ISOK),Y+j,6,2);
    if(!floorAtR(tu,tv-1))for(let j=0;j<HY;j++)g.fillRect(X+Math.round((j+1)/ISOK)-6,Y+j,6,2);

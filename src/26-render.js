@@ -115,18 +115,74 @@ function drawGround(){
  for(const d of dh){const k=1-d.t/d.dur;ctx.globalAlpha=.22;wdisc(d.x,d.y,d.r*Math.min(1,k*1.1),d.col||'#f22');ctx.globalAlpha=1;wcirc(d.x,d.y,d.r,d.col||'#f55');}
  for(const e of enemies)if(!e.dead&&e.act&&e.act.ph===0)drawTele(e);
 }
+// Lacquered tansu chest. Pixel-rasterized faces keep the angled boards crisp on the game canvas.
+const CHEST_ART=Array.from({length:4},(_,frame)=>outlined(mk(36,31,g=>{
+ const px=(x,y,w,h,c)=>{g.fillStyle=c;g.fillRect(x,y,w,h);};
+ const face=(points,c)=>{
+  const xs=points.map(p=>p[0]),ys=points.map(p=>p[1]);
+  g.fillStyle=c;
+  for(let y=Math.min(...ys);y<Math.max(...ys);y++){
+   const crossings=[];
+   for(let i=0;i<points.length;i++){
+    const [x0,y0]=points[i],[x1,y1]=points[(i+1)%points.length];
+    if((y0>y+.5)!==(y1>y+.5))crossings.push(x0+(y+.5-y0)/(y1-y0)*(x1-x0));
+   }
+   crossings.sort((a,b)=>a-b);
+   for(let i=0;i+1<crossings.length;i+=2){
+    const x=Math.ceil(crossings[i]-.5),right=Math.ceil(crossings[i+1]-.5);
+    g.fillRect(x,y,right-x,1);
+   }
+  }
+ };
+ const amber=frame?'#ba8548':'#ecb65b',brass='#925432',shade='#641f28';
+ // Feet, tapered end panel and recessed front board.
+ px(7,25,4,4,'#5e3335');px(23,25,4,4,'#5e3335');px(30,20,3,4,'#492530');
+ face([[26,17],[33,13],[33,23],[26,28]],shade);
+ face([[4,17],[26,17],[26,28],[4,28]],'#a63538');
+ px(5,19,20,1,'#d05a4a');px(6,21,18,5,'#842831');px(7,22,16,1,'#a53636');px(5,27,21,1,'#63212c');
+ face([[26,25],[33,20],[33,22],[26,27]],brass);
+ px(7,18,2,9,brass);px(8,18,1,8,amber);px(22,18,2,9,brass);px(22,18,1,8,amber);
+ px(5,26,4,1,amber);px(22,26,4,1,amber);
+ face([[4,17],[12,12],[33,12],[26,17]],'#c19359');
+ face([[7,16],[13,13],[30,13],[24,16]],'#2c1822');
+ if(!frame){
+  face([[4,14],[11,9],[32,9],[26,14]],'#d95547');
+  face([[26,14],[32,9],[33,13],[26,18]],'#8b3034');
+  px(4,14,22,4,'#b6403c');px(5,17,21,1,amber);
+  face([[7,14],[14,9],[16,9],[9,14]],amber);
+  face([[22,14],[29,9],[31,9],[24,14]],amber);
+  px(8,14,1,3,amber);px(22,14,1,3,amber);
+  px(13,16,5,5,brass);px(14,16,3,4,'#ffe08d');px(15,17,1,2,'#452731');
+ }else{
+  const lift=[0,3,7,10][frame],rise=[0,3,5,6][frame];
+  face([[11-rise,11-lift],[31-rise,11-lift],[33,12],[12,12]],'#883038');
+  face([[12-rise,12-lift],[31-rise,12-lift],[31,11],[13,11]],'#542533');
+  px(12-rise,11-lift,19,1,amber);
+  if(frame>1){
+   face([[13-rise,13-lift],[15-rise,13-lift],[15,11],[13,11]],brass);
+   face([[27-rise,13-lift],[29-rise,13-lift],[29,11],[27,11]],brass);
+  }
+  px(13,17,5,3,brass);px(14,17,3,1,'#c49862');
+ }
+})));
+function drawChest(p,X,Y){
+ const age=p.openedAt==null?1:time-p.openedAt;
+ const frame=p.used?Math.min(3,1+Math.floor(Math.max(0,age)/.065)):0;
+ shadow(X+1,Y,28);
+ ctx.drawImage(CHEST_ART[frame],Math.round(X-17),Math.round(Y-29));
+ if(!p.used){
+  // A tiny glint on the clasp, timed per chest so multiple chests don't blink in sync.
+  const glint=(time+hash(Math.floor(p.x),Math.floor(p.y))*2)%3.1;
+  if(glint<.27){
+   ctx.fillStyle='#fff3bd';ctx.fillRect(Math.round(X-4),Math.round(Y-14),5,1);
+   ctx.fillRect(Math.round(X-2),Math.round(Y-16),1,5);
+  }
+ }
+}
 function drawProp(p){
+ if(p.k==='doorpost'||p.k==='entrancePlaque'){drawEntrance(p,sx(p.x,p.y),sy(p.x,p.y));return;}
  const X=sx(p.x,p.y),Y=sy(p.x,p.y);
- if(p.k==='chest'){ // red lacquered treasure chest with gold bands; glows until opened, open lid shows the empty gold-lined inside
-  shadow(X,Y,22);const o=p.used;
-  if(!o){ctx.globalAlpha=.18+.08*Math.sin(time*3);disc(X,Y-8,15,'#ffd040');ctx.globalAlpha=1;}
-  ctx.fillStyle='#14101a';ctx.fillRect(X-11,Y-(o?21:15),22,o?21:15);
-  ctx.fillStyle='#8a1a20';ctx.fillRect(X-10,Y-8,20,7);ctx.fillStyle='#a82830';ctx.fillRect(X-10,Y-8,20,1);
-  ctx.fillStyle='#e0b040';ctx.fillRect(X-10,Y-2,20,1);ctx.fillRect(X-7,Y-8,2,7);ctx.fillRect(X+5,Y-8,2,7);
-  if(o){ctx.fillStyle='#6a1018';ctx.fillRect(X-10,Y-20,20,6);ctx.fillStyle='#e0b040';ctx.fillRect(X-10,Y-15,20,1);ctx.fillStyle='#3a2a10';ctx.fillRect(X-9,Y-10,18,2);}
-  else{ctx.fillStyle='#a82830';ctx.fillRect(X-10,Y-14,20,6);ctx.fillStyle='#c84040';ctx.fillRect(X-10,Y-14,20,1);ctx.fillStyle='#e0b040';ctx.fillRect(X-7,Y-14,2,6);ctx.fillRect(X+5,Y-14,2,6);ctx.fillRect(X-10,Y-9,20,1);
-   ctx.fillStyle='#ffe080';ctx.fillRect(X-1,Y-10,3,3);ctx.fillStyle='#14101a';ctx.fillRect(X,Y-9,1,1);
-   if(Math.random()<.05)particles.push({x:p.x+rnd(-8,8),y:p.y+rnd(-6,6),vx:0,vy:-12,t:.6,col:'#ffe080'});}}
+ if(p.k==='chest')drawChest(p,X,Y);
  else if(p.k==='altar'){ // shrine: a wooden offering table with shide streamers and a violet spirit orb; curse: an obsidian block with a floating red-eyed skull
   shadow(X,Y,20);const cu=p.curse;
   ctx.fillStyle='#14101a';ctx.fillRect(X-10,Y-12,20,12);
@@ -196,7 +252,8 @@ const PSPR={
  spear(X,Y,ux,uy,q){for(let i=-6;i<=2;i++){ctx.fillStyle=i>0?'#e8eef6':'#7a5a3a';ctx.fillRect(Math.round(X+ux*i),Math.round(Y+uy*i),1,1);}ctx.fillStyle=q.col;ctx.fillRect(Math.round(X+ux*3),Math.round(Y+uy*3),1,1);},
 };
 function drawProj(q){
- const X=sx(q.x,q.y),Y=sy(q.x,q.y)-7;
+ const X=sx(q.x,q.y),Y=sy(q.x,q.y)-7,pad=q.st==='lance'&&q.wait>0?144:32;
+ if(q.dead||X<-pad||X>W+pad||Y<-pad||Y>H+pad)return;
  ctx.fillStyle='rgba(0,0,0,.3)';ctx.fillRect(X-1,Y+7,3,1);
  if(q.spr&&PSPR[q.spr]){const [vx,vy]=q.vx||q.vy?scrVec(q.vx,q.vy):[1,0],l=Math.hypot(vx,vy)||1;
   if(q.st==='lance'&&q.wait>0){const lv=scrVec(q.lvx,q.lvy),ll=Math.hypot(lv[0],lv[1])||1;ctx.globalAlpha=Math.floor(time*16)%2?.55:.3;ctx.fillStyle=q.col;for(let r=4;r<140;r+=3)ctx.fillRect(Math.round(X+lv[0]/ll*r),Math.round(Y+lv[1]/ll*r),1,1);ctx.globalAlpha=1;PSPR[q.spr](X,Y,lv[0]/ll,lv[1]/ll,q);return;}
@@ -424,7 +481,7 @@ function drawTooltip(){
  if(RK()>0&&k!=='m'&&k!=='h')L.push('RANK '+(RK()+1)+': +'+Math.round(RK()*10)+'% POWER  -'+RK()*2+'% CD');
  if(k==='m')L.push('FROM YOUR WEAPON: '+(R.eq.wpn?R.eq.wpn.name:'NONE'),'NEW WEAPON TYPES CHANGE THIS ATTACK');
  else{for(const e of [...new Set(R.ench||[])]){const E=ENCH.find(x=>x.k===e),n=R.ench.filter(x=>x===e).length;L.push({s:'ENCHANT '+fxLabel(E.n,Math.min(5,n))+': '+E.d.replace('ABILITY HITS ',''),c:E.c});}
-  const ad=R.addon&&R.addon[k];if(ad)for(const a of ADDONS)if(ad[a.k])L.push({s:'SCROLL '+fxLabel(a.n,a.tier),c:a.c});}
+  const ad=R.addon&&R.addon[k];if(ad)for(const a of SCROLL_ADDONS)if(ad[a.k])L.push({s:'SCROLL '+fxLabel(a.n,a.tier),c:a.c});}
  const S2=s=>typeof s==='string'?s:s.s,w=Math.max(...L.map(s=>txtW(S2(s))))+8,h=L.length*8+4,x=Math.max(2,W-2-w),y=H-34-h;
  ctx.fillStyle='rgba(8,6,12,.92)';ctx.fillRect(x,y,w,h);ctx.fillStyle=sp.c;ctx.fillRect(x,y,w,1);ctx.fillRect(x,y+h-1,w,1);
  L.forEach((s,i)=>txt(S2(s),x+4,y+3+i*8,typeof s==='object'?s.c:i===0?sp.c:i===1?'#fff':'#bbb',1,false));
@@ -436,11 +493,14 @@ const JADEC='#5fd08a';
 function hudJade(x,y){ctx.fillStyle='#1e5a3a';ctx.fillRect(x+1,y,4,1);ctx.fillRect(x,y+1,6,3);ctx.fillRect(x+1,y+4,5,1);ctx.fillRect(x+3,y+5,3,1);ctx.fillRect(x+4,y+6,1,1);
  ctx.fillStyle='#5fd08a';ctx.fillRect(x+1,y+1,4,3);ctx.fillRect(x+2,y+4,3,1);ctx.fillStyle='#c8ffd8';ctx.fillRect(x+1,y+1,1,1);ctx.fillStyle='#1e5a3a';ctx.fillRect(x+2,y+2,1,1);}
 function hudRevive(x,y){const f=Math.floor(time*6)%2;ctx.fillStyle='#2a6aa0';ctx.fillRect(x+1,y+3,5,4);ctx.fillRect(x+2,y+1,3,2);ctx.fillRect(x+3-f,y,1,1);ctx.fillStyle='#8cf';ctx.fillRect(x+2,y+3,3,3);ctx.fillRect(x+3,y+2,1,1);ctx.fillStyle='#fff';ctx.fillRect(x+3,y+4,1,2);}
+const bossBarBox=()=>({x:Math.round((W-180)/2),y:14,w:180});
 function drawHUD(){
  syncLMB();
- // bottom left: health (with the stun bar under it), then the gold coin and revive counters
- {const y=H-17;bar(6,y,96,8,P.hp/S.maxhp,'#c22','#3a1010');txt(Math.ceil(P.hp)+'/'+S.maxhp,9,y+2,'#fff');bar(6,y+10,96,3,P.pos/S.maxpos,P.stag>0?'#f84':'#fd4','#3a3010');
-  hudCoin(108,y);txt(String(R.sen),117,y+1,'#fc4');hudRevive(108,y+8);txt('X'+P.rez,117,y+9,P.rez>0?'#bfe8ff':'#777');}
+ // Bottom centre: player health and posture. Gold and revives sit in the left corner.
+ {const y=H-16,w=116,x=Math.round((W-w)/2);
+  bar(x,y,w,8,P.hp/S.maxhp,'#c73445','#351420');ctxt('HP '+Math.ceil(P.hp)+' / '+S.maxhp,y+2,'#fff');
+  bar(x,y+10,w,3,P.pos/S.maxpos,P.stag>0?'#f84':'#fd4','#3a3010');
+  hudCoin(7,y);txt(String(R.sen),16,y+1,'#fc4');hudRevive(7,y+8);txt('X'+P.rez,16,y+9,P.rez>0?'#bfe8ff':'#777');}
  // HP potions live in the ability bar: C is effectively your heal ability
  {const x=slotX(0)-24,y=SLOTY(),has=R.pots>0;ctx.fillStyle='#000';ctx.fillRect(x-1,y-1,15,15);ctx.fillStyle=has?'#e33':'#555';ctx.fillRect(x,y,13,13);ctx.fillStyle='#14101a';ctx.fillRect(x+1,y+1,11,11);
   if(!has)ctx.globalAlpha=.4;ctx.fillStyle='#c8a070';ctx.fillRect(x+5,y+2,3,1);ctx.fillStyle='#ddd';ctx.fillRect(x+5,y+3,3,2);ctx.fillStyle='#e33';ctx.fillRect(x+3,y+5,7,6);ctx.fillRect(x+4,y+4,5,1);ctx.fillStyle='#ff8080';ctx.fillRect(x+4,y+6,1,3);ctx.globalAlpha=1;
@@ -474,23 +534,24 @@ function drawHUD(){
   ctx.globalAlpha=Math.min(1,(2-age)*2);txt(s,W-6-txtW(s,pop),H/2-20,c,pop);ctx.fillStyle=c;ctx.fillRect(W-6-40,H/2-20+(pop===2?12:7),Math.round(40*(1-age/2)),1);ctx.globalAlpha=1;}}
  if(P.storm>0)ctxt('STORM '+P.storm.toFixed(1),H-52,'#ff8a30');
  if(freezeT>0)ctxt('TIME STOPPED '+freezeT.toFixed(1),H-52,'#8cf');
- const nm=R.training?'TRAINING GROUNDS':ROMAN[R.di]+'. '+DUN[R.di].name;txt(nm,Math.round((W-txtW(nm))/2),4,'#ddd');
+ if(!boss?.awake||boss.dead)ctxt(R.training?'TRAINING GROUNDS':ROMAN[R.di]+'. '+DUN[R.di].name,4,'#ddd');
 
  if(P.hCh>0){const k=Math.min(1,P.hCh/HCHARGE);ctx.fillStyle='#14101a';ctx.fillRect(Math.round(W/2-9),H/2+17,18,3);ctx.fillStyle=k>=1?(Math.floor(time*12)%2?'#fff':'#fd4'):'#a89ab8';ctx.fillRect(Math.round(W/2-8),H/2+18,Math.round(16*k),1);}
  if(P.dashCd>0){ctx.fillStyle='#fff';ctx.fillRect(Math.round(W/2-8),H/2+14,Math.round(16*(1-P.dashCd/S.dashCd)),1);}
  // survival phase: big countdown while the boss is invulnerable
- if(boss&&boss.awake&&!boss.dead&&boss.storm>0){const c=bsty(boss).c,s='SURVIVE '+Math.ceil(boss.storm);txt(s,Math.round((W-txtW(s,2))/2),22,Math.floor(time*4)%2?c:'#fff',2);
-  bar(Math.round(W/2-60),36,120,3,boss.storm/(boss.stormMax||8),c,'#2a1a2a');ctxt('THE BOSS CANNOT BE HURT - DODGE!',42,'#ddd');}
+ if(boss&&boss.awake&&!boss.dead&&boss.storm>0){const c=bsty(boss).c,s='SURVIVE '+Math.ceil(boss.storm);txt(s,Math.round((W-txtW(s,2))/2),32,Math.floor(time*4)%2?c:'#fff',2);
+  bar(Math.round(W/2-60),46,120,3,boss.storm/(boss.stormMax||8),c,'#2a1a2a');ctxt(boss.EVdef?.hint||'THE BOSS CANNOT BE HURT - DODGE!',52,'#ddd');}
  // minion event: how many of the guard are left before the shield breaks
- if(boss&&boss.awake&&!boss.dead&&boss.ev&&boss.ev.mins.length){const n=boss.ev.mins.filter(m=>!m.dead).length;if(n){const c=bsty(boss).c,s=boss.ev.name;txt(s,Math.round((W-txtW(s,2))/2),boss.storm>0?50:22,c,2);ctxt('SHIELDED - DEFEAT THE GUARD: '+n+' LEFT',boss.storm>0?66:38,Math.floor(time*3)%2?'#fff':'#9cf');}}
+ if(boss&&boss.awake&&!boss.dead&&boss.ev&&boss.ev.mins.length){const n=boss.ev.mins.filter(m=>!m.dead).length;if(n){const c=bsty(boss).c,s=boss.ev.name;txt(s,Math.round((W-txtW(s,2))/2),boss.storm>0?62:32,c,2);ctxt('SHIELDED - DEFEAT THE GUARD: '+n+' LEFT',boss.storm>0?78:48,Math.floor(time*3)%2?'#fff':'#9cf');}}
  // arena mechanics the player can use
  if(boss&&boss.awake&&!boss.dead&&!boss.ev){const K=BKIT[boss.name];
   if(boss.banners){const n=boss.banners.filter(b=>!b.dead).length;if(n)ctxt('WAR BANNERS STANDING: '+n+'  (EACH CUTS HIS DAMAGE TAKEN 12%)',H-40,'#e0b040');}
   if(boss.dazzle>0)ctxt('DAZZLED! +35% DAMAGE',H-40,'#ffe080');
   if(boss.eggs&&boss.eggs.some(g=>!g.dead))ctxt('EGG SACS: '+boss.eggs.filter(g=>!g.dead).length+'  (THEY HATCH - BREAK THEM)',H-40,'#e8e0c8');}
- if(boss&&boss.awake&&!boss.dead){const w=150,x=Math.round((W-w)/2)-20;txt(boss.name,x+Math.round((w-txtW(boss.name))/2),H-30,'#f77');bar(x,H-22,w,6,boss.hp/boss.maxhp,'#c22','#3a1010');
-  if(boss.members){let mx=x;for(const m of boss.members){txt(m.ronin,mx,H-14,m.dead?'#444':m.labelC);if(m.dead){ctx.fillStyle='#c22';ctx.fillRect(mx-1,H-12,txtW(m.ronin)+2,1);}mx+=txtW(m.ronin)+8;}}
-  else bar(x,H-14,w,3,boss.posture/boss.maxPosture,'#fd4','#3a3010');}
+ if(boss&&boss.awake&&!boss.dead){const {x,y,w}=bossBarBox();
+  ctxt(boss.name,y-9,'#ffb7a4');bar(x,y,w,6,boss.hp/boss.maxhp,'#c73445','#351420');
+  if(boss.members){let mx=x;for(const m of boss.members){txt(m.ronin,mx,y+9,m.dead?'#666':m.labelC);if(m.dead){ctx.fillStyle='#c22';ctx.fillRect(mx-1,y+11,txtW(m.ronin)+2,1);}mx+=txtW(m.ronin)+8;}}
+  else bar(x,y+8,w,2,boss.posture/boss.maxPosture,'#fd4','#3a3010');}
  if(portal&&!portal.pending){const X=sx(portal.x,portal.y),Y=sy(portal.x,portal.y)-20;if(X<8||X>W-8||Y<8||Y>H-8){const a=Math.atan2(Y-H/2,X-W/2),ex=W/2+Math.cos(a)*Math.min(W/2-14,Math.abs((H/2-14)/(Math.sin(a)||1e-3))),ey=H/2+Math.sin(a)*Math.min(H/2-14,Math.abs((W/2-14)/(Math.cos(a)||1e-3)));const cx=clamp(ex,12,W-12),cy=clamp(ey,12,H-12),bl=Math.floor(time*4)%2;
   ctx.fillStyle='#14101a';ctx.fillRect(cx-4,cy-4,9,9);ctx.fillStyle=bl?'#8cf':'#fff';ctx.fillRect(cx-3,cy-3,7,7);ctx.fillStyle='#14101a';ctx.fillRect(Math.round(cx+Math.cos(a)*2),Math.round(cy+Math.sin(a)*2),2,2);txt('PORTAL',clamp(cx-11,2,W-26),clamp(cy+7,2,H-8),'#8cf');}}
  for(const k of pickups){if(k.k!=='bag'||k.tier!==4||k.dead||k.opened)continue;const X=sx(k.x,k.y),Y=sy(k.x,k.y)-8;if(X>=8&&X<=W-8&&Y>=8&&Y<=H-8)continue;
@@ -514,24 +575,55 @@ function drawHUD(){
  if(toast.t>0){ctx.globalAlpha=Math.min(1,toast.t);ctxt(toast.s,24,toast.c,1);ctx.globalAlpha=1;}
  if(P.hp<S.maxhp*.3){ctx.fillStyle='rgba(180,0,0,'+(.12+.06*Math.sin(time*6))+')';ctx.fillRect(0,0,W,H);}
 }
-function drawWall(o){
- // faces and position come from the wall's place in the rotated grid (camera angle)
- const tx=o.tx,ty=o.ty,[tu,tv]=tileR(tx,ty),mask=(floorAtR(tu,tv+1)?1:0)|(floorAtR(tu+1,tv)?2:0);
- ctx.drawImage(mapCanvas.walls[mask*2+(hash(tx,ty)<.5?0:1)],(tu-tv+RMH)*T-cam.x-16,(tu+tv)*HY-cam.y-WH);
+function sceneTiles(M){
+ if(M.scene)return M.scene;
+ const walls=[],liquids=[];
+ for(let ty=0;ty<MH;ty++)for(let tx=0;tx<MW;tx++){
+  const i=ty*MW+tx,wall=!map.t[i]&&map.vis[i];
+  if(!wall&&!map.liq[i])continue;
+  const [u,v]=tileR(tx,ty),row=u+v,x=(u-v+RMH)*T,y=row*HY,h=hash(tx,ty);
+  if(wall){
+   const mask=(floorAtR(u,v+1)?1:0)|(floorAtR(u+1,v)?2:0);
+   (walls[row]??=[]).push({wall:true,d:(row+1)*T,x,y,sprite:M.walls[mask*2+(h<.5?0:1)]});
+  }else (liquids[row]??=[]).push({x,y,h});
+ }
+ return M.scene={walls,liquids};
 }
-// animated shimmer, ripples and bubbles on top of the baked liquid tiles
-function drawLiquids(){
+function visibleTileRows(rows,top,bottom,visit){
+ const first=Math.max(0,Math.ceil((cam.y-top)/HY)),end=Math.min(rows.length-1,Math.floor((cam.y+H+bottom)/HY));
+ for(let i=first;i<=end;i++)if(rows[i])for(const o of rows[i])visit(o);
+}
+function drawEntrance(p,X,Y){
+ const boss=p.gate==='boss',edge=boss?'#a84843':'#578b76',glow=boss?'#f4b472':'#b8e6ad';
+ const px=(x,y,w,h,c)=>{ctx.fillStyle=c;ctx.fillRect(X+x,Y+y,w,h);};
+ if(p.k==='doorpost'){
+  shadow(X,Y,13);
+  px(-5,-4,10,4,'#27232b');px(-4,-5,8,2,'#72605c');
+  px(-2,-27,4,23,'#352631');px(-2,-25,1,19,edge);
+  px(-5,-27,10,3,'#2b222d');px(-7,-28,14,1,edge);
+  px(-4,-23,8,8,'#211b28');px(-3,-22,6,6,edge);
+  px(-2,-21,4,4,glow);px(-1,-20,2,2,'#fff0bd');
+  px(-1,-16,2,2,glow);
+ }else{
+  shadow(X,Y,14);px(-2,-15,3,15,'#402f32');
+  px(-12,-22,24,10,'#241b27');px(-11,-21,22,8,edge);px(-10,-20,20,6,'#272330');
+  const label=boss?'BOSS':'SHOP';
+  txt(label,X-Math.round(txtW(label)/2),Y-19,glow);
+ }
+}
+function drawWall(o){ctx.drawImage(o.sprite,o.x-cam.x-16,o.y-cam.y-WH);}
+function drawLiquids(rows){
  const L=map.env.lc,lq0=map.env.liq;
- for(const i of map.liqList){
-  const tx=i%MW,ty=(i/MW)|0,[tu,tv]=tileR(tx,ty),X=(tu-tv+RMH)*16-cam.x,Y=(tu+tv)*HY-cam.y;if(X<-20||X>W+20||Y<-20||Y>H+4)continue;
-  const h=hash(tx,ty),ph=time*(lq0===2?1.6:1.1)+h*TAU,s=Math.sin(ph);
-  if(lq0===4){if(s>.96){ctx.fillStyle='#fff';ctx.fillRect(X-4+((h*9)|0),Y+6,1,1);}continue;}
+ visibleTileRows(rows,20,4,({x,y,h})=>{
+  const X=x-cam.x,Y=y-cam.y;if(X<-20||X>W+20)return;
+ const ph=time*(lq0===2?1.6:1.1)+h*TAU,s=Math.sin(ph);
+  if(lq0===4){if(s>.96){ctx.fillStyle='#fff';ctx.fillRect(X-4+((h*9)|0),Y+6,1,1);}return;}
   ctx.fillStyle=L[2];ctx.globalAlpha=lq0===2?.55:.35;
   const ox=Math.round(Math.sin(ph*.7)*3);ctx.fillRect(X-5+ox,Y+7+((h*3)|0),4+((s+1)*1.5|0),1);
   if(h>.6){ctx.fillRect(X+2-ox,Y+10,3,1);}
   ctx.globalAlpha=1;
   if((lq0===2||lq0===3)&&s>.92){ctx.fillStyle=L[2];ctx.fillRect(X-1+((h*7)|0)%5,Y+5-((s-.92)*40|0),1,1);}
- }
+ });
 }
 // red screen edges when hurt / low on health
 function vignette(col,a){ctx.fillStyle=col;for(let i=0;i<10;i++){ctx.globalAlpha=a*(1-i/10)*.55;ctx.fillRect(0,i*2,W,2);ctx.fillRect(0,H-2-i*2,W,2);ctx.fillRect(i*3,0,3,H);ctx.fillRect(W-3-i*3,0,3,H);}ctx.globalAlpha=1;}
@@ -549,14 +641,19 @@ function renderPlay(){
  cam.x=Math.round(isoX(fcx,fcy)-W/2+shx);cam.y=Math.round(isoY(fcx,fcy)-(H/2+6)+shy);
  const M=mapCanvas;
  {const x0=Math.max(0,cam.x),y0=Math.max(0,cam.y),x1=Math.min(M.FW,cam.x+W),y1=Math.min(M.FH,cam.y+H);if(x1>x0&&y1>y0)ctx.drawImage(M.floor,x0,y0,x1-x0,y1-y0,x0-cam.x,y0-cam.y,x1-x0,y1-y0);}
- drawLiquids();
+ const tiles=sceneTiles(M);
+ drawLiquids(tiles.liquids);
  drawGround();
- const dr=[],ptx=P.x/T|0,pty=P.y/T|0;
- for(let ty=Math.max(0,pty-15);ty<=Math.min(MH-1,pty+15);ty++)for(let tx=Math.max(0,ptx-15);tx<=Math.min(MW-1,ptx+15);tx++){const i=ty*MW+tx;if(map.t[i]||!map.vis[i])continue;const [tu,tv]=tileR(tx,ty);dr.push({d:(tu+tv+1)*T,wall:1,tx,ty});}
+ const dr=[];
+ visibleTileRows(tiles.walls,30,WH+16,o=>{if(o.x>=cam.x-32&&o.x<=cam.x+W+32)dr.push(o);});
  // draw order follows depth in the rotated view, so walls and sprites overlap correctly at every camera angle
  for(const e of enemies){if(e.dead)continue;const X=sx(e.x,e.y),Y=sy(e.x,e.y);if(X<-60||X>W+60||Y<-80||Y>H+70)continue;dr.push({d:dep(e.x,e.y),e});}
- for(const k of pickups)dr.push({d:dep(k.x,k.y)-3,k});
- for(const p of props)dr.push({d:dep(p.x,p.y),p});
+ const onScreen=(o,pad)=>{
+  const x=sx(o.x,o.y),y=sy(o.x,o.y);
+  return x>=-pad&&x<=W+pad&&y>=-pad&&y<=H+pad;
+ };
+ for(const k of pickups)if(!k.dead&&onScreen(k,65))dr.push({d:dep(k.x,k.y)-3,k});
+ for(const p of props)if(onScreen(p,72))dr.push({d:dep(p.x,p.y),p});
  for(const o of decos){const X=sx(o.x,o.y),Y=sy(o.x,o.y);if(X<-40||X>W+40||Y<-10||Y>H+50)continue;dr.push({d:dep(o.x,o.y)-((DECOSPR[o.k].flat||o.onliq)?60:0),dc:o});}
  dr.push({d:dep(P.x,P.y),pl:1});
  dr.sort((a,b)=>a.d-b.d);

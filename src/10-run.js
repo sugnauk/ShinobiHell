@@ -25,6 +25,7 @@ function loadDungeon(di){
  P.hp=Math.min(S.maxhp,P.hp+S.maxhp*(di===R.start?0:.15)); // only a small rest between dungeons
  for(const r of map.rooms){
   if(r.k==='start')continue;
+  if(r.k==='approach'){dressBossApproach(r);continue;}
   if(r.k==='boss'){boss=mkBoss(di,(r.x+r.w/2)*T,(r.y+r.h/2)*T,r);enemies.push(boss);if(BK&&BK.populate)BK.populate(boss,r);continue;}
   populateRoom(r,di);
  }
