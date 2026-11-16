@@ -175,9 +175,15 @@ function paintWall(g,st,faces,tall,v){
   default:block(g,faces,tall?12:5,()=>'#555',()=>'#444',()=>'#333');
  }}
 {const _rm=renderMap;renderMap=function(th){const M=_rm.apply(this,arguments);const S=scn();if(!S)return M;for(const k in WSPR)delete WSPR[k];try{paintOutside(M.floor,th,S);}catch(e){console.error(e);}return M;};}
-{const _dw=drawWall;drawWall=function(o){const S=scn();if(!S)return _dw(o);
- const [tu,tv]=tileR(o.tx,o.ty),faces=(isWallR(tu,tv+1)?0:1)|(isWallR(tu+1,tv)?0:2),tall=!(floorAtR(tu-1,tv)||floorAtR(tu,tv-1)||floorAtR(tu-1,tv-1))?1:0,v=(hash(o.tx*3+1,o.ty*5+2)*4)|0;
- ctx.drawImage(wallSprite(S.wall,faces,tall,v),(tu-tv+RMH)*T-cam.x-24,(tu+tv)*HY-cam.y-SBY);};}
+// walls: the renderer draws a prebuilt list (sceneTiles); here each entry gets this stage's sprite, placed so the default
+// drawWall (which draws at x-16, y-WH) puts it right
+{const _st=sceneTiles;sceneTiles=function(M){if(M.scene)return M.scene;const sc=_st(M),S=scn();if(!S)return sc;const walls=[];
+ for(let ty=0;ty<MH;ty++)for(let tx=0;tx<MW;tx++){const i=ty*MW+tx;if(map.t[i]||!map.vis[i])continue;
+  const [tu,tv]=tileR(tx,ty),row=tu+tv,faces=(isWallR(tu,tv+1)?0:1)|(isWallR(tu+1,tv)?0:2),
+   tall=(map.cover&&map.cover[i])||!(floorAtR(tu-1,tv)||floorAtR(tu,tv-1)||floorAtR(tu-1,tv-1))?1:0, // cover in a room always stands at full height
+   v=(hash(tx*3+1,ty*5+2)*4)|0,X=(tu-tv+RMH)*T,Y=row*HY;
+  (walls[row]??=[]).push({wall:true,d:(row+1)*T,x:X-24+16,y:Y-SBY+WH,sprite:wallSprite(S.wall,faces,tall,v)});}
+ return M.scene={walls,liquids:sc.liquids};};}
 
 // ---------- the boss's seal on the arena floor ----------
 function wl(x1,y1,x2,y2,c){sline(sx(x1,y1),sy(x1,y1),sx(x2,y2),sy(x2,y2),c);}
