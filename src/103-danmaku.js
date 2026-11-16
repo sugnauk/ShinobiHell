@@ -43,7 +43,7 @@ const BOSS_DANMAKU={
    }
   })
  ],
- 'THE WHITE TIGER':[
+ 'KAMAKIRI, THE REED MANTIS':[
   danmaku('REED SCISSORS',3,.29,(e,s,i)=>{
    // Opposing crescents turn inward around the player instead of leaving a side lane.
    for(const dir of [-1,1]){

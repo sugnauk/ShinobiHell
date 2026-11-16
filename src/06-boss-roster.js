@@ -13,7 +13,7 @@ const BOSS=[
  {name:'THE MOTH QUEEN',hp:900,hat:'hair',pal:basePal('#6a2a8a','#3a1a5a','#f0a0e0','#2a1030'),pref:40,spd:50,
   k1:[LP({wt:2,peril:false}),SL({hits:3,w:.45,w2:.2,range:30,dmg:12,wt:3}),SH({cnt:5,spread:.9,sp:80,dmg:10,wt:2,col:'#c8f'})],
   k2:[LP({wt:2,w:.45}),SL({hits:3,w:.4,w2:.18,range:32,dmg:13,wt:3}),SH({cnt:7,spread:1.1,sp:90,dmg:10,wt:2,col:'#c8f'}),SU({types:['ninja'],cnt:2,wt:2})]},
- {name:'THE WHITE TIGER',hp:1300,hat:'bald',sc:3,pal:basePal('#e8e0d0','#3a3030','#f08030','#2a2020','#c8b8a0'),pref:34,spd:36,
+ {name:'KAMAKIRI, THE REED MANTIS',hp:1300,hat:'bald',sc:3,pal:basePal('#7eaa3a','#2e4a1e','#e0a030','#14240f','#b8d860'),pref:34,spd:36,
   k1:[CH({wt:2,dmg:30,peril:true}),SM({peril:true,wt:2,rad:50}),SL({wt:3,range:44,arc:160,dmg:26,hits:2}),LP({wt:2,rad:46})],
   k2:[CH({wt:2,dmg:32,peril:true,dur:1}),SM({peril:true,wt:2,rad:54,w:.7}),SL({wt:3,range:46,arc:170,dmg:26,hits:3,w:.5,w2:.25}),LP({wt:2,rad:50}),SH({ring:true,cnt:10,sp:70,dmg:12,wt:1,col:'#a98'})]},
  {name:'THE THOUSAND-BELL ABBOT',hp:1100,hat:'bald',horns:0,pal:basePal('#e8e0c0','#b89a40','#d8b040','#e8e0c0'),pref:70,spd:34,

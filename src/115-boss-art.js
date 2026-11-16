@@ -110,114 +110,79 @@ const AKA_ANIM={crescent:[['cr1','cr2','cr3'],[0,.55,.75]],rain:[['rn1','rn2'],[
 BART['AKAGANE, THE RED OX']=Object.assign(p=>akaDraw(p,AKA_POSES[p.f===2?'atk':p.f===1?'idle1':'idle0']),{fw:72,fh:76,raw:1,sc:1.1,posed:{draw:akaDraw,poses:AKA_POSES,anim:AKA_ANIM}});
 
 
-// THE WHITE TIGER: a sacred temple beast seen three ways over the fight.
-//  SEATED  when still: upright like a shrine guardian, tail curled round the front paws, facing you.
-//  PROWL   while he stalks: side on, long and low, shoulders up, head down, tail held low.
-//  LUNGE   when he strikes or pounces: three-quarter on, coming at the camera, paws reaching, jaws open.
-// White fur shaded to ice-blue, bold ink stripes, the forehead mark, a shimenawa rope with paper streamers and a bronze
-// bell. Second form (seal broken): the rope snapped, red eyes, ruff bristling and ice-blue spirit flames.
-function tigDraw(p,Q){const {R:R_,E:E_,L:L_}=p,two=ARTHURT,ox=Q.dx||0,oy=Q.dy||0,by=Q.b||0;
+// KAMAKIRI, THE REED MANTIS: a giant praying mantis, reed-green and straw-gold, that hunts the flooded paddies.
+// Three-quarter view, facing right. The triangular head with two great compound eyes and long antennae, a long upright
+// neck, the raptorial forelegs folded in prayer (spined femurs, hooked tibiae), four thin walking legs, folded leaf wings
+// over a segmented abdomen. Second form (wings spread): the wings flare open in a threat display with eye-spots, the
+// eyes turn red and the scythes edge in red.
+// pose: dx/dy, b (breath), lean (neck tilt forward), head [x,y], arms 'fold' | 'raise' | 'reach', legs 'stand' | 'step1' |
+// 'step2' | 'leap', wings 'fold' | 'buzz' (half open, in flight)
+function manDraw(p,Q){const {R:R_,E:E_,L:L_}=p,two=ARTHURT,ox=Q.dx||0,oy=Q.dy||0,by=Q.b||0;
  const R=(x,y,w,h,c)=>R_(x+ox,y+oy,w,h,c),E=(x,y,rx,ry,c)=>E_(x+ox,y+oy,rx,ry,c),L=(a,b2,c2,d,c,t)=>L_(a+ox,b2+oy,c2+ox,d+oy,c,t);
- const F0='#1a1e2c',F1='#566a84',F2='#93a9c0',F3='#cad8e2',F4='#eef3f2',F5='#ffffff',INK='#161824',
-  RP='#c8a458',RP2='#8a6a2c',RP3='#f0d890',PAPER='#f4f0e4',BR='#a06a28',BR2='#e0a848',PINK='#d88898',EYE=two?'#ff4a30':'#8ae8ff';
- // shaded masses, limbs and paws (light from the upper left)
- const blob=(x,y,rx,ry,dim)=>{E(x,y,rx+1,ry+1,F0);E(x,y,rx,ry,dim?F1:F2);E(x-1,y-1,rx-2,ry-2,dim?F2:F3);E(x-Math.round(rx*.3),y-Math.round(ry*.35),Math.max(1,Math.round(rx*.45)),Math.max(1,Math.round(ry*.4)),dim?F3:F4);};
- const limb=(x0,y0,x1,y1,w,dim)=>{L(x0,y0,x1,y1,F0,w+2);L(x0,y0,x1,y1,dim?F1:F2,w);L(x0-1,y0,x1-1,y1,dim?F2:F3,Math.max(1,w-3));if(!dim)L(x0-Math.floor(w/2),y0,x1-Math.floor(w/2),y1,F4,1);};
- const band=(x0,y0,x1,y1,t,w)=>{const x=x0+(x1-x0)*t,y=y0+(y1-y0)*t;R(x-Math.floor(w/2),y,w,1,INK);R(x-Math.floor(w/2)+1,y+1,w-2,1,INK);};
- const paw=(x,y,dim)=>{E(x,y,5,3,F0);E(x,y-1,4,2,dim?F2:F4);R(x-2,y,1,1,F1);R(x+1,y,1,1,F1);R(x+3,y-1,1,1,F1);};
- const claws=(x,y,up)=>{for(const k of [-3,-1,1,3]){L(x+k,y,x+k+Math.sign(k),y+(up?-4:4),F0,2);L(x+k,y+(up?-1:1),x+k+Math.sign(k),y+(up?-4:4),F5,1);}};
- const tailDraw=(pts)=>{for(let i=0;i<pts.length-1;i++){const [a,b]=pts[i],[c,d]=pts[i+1];L(a,b,c,d,F0,5);}
-  for(let i=0;i<pts.length-1;i++){const [a,b]=pts[i],[c,d]=pts[i+1],tip=i>=pts.length-2;L(a,b,c,d,tip?INK:F3,3);if(!tip){L(a,b-1,c,d-1,F4,1);if(i%2)R((a+c)/2-1,(b+d)/2-1,3,3,INK);}}};
- const flame=(x,y,h)=>{for(let i=0;i<h;i++){const w=Math.max(1,Math.round((h-i)/h*4)),xx=x+Math.round(Math.sin(i*.7+x)*1.2);R(xx-Math.floor(w/2),y-i,w,1,i<h*.4?'#4ab0f0':i<h*.75?'#8ad8ff':'#e0f8ff');}};
- const shide=(x,y)=>{R(x,y,3,2,PAPER);R(x+1,y+2,3,2,PAPER);R(x,y+4,3,2,PAPER);R(x+1,y+6,2,1,PAPER);R(x+1,y+2,1,1,'#c8c0a8');};
- const rope=(x0,y0,x1,y1,sag)=>{const n=12,pt=t=>[x0+(x1-x0)*t,y0+(y1-y0)*t+Math.sin(t*Math.PI)*sag];for(let i=0;i<=n;i++){const [x,y]=pt(i/n);R(x-1,y-1,3,4,F0);}for(let i=0;i<=n;i++){const [x,y]=pt(i/n);R(x-1,y,3,2,i%2?RP2:RP);R(x,y,1,1,RP3);}};
- const bell=(x,y)=>{E(x,y,3,3,F0);E(x,y,2,2,BR);R(x-1,y-1,2,1,BR2);R(x,y+2,1,1,F0);};
- // a face seen from the front (turn 0) or three-quarter on (turn 1, looking down-right)
- const face=(hx,hy,turn,m)=>{const k=s=>s<0?1-.45*turn:1+.05*turn,X=(s,d)=>Math.round(hx+s*d*k(s)+turn*3),mx=hx+Math.round(turn*5);
-  for(const s of [-1,1]){if(s<0&&turn>.5)continue;for(let i=0;i<4;i++){const y=hy+i*3-1,len=(two?15:13);L(X(s,8),y,X(s,len),y+3,F0,5);L(X(s,8),y,X(s,len-1),y+3,i%2?F3:F4,3);}
-   if(two)R(X(s,15)-1,hy+3,2,1,F5);}
-  for(const s of [-1,1]){const ex=X(s,9),ey=hy-9;E(ex,ey,s<0?3:4,4,F0);E(ex,ey,s<0?2:3,3,INK);E(ex,ey+1,s<0?1:2,2,F4);R(ex,ey+1,1,1,PINK);}
-  E(hx+turn*2,hy,12-turn,10,F0);E(hx+turn*2,hy,11-turn,9,F3);E(hx+turn*2-1,hy-2,9-turn,6,F4);R(hx-4+turn*2,hy-8,8,1,F5);
-  R(mx-2,hy-7,5,1,INK);R(mx-2,hy-5,5,1,INK);R(mx,hy-7,1,4,INK);
-  for(const s of [-1,1]){L(X(s,4),hy-6,X(s,8),hy-4,INK,1);L(X(s,8),hy+1,X(s,11),hy+2,INK,2);}
-  for(const s of [-1,1]){const ex=X(s,5)-(s<0?3:0),w=s<0&&turn>.5?3:4;R(ex,hy-1,w,3,INK);R(ex+(s<0?1:0),hy-1,w-1,2,EYE);R(ex+(s<0?w-2:1),hy-1,1,2,INK);R(ex+(s<0?1:2),hy-1,1,1,F5);R(ex-1,hy-2,w+2,1,F1);}
-  E(mx,hy+5,6,4,F0);E(mx-3,hy+5,3,3,F5);E(mx+3,hy+5,3,3,F4);R(mx-2,hy+2,5,2,PINK);R(mx-1,hy+4,3,1,PINK);R(mx,hy+5,1,2,INK);
-  for(const s of [-1,1])L(mx+s*6,hy+5,mx+s*9,hy+5,F5,1);
-  if(m){const jy=m===2?5:3;R(mx-4,hy+7,9,jy,INK);R(mx-3,hy+8,7,jy-1,'#6a1820');R(mx-3,hy+7,1,2,F5);R(mx+3,hy+7,1,2,F5);if(m===2){R(mx-3,hy+6+jy,1,2,F5);R(mx+3,hy+6+jy,1,2,F5);}E(mx,hy+9+jy,4,2,F0);E(mx,hy+9+jy,3,1,F4);}
-  else{R(mx-3,hy+8,3,1,INK);R(mx+1,hy+8,3,1,INK);E(mx,hy+10,4,2,F4);}};
- // a face in profile, looking right
- const profile=(hx,hy,m)=>{E(hx-6,hy+3,7,7,F0);E(hx-6,hy+3,6,6,F2);for(let i=0;i<3;i++){L(hx-8,hy+i*3,hx-14,hy+2+i*3,F0,4);L(hx-8,hy+i*3,hx-13,hy+2+i*3,F3,2);}
-  E(hx-4,hy-7,3,3,F0);E(hx-4,hy-7,2,2,INK);R(hx-4,hy-7,1,1,F5);
-  E(hx,hy,10,8,F0);E(hx,hy,9,7,F3);E(hx+1,hy-2,7,5,F4);R(hx-3,hy-6,6,1,F5);R(hx-1,hy-5,4,1,INK);R(hx-1,hy-3,4,1,INK);
-  L(hx-6,hy,hx-2,hy+1,INK,1);L(hx-5,hy+3,hx-2,hy+4,INK,1);
-  R(hx+2,hy-1,5,2,INK);R(hx+3,hy-1,3,1,EYE);R(hx+5,hy-1,1,1,INK);R(hx+2,hy-2,5,1,F1);
-  E(hx+8,hy+3,5,3,F0);E(hx+8,hy+3,4,2,F4);R(hx+6,hy+1,4,1,F5);R(hx+11,hy,3,2,PINK);
-  if(m){const jy=m===2?4:2;R(hx+4,hy+5,9,2+jy,INK);R(hx+5,hy+6,7,jy,'#6a1820');R(hx+10,hy+5,1,2,F5);R(hx+5,hy+5,1,2,F5);E(hx+7,hy+8+jy,4,2,F0);E(hx+7,hy+8+jy,3,1,F3);}
-  else{L(hx+6,hy+5,hx+11,hy+4,INK,1);E(hx+6,hy+7,3,1,F3);}};
- const v=Q.view||'sit';
- if(v==='sit'){const cx=42;
-  // tail curled round the front paws
-  tailDraw([[58,52],[63,57],[60,61],[50,62],[38,62],[29,61],[25,58]]);
-  // haunches and hind paws
-  for(const s of [-1,1]){blob(cx+s*14,49+by,9,10,s>0);for(const a of [-.9,-.2,.5])L(cx+s*14+Math.cos(a)*s*5,49+by+Math.sin(a)*6,cx+s*14+Math.cos(a)*s*9,49+by+Math.sin(a)*9,INK,1);paw(cx+s*20,60,s>0);}
-  // upright chest and shoulders
-  blob(cx,40+by,12,15);E(cx,42+by,7,10,F4);E(cx-2,38+by,3,5,F5);for(let i=0;i<3;i++){R(cx-4+i*3,51+by+i%2,2,2,F3);}
-  for(const s of [-1,1]){L(cx+s*9,30+by,cx+s*12,34+by,INK,1);L(cx+s*10,36+by,cx+s*13,39+by,INK,1);}
-  // straight front legs
-  for(const s of [-1,1]){const x=cx+s*7;limb(x,38+by,x,58,5,s>0);band(x,38+by,x,58,.45,5);band(x,38+by,x,58,.72,5);paw(x,60,s>0);}
-  // rope, streamers and bell
-  if(!two){rope(cx-12,27+by,cx+12,27+by,5);shide(cx-9,31+by);shide(cx+7,31+by);bell(cx,34+by);}
-  else{rope(cx-12,27+by,cx-2,32+by,1);L(cx-2,33+by,cx,39+by,RP2,2);shide(cx-9,31+by);R(cx+10,28+by,3,2,RP);R(cx+12,30+by,2,3,RP2);}
-  face(cx,16+by,0,Q.mouth||0);
-  if(two){flame(cx-17,40+by,8);flame(cx+17,40+by,9);flame(cx+21,58,6);}}
- else if(v==='prowl'){const st=Q.step||0,hip=[22,42+by],sh=[52,38+by],lerp=(a2,b3,t)=>a2+(b3-a2)*t;
-  // low tail behind, nearly level
-  tailDraw([[16,40],[10,42],[5,45],[2,49],[1,53]].map(([x,y])=>[x,y+by]));
-  // far legs
-  limb(26,44,23+st*3,60,4,1);paw(23+st*3,61,1);limb(55,42,59-st*3,60,4,1);paw(60-st*3,61,1);
-  // body: one shaded capsule, shoulders high, haunch lower
-  const cap=(sh2,offy,c)=>{for(let i=0;i<=12;i++){const t=i/12,x=lerp(hip[0],sh[0],t),y=lerp(hip[1],sh[1],t)-Math.sin(t*Math.PI)*1.5,r=lerp(8,9,t)-sh2;if(r>0)E(x,y+offy,r+3,r*.85,c);}};
-  cap(-1,0,F0);cap(0,0,F1);cap(1.2,-1,F2);cap(3,-2,F3);cap(5.5,-3,F4);
-  for(let i=1;i<12;i++){const t=i/12,x=lerp(hip[0],sh[0],t),y=lerp(hip[1],sh[1],t)-Math.sin(t*Math.PI)*1.5-Math.round(lerp(8,9,t)*.85)+1;R(x-2,y,4,1,F5);}
-  // stripes: tapered wedges over the back
-  for(const [t,len,lean] of [[.1,10,-3],[.25,12,-3],[.4,9,-2],[.55,12,-2],[.7,9,-1],[.85,7,0]]){const x=Math.round(lerp(hip[0],sh[0],t)),y=Math.round(lerp(hip[1],sh[1],t)-Math.sin(t*Math.PI)*1.5-lerp(8,9,t)*.85)+1;
-   for(let k=0;k<len;k++){const q=k/len;R(x+Math.round(lean*q*q),y+k,q<.5?2:1,1,INK);}}
-  for(let i=0;i<5;i++)R(27+i*5,47+by,3,1,F3);
-  // near legs, stepping
-  limb(23,45+by,19-st*3,60,5);band(23,45,19-st*3,60,.55,5);paw(19-st*3,61);
-  limb(51,42+by,55+st*4,60,5);band(51,42,55+st*4,60,.45,5);band(51,42,55+st*4,60,.72,5);paw(56+st*4,61);
-  // neck and head, carried low
-  E(60,40+by,7,7,F0);E(60,40+by,6,6,F2);E(59,38+by,4,3,F3);
-  if(!two){rope(57,32+by,61,46+by,0);shide(54,38+by);bell(62,48+by);}else{rope(57,32+by,59,39+by,0);L(59,40+by,56,45+by,RP2,2);}
-  profile(69,41+by+(Q.hdy||0),Q.mouth||0);
-  if(two){flame(48,29+by,8);flame(1,52+by,6);}}
- else{ // lunge: three-quarter on, coming at you
-  const pp=Q.paws||[[47,60],[66,60]],air=Q.air;
-  tailDraw([[24,16],[16,12],[10,6],[8,1]].map(([x,y])=>[x,y+by]));
-  // haunches receding up-left, hind leg
-  blob(26,20+by,9,8,1);limb(22,24,air?12:18,air?30:36,4,1);paw(air?12:18,air?31:37,1);
-  // body coming toward the camera
-  for(let i=0;i<=8;i++){const t=i/8,x=28+t*20,y=22+t*10+by;E(x,y,9,8,F0);}
-  for(let i=0;i<=8;i++){const t=i/8,x=28+t*20,y=22+t*10+by;E(x,y,8,7,F2);E(x-2,y-2,6,4,F3);R(x-3,y-7,5,1,F4);}
-  for(const [x,y] of [[30,16],[36,19],[42,22]]){L(x,y+by,x-2,y+8+by,INK,2);}
-  blob(46,32+by,10,10);
-  // front legs reaching, from under the chin
-  const [[ax,ay],[bx,by2]]=pp;limb(42,38+by,ax,ay-2,6,1);band(42,38,ax,ay-2,.6,6);
-  limb(56,40+by,bx,by2-2,6);band(56,40,bx,by2-2,.75,6);
-  if(!two){rope(40,30+by,58,40+by,3);shide(46,36+by);}else{rope(40,30+by,48,36+by,1);L(48,37+by,46,42+by,RP2,2);}
-  face(58,31+by,1,Q.mouth||2);
-  paw(ax,ay,1);claws(ax,ay+(air?-2:1),air);paw(bx,by2);claws(bx,by2+(air?-2:1),air);
-  if(two){flame(36,14+by,8);flame(8,4+by,6);}}
+ const G0='#14240f',G1='#2e4a1e',G2='#4e7a2a',G3='#7eaa3a',G4='#b8d860',G5='#e8f8a0',ST='#c8a850',ST2='#e8d080',
+  SP=two?'#ff6050':'#f0e8b0',EYE=two?'#e03020':'#e0a030',EYE2=two?'#ff8060':'#ffe080';
+ const seg=(x0,y0,x1,y1,w,dim)=>{L(x0,y0,x1,y1,G0,w+2);L(x0,y0,x1,y1,dim?G1:G2,w);if(w>2)L(x0,y0-1,x1,y1-1,dim?G2:G3,Math.max(1,w-2));if(!dim&&w>2)L(x0-1,y0-1,x1-1,y1-1,G4,1);};
+ const dot=(x,y,c)=>R(x,y,1,1,c);
+ const lg=Q.legs||'stand',arms=Q.arms||'fold',lean=Q.lean||0;
+ // where the body sits for each stance
+ const low=lg==='step1'||lg==='step2'?5:lg==='leap'?-2:0,th=[40,46+low+by],nk=[50+lean,24+low+by+Math.round(lean*.5)],hd=Q.head||[nk[0]+5+lean*.3,nk[1]-7];
+ // ---- open wings (second form threat display, or buzzing in a leap) behind everything
+ const wingOpen=two||Q.wings==='buzz';
+ if(wingOpen){const fan=(ang0,ang1,r,col1,col2,spot)=>{for(let a=ang0;a<=ang1;a+=.04){const x=th[0]-2+Math.cos(a)*r,y=th[1]-4+Math.sin(a)*r;L(th[0]-2,th[1]-4,x,y,G0,3);}
+    for(let a=ang0+.03;a<=ang1-.03;a+=.04){const x=th[0]-2+Math.cos(a)*(r-1),y=th[1]-4+Math.sin(a)*(r-1);L(th[0]-2,th[1]-4,x,y,Math.round(a*12)%3?col1:col2,1);}
+    if(spot){const a=(ang0+ang1)/2,sx2=th[0]-2+Math.cos(a)*r*.62,sy2=th[1]-4+Math.sin(a)*r*.62;E(sx2,sy2,4,4,G0);E(sx2,sy2,3,3,'#f0d040');E(sx2,sy2,2,2,'#401018');R(sx2-1,sy2-2,1,1,'#ffffff');}};
+  if(Q.wings==='buzz'&&!two){fan(-2.9,-2.1,26,'#a8c890','#d8f0c0',0);fan(-2.4,-1.7,24,'#c8e0b0','#e8f8d8',0);}
+  else{fan(-3.05,-2.0,32,'#5a3a5a','#8a4a6a',1);fan(-2.35,-1.45,30,'#6a4a3a','#b06a50',1);}}
+ // ---- far walking legs
+ const legsFar={stand:[[[38,48],[30,42],[24,70]],[[44,48],[52,44],[58,70]]],step1:[[[38,50],[28,46],[20,70]],[[44,50],[54,47],[62,70]]],step2:[[[38,50],[31,45],[27,70]],[[44,50],[51,46],[54,70]]],leap:[[[38,44],[26,50],[16,58]],[[44,44],[38,54],[30,62]]]}[lg];
+ const legsNear={stand:[[[36,50],[26,44],[18,70]],[[46,50],[56,46],[64,70]]],step1:[[[36,52],[27,47],[24,70]],[[46,52],[55,48],[58,70]]],step2:[[[36,52],[24,48],[16,70]],[[46,52],[57,49],[66,70]]],leap:[[[36,46],[22,52],[10,60]],[[46,46],[36,56],[26,64]]]}[lg];
+ const walk=([[a,b],[c,d],[e,f]],dim)=>{const yb=lg==='leap'?0:low+by;seg(a,b+yb,c,d+yb,2,dim);seg(c,d+yb,e,f,1,dim);R(e-1,f,3,1,G0);};
+ for(const l of legsFar)walk(l,1);
+ // ---- abdomen: segmented, sloping down and back
+ const ab=lg==='leap'?[[38,44],[30,44],[22,45],[15,46],[10,47]]:[[38,46+low],[31,49+low],[24,52+low],[18,55+low],[13,57+low]];
+ ab.forEach(([x,y],i)=>{const r=7-i;E(x,y+by,r+3,r+1,G0);});
+ ab.forEach(([x,y],i)=>{const r=7-i;E(x,y+by,r+2,r,G2);E(x,y+by-1,r+1,r-1,G3);R(x-r,y+by+r-1,r*2,1,G1);if(i)R(x+r+1,y+by-r+1,1,r*2-1,G1);});
+ // folded leaf wings along the back (first form, standing or stalking)
+ if(!wingOpen){const [x0,y0]=[th[0]+2,th[1]-6],[x1,y1]=[ab[4][0]-4,ab[4][1]-2+by];for(let k=-3;k<=3;k++)L(x0,y0+k*.4,x1,y1+k,G0,1);
+  for(let k=-2;k<=2;k++)L(x0,y0+k*.4,x1,y1+k,k<0?G4:k?G3:G5,1);L(x0-2,y0+1,x1+2,y1+3,G2,1);for(let i=1;i<5;i++){const t=i/5;dot(x0+(x1-x0)*t,y0+(y1-y0)*t+1,G2);}
+  R(x0-6,y0,3,2,'#e8e8a0');}
+ // ---- thorax and the long neck
+ E(th[0]+2,th[1]-3+(lg==='leap'?-2:0),6,5,G0);E(th[0]+2,th[1]-3+(lg==='leap'?-2:0),5,4,G2);E(th[0]+1,th[1]-5+(lg==='leap'?-2:0),3,2,G3);
+ seg(th[0]+4,th[1]-6,nk[0],nk[1],4);R(nk[0]-1,nk[1]+2,3,1,G4);
+ for(const l of legsNear)walk(l,0);
+ // ---- the far raptorial foreleg (behind the head)
+ const fore=(dim,off)=>{const o=off||0,[sx2,sy2]=[nk[0]+1+o,nk[1]+3];let cxk,cyk,fx,fy,tx,ty;
+  if(arms==='fold'){cxk=sx2+8;cyk=sy2+11;fx=sx2+13;fy=sy2-3;tx=sx2+10;ty=sy2+9;}
+  else if(arms==='raise'){cxk=sx2+6;cyk=sy2+7;fx=sx2+11;fy=sy2-14;tx=sx2+22;ty=sy2-6;}
+  else{cxk=sx2+6;cyk=sy2+4;fx=sx2+18;fy=sy2+1;tx=sx2+30;ty=sy2+6;}
+  cxk+=o;fx+=o;tx+=o;
+  seg(sx2,sy2,cxk,cyk,3,dim);                                 // coxa
+  seg(cxk,cyk,fx,fy,5,dim);                                   // femur, spined on the inner edge
+  const n=6;for(let i=1;i<n;i++){const t=i/n,x=cxk+(fx-cxk)*t,y=cyk+(fy-cyk)*t,a=Math.atan2(fy-cyk,fx-cxk)+(arms==='fold'?-1.57:1.57);L(x,y,x+Math.cos(a)*3,y+Math.sin(a)*3,SP,1);}
+  seg(fx,fy,tx,ty,2,dim);                                     // tibia
+  const a=Math.atan2(ty-fy,tx-fx);L(tx,ty,tx+Math.cos(a+1.4)*4,ty+Math.sin(a+1.4)*4,ST2,1);dot(tx,ty,ST2);  // the hook
+  if(two)L(cxk,cyk,fx,fy,'#c03028',1);
+  if(!dim)R(cxk-1,cyk-1,2,2,G4);};
+ fore(1,-3);
+ // ---- head: a wide triangle, two great compound eyes, antennae sweeping back, mandibles
+ const [hx,hy]=hd;
+ L(hx-3,hy-4,hx-14,hy-18,G0,2);L(hx-3,hy-4,hx-13,hy-18,ST,1);L(hx+2,hy-5,hx-6,hy-22,G0,2);L(hx+2,hy-5,hx-5,hy-22,ST2,1);
+ E(hx,hy,7,4,G0);E(hx,hy,6,3,G3);L(hx-5,hy+1,hx,hy+8,G0,3);L(hx+5,hy+1,hx,hy+8,G0,3);L(hx-4,hy+1,hx,hy+7,G3,1);L(hx+4,hy+1,hx,hy+7,G2,1);R(hx-3,hy+1,7,3,G3);R(hx-2,hy+4,5,2,G2);
+ for(const s of [-1,1]){const ex=hx+s*6,ey=hy-1;E(ex,ey,4,4,G0);E(ex,ey,3,3,EYE);E(ex-1,ey-1,2,2,EYE2);R(ex+(s>0?0:-1),ey,1,2,two?'#300808':'#2a1a08');R(ex-2,ey-2,1,1,'#ffffff');}
+ R(hx-1,hy-4,3,2,G4);dot(hx,hy-2,G5);
+ R(hx-1,hy+7,3,2,G1);if(Q.open){R(hx-2,hy+8,1,2,ST2);R(hx+2,hy+8,1,2,ST2);R(hx-1,hy+9,3,1,'#401010');}
+ // ---- the near raptorial foreleg in front
+ fore(0,0);
 }
-const TIG_POSES={
- idle0:{view:'sit'},
- idle1:{view:'sit',b:1},
- atk:{view:'lunge',mouth:2},
- pr1:{view:'prowl',step:0},
- pr2:{view:'prowl',step:1,b:1},
- pounce:{view:'lunge',air:1,dy:-2,mouth:2,paws:[[40,40],[78,38]]}};
-BART['THE WHITE TIGER']=Object.assign(p=>tigDraw(p,TIG_POSES[p.f===2?'atk':p.f===1?'idle1':'idle0']),{fw:84,fh:64,raw:1,sc:1.05,posed:{draw:tigDraw,poses:TIG_POSES,anim:{},roar:'atk',
-  // seated when still, prowling while he stalks, three-quarter lunge as he winds up, paws out in the air
+const MAN_POSES={
+ idle0:{},
+ idle1:{b:1,head:[56,16]},
+ atk:{arms:'raise',lean:-2,open:1,dy:-1},
+ pr1:{legs:'step1',lean:5},
+ pr2:{legs:'step2',lean:5,b:1},
+ pounce:{legs:'leap',arms:'reach',lean:8,wings:'buzz',open:1,dy:-4}};
+BART['KAMAKIRI, THE REED MANTIS']=Object.assign(p=>manDraw(p,MAN_POSES[p.f===2?'atk':p.f===1?'idle1':'idle0']),{fw:84,fh:74,raw:1,sc:1.05,posed:{draw:manDraw,poses:MAN_POSES,anim:{},roar:'atk',
+  // praying when still, low and stalking while it moves, scythes raised as it winds up, reaching out in the leap
   pick:(e,ix)=>e.phx?ix.atk:e.air?ix.pounce:(e.A?.wind||e.EV?.strike?.wind)?ix.atk:e.moving?(Math.floor(time*5)%2?ix.pr2:ix.pr1):(Math.floor(time*1.5)%2?ix.idle1:ix.idle0)}});
 
 // ---- the posed sheet: idle, breathing and attack frames first (so everything that reads frames 0-2 still works),

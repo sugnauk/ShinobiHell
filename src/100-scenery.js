@@ -7,7 +7,7 @@
 const SCN=[
  {short:'AKAGANE\'S WARBAND HAS CAMPED IN THE BAMBOO',tale:'THE MARCH BEGINS. AKAGANE, THE RED OX, HAS CAMPED HIS WARBAND IN THE BAMBOO AND BURNS THE VILLAGES THAT CANNOT PAY THE EMPEROR\'S TAX. BREAK HIM AND THE ROAD OPENS.',
   wall:'bamboo',gr:['#232c19','#27301c'],out:'forest',seal:'ox'},
- {short:'SOMETHING WHITE HUNTS IN THE FLOODED PADDIES',tale:'THE RICE MARSH GUARDS THE CASTLE FLANK. THE FARMERS FLED AND LEFT THEIR LANTERNS LIT TO KEEP THE WHITE TIGER AWAY. IT STILL HUNTS IN THE REEDS.',
+ {short:'SOMETHING GREEN HUNTS IN THE FLOODED PADDIES',tale:'THE RICE MARSH GUARDS THE CASTLE FLANK. THE FARMERS FLED AND LEFT THEIR LANTERNS LIT TO KEEP THE REED MANTIS AWAY. IT STILL HUNTS IN THE REEDS.',
   wall:'reeds',gr:['#1c3634','#203b38'],out:'paddy',seal:'tiger'},
  {short:'THE EARTH SPIDER NESTS IN THE SMUGGLERS\' TUNNELS',tale:'SMUGGLERS DUG THESE TUNNELS UNDER THE HILLS TO SNEAK RICE PAST THE EMPEROR\'S TAX MEN. THEN TSUCHIGUMO, THE EARTH SPIDER, MOVED IN. MIND THE WEBS AND THE EGGS.',
   wall:'rock',gr:['#1a1324','#1e1628'],out:'cave',seal:'spider'},
@@ -194,7 +194,7 @@ function drawSeal(k,cx,cy,R0,c,t){
   case 'ox': // a horned crest over crossed spears
    wArc(cx,cy-R0*.05,R0*.5,Math.PI*1.05,Math.PI*1.45,c);wArc(cx,cy-R0*.05,R0*.5,-Math.PI*.45,-Math.PI*.05,c);
    wcirc(cx,cy,R0*.28,c);wl(...P2(Math.PI*.75,R0*.8),...P2(-Math.PI*.25,R0*.8),c);wl(...P2(Math.PI*.25,R0*.8),...P2(Math.PI*1.25,R0*.8),c);break;
-  case 'tiger': // three claw slashes
+  case 'tiger': // three scythe slashes
    for(let i=-1;i<=1;i++){const o=i*R0*.22;wl(cx-R0*.55+o,cy-R0*.6,cx+R0*.45+o,cy+R0*.6,c);wl(cx-R0*.5+o,cy-R0*.6,cx+R0*.5+o,cy+R0*.6,c);}wcirc(cx,cy,R0*.85,c);break;
   case 'spider': // a web: eight spokes and three rings of threads
    for(let i=0;i<8;i++)wl(cx,cy,...P2(i/8*TAU,R0*.9),c);for(const f of [.3,.55,.8])for(let i=0;i<8;i++)wl(...P2(i/8*TAU,R0*f),...P2((i+1)/8*TAU,R0*f*.92),c);break;

@@ -38,7 +38,7 @@ const NPAT={
 // ---------- bosses: each guardian gets new patterns that fit who they are ----------
 const BOSSPAT={
  'AKAGANE, THE RED OX':[{pat:'stack',cols:3,per:4,sp:90,spread:.3},{pat:'lattice',cnt:11,sp:62},{pat:'encircle',cnt:20,sp:70,half:1}],
- 'THE WHITE TIGER':[{pat:'sweep',cnt:15,sp:64},{pat:'sniper',sp:150},{pat:'rose',cnt:26,petals:4,sp:66,half:1}],
+ 'KAMAKIRI, THE REED MANTIS':[{pat:'sweep',cnt:15,sp:64},{pat:'sniper',sp:150},{pat:'rose',cnt:26,petals:4,sp:66,half:1}],
  'TSUCHIGUMO, EARTH SPIDER':[{pat:'lattice',cnt:11,sp:58},{pat:'layered',cnt:12,sp:56},{pat:'encircle',cnt:24,sp:62,half:1}],
  'LADY HOTARU':[{pat:'rose',cnt:28,petals:6,sp:60},{pat:'dspiral',arms:4,sp:58,burst:6,gap:.12},{pat:'aimedring',cnt:18,sp:62,half:1}],
  'THE RONIN SEVEN':[{pat:'sniper',sp:160},{pat:'stack',cols:5,per:4,sp:95,spread:.5},{pat:'sweep',cnt:15,sp:70,half:1}],
