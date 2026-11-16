@@ -39,3 +39,7 @@ meta.syn=meta.syn||{};
 // the guide: synergies at the end of the RELICS tab (formed ones are revealed)
 {const _ge=guideEntries;guideEntries=function(tab){const L=_ge(tab);if(tab!==2)return L;
  return L.concat(SYN.map(s=>{const u=!!meta.syn[s.k];return {n:'SYNERGY: '+s.n,u,col:'#ffd040',L:u?[s.d,'HOLD BOTH RELICS IN THE SAME RUN']:['PAIR TWO RELICS TO DISCOVER THIS SYNERGY']};}));};}
+// the boss reward cards flag a relic that would complete a synergy with one you already hold
+{const _rc=renderChoose;renderChoose=function(){_rc.apply(this,arguments);if(!chooseOpts||!R)return;const cw=92,gap=8,x0=Math.round((W-(3*cw+2*gap))/2);
+ chooseOpts.forEach((it,i)=>{if(!it)return;const s=SYN.find(s=>!synOn(s.k)&&((s.a===it.id&&R.inv[s.b])||(s.b===it.id&&R.inv[s.a])));if(!s)return;const x=x0+i*(cw+gap),y=44+92+3;
+  ctx.fillStyle='#2a2010';ctx.fillRect(x,y,cw,10);ctx.fillStyle=Math.floor(time*3)%2?'#ffd040':'#fff0a0';ctx.fillRect(x,y,cw,1);const t='SYNERGY: '+s.n;txt(t.slice(0,22),x+Math.round((cw-txtW(t.slice(0,22)))/2),y+3,'#ffd040');});};}
