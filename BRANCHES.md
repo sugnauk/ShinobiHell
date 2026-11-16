@@ -32,11 +32,11 @@ file with a number after anything it uses, and add its `<script>` tag to `index.
 | Sprites (`feature/sprites`) | `02-sprites.js`, `05-foe-sprites.js`, `92-foe-sprites.js` (redrawn common foes), `17-boss-art.js`, the REDRAWN SPRITES and SECOND FORMS sections of `90-bosses.js`, `assets/`, `build-*.ps1` |
 | Bosses (`feature/bosses`) | `06-boss-roster.js`, `18-campaign.js`, `20-boss-mechanics.js`, `90-bosses.js` (the boss director and all twelve fights), `93-miniboss.js` (the Moth Queen). `19-boss-scripts.js` holds older fights the game no longer uses, plus props the new ones still need |
 | Enemies (`feature/enemies`) | `04-attacks.js`, `16-enemies.js`, `24-enemy-ai.js` |
-| Player and spells (`feature/player-spells`) | `13-training.js`, `14-spells.js`, `15-classes.js`, `25-update.js`, `94-melee.js` (melee survival: blades cut bullets) |
+| Player and spells (`feature/player-spells`) | `13-training.js`, `14-spells.js`, `15-classes.js`, `25-update.js`, `94-melee.js` (melee survival: blades cut bullets), `95-classes-new.js` (the Gunner and Lancer) |
 | Levels (`feature/levels`) | `03-themes.js`, `09-map.js`, `10-run.js`, `22-rooms.js`, `23-world.js` |
 | Combat | `11-combat.js` effects, projectiles, damage and deaths (shared by everything) |
 | Arcade layer | `91-arcade.js` score, boss ranks, the bullets-cleared reward, dash flash, boss relics, spirit trails, New Game+ |
-| Items and loot (`feature/items-loot`) | `07-items.js`, `12-loot.js`, `21-items-extra.js`, the skill tree in `27-menus.js` |
+| Items and loot (`feature/items-loot`) | `07-items.js`, `12-loot.js`, `21-items-extra.js`, `96-gear-powers.js` (gear abilities, legendaries), `97-item-icons.js`, `98-skilltree.js` (the temple skill tree) |
 | UI and menus (`feature/ui-menus`) | `26-render.js`, `27-menus.js`, `index.html` |
 
 ## Versions

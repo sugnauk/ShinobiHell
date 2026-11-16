@@ -10,7 +10,7 @@ function fit(){const s=Math.max(1,Math.floor(Math.min(innerWidth/W,innerHeight/H
 addEventListener('resize',fit);fit();
 
 // the game's version, shown on the title screen. Bump it with every change that reaches main.
-const GAME_VERSION='0.5.2';
+const GAME_VERSION='0.6.0';
 
 // ---------- utils ----------
 const rnd=(a,b)=>a+Math.random()*(b-a),ri=(a,b)=>Math.floor(rnd(a,b+1)),pick=a=>a[Math.floor(Math.random()*a.length)];

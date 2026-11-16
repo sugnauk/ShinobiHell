@@ -84,7 +84,7 @@ function selectKey(c){
  else if(c==='Enter'||c==='Space')selConfirm();
  else if(c==='Escape')mode=selFrom==='hub'?'hub':'title';
 }
-function selClick(){if(selTab===1){const h=tNodeAt(mouse.x,mouse.y);if(h){treeB=h[0];treeT=h[1];tBuy(TREE[h[0]].nodes[h[1]]);}return;}
+function selClick(){if(selTab===1){stClick();return;} // the temple skill tree (src/98-skilltree.js)
  const h=selCardAt(mouse.x,mouse.y);if(h<0)return;if(h!==selIdx){selIdx=h;sfx('coin');}selConfirm();}
 function renderSelect(){
  bg();ctx.fillStyle='rgba(8,4,12,.78)';ctx.fillRect(0,0,W,H);

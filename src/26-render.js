@@ -627,11 +627,7 @@ function renderHub(){
  sep(16,53,288);{const C0=CLS();row(1,56,'CHARACTER',C0.n,C0.col);const sp=heroSpr(C0.k,0);ctx.drawImage(sp.c,0,0,20,24,280,63,20,24);ctx.drawImage(heroSpr(C0.k,9).c,0,0,20,24,258,63,20,24);}
  [...SLOTS].forEach((k,i)=>{const sp=SPELLS[k][CLS().kit[k]];txt((SLOTKEY[k]+'   ').slice(0,4),24,66+i*8,'#888');txt(sp.n,44,66+i*8,sp.c);txt(sp.d.slice(0,32),128,66+i*8,'#777');});
  sep(16,113,288);
- {const avail=Object.values(TNODE).filter(n=>tOpen(n)&&upLv(n.k)<n.max&&meta.sen>=tCost(n)).length;
-  row(2,117,'TEMPLE SKILL TREE',avail?avail+' NODE'+(avail>1?'S':'')+' AFFORDABLE':'ENTER TO VIEW',avail?'#ffd040':'#ddd');}
- TREE.forEach((b,bi)=>{const x=24+bi*70,spent=b.nodes.reduce((a,n)=>a+upLv(n.k),0),tot=b.nodes.reduce((a,n)=>a+n.max,0);txt(b.n,x,129,b.c);
-  ctx.fillStyle='#2a2034';ctx.fillRect(x,138,58,3);ctx.fillStyle=b.c;ctx.fillRect(x,138,Math.round(58*spent/tot),3);txt(spent+'/'+tot,x,145,'#888');
-  const nx=b.nodes.find(n=>upLv(n.k)<n.max);txt(nx?(tOpen(nx)?nx.n:'LOCKED').slice(0,14):'COMPLETE',x,155,nx&&tOpen(nx)?'#aaa':'#666');});
+ skillHubSummary(row); // the temple skill tree (src/98-skilltree.js)
  const tip=hubSel===0&&meta.asc>0?'ASC '+meta.asc+': FOES +'+meta.asc*15+'% HP, FASTER SHOTS. +'+meta.asc*20+'% GOLD':hubSel===0&&hubStart>0?'STARTING DEEPER GRANTS '+hubStart*2+' RANDOM ITEMS':savedRun()?'C CONTINUE SAVED RUN  O OPTIONS  Y TRAINING':'W/S SELECT  A/D CHANGE  ENTER START  O OPTIONS  Y TRAIN';
  ctxt(tip,171,'#aaa');
  if(codexOpen)drawCodex();
