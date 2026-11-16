@@ -36,7 +36,7 @@ BART['AKAGANE, THE RED OX']=Object.assign(p=>{const {R,E,L,b,atk}=p,two=ARTHURT;
  // ---- the great naginata (behind the near arm when held, swung across when attacking)
  const nag=(x0,y0,x1,y1)=>{L(x0,y0,x1,y1,K1,3);L(x0,y0-1,x1,y1-1,'#6a4a2a',1);const a=Math.atan2(y1-y0,x1-x0),bx=x1+Math.cos(a)*14,by2=y1+Math.sin(a)*14;
   L(x1,y1,bx,by2,'#9aa4b4',3);L(x1,y1-1,bx,by2-1,'#e8eef6',1);L(bx,by2,bx+Math.cos(a+1.2)*4,by2+Math.sin(a+1.2)*4,'#e8eef6',2);R(x1-2,y1-2,5,4,G1);R(x1-1,y1-2,3,1,G2);};
- if(atk)nag(4,60,50,14);else nag(46,70,50,8);
+ if(!atk)nag(46,70,50,8); // held at his side; when he swings it, it is drawn last (in front of the armour)
  // ---- sode: the great shoulder guards (the near one is torn off in the second form)
  const sode=(x,lean)=>{for(let r=0;r<3;r++){const yy=24+by+r*3;R(x+lean*r,yy,11,3,r%2?R3:R2);R(x+lean*r,yy,11,1,R4);R(x+lean*r+2,yy+1,1,1,G1);R(x+lean*r+6,yy+1,1,1,G1);R(x+lean*r+10,yy,1,3,R1);}R(x,23+by,11,1,G2);};
  if(atk){arm([19,29],[12,38],[22,43]);arm([49,29],[55,20],[39,25]);}else{arm([19,29],[11,39],[13,50]);arm([49,29],[57,38],[48,47]);}
@@ -67,4 +67,6 @@ BART['AKAGANE, THE RED OX']=Object.assign(p=>{const {R,E,L,b,atk}=p,two=ARTHURT;
   R(hx-3,hy+10,7,2,R0);R(hx-3,hy+10,7,1,H3);R(hx-2,hy+11,1,1,H3);R(hx+2,hy+11,1,1,H3);
   E(hx,hy+13,4,2,K0); // beard
  }
+ // the swing: the naginata passes in front of everything, with his gloved hands over the shaft
+ if(atk){nag(4,60,50,14);for(const [gx,gy] of [[22,43],[39,25]]){E(gx,gy,3,3,K0);E(gx,gy,2,2,'#6a4a2a');R(gx-1,gy-2,2,1,'#9a7048');}}
 },{fw:72,fh:76,raw:1,sc:1.1});
