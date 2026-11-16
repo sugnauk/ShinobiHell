@@ -452,6 +452,7 @@ const OPTROWS=()=>[
  {n:'AUTO FIRE',v:()=>['OFF (HOLD LMB)','LMB TOGGLE','IN COMBAT'][OPT().autoFire|0],info:()=>['HOLD LEFT MOUSE TO FIRE','CLICK LEFT MOUSE ONCE TO START FIRING, AGAIN TO STOP','FIRES AT THE CURSOR BY ITSELF WHILE YOU ARE IN A FIGHT'][OPT().autoFire|0],ch:d=>{OPT().autoFire=(((OPT().autoFire|0)+(d||1))%3+3)%3;fireOn=false;}},
  {n:'SCREEN SHAKE',v:()=>OPT().shake?'ON':'OFF',ch:()=>{OPT().shake^=1;}},
  {n:'SCREEN FLASHES',v:()=>OPT().flash?'ON':'OFF',ch:()=>{OPT().flash^=1;}},
+ {n:'BULLET CONTRAST',v:()=>OPT().bcon?'ON':'OFF',info:()=>'ENEMY BULLETS GET A DARK RIM AND A BRIGHT CORE SO THEY STAND OUT ON BUSY FLOORS',ch:()=>{OPT().bcon^=1;}},
  {n:'DAMAGE NUMBERS',v:()=>OPT().dmgNum?'ON':'OFF',ch:()=>{OPT().dmgNum^=1;}},
  {n:'DEBUG OVERLAY',v:()=>OPT().dbg?'ON':'OFF',info:()=>'FPS, FOES, BULLETS, YOUR DAMAGE PER SECOND',ch:()=>{OPT().dbg^=1;}},
  // arcade extras (src/91-arcade.js): spirit trails won by no-hit boss clears, New Game+ won by beating the Emperor
