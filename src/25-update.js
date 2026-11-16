@@ -12,7 +12,7 @@ function updPlayer(dt){
  const shf=!!(keys[KB.focus]||keys.ShiftRight),cmb=inCombat();if(p.combatT>0)p.combatT-=dt;p.focus=shf&&cmb;if(cmb&&p.oocRun){p.oocRun=false;}const [mx,my]=moveVec();p.sprintK=clamp((p.sprintK||0)+(p.oocRun?dt*4:-dt*8),0,1);if(p.sprintK>.5&&(mx||my)&&Math.random()<dt*14)particles.push({x:p.x-(mx||0)*4+rnd(-2,2),y:p.y-(my||0)*4+rnd(-2,2),vx:-(mx||0)*20,vy:-(my||0)*20,t:.35,col:'#9a9488'});const spd=S.spd*(p.focus?.45:1)*(1+.75*p.sprintK)*(p.haste>0?1.3:1)*(lq===1||lq===5?.72:lq===3?.85:1)*(P.webT>0?.55:1);p.mv=!!(mx||my);p.mvx=mx;p.mvy=my;
  if(p.mv&&(lq===1||lq===5)&&Math.random()<dt*8)particles.push({x:p.x+rnd(-3,3),y:p.y+rnd(-3,3),vx:0,vy:0,t:.3,col:map.env.lc[2]});
  if(p.dash>0){p.dash-=dt;move(p,p.dx*185*dt,p.dy*185*dt,4);}
- else if(p.stag<=0){move(p,mx*spd*dt,my*spd*dt,4);if(mouse.down&&p.atkCd<=0&&!hoverSlot())castBolt();if(mouse.rdown&&p.ab.h<=0&&(p.hCh>0||!(p.lockT>0))){p.hCh=(p.hCh||0)+dt;}else if(!mouse.rdown&&p.hCh>0){p.hFull=p.hCh>=HCHARGE;castHeavy();p.hCh=0;p.hFull=false;}}
+ else if(p.stag<=0){move(p,mx*spd*dt,my*spd*dt,4);if(p.qAb){p.qAb.t-=dt;if(p.qAb.t<=0)p.qAb=null;else if(!(p.lockT>0)){const q=p.qAb;p.qAb=null;q.f();}}if(wantFire()&&p.atkCd<=0&&!hoverSlot()&&!(p.lockT>0&&p.lockK!=='m'))castBolt();if(mouse.rdown&&p.ab.h<=0&&(p.hCh>0||!(p.lockT>0))){p.hCh=(p.hCh||0)+dt;}else if(!mouse.rdown&&p.hCh>0){p.hFull=p.hCh>=HCHARGE;castHeavy();p.hCh=0;p.hFull=false;}}
 }
 function updPickups(dt){
  for(const k of pickups){
@@ -37,7 +37,13 @@ function updPickups(dt){
 // dashing just as a shot is about to hit: slow-motion, dash refund, nearby shots shatter, next attack empowered
 // out of combat = nothing awake nearby, no enemy shots close, no recent hits or casts, no room event running
 const DASHROW=3; // dashes in a row needed to trigger the out-of-combat speed boost
+// you only reveal what you can see: a tile counts as explored once a straight line of floor joins it to you (walls stop the reveal;
+// the wall tile itself is revealed so room edges still draw)
+function tileSeen(x0,y0,x1,y1){const dx=x1-x0,dy=y1-y0,n=Math.max(Math.abs(dx),Math.abs(dy));for(let s=1;s<n;s++){const x=Math.round(x0+dx*s/n),y=Math.round(y0+dy*s/n);if(!map.t[y*MW+x])return false;}return true;}
 function frontierNear(){const px=P.x/T|0,py=P.y/T|0;for(let j=-12;j<=12;j++)for(let i=-12;i<=12;i++){const x=px+i,y=py+j;if(x<0||y<0||x>=MW||y>=MH||i*i+j*j>144)continue;const k=y*MW+x;if(map.t[k]&&!map.expl[k])return true;}return false;}
+// auto-fire (OPTIONS > AUTO FIRE): OFF = hold LMB; TOGGLE = click LMB to start or stop firing; IN COMBAT = fires on its own whenever you are in a fight
+function wantFire(){const m=OPT().autoFire|0;if(m===1)return !!fireOn;if(m===2)return mouse.down||inCombat();return mouse.down;}
+let fireOn=false;
 function inCombat(){if(!P)return false;if(P.combatT>0)return true;if(boss&&boss.awake&&!boss.dead)return true;
  for(const e of enemies)if(!e.dead&&e.awake&&Math.abs(e.x-P.x)+Math.abs(e.y-P.y)<260)return true;
  for(const q of projs)if(q.from==='e'&&Math.abs(q.x-P.x)+Math.abs(q.y-P.y)<200)return true;
@@ -107,7 +113,7 @@ function updPlay(dt){
  toast.t-=dt;
  if(portal)portal.t+=dt;
  // revealing new floor counts as exploring: the out-of-combat speed boost only works on ground you've already seen
- {const px=P.x/T|0,py=P.y/T|0;let nw=0;for(let j=-11;j<=11;j++)for(let i=-11;i<=11;i++){const x=px+i,y=py+j;if(x>=0&&y>=0&&x<MW&&y<MH&&i*i+j*j<=121){const k=y*MW+x;if(!map.expl[k]){map.expl[k]=1;if(map.t[k])nw++;}}}if(nw>0&&P.oocRun&&R.time>.5){P.oocRun=false;txtFx(P.x,P.y,'EXPLORING','#aaa');}}
+ {const px=P.x/T|0,py=P.y/T|0;let nw=0;for(let j=-11;j<=11;j++)for(let i=-11;i<=11;i++){const x=px+i,y=py+j;if(x>=0&&y>=0&&x<MW&&y<MH&&i*i+j*j<=121){const k=y*MW+x;if(!map.expl[k]&&tileSeen(px,py,x,y)){map.expl[k]=1;if(map.t[k])nw++;}}}if(nw>0&&P.oocRun&&R.time>.5){P.oocRun=false;txtFx(P.x,P.y,'EXPLORING','#aaa');}}
  shake=Math.max(0,shake-dt*20);
  if(hurtT>0)hurtT-=dt;if(P.hp<S.maxhp*.25&&P.hp>0){beatT-=dt;if(beatT<=0){beatT=.85;sfx('beat');lowPulse=.3;}}if(lowPulse>0)lowPulse-=dt;
  if(grazeCd>0)grazeCd-=dt;

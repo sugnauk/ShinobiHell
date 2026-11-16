@@ -186,8 +186,12 @@ castBolt=lockW(castBolt,'m');castHeavy=lockW(castHeavy,'h');castChain=lockW(cast
  castBolt=srcW(castBolt,'m');castHeavy=srcW(castHeavy,'h');castChain=srcW(castChain,'q');castWard=srcW(castWard,'w');castF=srcW(castF,'f');castUlt=srcW(castUlt,'e');}
 // one action at a time: every cast briefly locks out the others, and nothing else fires while RMB is charging
 {const LOCK={m:.06,h:.15,q:.3,w:.3,f:.3,e:.4};
- const actW=(fn,k,get)=>function(){if(!P)return;if(P.lockT>0)return;if(k!=='h'&&P.hCh>0)return;
-  const b=get();const r=fn.apply(this,arguments);if(get()!==b)P.lockT=LOCK[k];return r;};
+ // abilities (Q, RMB ward, F, E) take priority: the basic attack's tiny lock never blocks them and they work while RMB charges.
+ // An ability pressed during another ability's lock is buffered and goes off as soon as the lock ends.
+ const actW=(fn,k,get)=>function(){if(!P)return;const ab=k!=='m'&&k!=='h',args=[...arguments];
+  if(P.lockT>0&&!(ab&&P.lockK==='m')){if(ab)P.qAb={t:.35,f:()=>({q:castChain,w:castWard,f:castF,e:castUlt})[k](...args)};return;}
+  if(!ab&&k!=='h'&&P.hCh>0)return;
+  const b=get();const r=fn.apply(this,arguments);if(get()!==b){P.lockT=LOCK[k];P.lockK=k;if(ab)P.qAb=null;}return r;};
  castBolt=actW(castBolt,'m',()=>P.atkCd);castHeavy=actW(castHeavy,'h',()=>P.ab.h);castChain=actW(castChain,'q',()=>P.ab.q);
  castWard=actW(castWard,'w',()=>P.ab.rmb);castF=actW(castF,'f',()=>P.ab.f);castUlt=actW(castUlt,'e',()=>P.ab.e);}
 function smite(f){ // Heavenly Judgment: a bolt from the sky on each target

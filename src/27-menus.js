@@ -331,6 +331,7 @@ const OPTROWS=()=>[
  {n:'MUSIC VOLUME',v:()=>OPT().mus+'/10',ch:d=>{OPT().mus=clamp(OPT().mus+d,0,10);if(mus.gain)mus.gain.gain.value=musVol();}},
  {n:'SOUND EFFECTS',v:()=>OPT().sfx+'/10',ch:d=>{OPT().sfx=clamp(OPT().sfx+d,0,10);sfx('coin');}},
  {n:'DIFFICULTY',v:()=>DF().n,c:()=>DF().c,info:()=>DF().d+(mode==='options'&&optFrom==='play'?' (FROM NEXT STAGE)':''),ch:d=>{OPT().diff=clamp(OPT().diff+d,0,2);}},
+ {n:'AUTO FIRE',v:()=>['OFF (HOLD LMB)','LMB TOGGLE','IN COMBAT'][OPT().autoFire|0],info:()=>['HOLD LEFT MOUSE TO FIRE','CLICK LEFT MOUSE ONCE TO START FIRING, AGAIN TO STOP','FIRES AT THE CURSOR BY ITSELF WHILE YOU ARE IN A FIGHT'][OPT().autoFire|0],ch:d=>{OPT().autoFire=(((OPT().autoFire|0)+(d||1))%3+3)%3;fireOn=false;}},
  {n:'SCREEN SHAKE',v:()=>OPT().shake?'ON':'OFF',ch:()=>{OPT().shake^=1;}},
  {n:'SCREEN FLASHES',v:()=>OPT().flash?'ON':'OFF',ch:()=>{OPT().flash^=1;}},
  {n:'DAMAGE NUMBERS',v:()=>OPT().dmgNum?'ON':'OFF',ch:()=>{OPT().dmgNum^=1;}},
