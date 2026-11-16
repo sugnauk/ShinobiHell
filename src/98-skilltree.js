@@ -57,8 +57,13 @@ const NOTA=[['VETERAN','WARLORD'],['STEEL WIND','THOUSAND CUTS'],['CLEAR MIND','
    g+=k.startsWith('ks_')?(i===5?300:650):k.startsWith('sd2_')?150:k.startsWith('sd_')?30+i*14:k.startsWith('br_')?60+i*16:22+i*14;delete meta.up[k];}
   if(g){meta.sen+=g;saveMeta();setTimeout(()=>setToast('THE SKILL TREE WAS REBUILT: '+g+' JADE REFUNDED','#ffd040',5),500);}}catch(e){}})();
 const stLv=k=>k==='root'?1:upLv(k),stOpen=n=>n.free||SKT.adj[n.k].some(k=>stLv(k)>0),stCost=n=>n.old?n.base*(upLv(n.k)+1):n.cost;
-function stBuy(n){const lv=stLv(n.k);if(lv>=n.max){sfx('block');return;}if(!stOpen(n)){sfx('block');setToast('LOCKED: BUY A NODE NEXT TO IT FIRST','#c55',2);return;}
- const c=stCost(n);if(meta.sen<c){sfx('block');return;}meta.sen-=c;meta.up[n.k]=lv+1;saveMeta();sfx(n.big?'rare':'pickup');}
+function stBuy(n){
+ const lv=stLv(n.k),cost=stCost(n);
+ if(lv>=n.max||!stOpen(n)||meta.sen<cost){sfx('block');return;}
+ meta.sen-=cost;meta.up[n.k]=lv+1;saveMeta();
+ SKT.unlock={key:n.k,t:time,cost};
+ sfx(n.big?'rare':n.mid?'heal':'pickup');
+}
 // totals of every owned node's effects (keystones count as 'ks:NAME')
 let STOT=null,STOTkey='';
 function stTot(){const key=JSON.stringify(meta.up);if(STOT&&key===STOTkey)return STOT;const t={};for(const n of SKT.nodes){if(!n.eff)continue;const lv=stLv(n.k);if(!lv)continue;for(const k in n.eff)t[k]=(t[k]||0)+n.eff[k]*lv;}STOTkey=key;return STOT=t;}
@@ -88,66 +93,284 @@ const STS={lastHit:-9,cds:{}};
   if(KS('MOMENTUM')&&R.time-STS.lastHit>2&&!STS.mom){STS.mom=1;S=calcStats();}else if(STS.mom&&R.time-STS.lastHit<=2){STS.mom=0;S=calcStats();}};}
 
 // ---------------------------------------------------------------- the tree screen
-const stView={x0:6,y0:20,w:308,h:116};
-SKT.zoom=1;SKT.zt=1; // Z or the mouse wheel: the whole grid at once
-const stScr=n=>[Math.round(stView.x0+stView.w/2+(n.x-SKT.cam.x)*SKT.zoom),Math.round(stView.y0+stView.h/2+(n.y-SKT.cam.y)*SKT.zoom)];
-const stR=n=>Math.max(1,Math.round((n.big?8:n.mid?5:2)*(SKT.zoom<1?.55:1))); // half-size of each node's square
-function stNodeAt(mx,my){let best=null,bd=10;for(const n of SKT.nodes){const [x,y]=stScr(n);const d=Math.max(Math.abs(mx-x),Math.abs(my-y))-stR(n);if(d<bd&&y>stView.y0&&y<stView.y0+stView.h){bd=d;best=n;}}return bd<=4?best:null;}
-function stClick(){const n=stNodeAt(mouse.x,mouse.y);if(!n)return;if(SKT.zt<1){SKT.sel=n.k;SKT.zt=1;sfx('coin');return;}if(SKT.sel===n.k)stBuy(n);else{SKT.sel=n.k;sfx('coin');}}
-renderUpgrades=function(){const sel=SKT.byK[SKT.sel]||SKT.byK.root;SKT.zoom+=(SKT.zt-SKT.zoom)*.25;if(Math.abs(SKT.zt-SKT.zoom)<.01)SKT.zoom=SKT.zt;const tx=SKT.zt<1?0:sel.x,ty=SKT.zt<1?0:sel.y;SKT.cam.x+=(tx-SKT.cam.x)*.18;SKT.cam.y+=(ty-SKT.cam.y)*.18;
- txt('TEMPLE SKILL TREE',8,6,'#d02030',1);{const own=SKT.nodes.filter(n=>stLv(n.k)>0).length;txt(own+'/'+SKT.nodes.length+' NODES',8,13,'#777');}
- {const s=String(meta.sen);hudJade(W-8-txtW(s)-10,6);txt(s,W-8-txtW(s),7,JADEC);}
- // legend
- {let x=96;for(const [lab,r,c] of [['STAT',2,'#aaa'],['NOTABLE',4,'#ddd'],['KEYSTONE',5,'#fff']]){ctx.fillStyle=c;ctx.fillRect(x,10-r,r*2+1,r*2+1);ctx.fillStyle='#14101a';if(r>2)ctx.fillRect(x+1,11-r,r*2-1,r*2-1);ctx.fillStyle=c;if(r>2)ctx.fillRect(x+2,12-r,r*2-3,r*2-3);txt(lab,x+r*2+4,7,'#888');x+=txtW(lab)+r*2+12;}}
- if(mouse.x!==selMX||mouse.y!==selMY){const h=stNodeAt(mouse.x,mouse.y);if(h)SKT.sel=h.k;selMX=mouse.x;selMY=mouse.y;}
- ctx.save();ctx.beginPath();ctx.rect(stView.x0,stView.y0,stView.w,stView.h);ctx.clip();ctx.fillStyle='rgba(10,6,14,.94)';ctx.fillRect(stView.x0,stView.y0,stView.w,stView.h);
- // branch regions: each cell tinted with its branch colour
- for(const n of SKT.nodes){if(n.b==null||n.b<0)continue;const [x,y]=stScr(n);if(x<-20||x>W+20||y<stView.y0-20||y>stView.y0+stView.h+20)continue;ctx.globalAlpha=.06;ctx.fillStyle=n.c;ctx.fillRect(Math.round(x-STG.dx*SKT.zoom/2),Math.round(y-STG.dy*SKT.zoom/2),Math.ceil(STG.dx*SKT.zoom),Math.ceil(STG.dy*SKT.zoom));}ctx.globalAlpha=1;
- // links: straight grid lines, lit when both ends are owned, dim when one is
- for(const n of SKT.nodes)for(const k of SKT.adj[n.k]){const m=SKT.byK[k];if(m.gx<n.gx||(m.gx===n.gx&&m.gy<n.gy))continue;const [x0,y0]=stScr(n),[x1,y1]=stScr(m);if(Math.max(x0,x1)<0||Math.min(x0,x1)>W||Math.max(y0,y1)<stView.y0||Math.min(y0,y1)>stView.y0+stView.h)continue;
-  const a=stLv(n.k)>0,b2=stLv(k)>0,c=a&&b2?(n.b!=null&&n.b>=0?n.c:m.c):a||b2?'#6a5e78':'#2e2638';ctx.fillStyle=c;
-  if(y0===y1)ctx.fillRect(Math.min(x0,x1),y0,Math.abs(x1-x0),a&&b2?2:1);else ctx.fillRect(x0,Math.min(y0,y1),a&&b2?2:1,Math.abs(y1-y0));}
- // branch names in their regions
- STB.forEach((B,b)=>{const a=b*Math.PI/4-Math.PI/2,[x,y]=stScr({x:Math.cos(a)*9.6*1.35*STG.dx,y:Math.sin(a)*8.2*STG.dy});const ly=SKT.zoom<.8?clamp(y-2,stView.y0+3,stView.y0+stView.h-9):y-2;txt(B.n,x-Math.round(txtW(B.n)/2),ly,shade(B.c,-.15));});
- // nodes
- for(const n of SKT.nodes){const [x,y]=stScr(n);if(x<-12||x>W+12||y<stView.y0-12||y>stView.y0+stView.h+12)continue;const lv=stLv(n.k),open=stOpen(n),can=open&&lv<n.max&&meta.sen>=stCost(n),r=stR(n),full=lv>=n.max;
-  ctx.fillStyle='#07040a';ctx.fillRect(x-r-1,y-r-1,r*2+3,r*2+3);
-  if(n.big||n.mid){ // framed: an outer ring in the branch colour, the core lit once owned
-   ctx.fillStyle=full?n.c:open?shade(n.c,-.35):'#3a3044';ctx.fillRect(x-r,y-r,r*2+1,r*2+1);ctx.fillStyle='#14101a';ctx.fillRect(x-r+1,y-r+1,r*2-1,r*2-1);
-   ctx.fillStyle=full?n.c:open?'#3a3044':'#1e1826';ctx.fillRect(x-r+2,y-r+2,r*2-3,r*2-3);
-   if(n.big&&SKT.zoom>.8){ctx.fillStyle=full?shade(n.c,-.6):'#14101a';ctx.fillRect(x-r+2,y-r+2,r*2-3,r*2-3);const ic=ksIcon(n.n,n.c,full||open);if(ic){if(!full&&!open)ctx.globalAlpha=.5;ctx.drawImage(ic,x-5,y-5);ctx.globalAlpha=1;}} // the keystone's picture
-   if(full&&n.big){ctx.globalAlpha=.25+.15*Math.sin(time*3);ctx.fillStyle=n.c;ctx.fillRect(x-r-3,y-r-3,r*2+7,r*2+7);ctx.globalAlpha=1;}}
-  else{ctx.fillStyle=full?n.c:lv?shade(n.c,-.25):open?'#4a3e58':'#241c2c';ctx.fillRect(x-r,y-r,r*2+1,r*2+1);
-   if(n.old&&n.max>1&&lv>0&&lv<n.max){ctx.fillStyle='#14101a';ctx.fillRect(x-r,y-r,r*2+1,r*2+1);ctx.fillStyle=n.c;ctx.fillRect(x-r,y+r+1-Math.max(1,Math.round((r*2+1)*lv/n.max)),r*2+1,Math.max(1,Math.round((r*2+1)*lv/n.max)));}}
-  if(can&&Math.floor(time*3)%2){ctx.fillStyle=JADEC;ctx.fillRect(x-r-1,y-r-2,r*2+3,1);ctx.fillRect(x-r-1,y+r+2,r*2+3,1);}
-  if(n.k===SKT.sel){const R2=r+3;ctx.fillStyle='#fff';ctx.fillRect(x-R2,y-R2,3,1);ctx.fillRect(x-R2,y-R2,1,3);ctx.fillRect(x+R2-2,y-R2,3,1);ctx.fillRect(x+R2,y-R2,1,3);ctx.fillRect(x-R2,y+R2,3,1);ctx.fillRect(x-R2,y+R2-2,1,3);ctx.fillRect(x+R2-2,y+R2,3,1);ctx.fillRect(x+R2,y+R2-2,1,3);}}
- if(SKT.zoom>.8)
- // the whole grid in miniature, top-right: owned nodes lit, keystones as bigger dots, the view as a frame
- {const k=.11,ox=stView.x0+stView.w-30,oy=stView.y0+20;ctx.fillStyle='rgba(6,3,10,.9)';ctx.fillRect(ox-28,oy-17,57,34);
-  for(const n of SKT.nodes){ctx.fillStyle=stLv(n.k)>0?n.c:n.big?'#5a4e68':'#2e2638';const s2=n.big?2:1;ctx.fillRect(Math.round(ox+n.x*k),Math.round(oy+n.y*k),s2,s2);}
-  ctx.fillStyle='rgba(255,255,255,.5)';const fx0=Math.round(ox+(SKT.cam.x-stView.w/2)*k),fy0=Math.round(oy+(SKT.cam.y-stView.h/2)*k),fw=Math.round(stView.w*k),fh=Math.round(stView.h*k);
-  ctx.fillRect(fx0,fy0,fw,1);ctx.fillRect(fx0,fy0+fh,fw,1);ctx.fillRect(fx0,fy0,1,fh);ctx.fillRect(fx0+fw,fy0,1,fh);}
- ctx.restore();ctx.fillStyle='#3a2e44';ctx.fillRect(stView.x0,stView.y0+stView.h,stView.w,1);
- // details
- const n=sel,lv=stLv(n.k),mx=lv>=n.max,open=stOpen(n),ways=SKT.adj[n.k].length;ctx.fillStyle='rgba(20,12,26,.95)';ctx.fillRect(6,138,W-12,32);ctx.fillStyle=n.c;ctx.fillRect(6,138,2,32);
- const kind=n.free?'':n.big?'  KEYSTONE':n.mid?'  NOTABLE':'';txt(n.n+(n.max>1?'  '+lv+'/'+n.max:'')+kind,12,141,n.c);
- const words=n.d.split(' ');let line='',ly=150;for(const w of words){if(txtW(line+w)>W-30){txt(line,12,ly,'#ddd');ly+=8;line='';}line+=w+' ';}txt(line,12,ly,'#ddd');
- if(n.big&&!n.free)txt(ways+' PATHS LEAD HERE',12,ly+8,'#888');
- const s=mx?'OWNED':!open?'LOCKED':stCost(n)+' JADE';txt(s,W-12-txtW(s),141,mx?'#6f6':!open?'#c55':meta.sen>=stCost(n)?JADEC:'#666');
- ctxt((SKT.zt<1?'OVERVIEW: CLICK A NODE OR Z TO ZOOM IN':'WASD MOVE   ENTER BUY   Z OVERVIEW')+'   '+(treeFrom==='hub'?'ESC BACK':'TAB CHARACTERS   ESC BACK'),H-7,'#666');};
-// arrow keys: step to the grid neighbour in that direction (linked first), or the nearest node that way
-function stMove(dx,dy){const s=SKT.byK[SKT.sel];for(const k of SKT.adj[s.k]){const m=SKT.byK[k];if(m.gx-s.gx===dx&&m.gy-s.gy===dy){SKT.sel=k;sfx('coin');return;}}
- let best=null,bs=1e9;for(const n of SKT.nodes){if(n===s)continue;const vx=n.gx-s.gx,vy=n.gy-s.gy,d=Math.hypot(vx,vy),dot=(vx*dx+vy*dy)/d;if(dot<.7)continue;const sc=d*(2-dot);if(sc<bs){bs=sc;best=n;}}if(best){SKT.sel=best.k;sfx('coin');}}
-upgradesKey=function(c){if(c==='KeyZ'){SKT.zt=SKT.zt<1?1:.42;sfx('coin');return;}if(c==='ArrowUp'||c==='KeyW')stMove(0,-1);else if(c==='ArrowDown'||c==='KeyS')stMove(0,1);else if(c==='ArrowLeft'||c==='KeyA')stMove(-1,0);else if(c==='ArrowRight'||c==='KeyD')stMove(1,0);
- else if(c==='Enter'||c==='Space')stBuy(SKT.byK[SKT.sel]);else if(c==='Escape'||c==='Tab'){if(treeFrom==='hub'){mode='hub';selTab=0;}else selTab=0;sfx('coin');}};
+const stView={x:6,y:36,w:210,h:118};
+const stBuyBox={x:226,y:137,w:82,h:13};
+const stMapZoom=.40,stDetailZoom=1.2;
+const stUI={zoom:stDetailZoom,target:stDetailZoom,x:0,y:0,press:null,route:null};
+const stIn=(x,y,r)=>x>=r.x&&x<r.x+r.w&&y>=r.y&&y<r.y+r.h;
+const stScreen=(x,y)=>[Math.round(111+(x-SKT.cam.x)*stUI.zoom),Math.round(95+(y-SKT.cam.y)*stUI.zoom)];
+const stRadius=n=>stUI.zoom<.65?n.big?3:n.mid?2:1:n.big?9:n.mid?6:n.old?5:3;
+const stAffordable=n=>stLv(n.k)<n.max&&stOpen(n)&&meta.sen>=stCost(n);
+const stActive=()=>mode==='select'&&selTab===1;
+const stOverview=()=>stUI.target===stMapZoom;
+const stTab=b=>({x:6+39*b,y:21,w:35,h:11});
+const stOverviewBox={x:6,y:157,w:49,h:11},stGateBox={x:58,y:157,w:43,h:11},stNextBox={x:104,y:157,w:112,h:11};
+const stRGB=['#ee6460','#d6e2f1','#64d0f9','#c593fa','#72d893','#a990eb','#f0cc67','#a3df83'];
+
+function stSelect(n,focus=true){
+ if(SKT.sel!==n.k)sfx('coin');
+ SKT.sel=n.k;
+ if(focus){stUI.x=n.x;stUI.y=n.y;}
+}
+function stZoom(overview){
+ stUI.target=overview?stMapZoom:stDetailZoom;
+ const n=SKT.byK[overview?'root':SKT.sel];
+ stUI.x=n.x;stUI.y=n.y;
+}
+function stJump(n){stSelect(n);stZoom(false);}
+function stBranch(b){
+ const ns=SKT.nodes.filter(n=>n.b===b);
+ stJump(ns.find(stAffordable)||ns.find(n=>n.big)||ns[0]);
+}
+function stNext(){
+ const i=SKT.nodes.findIndex(n=>n.k===SKT.sel);
+ const ns=SKT.nodes.slice(i+1).concat(SKT.nodes.slice(0,i+1));
+ const n=ns.find(stAffordable);
+ if(n)stJump(n);else sfx('block');
+}
+function stNodeAt(x,y){
+ if(!stIn(x,y,stView))return null;
+ let best=null,score=Infinity;
+ for(const n of SKT.nodes){
+  const [nx,ny]=stScreen(n.x,n.y);
+  if(!stIn(nx,ny,stView))continue;
+  const d=Math.hypot(x-nx,y-ny);
+  if(d<=stRadius(n)+2&&d<score){score=d;best=n;}
+ }
+ return best;
+}
+function stClick(){
+ const {x,y}=mouse;
+ if(stIn(x,y,stBuyBox)){stBuy(SKT.byK[SKT.sel]);return;}
+ if(stIn(x,y,stOverviewBox)){stZoom(!stOverview());return;}
+ if(stIn(x,y,stGateBox)){stJump(SKT.byK.root);return;}
+ if(stIn(x,y,stNextBox)){stNext();return;}
+ const branch=STB.findIndex((_,b)=>stIn(x,y,stTab(b)));
+ if(branch>=0){stBranch(branch);return;}
+ if(stIn(x,y,stView))stUI.press={x,y,camX:SKT.cam.x,camY:SKT.cam.y,node:stNodeAt(x,y),drag:false};
+}
+addEventListener('mousemove',e=>{
+ const p=stUI.press;
+ if(!p||!stActive()||stOverview())return;
+ setMouse(e);
+ const dx=mouse.x-p.x,dy=mouse.y-p.y;
+ if(!p.drag&&Math.hypot(dx,dy)<3)return;
+ p.drag=true;
+ stUI.x=SKT.cam.x=clamp(p.camX-dx/stUI.zoom,-210,210);
+ stUI.y=SKT.cam.y=clamp(p.camY-dy/stUI.zoom,-135,135);
+});
+addEventListener('mouseup',e=>{
+ if(e.button!==0)return;
+ const p=stUI.press;
+ stUI.press=null;
+ if(!p||!stActive()||p.drag)return;
+ setMouse(e);
+ if(!p.node||Math.hypot(mouse.x-p.x,mouse.y-p.y)>=3||!stIn(mouse.x,mouse.y,stView))return;
+ if(stOverview())stJump(p.node);else stSelect(p.node,false);
+});
+addEventListener('blur',()=>{stUI.press=null;});
+cv.addEventListener('wheel',e=>{
+ if(!stActive()||!e.deltaY)return;
+ e.preventDefault();setMouse(e);
+ if(e.deltaY>0&&!stOverview())stZoom(true);
+ else if(e.deltaY<0&&stOverview()){const n=stNodeAt(mouse.x,mouse.y);if(n)stSelect(n);stZoom(false);}
+},{passive:false});
+
+// Shortest connected route from the selected node to any node already owned.
+function stRoute(n){
+ const saved=stUI.route;
+ if(saved&&saved.key===n.k&&saved.unlock===SKT.unlock)return saved;
+ const path=new Map([[n.k,null]]),queue=[n.k],edges=new Map();
+ const owned=n.free||stLv(n.k)>0;
+ for(let i=0;!owned&&i<queue.length;i++){
+  const k=queue[i];
+  if(stLv(k)>0){
+   for(let at=k;path.get(at);at=path.get(at))edges.set(path.get(at),at);
+   break;
+  }
+  for(const next of SKT.adj[k])if(!path.has(next)){path.set(next,k);queue.push(next);}
+ }
+ const cost=[...edges.keys()].reduce((jade,k)=>jade+stCost(SKT.byK[k]),0);
+ return stUI.route={key:n.k,unlock:SKT.unlock,edges,cost};
+}
+
+function stFill(x,y,w,h,c){ctx.fillStyle=c;ctx.fillRect(x,y,w,h);}
+function stPanel(x,y,w,h,c,edge){stFill(x,y,w,h,edge);stFill(x+1,y+1,w-2,h-2,c);}
+function stCenter(s,x,w,y,c){txt(s,x+Math.floor((w-txtW(s))/2),y,c);}
+function stWrap(s,x,y,w,c,step=7){
+ let line='';
+ for(const word of s.split(' ')){
+  const next=line?line+' '+word:word;
+  if(line&&txtW(next)>w){txt(line,x,y,c);y+=step;line=word;}
+  else line=next;
+ }
+ if(line)txt(line,x,y,c);
+ return y+step;
+}
+function stButton(box,label,enabled=true){
+ const {x,y,w,h}=box,hover=enabled&&stIn(mouse.x,mouse.y,box);
+ stPanel(x,y,w,h,hover?'#324239':enabled?'#19251f':'#14101a',hover?'#e8ce86':enabled?'#648b6c':'#413646');
+ stCenter(label,x,w,y+Math.floor((h-5)/2),enabled?'#e9dbad':'#a59aaa');
+}
+function stGem(x,y,r,edge,inner){
+ for(let dy=-r;dy<=r;dy++){
+  const w=r-Math.abs(dy);
+  stFill(x-w,y+dy,w*2+1,1,edge);
+  if(w>0)stFill(x-w+1,y+dy,w*2-1,1,inner);
+ }
+}
+function stDrawNode(n,x,y,selected,hover,route){
+ const r=stRadius(n),owned=stLv(n.k)>0,ready=stAffordable(n),col=n.free?'#efe3b9':stRGB[n.b];
+ const edge=owned?col:ready?'#e9c77c':route?'#a28e61':shade(col,-.67);
+ const inner=owned?shade(col,-.73):ready?'#463326':'#1c1724';
+ if(stUI.zoom<.65){
+  stGem(x,y,r,edge,owned?col:inner);
+ }else if(n.big||n.mid||n.old){
+  if(n.big)stGem(x,y,r+3,shade(edge,-.55),'#120d18');
+  stPanel(x-r,y-r,2*r+1,2*r+1,inner,edge);
+  const art=stArt(n,owned||ready);
+  ctx.drawImage(art,x-(art.width>>1),y-(art.height>>1));
+  if(n.old&&owned)stFill(x-r,y+r,Math.ceil((2*r+1)*stLv(n.k)/n.max),1,col);
+ }else{
+  stGem(x,y,r,edge,inner);
+  if(owned||ready)stFill(x,y-1,1,2,owned?col:'#ffe6a0');
+ }
+ if(selected||hover){
+  const d=r+(n.big&&stUI.zoom>=.65?4:2),c=selected?'#fff0c6':'#b8a8ba';
+  for(const sx of [-1,1])for(const sy of [-1,1]){
+   stFill(x+sx*d-(sx>0?2:0),y+sy*d,3,1,c);
+   stFill(x+sx*d,y+sy*d-(sy>0?2:0),1,3,c);
+  }
+ }
+}
+function stBurst(){
+ const unlock=SKT.unlock;
+ if(!unlock)return;
+ const n=SKT.byK[unlock.key],age=time-unlock.t;
+ if(age>=.7)return;
+ const [x,y]=stScreen(n.x,n.y),col=n.big?'#ffe69e':n.c;
+ ctx.globalAlpha=1-age/.7;
+ circ(x,y,stRadius(n)+2+age*(n.big?48:30),col);
+ if(n.big)circ(x,y,stRadius(n)+1+age*31,n.c);
+ for(let i=0;i<(n.big?16:8);i++){
+  const a=i*2.4,r=stRadius(n)+3+age*(22+i%4*7);
+  stFill(Math.round(x+Math.cos(a)*r),Math.round(y+Math.sin(a)*r),i%3===0?2:1,1,i%2?col:'#fff1c2');
+ }
+ ctx.globalAlpha=1;
+}
+function stDrawMap(sel,hover,route){
+ const v=stView;
+ stPanel(v.x-1,v.y-1,v.w+2,v.h+2,'#0f0b15','#4a3949');
+ ctx.save();ctx.beginPath();ctx.rect(v.x,v.y,v.w,v.h);ctx.clip();
+ for(const n of SKT.nodes){
+  const [x,y]=stScreen(n.x,n.y);
+  if(x<v.x-24||x>v.x+v.w+24||y<v.y-24||y>v.y+v.h+24)continue;
+  const col=n.free?'#24202a':shade(stRGB[n.b],-.89);
+  const halfW=Math.floor(STG.dx*stUI.zoom/2),halfH=Math.floor(STG.dy*stUI.zoom/2);
+  stFill(x-halfW+1,y-halfH+1,halfW*2-1,halfH*2-1,col);
+ }
+ for(const n of SKT.nodes)for(const k of SKT.adj[n.k]){
+  if(k<=n.k)continue;
+  const m=SKT.byK[k],[x,y]=stScreen(n.x,n.y),[mx,my]=stScreen(m.x,m.y);
+  if(Math.max(x,mx)<v.x||Math.min(x,mx)>=v.x+v.w||Math.max(y,my)<v.y||Math.min(y,my)>=v.y+v.h)continue;
+  const linked=stLv(n.k)>0&&stLv(k)>0,onRoute=route.edges.get(k)===n.k||route.edges.get(n.k)===k;
+  const col=linked?(n.free?m.c:n.c):onRoute?'#e3bf77':stLv(n.k)||stLv(k)?'#856c75':'#413347';
+  const thick=(linked||onRoute)&&stUI.zoom>.65?2:1;
+  stFill(Math.min(x,mx),Math.min(y,my),y===my?Math.abs(x-mx):thick,x===mx?Math.abs(y-my):thick,col);
+ }
+ for(const n of SKT.nodes){
+  const [x,y]=stScreen(n.x,n.y);
+  if(x<v.x-16||x>=v.x+v.w+16||y<v.y-16||y>=v.y+v.h+16)continue;
+  stDrawNode(n,x,y,n===sel,n===hover,route.edges.has(n.k));
+ }
+ stBurst();
+ ctx.restore();
+}
+function stDetails(n,route){
+ const lv=stLv(n.k),ready=stAffordable(n),col=n.free?'#efe3b9':stRGB[n.b],full=lv>=n.max,open=stOpen(n);
+ stPanel(220,35,94,120,'#17111e','#4a3949');
+ stFill(221,36,92,1,col);
+ const art=stArt(n,true),crest=n.big?13:10;
+ stGem(267,51,crest+1,shade(col,-.55),'#15111c');
+ stGem(267,51,crest-2,shade(col,-.35),shade(col,-.83));
+ const smooth=ctx.imageSmoothingEnabled;
+ ctx.imageSmoothingEnabled=false;
+ ctx.drawImage(art,267-art.width,51-art.height,art.width*2,art.height*2);
+ ctx.imageSmoothingEnabled=smooth;
+ const kind=n.free?'TEMPLE':n.big?'KEYSTONE':n.mid?'NOTABLE':n.old?'RANKED':'PASSIVE';
+ stCenter(n.free?kind:STB[n.b].n+' / '+kind,221,92,66,col);
+ const y=stWrap(n.n,226,76,82,'#fff0cf',7);
+ stWrap(n.d,226,y+3,82,'#dad0d9');
+ const unlock=SKT.unlock,justBought=unlock&&unlock.key===n.k&&time-unlock.t<1.3;
+ const status=justBought?'UNLOCKED  -'+unlock.cost:!open?route.edges.size+' LINKS TO OWNED':n.old?'RANK '+lv+' / '+n.max:full?'ACTIVE':ready?'READY TO UNLOCK':'NEED '+(stCost(n)-meta.sen)+' MORE';
+ stCenter(status,221,92,128,justBought||ready?'#f3d795':'#bdadbd');
+ stButton(stBuyBox,full?n.free?'STARTING POINT':'MASTERED':!open?'LOCKED':(lv?'RANK UP ':'UNLOCK ')+stCost(n),ready);
+ if(route.cost&&!open)stCenter('ROUTE: '+route.cost+' JADE',220,94,160,'#d5ba83');
+ else if(n.old&&!full&&!ready&&open)stCenter('NEED '+(stCost(n)-meta.sen)+' MORE JADE',220,94,160,'#d5ba83');
+}
+renderUpgrades=function(){
+ const n=SKT.byK[SKT.sel];
+ SKT.cam.x+=(stUI.x-SKT.cam.x)*.22;SKT.cam.y+=(stUI.y-SKT.cam.y)*.22;
+ stUI.zoom+=(stUI.target-stUI.zoom)*.28;
+ const hover=stUI.press?.drag?null:stNodeAt(mouse.x,mouse.y),route=stRoute(n);
+ stFill(0,0,W,H,'#0c0910');
+ txt('TEMPLE SKILL TREE',6,5,'#f0d499',2);
+ const owned=SKT.nodes.filter(node=>!node.free&&stLv(node.k)>0).length;
+ const balance=String(meta.sen),x=W-7-txtW(balance);
+ hudJade(x-10,4);txt(balance,x,5,JADEC);
+ const progress=owned+'/'+(SKT.nodes.length-1)+' LEARNED';
+ txt(progress,W-7-txtW(progress),13,'#b6a8b8');
+ STB.forEach((b,i)=>{
+  const box=stTab(i),col=stRGB[i],active=n.b===i;
+  stPanel(box.x,box.y,box.w,box.h,active?shade(col,-.77):'#19131f',active||stIn(mouse.x,mouse.y,box)?col:shade(col,-.59));
+  stCenter(b.n,box.x,box.w,box.y+3,col);
+ });
+ stDrawMap(n,hover,route);
+ stDetails(n,route);
+ stButton(stOverviewBox,stOverview()?'ZOOM IN':'OVERVIEW');
+ stButton(stGateBox,'GATE');
+ const count=SKT.nodes.filter(stAffordable).length;
+ stButton(stNextBox,count?'NEXT AVAILABLE ('+count+')':'NO AFFORDABLE NODES',count>0);
+ let hint='DRAG PAN   ARROWS MOVE   ENTER BUY   Z MAP   ESC BACK';
+ if(hover&&hover!==n)hint=hover.n+' / CLICK TO INSPECT';
+ else if(stOverview())hint='CLICK A NODE TO ZOOM IN   1-8 BRANCHES   ESC BACK';
+ else if(stIn(mouse.x,mouse.y,stNextBox))hint='N / JUMP TO THE NEXT AFFORDABLE SKILL';
+ else if(stIn(mouse.x,mouse.y,stGateBox))hint='HOME / RETURN TO THE TEMPLE GATE';
+ ctxt(hint,172,'#afa0b3');
+};
+function stMove(dx,dy){
+ const n=SKT.byK[SKT.sel];
+ const linked=SKT.adj[n.k].map(k=>SKT.byK[k]).find(m=>m.gx-n.gx===dx&&m.gy-n.gy===dy);
+ if(linked){stSelect(linked,!stOverview());return;}
+ let best=null,score=Infinity;
+ for(const m of SKT.nodes){
+  const vx=m.gx-n.gx,vy=m.gy-n.gy,d=Math.hypot(vx,vy);
+  if(!d)continue;
+  const dot=(vx*dx+vy*dy)/d;
+  if(dot<.7)continue;
+  const s=d*(2-dot);
+  if(s<score){score=s;best=m;}
+ }
+ if(best)stSelect(best,!stOverview());
+}
+upgradesKey=function(c){
+ if(c==='KeyZ'){stZoom(!stOverview());return;}
+ if(c==='Home'){stJump(SKT.byK.root);return;}
+ if(c==='KeyN'){stNext();return;}
+ if(/^Digit[1-8]$/.test(c)){stBranch(Number(c.slice(-1))-1);return;}
+ if(c==='ArrowUp'||c==='KeyW')stMove(0,-1);
+ else if(c==='ArrowDown'||c==='KeyS')stMove(0,1);
+ else if(c==='ArrowLeft'||c==='KeyA')stMove(-1,0);
+ else if(c==='ArrowRight'||c==='KeyD')stMove(1,0);
+ else if(c==='Enter'||c==='Space')stBuy(SKT.byK[SKT.sel]);
+ else if(c==='Escape'||c==='Tab'){stUI.press=null;if(treeFrom==='hub')mode='hub';selTab=0;sfx('coin');}
+};
+
 // the hub's summary: affordable nodes and progress per branch
 function skillHubSummary(row){const avail=SKT.nodes.filter(n=>stOpen(n)&&stLv(n.k)<n.max&&meta.sen>=stCost(n)).length;
  row(2,117,'TEMPLE SKILL TREE',avail?avail+' NODE'+(avail>1?'S':'')+' AFFORDABLE':'ENTER TO VIEW',avail?'#ffd040':'#ddd');
  STB.forEach((B,b)=>{const x=20+b*36,ns=SKT.nodes.filter(n=>n.b===b),own=ns.filter(n=>stLv(n.k)>0).length;txt(B.n.slice(0,6),x,130,B.c);ctx.fillStyle='#2a2034';ctx.fillRect(x,139,30,3);ctx.fillStyle=B.c;ctx.fillRect(x,139,Math.round(30*own/ns.length),3);txt(own+'/'+ns.length,x,146,'#888');});
  const ks=SKT.nodes.filter(n=>n.big&&n.k!=='root'&&stLv(n.k)>0).map(n=>n.n);txt(ks.length?('KEYSTONES: '+ks.join(', ')).slice(0,70):'KEYSTONES: NONE YET',20,156,'#aaa');}
-
-// the mouse wheel on the tree: zoom out to the whole grid, or back in
-cv.addEventListener('wheel',e=>{if(mode==='select'&&selTab===1){SKT.zt=e.deltaY>0?.42:1;e.preventDefault();}},{passive:false});
 
 // ---------------------------------------------------------------- keystone icons: a picture of what each one does
 const KSICON={
@@ -159,10 +382,10 @@ const KSICON={
  'MOMENTUM':['...........','a....a.....','aa...aa....','.aa...aa...','..aa...aa..','...aa...aa.','..aa...aa..','.aa...aa...','aa...aa....','a....a.....','...........'],
  'TIME WEAVER':['yyyyyyyyyyy','.wbbbbbbbw.','..wbbbbbw..','...wbbbw...','....wbw....','.....w.....','....w.w....','...w...w...','..w..b..w..','.w..bbb..w.','yyyyyyyyyyy'],
  'OVERCHANNEL':['.....a.....','.a...a...a.','..a..a..a..','...aawaa...','....www....','aaawwwwwaaa','....www....','...aawaa...','..a..a..a..','.a...a...a.','.....a.....'],
- 'ECHO MIND':['...........','..aaaaaaa..','.a.......a.','a..aaaaa..a','a.a.....a.a','a.a..w..a.a','a.a.....a.a','a..aaaaa..a','.a.......a.','..aaaaaaa..','...........'],
+ 'ECHO MIND':['...b....w..','..bbb..waw.','.bwwbb..w..','.baabbbb...','bbbaaaabbb.','bawbaabbb..','bawbaaba...','.baababa...','..bbbba....','...b.a.....','....a......'],
  'COLOSSUS':['kkkkkkkkkkk','kaaaawaaaak','kaaaawaaaak','kwwwwwwwwwk','kaaaawaaaak','.kaaawaaak.','.kaaawaaak.','..kaawaak..','...kawak...','....kkk....','.....k.....'],
- 'UNDYING':['...wwwww...','..wwwwwww..','.wwwwwwwww.','.wdddwdddw.','.wdddwdddw.','.wwwwdwwww.','..wwwwwww..','...wwwww...','...w.w.w...','...........','...........'],
- 'GHOST STEP':['...wwwww...','..wwwwwww..','.wwwwwwwww.','.wwdwwwdww.','.wwdwwwdww.','.wwwwwwwww.','.wwwwwwwww.','.wwwwwwwww.','.ww.ww.ww..','.w..w..w...','...........'],
+ 'UNDYING':['.....w.....','....wa.....','...waa.a...','...aaaawa..','..aaawaaw..','..aaawaaa..','...aaawa...','....aaa....','.yyyyyyyyy.','..oyyyyyo..','....ooo....'],
+ 'GHOST STEP':['....waa....','...waaaa...','..waadwaa..','..aaaddaa..','...aaaab...','..aaabb....','aaaab......','...bbb..a..','.bb..aab...','....bb....a','.......bb..'],
  'GRAZE MASTER':['...........','...rrr.....','..rwwwr....','..rwwwr....','..rwwwr....','...rrr.....','.a.......a.','..a.....a..','...aaaaa...','...........','...........'],
  'MIDAS':['...ooooo...','..oylllyo..','..oyyyyyo..','...ooooo...','..oyyyyyo..','..oylllyo..','...ooooo...','..oyyyyyo..','..oylllyo..','...ooooo...','...........'],
  'TREASURE HUNTER':['...........','.ooooooooo.','oyyyyyyyyyo','oyyyyyyyyyo','ooooolooooo','oyyyylyyyyo','oyyyyyyyyyo','oyyyyyyyyyo','ooooooooooo','...........','...........'],
@@ -172,3 +395,32 @@ const KSPAL={w:'#f0f0f0',d:'#2a2030',k:'#8a8a9a',r:'#e03040',y:'#e0b040',l:'#fff
 const KSC={};
 function ksIcon(name,col,owned){const k=name+col+owned;if(KSC[k])return KSC[k];const A=KSICON[name];if(!A)return null;
  return KSC[k]=mk(11,11,g=>{A.forEach((row,y)=>{for(let x=0;x<11;x++){const ch=row[x];if(ch==='.')continue;let c=ch==='a'?col:KSPAL[ch];if(!owned)c=shade(c,-.45);g.fillStyle=c;g.fillRect(x,y,1,1);}});});}
+
+// Pixel stamps for the eight temples. Small stat nodes use these in the detail panel.
+const stStamps=[
+ ['......w','.....wr','....wr.','r..wr..','.rrr...','..ry...','.yy.r..'],
+ ['...w...','..wwa..','.wwaad.','wwaaadd','.aaadd.','..add..','...d...'],
+ ['...w...','..wa...','..wa.w.','.waa.w.','waaaaw.','wbaaab.','.bbbb..'],
+ ['...w...','..waw..','.waaaw.','waaWaaw','.waaaw.','..waw..','...w...'],
+ ['.wwwww.','waaWaad','waWWWad','waaWaad','.aaaad.','..aad..','...d...'],
+ ['....ww.','..waa..','.waa...','.waa...','.waaa..','..waaww','...www.'],
+ ['..ooo..','.oylyo.','oyllyyo','oylyyyo','oyyyyyo','.oyyyo.','..ooo..'],
+ ['ww.....','waw....','.waw..w','..waw..','...way.','....yaw','..w..ww']
+];
+const stStampsCache={};
+function stArt(n,lit){
+ if(n.big)return ksIcon(n.n,n.c,lit);
+ const k=n.b+':'+lit;
+ if(stStampsCache[k])return stStampsCache[k];
+ return stStampsCache[k]=mk(7,7,g=>{
+  stStamps[n.b].forEach((row,y)=>{
+   for(let x=0;x<7;x++){
+    const ch=row[x];
+    if(ch==='.')continue;
+    const col=ch==='a'?stRGB[n.b]:ch==='W'?'#fff8d4':KSPAL[ch];
+    g.fillStyle=lit?col:shade(col,-.51);
+    g.fillRect(x,y,1,1);
+   }
+  });
+ });
+}
