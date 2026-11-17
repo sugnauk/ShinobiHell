@@ -708,8 +708,8 @@ function bg(){
 }
 function renderTitle(){
  // arcade-cabinet logo: a gold banner line, the big crimson EMPEROR with a hot flicker, gold rules either side
- bg();ctxt('HELL OF THE',6,'#e0b040',2);
- {const fl=Math.floor(time*8)%9===0;ctxt('EMPEROR',19,fl?'#ff6040':'#e02838',5);}
+ bg();ctxt('SHINOBI',6,'#e0b040',2);
+ {const fl=Math.floor(time*8)%9===0;ctxt('DUNGEONS',19,fl?'#ff6040':'#e02838',5);}
  ctx.fillStyle='#e0b040';ctx.fillRect(Math.round(W/2-100),48,200,1);ctx.fillStyle='#a02030';ctx.fillRect(Math.round(W/2-70),50,140,1);
  ctxt('STORM THE PALACE. TWELVE STAGES. END THE CORRUPT EMPEROR.',55,'#ccc');
  // text sits in the sky band above the palace; a dark plate keeps it readable over the aurora

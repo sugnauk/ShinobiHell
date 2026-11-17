@@ -18,8 +18,8 @@ function mmItems(){const L=[];const sv=savedRun();
  if(sv)L.push({k:'cont',n:'CONTINUE',r:ROMAN[sv.R.di]});
  L.push({k:'new',n:'NEW RUN'},{k:'train',n:'TRAINING'},{k:'rush',n:'BOSS RUSH',lock:!rushOpen()},{k:'tree',n:'SKILL TREE'},{k:'guide',n:'GUIDE'},{k:'set',n:'SETTINGS'});return L;}
 function mmDo(it){if(!it)return;sfx('tool');
- if(it.k==='cont')continueRun();else if(it.k==='new')openSelect('title');else if(it.k==='train'){trainNext=true;startRun(0);}
- else if(it.k==='rush'){if(it.lock){sfx('block');return;}startRush();}else if(it.k==='tree')openTree('title');else if(it.k==='guide')openGuide('title');else if(it.k==='set')openOptions('title');}
+ if(it.k==='cont')continueRun();else if(it.k==='new')openSelect('menu');else if(it.k==='train'){trainNext=true;startRun(0);}
+ else if(it.k==='rush'){if(it.lock){sfx('block');return;}startRush();}else if(it.k==='tree')openTree('menu');else if(it.k==='guide')openGuide('menu');else if(it.k==='set')openOptions('menu');}
 const mmY=i=>MM.IY+i*MM.STEP;
 const mmHit=()=>{const L=mmItems();for(let i=0;i<L.length;i++)if(m2In(MM.X,mmY(i)-3,MM.LW,13))return i;return -1;};
 function titleKey(c){const L=mmItems();mmSel=clamp(mmSel,0,L.length-1);const it=L[mmSel];
@@ -27,18 +27,23 @@ function titleKey(c){const L=mmItems();mmSel=clamp(mmSel,0,L.length-1);const it=
  else if(c==='ArrowDown'||c==='KeyS'){mmSel=(mmSel+1)%L.length;sfx('coin');}
  else if((c==='ArrowLeft'||c==='KeyA'||c==='KeyQ'||c==='ArrowRight'||c==='KeyD'||c==='KeyE')&&it.k==='new'&&meta.ascMax){meta.asc=clamp((meta.asc||0)+((c==='ArrowRight'||c==='KeyD'||c==='KeyE')?1:-1),0,meta.ascMax);saveMeta();sfx('coin');}
  else if(c==='Enter'||c==='Space'){if(mouse.down){const h=mmHit();if(h<0)return;mmSel=h;}mmDo(L[mmSel]);}
- else if(c==='KeyC'&&savedRun())continueRun();else if(c==='KeyO')openOptions('title');else if(c==='KeyK')openGuide('title');
+ else if(c==='KeyC'&&savedRun())continueRun();else if(c==='KeyO')openOptions('menu');else if(c==='KeyK')openGuide('menu');
  else if(c==='KeyY'){trainNext=true;startRun(0);}else if(c==='KeyB'&&rushOpen())startRush();}
-{const _ok=onKey;onKey=function(c){if(mode==='hub')mode='title';if(mode==='title'&&c!=='KeyM'&&c!=='KeyT'){titleKey(c);return;}return _ok.apply(this,arguments);};}
+// the title card stays as it was; ENTER (or a click) opens the main menu
+{const _ok=onKey;onKey=function(c){if(mode==='hub')mode='menu';
+ if(mode==='title'&&(c==='Enter'||c==='Space')){mode='menu';mmSel=0;sfx('pickup');return;}
+ if(mode==='menu'&&c!=='KeyM'){if(c==='KeyT'){openTest();return;}if(c==='Escape'){mode='title';sfx('coin');return;}titleKey(c);return;}return _ok.apply(this,arguments);};}
+cv.addEventListener('mousedown',e=>{if(e.button===0&&mode==='menu'){mouse.down=true;titleKey('Enter');}});
+{const _r=render;render=function(){if(mode==='menu'){setView(true);ctx.imageSmoothingEnabled=false;renderMenu();drawCursor();return;}return _r();};}
 
-renderTitle=function(){
+function renderMenu(){
  bg();ctx.fillStyle='rgba(6,3,10,.62)';ctx.fillRect(0,0,W,H);ctx.fillStyle='rgba(6,3,10,.5)';ctx.fillRect(0,0,MM.PX-6,H);
  const L=mmItems();if(m2Moved()){const h=mmHit();if(h>=0&&h!==mmSel){mmSel=h;sfx('coin');}}mmSel=clamp(mmSel,0,L.length-1);
  // the logo, small, at the top of the column
- txt('HELL OF THE',MM.X,10,'#e0b040');{const fl=Math.floor(time*8)%9===0;txt('EMPEROR',MM.X,19,fl?'#ff6040':'#e02838',3);}
+ txt('SHINOBI',MM.X,10,'#e0b040');{const fl=Math.floor(time*8)%9===0;txt('DUNGEONS',MM.X,19,fl?'#ff6040':'#e02838',3);}
  ctx.fillStyle='#d02030';ctx.fillRect(MM.X,41,MM.LW,1);txt('TWELVE STAGES. ONE EMPEROR.',MM.X,45,'#999');
  L.forEach((it,i)=>mmItem(i,mmY(i),it.n,i===mmSel,it.lock,it.r));
- txt('W/S MOVE  ENTER SELECT',MM.X,H-18,'#666');txt('T TEST MODE   V'+GAME_VERSION,MM.X,H-10,'#555');
+ txt('W/S MOVE  ENTER SELECT  ESC TITLE',MM.X,H-18,'#666');txt('T TEST MODE   V'+GAME_VERSION,MM.X,H-10,'#555');
  // the panel: what the highlighted entry does
  const it=L[mmSel],acc={cont:'#8cf',new:'#d02030',train:'#80ff90',rush:'#f84',tree:JADEC,guide:'#8cf',set:'#e0b040'}[it.k];
  const {X,Y,Wd}=mmPanel(acc),x=X+8;let y=Y+8;
@@ -75,7 +80,7 @@ renderTitle=function(){
   y+=4;para('M MUTES THE GAME AT ANY TIME.','#777');}
 };
 // the hub is retired: anything that still sends you there lands on the main menu
-renderHub=function(){mode='title';renderTitle();};
+renderHub=function(){mode='menu';renderMenu();};
 
 // ---------- character select: roster on the left, the hero and their kit on the right ----------
 const SR={X:12,LW:124,IY:34,STEP:13};
@@ -90,13 +95,13 @@ selConfirm=function(){if(selLock)return;if(isLocked(selIdx)){sfx('block');return
   if(c==='ArrowDown'||c==='KeyS'){selIdx=(selIdx+1)%CLASSES.length;sfx('coin');return;}
   if(c==='ArrowLeft'||c==='KeyA'){selAb=(selAb+5)%6;selAbT=time+6;sfx('coin');return;}
   if(c==='ArrowRight'||c==='KeyD'){selAb=(selAb+1)%6;selAbT=time+6;sfx('coin');return;}
-  if(c==='Escape'){mode='title';sfx('coin');return;}}
+  if(c==='Escape'){mode='menu';sfx('coin');return;}}
  return _sk(c);};}
 // leaving the skill tree goes back to wherever it was opened from
-{const _uk=upgradesKey;upgradesKey=function(c){if((c==='Escape'||c==='Tab')&&treeFrom==='title'){mode='title';selTab=0;sfx('coin');return;}return _uk(c);};}
-{const _ok=onKey;onKey=function(c){if(mode==='select'&&selTab===1&&treeFrom==='title'&&(c==='Escape')){mode='title';selTab=0;sfx('coin');return;}return _ok.apply(this,arguments);};}
+{const _uk=upgradesKey;upgradesKey=function(c){if((c==='Escape'||c==='Tab')&&treeFrom==='menu'){mode='menu';selTab=0;sfx('coin');return;}return _uk(c);};}
+{const _ok=onKey;onKey=function(c){if(mode==='select'&&selTab===1&&treeFrom==='menu'&&(c==='Escape')){mode='menu';selTab=0;sfx('coin');return;}return _ok.apply(this,arguments);};}
 // the menus and the select screen use the wide view, like the pause screen
-{const _sv=setView;setView=function(w){if(mode==='title'||(mode==='select'&&selTab===0))w=true;return _sv(w);};}
+{const _sv=setView;setView=function(w){if(mode==='menu'||(mode==='select'&&selTab===0))w=true;return _sv(w);};}
 
 {const _rs=renderSelect;renderSelect=function(){if(selTab===1)return _rs.apply(this,arguments);
  bg();ctx.fillStyle='rgba(6,3,10,.8)';ctx.fillRect(0,0,W,H);
