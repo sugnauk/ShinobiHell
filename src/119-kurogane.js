@@ -95,15 +95,17 @@ if(typeof KUR!=='undefined')KUR.foot=null;
 // crescent, blue bridle with gold studs, a black-and-gold saddle over a blue saddle cloth. The general rides in the saddle.
 // the horse is drawn 1.2x the rider's scale: X/Y map horse space (ground y 144) onto a 176x166 canvas
 const KGM={HS:1.2,X:x=>(x-80)*1.2+98,Y:y=>(y-144)*1.2+172};
-function kgMount(p,Q){const {R:R_,E:E_,L:L_}=p,ox=Q.dx||0,oy=Q.dy||0,by=Q.b||0,g=Q.gallop,two=ARTHURT,HS=KGM.HS;
- const R=(x,y,w,h,c)=>{const x0=KGM.X(x)+ox,y0=KGM.Y(y)+oy;R_(Math.floor(x0),Math.floor(y0),Math.ceil(x0+w*HS)-Math.floor(x0),Math.ceil(y0+h*HS)-Math.floor(y0),c);},
-  E=(x,y,rx,ry,c)=>E_(Math.round(KGM.X(x)+ox),Math.round(KGM.Y(y)+oy),Math.round(rx*HS),Math.max(1,Math.round(ry*HS)),c),
-  L=(a,b,c,d,col,t)=>L_(Math.round(KGM.X(a)+ox),Math.round(KGM.Y(b)+oy),Math.round(KGM.X(c)+ox),Math.round(KGM.Y(d)+oy),col,Math.max(1,Math.round((t||1)*HS)));
+function kgMount(p,Q){const {R:R_,E:E_,L:L_}=p,ox=Q.dx||0,by=Q.b||0,g=Q.gallop,two=ARTHURT,HS=KGM.HS,SH=g?-.2:0,oy=(Q.dy||0)+(g?-10:0);
+ // in the leap the whole horse tilts nose-up: a shear around the saddle keeps every shape intact
+ const YS=(x,y)=>KGM.Y(y+(x-80)*SH);
+ const R=(x,y,w,h,c)=>{const x0=KGM.X(x)+ox,y0=YS(x+w/2,y)+oy;R_(Math.floor(x0),Math.floor(y0),Math.ceil(x0+w*HS)-Math.floor(x0),Math.ceil(y0+h*HS)-Math.floor(y0),c);},
+  E=(x,y,rx,ry,c)=>E_(Math.round(KGM.X(x)+ox),Math.round(YS(x,y)+oy),Math.round(rx*HS),Math.max(1,Math.round(ry*HS)),c),
+  L=(a,b,c,d,col,t)=>L_(Math.round(KGM.X(a)+ox),Math.round(YS(a,b)+oy),Math.round(KGM.X(c)+ox),Math.round(YS(c,d)+oy),col,Math.max(1,Math.round((t||1)*HS)));
  const O=OUTC,H0='#0e0e14',H1='#1a1a26',H2='#2a2a3c',H3='#424260',H4='#6a6a92',MN='#e0e4ee',MN2='#a8aec4',MN3='#6e7490',
   K1='#1a1a24',K2='#2c2c3c',K4='#70708c',BL='#24357a',BL2='#4a6ad0',G1='#9a7420',G2='#d8b040',G3='#fff0a0';
  const seg=(x0,y0,x1,y1,w,c,lite)=>{L(x0,y0,x1,y1,O,w+2);L(x0,y0,x1,y1,c,w);if(lite)L(x0-1,y0-1,x1-1,y1-1,lite,1);};
  // ---- tail
- const tl=g?[[32,76],[22,74],[12,78],[4,86],[0,94]]:[[32,76],[26,84],[22,98],[22,112],[24,124]];
+ const tl=g?[[32,76],[22,71],[12,70],[3,73],[-4,78]]:[[32,76],[26,84],[22,98],[22,112],[24,124]];
  for(let i=0;i<tl.length-1;i++)L(tl[i][0],tl[i][1],tl[i+1][0],tl[i+1][1],O,9-i);
  for(let i=0;i<tl.length-1;i++){L(tl[i][0],tl[i][1],tl[i+1][0],tl[i+1][1],MN2,7-i);L(tl[i][0]-1,tl[i][1],tl[i+1][0]-1,tl[i+1][1],MN,Math.max(1,4-i));L(tl[i][0]+2,tl[i][1]+1,tl[i+1][0]+2,tl[i+1][1]+1,MN3,1);}
  // ---- legs: tapered shapes along a path of [x, y, width] nodes, outlined, with a lit front edge and a hoof
@@ -118,13 +120,13 @@ function kgMount(p,Q){const {R:R_,E:E_,L:L_}=p,ox=Q.dx||0,oy=Q.dy||0,by=Q.b||0,g
  const hoof=(x,y,dim)=>{artPoly(R,[[x-4,y-6],[x+3,y-6],[x+5,y],[x-4,y]],O);artPoly(R,[[x-3,y-5],[x+2,y-5],[x+4,y-1],[x-3,y-1]],'#2a2a30');R(x-3,y-5,5,1,'#6a6a78');
   for(let k=0;k<4;k++)L(x-3+k*2,y-8,x-4+k*2,y-5,dim?MN3:MN2,1);};
  // legs as node paths: front = forearm, knee, cannon, fetlock, pastern; hind = thigh, gaskin, hock, cannon, fetlock, pastern
- const FRONT=(x,y,o,g2)=>g2?[[x,y,11],[x+6,y+10,8],[x+12,y+14,6],[x+20,y+14,4],[x+26,y+12,5],[x+30,y+10,3]]
+ const FRONT=(x,y,o,g2)=>g2===2?[[x,y,11],[x+9,y+5,8],[x+14,y+8,6],[x+16,y+15,4],[x+16,y+22,4],[x+16,y+24,6],[x+18,y+28,3]]:g2?[[x,y,11],[x+7,y+6,8],[x+12,y+9,6],[x+9,y+16,5],[x+5,y+21,4],[x+3,y+23,6],[x,y+25,3]]
    :[[x,y,11],[x+1,y+10,9],[x+1,y+20,6],[x+1,y+24,5],[x+1,y+34,4],[x+1,y+38,6],[x+3,y+44,3]];
- const HIND=(x,y,g2)=>g2?[[x,y,16],[x-6,y+8,11],[x-12,y+16,7],[x-18,y+24,5],[x-24,y+28,4],[x-28,y+30,6],[x-32,y+32,3]]
+ const HIND=(x,y,g2)=>g2===2?[[x,y,16],[x-6,y+8,11],[x-11,y+14,7],[x-15,y+20,6],[x-20,y+27,4],[x-23,y+30,6],[x-26,y+33,3]]:g2?[[x,y,16],[x-8,y+6,11],[x-15,y+12,7],[x-21,y+15,6],[x-29,y+17,4],[x-34,y+18,6],[x-38,y+19,3]]
    :[[x,y,16],[x-2,y+10,12],[x-6,y+18,8],[x-9,y+24,6],[x-8,y+30,4],[x-8,y+40,4],[x-7,y+42,6],[x-5,y+48,3]];
- const legF=(x,y,dim,g2)=>{const N=FRONT(x,y,0,g2);limb(N,dim?H1:H2,dim?H2:H4,dim?H0:H1);const e=N[N.length-1];hoof(e[0]+(g2?2:1),e[1]+(g2?3:6),dim);};
- const legH=(x,y,dim,g2)=>{const N=HIND(x,y,g2);limb(N,dim?H1:H2,dim?H2:H4,dim?H0:H1);const hk=N[g2?2:3];artPoly(R,[[hk[0]-3,hk[1]-3],[hk[0]-6,hk[1]+1],[hk[0]-1,hk[1]+3]],dim?H1:H2);const e=N[N.length-1];hoof(e[0]+(g2?0:1),e[1]+(g2?3:6),dim);};
- if(g){legH(56,92,1,1);legF(96,92,1,1);}else{legH(58,92,1,0);legF(96,94,1,0);}
+ const legF=(x,y,dim,g2)=>{const N=FRONT(x,y,0,g2);limb(N,dim?H1:H2,dim?H2:H4,dim?H0:H1);const e=N[N.length-1];hoof(e[0]+(g2===1?-1:1),e[1]+(g2===1?4:6),dim);};
+ const legH=(x,y,dim,g2)=>{const N=HIND(x,y,g2);limb(N,dim?H1:H2,dim?H2:H4,dim?H0:H1);const hk=N[g2?2:3];artPoly(R,[[hk[0]-3,hk[1]-3],[hk[0]-6,hk[1]+1],[hk[0]-1,hk[1]+3]],dim?H1:H2);const e=N[N.length-1];hoof(e[0]+(g2===1?-2:1),e[1]+(g2===1?3:6),dim);};
+ if(g){legH(56,92,1,2);legF(96,92,1,2);}else{legH(58,92,1,0);legF(96,94,1,0);}
  // ---- the body silhouette: croup, a dipped back, withers, an arched neck, the head; deep chest, tucked belly, round rump
  const hy=g?4:0,BODY=[[30,82],[32,74],[38,69],[46,67],[56,70],[68,73],[80,73],[90,69],[97,64],[104,55+hy],[110,46+hy],[116,39+hy],[122,33+hy],[127,30+hy],[132,33+hy],[136,40+hy],[140,48+hy],[143,55+hy],[142,60+hy],[137,61+hy],[131,58+hy],[125,54+hy],[120,52+hy],[116,60],[112,72],[110,82],[108,92],[102,98],[92,101],[80,101],[68,99],[60,96],[54,96],[46,97],[38,95],[32,90]];
  const body=BODY.map(([x,y])=>[x,y+(x<112?by:0)]);artPoly(R,body.map(([x,y])=>[x,y]),H2);
@@ -140,7 +142,7 @@ function kgMount(p,Q){const {R:R_,E:E_,L:L_}=p,ox=Q.dx||0,oy=Q.dy||0,by=Q.b||0,g
  // ears
  L(124,30+hy,122,22+hy,O,4);L(124,30+hy,122,23+hy,H2,2);
  // ---- mane and forelock, silver, falling over the near side of the neck
- {const st=(t,i)=>{const x=98+t*26,y=64-t*32+hy*t+by*(1-t),len=18-t*8+(i%4)*2;return [x,y,x-7+(i%2),y+len];};
+ {const st=(t,i)=>{const x=98+t*26,y=64-t*32+hy*t+by*(1-t),len=18-t*8+(i%4)*2;return g?[x,y,x-12-(i%3),y+len*.45]:[x,y,x-7+(i%2),y+len];};
   for(let i=0;i<22;i++){const [a,b,c,d]=st(i/21,i);L(a,b,c,d,O,3);}for(let i=0;i<22;i++){const [a,b,c,d]=st(i/21,i);L(a,b,c,d,[MN3,MN2,MN3,MN][i%4],1);}for(let i=0;i<22;i+=3){const [a,b,c,d]=st(i/21,i);L(a,b,(a+c)/2,(b+d)/2,MN,1);}}
  L(127,31+hy,132,38+hy,MN,2);
  // ---- barding: laced plates on chest and rump
@@ -154,8 +156,45 @@ function kgMount(p,Q){const {R:R_,E:E_,L:L_}=p,ox=Q.dx||0,oy=Q.dy||0,by=Q.b||0,g
  R(64,66+by,24,8,O);R(65,67+by,22,6,K1);R(65,67+by,22,1,G2);R(66,72+by,20,1,G1);
  if(g){legH(48,92,0,1);legF(102,94,0,1);}else{legH(50,92,0,0);legF(103,96,0,0);}
  // ---- the general in the saddle (his own sprite, seated)
- kgDraw(p,Object.assign({},Q.rider||{},{mounted:1,dx:ox+49,dy:oy+4+(Q.rdy||0),b:by,stream:g?3:Q.b?1:0}));
- // ---- reins from the bit to his far hand
- L(138,58+hy,96,66+by,BL,1);}
+ const ax=Math.round(KGM.X(76)+ox),ay=Math.round(YS(76,66+by)+oy);kgRider(p,ax,ay,{charge:g,b:by,stream:g?3:by?1:0});
+ // ---- reins from the bit to his near hand
+ L_(Math.round(KGM.X(138)+ox),Math.round(YS(138,58+hy)+oy),ax+12,ay-14+(g?2:0),BL,1);}
+// the general seated, three-quarter on, facing the way the horse faces: reins in his near (left) hand, the yari in his
+// far hand (couched for the charge), the jinbaori streaming back, the crescent seen at an angle. (0,0) is the saddle.
+function kgRider(p,ax,ay,Q){const {R:R_,E:E_,L:L_}=p,O=OUTC,K1='#1a1a24',K2='#2c2c3c',K3='#4a4a62',K4='#70708c',BL='#24357a',BL2='#4a6ad0',G1='#9a7420',G2='#d8b040',G3='#fff0a0',
+  W1='#7a766e',W2='#b8b4ac',W3='#e6e2da',FU='#5a3a20',FU2='#8a6038',ST='#c8d0dc',SK='#c8a080',ch=Q.charge,ln=ch?4:0,st=Q.stream||0,b=Q.b||0;
+ // upper-body points lean forward in the charge
+ const X=(x,y)=>ax+x+(y<-20?ln:y<-8?ln/2:0),Y=y=>ay+y+(y<-8?b:0);
+ const R=(x,y,w,h,c)=>R_(X(x,y),Y(y),w,h,c),E=(x,y,rx,ry,c)=>E_(X(x,y),Y(y),rx,ry,c),L=(a,b2,c,d,col,t)=>L_(X(a,b2),Y(b2),X(c,d),Y(d),col,t);
+ const poly=(pts,c)=>artPoly(R_,pts.map(([x,y])=>[X(x,y),Y(y)]),c);
+ const seg=(x0,y0,x1,y1,w,c,lite)=>{L(x0,y0,x1,y1,O,w+2);L(x0,y0,x1,y1,c,w);if(lite)L(x0-1,y0-1,x1-1,y1-1,lite,1);};
+ // the spear, upright in the far hand, or couched forward under the arm
+ const spear=(x0,y0,x1,y1)=>{L(x0,y0,x1,y1,O,4);L(x0,y0,x1,y1,'#4a2a18',2);L(x0,y0-1,x1,y1-1,'#7a5030',1);const a=Math.atan2(Y(y1)-Y(y0),X(x1,y1)-X(x0,y0)),tx=X(x1,y1)+Math.cos(a)*12,ty=Y(y1)+Math.sin(a)*12;
+  L_(X(x1,y1),Y(y1),tx,ty,O,4);L_(X(x1,y1),Y(y1),tx,ty,ST,2);const pa=a+Math.PI/2;L_(X(x1,y1)+Math.cos(pa)*6,Y(y1)+Math.sin(pa)*6,X(x1,y1)-Math.cos(pa)*6,Y(y1)-Math.sin(pa)*6,O,3);L_(X(x1,y1)+Math.cos(pa)*6,Y(y1)+Math.sin(pa)*6,X(x1,y1)-Math.cos(pa)*6,Y(y1)-Math.sin(pa)*6,ST,1);
+  R_(X(x1,y1)-2,Y(y1)-1,4,3,G2);for(let k=0;k<4;k++)L_(X(x1,y1)-Math.cos(a)*2,Y(y1)-Math.sin(a)*2,X(x1,y1)-Math.cos(a)*(5+k)+Math.cos(pa)*(k-1.5)*1.5,Y(y1)-Math.sin(a)*(5+k)+Math.sin(pa)*(k-1.5)*1.5,'#2a2a34',1);};
+ if(!ch){spear(12,26,16,-58);seg(6,-28,10,-19,5,K2,K3);seg(10,-19,14,-17,4,K1);E(14,-17,3,3,O);E(14,-17,2,2,K2);}
+ // the jinbaori streaming back
+ {const T=[[-6,-33],[7,-32],[6,-8],[-6,0],[-26-st*3,2+st],[-36-st*5,-4+st],[-30-st*4,-16],[-16,-26]];poly(T.map(([x,y])=>[x-1,y-1]),O);poly(T.map(([x,y])=>[x+1,y+1]),O);poly(T,W2);poly([[-6,-32],[2,-31],[-2,-10],[-24-st*3,-2+st],[-30-st*4,-14],[-16,-24]],W3);
+  L(-6,0,-26-st*3,2+st,G2,2);L(-26-st*3,2+st,-36-st*5,-4+st,G2,2);L(-8,-20,-28-st*3,-6,W1,1);}
+ // the cuirass, three-quarter on: lacquer rows laced blue, the gold crest towards the front
+ poly([[-8,-31],[10,-32],[13,-23],[12,-6],[-6,-4],[-9,-17]],O);poly([[-7,-30],[9,-31],[12,-22],[11,-6],[-5,-5],[-8,-17]],K2);
+ for(let y=-28;y<-6;y+=4){R(-7,y,18,1,K4);for(let x=-6;x<10;x+=3)R(x,y+1,1,2,BL);R(8,y+1,3,2,K1);}R(-6,-8,17,2,G1);E(8,-22,3,3,O);E(8,-22,2,2,G2);R(7,-23,2,1,G3);
+ // the skirt of plates over the saddle, flaring back
+ for(let r=0;r<3;r++){const x=-12-r*2,y=-6+r*4;R(x-1,y-1,26,6,O);R(x,y,24,4,K2);R(x,y,24,1,K4);for(let k=x+1;k<x+23;k+=3)R(k,y+1,1,2,BL);R(x,y+3,24,1,G1);}
+ // the near leg along the horse's side, the boot in the stirrup
+ seg(0,-2,12,4,7,K2,K3);seg(12,4,10,18,6,K1,K3);E(12,4,3,3,O);E(12,4,2,2,G2);for(let t=.3;t<.9;t+=.3)R(11-2*t-3,4+14*t,7,1,K4);E(12,20,5,3,O);E(12,20,4,2,FU);R(9,19,3,1,FU2);R(7,22,11,2,O);R(8,22,9,1,G2);
+ // the near shoulder guard
+ for(let r=0;r<4;r++){const x=-11-r,y=-31+r*3;R(x-1,y-1,15,5,O);R(x,y,13,3,K2);R(x,y,13,1,K4);for(let k=x+1;k<x+12;k+=3)R(k,y+1,1,2,BL);}R(-11,-31,13,1,G2);
+ // the near arm, forward on the reins (gripping the couched spear in the charge)
+ if(ch){spear(-30,-10,58,-22);seg(-2,-26,4,-15,5,K2,K3);seg(4,-15,14,-16,4,K1);E(14,-16,3,3,O);E(14,-16,2,2,K2);}
+ else{seg(-2,-26,3,-16,5,K2,K3);seg(3,-16,12,-14,4,K1);E(12,-14,3,3,O);E(12,-14,2,2,K2);}
+ // the head: flared neck guard behind, a ridged bowl, the mask facing forward with its silver moustache and glowing eye
+ for(let r=0;r<3;r++){const x=-9-r*2,y=-41+r*3;R(x-1,y-1,15+r*2,4,O);R(x,y,13+r*2,2,K2);R(x,y,13+r*2,1,K4);R(x,y+2,13+r*2,1,G1);}
+ E(5,-41,5,5,O);E(5,-41,4,4,'#0e0e14');R(5,-44,3,1,K3);R(7,-43,2,1,G3);R(6,-38,5,1,W3);R(9,-37,2,2,W3);R(7,-36,2,1,G2);
+ E(1,-47,7,5,O);E(1,-47,6,4,K1);for(let k=-4;k<=5;k+=2)L(1+k,-50,1+k*1.1,-43,K3,1);E(-1,-49,2,1,K4);R(-6,-43,14,2,O);R(-5,-43,12,1,G2);
+ // the crescent, seen at an angle: the near horn sweeps back, the far horn reaches forward
+ R(4,-52,4,3,O);R(5,-51,2,2,G2);
+ for(const [hx,hy2,len] of [[-1,1,18],[1,1,22]]){const pts=[];for(let i=0;i<=10;i++){const t=i/10;pts.push([6+hx*(1+t*len),-51-Math.sin(t*Math.PI*.5)*10-t*t*5]);}
+  for(let i=0;i<10;i++){const w=Math.max(1,3-Math.floor(i/4));L(pts[i][0],pts[i][1],pts[i+1][0],pts[i+1][1],O,w+2);}for(let i=0;i<10;i++){const w=Math.max(1,3-Math.floor(i/4));L(pts[i][0],pts[i][1],pts[i+1][0],pts[i+1][1],G2,w);L(pts[i][0],pts[i][1]-1,pts[i+1][0],pts[i+1][1]-1,G3,1);}}}
 humBoss('LORD KUROGANE',kgMount,{idle0:{},idle1:{b:1},
- atk:{gallop:1,rdy:2,rider:{near:[[56,40],[62,46],[66,50]],far:[[28,40],[36,48],[46,52]],thrust:[[20,58],[86,44]]}}},{fw:176,fh:176,sc:.9});
+ atk:{gallop:1}},{fw:176,fh:176,sc:.9});
