@@ -46,3 +46,5 @@ function guardianPoses(name){const D=BART[name];if(!D||!D.posed||D.posed.pick||O
 for(const n of Object.keys(GARMS).concat(['THE CORRUPT EMPEROR']))try{guardianPoses(n);}catch(err){console.warn('poses',n,err);}
 // the Emperor's scepter rises with his hands as he casts
 try{const P=BART['THE CORRUPT EMPEROR'].posed.poses;P.cast=Object.assign({},P.atk,{shaku:[[46,30],[52,4]]});P.wind=Object.assign({},P.atk,{b:1,shaku:[[44,38],[34,20]]});P.follow=Object.assign({},P.atk,{shaku:[[46,40],[62,44]]});}catch(_){}
+// Lord Kurogane's horse gallops whenever it moves, not only while he attacks
+try{const PS=BART['LORD KUROGANE'].posed;if(!PS.pick)PS.pick=(e,idx)=>{if(e.phx||e.A||e.storm>0)return null;if((e._spd||0)>10)return Math.floor((e._wf||0)*3)%2?2:1;return null;};}catch(_){}
