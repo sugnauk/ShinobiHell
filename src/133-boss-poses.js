@@ -48,3 +48,10 @@ for(const n of Object.keys(GARMS).concat(['THE CORRUPT EMPEROR']))try{guardianPo
 try{const P=BART['THE CORRUPT EMPEROR'].posed.poses;P.cast=Object.assign({},P.atk,{shaku:[[46,30],[52,4]]});P.wind=Object.assign({},P.atk,{b:1,shaku:[[44,38],[34,20]]});P.follow=Object.assign({},P.atk,{shaku:[[46,40],[62,44]]});}catch(_){}
 // Lord Kurogane's horse gallops whenever it moves, not only while he attacks
 try{const PS=BART['LORD KUROGANE'].posed;if(!PS.pick)PS.pick=(e,idx)=>{if(e.phx||e.A||e.storm>0)return null;if((e._spd||0)>10)return Math.floor((e._wf||0)*3)%2?2:1;return null;};}catch(_){}
+// only the attack frame itself fires: no muzzle flash on the wind-up, follow-through, cast or hurt frames
+for(const n of Object.keys(GARMS)){try{const P=BART[n].posed.poses;for(const k of ['wind','follow','cast','hurt','walk1','walk2'])if(P[k])delete P[k].flash;}catch(_){}}
+// Tetsuo: wind-up = shouldering the gun to aim, follow-through = the recoil kicking the barrel up
+try{const P=BART['TETSUO THE GUNSMITH'].posed.poses;
+ P.wind={b:1,far:[[27,29],[29,37],[32,40]],near:[[45,29],[47,36],[50,36]]};
+ P.follow={dx:-1,far:[[27,29],[28,35],[32,35]],near:[[45,29],[47,32],[51,28]]};
+ P.cast={far:[[27,29],[28,36],[30,39]],near:[[45,29],[48,33],[52,30]],flash:1};}catch(_){}

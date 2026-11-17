@@ -26,8 +26,10 @@ const DECO_GROUPS=[
 {const _gd=genDecos;genDecos=function(di){
  const L=STAGEDECO[di];if(!L||!map||map.train)return _gd.apply(this,arguments);
  // 1) the normal pass, but with only the natural pieces
- const nat=L.filter(([k])=>DECO_SCATTER.has(k));STAGEDECO[di]=nat.length?nat:[['tallgrass',1]];
+ const nat=(typeof STAGE_SCATTER!=='undefined'&&STAGE_SCATTER[di])||L.filter(([k])=>DECO_SCATTER.has(k));STAGEDECO[di]=nat.length?nat:[['rubble',1]];
  let out;try{out=_gd.apply(this,arguments);}finally{STAGEDECO[di]=L;}
+ // indoors: no plants or rocks at all, and the loose clutter is kept sparse
+ if(typeof INDOOR!=='undefined'&&INDOOR.has(di)){const loose=new Set((STAGE_SCATTER[di]||[]).map(x=>x[0]));out=out.filter(o=>!NATURE.has(o.k)&&!(loose.has(o.k)&&Math.random()<.65)&&!(o.k==='bonsai'&&Math.random()<.85)&&!(o.k==='bones'&&Math.random()<.8));}
  // 1b) special rooms keep their fixed set pieces (torii, jizo pair, incense...) but lose the random extras around them
  {const FIX={shrine:[[0,-46],[-30,-12],[30,-12],[-16,22],[16,22]],altar:[[0,-46],[-24,16],[24,16],[-34,-8],[34,-8]],treasure:[[-32,-4],[32,-4],[-16,18],[16,18],[0,-22]],
    rest:[[76,76],[-76,76],[-76,-76],[76,-76],[44,-34]]};
