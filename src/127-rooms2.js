@@ -73,3 +73,10 @@ function sealPockets(m){const t=m.t,seen=new Uint8Array(MW*MH),s=m.startRoom,q=[
  if(n){m.liqList=[];for(let i=0;i<MW*MH;i++)if(m.liq[i])m.liqList.push(i);rebuildVis(m);}
  return n;}
 {const _gm=genMap;genMap=function(di){const m=_gm.apply(this,arguments);try{m.pockets=sealPockets(m);}catch(e){console.error(e);}return m;};}
+
+// ---------- a bag left on the exit portal no longer blocks it ----------
+// If you open a bag on the portal and leave something in it (a scroll you closed, gear with a full pack), it gets nudged
+// off the portal so G can take you onwards; walk over to it if you want it after all.
+function bagOffPortal(b){if(!b||!portal)return;if(dist(b,portal)>=26)return;for(let k=0;k<16;k++){const a=k/16*TAU,x=portal.x+Math.cos(a)*34,y=portal.y+Math.sin(a)*34;if(!blocked(x,y,4)){b.x=x;b.y=y;b.vx=b.vy=0;return;}}}
+{const _ta=takeAll;takeAll=function(b){const r=_ta.apply(this,arguments);if(b&&!b.dead&&b.items.length)bagOffPortal(b);return r;};}
+{const _cs=closeScroll;closeScroll=function(){const b=scrollSource&&scrollSource.b;const r=_cs.apply(this,arguments);if(b&&!b.dead&&b.items.length)bagOffPortal(b);return r;};}
