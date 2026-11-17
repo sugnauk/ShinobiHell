@@ -29,12 +29,12 @@ let phaseCam=null,phaseBanner=null;
  const sx0=sx(e.x,e.y),sy0=sy(e.x,e.y)-12;ctx.strokeStyle=X.col;for(let i=0;i<3;i++){const p=((X.t*1.2+i/3)%1),r=40*(1-p)+6;ctx.globalAlpha=p*.8;ctx.beginPath();ctx.ellipse(sx0,sy0,r,r*.6,0,0,TAU);ctx.stroke();}ctx.globalAlpha=1;};}
 // the camera eases over to frame the guardian (and eases back), without pausing the fight
 {const _rp=renderPlay;renderPlay=function(){const C=phaseCam;if(!C||!C.e||C.e.dead){phaseCam=null;return _rp.apply(this,arguments);}
- const span=PHDUR+.8,t=C.t=Math.min(span,C.t+(1/60)),g=Math.min(1,t/.45,(span-t)/.6);if(t>=span){phaseCam=null;return _rp.apply(this,arguments);}
+ const span=PHDUR+.8,t=C.t=Math.min(span,C.t+(paused?0:RDT)),g=Math.min(1,t/.45,(span-t)/.6);if(t>=span){phaseCam=null;return _rp.apply(this,arguments);}
  const oT=introT,oE=introE;introE={x:P.x+(C.e.x-P.x)*.8,y:P.y+(C.e.y-P.y)*.8,camOnly:1};introT=Math.max(.001,g*.5);
  try{_rp.apply(this,arguments);}finally{introT=oT;introE=oE;}};}
 {const _di=drawIntro;drawIntro=function(){if(introE&&introE.camOnly)return;return _di.apply(this,arguments);};}
 // "PHASE II" banner across the middle of the screen
-{const _dre=drawRoomEvents;drawRoomEvents=function(){_dre.apply(this,arguments);const B=phaseBanner;if(!B)return;B.t+=1/60;if(B.t>2){phaseBanner=null;return;}
+{const _dre=drawRoomEvents;drawRoomEvents=function(){_dre.apply(this,arguments);const B=phaseBanner;if(!B)return;B.t+=paused?0:RDT;if(B.t>2){phaseBanner=null;return;}
  const a=Math.min(1,B.t/.2,(2-B.t)/.4),w=Math.round(W*Math.min(1,B.t/.25));ctx.globalAlpha=a;ctx.fillStyle='rgba(0,0,0,.6)';ctx.fillRect(Math.round((W-w)/2),H/2-26,w,28);ctx.fillStyle=B.col;ctx.fillRect(Math.round((W-w)/2),H/2-26,w,1);ctx.fillRect(Math.round((W-w)/2),H/2+1,w,1);
  txt(B.text,Math.round((W-txtW(B.text,2))/2),H/2-22,'#fff',2);txt(B.sub,Math.round((W-txtW(B.sub))/2),H/2-7,B.col);ctx.globalAlpha=1;};}
 // nobody fires while a guardian transforms (its minions and turrets hold too)

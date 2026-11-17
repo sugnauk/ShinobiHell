@@ -80,6 +80,7 @@ function interact(){
   if(p.heal){R.pots++;setToast('BOUGHT AN HP POTION','#50e060',2);}
   else if(p.gear){pickups.push({x:p.x,y:p.y+14,k:'bag',tier:2,items:[p.gear],vx:0,vy:0,t:0,z:2,vz:80});setToast('BOUGHT '+p.gear.name+' - IT IS IN THE BAG','#ddd',2.5);}
   else if(p.ench){if(!applyEnch(p.ench)){p.sold=false;R.sen+=p.price;}}
+  else if(p.lairKey){R.keys=(R.keys||0)+1;setToast('BOUGHT A LAIR KEY - IT OPENS A SEALED DOOR','#e0b040',3);}
   else applyItem(p.item);}
  else if(p.k==='altar'){if(p.curse)takeCurse(p);else openShrine(p);}
  else if(p.k==='gong'){const r=p.room;if(r.ev&&r.ev.state===0){p.used=true;startChallenge(r);}}

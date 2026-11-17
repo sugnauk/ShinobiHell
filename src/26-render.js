@@ -28,7 +28,7 @@ function drawEnemy(e){
  shadow(X,Y-2,Math.round(e.r*2+6));
  if(e.elite){ctx.globalAlpha=.7;wcirc(e.x,e.y,e.r+3+Math.sin(time*6),ELMOD[e.elite].c);ctx.globalAlpha=1;}
  const blink=e.tele>0&&Math.floor(time*16)%2===0;
- const flip=(!!s.animal||!!s.bossSpr)&&sx(P.x,P.y)<X;if(s.bossSpr)frame=e.act||e.storm>0?2:Math.floor(time*2.5)%2;const fy=e.t&&e.t.fly?Math.round(6+Math.sin(time*5+e.wob)*2):0;drawSpr(s,X,Y-e.z-fy,e.flash>0||blink,frame,flip);
+ const flip=(!!s.animal||!!s.bossSpr)&&sx(P.x,P.y)<X;if(s.bossSpr)frame=s.pick?s.pick(e):(e.act||e.storm>0?2:Math.floor(time*2.5)%2);const fy=e.t&&e.t.fly?Math.round(6+Math.sin(time*5+e.wob)*2):0;drawSpr(s,X,Y-e.z-fy,e.flash>0||blink,frame,flip);
  if(e.mode&&((e.mode.k==='dashes'||e.mode.k==='stampede')&&e.mode.ph===0||e.mode.k==='cavalry'&&e.mode.ph===1)&&e.mode.da!=null){const wide=e.mode.k==='stampede'||e.mode.k==='cavalry';ctx.fillStyle=Math.floor(time*16)%2?'rgba(255,60,60,.9)':'rgba(255,200,80,.9)';
   if(wide)for(const off of [-e.r,e.r])for(let r=8;r<300;r+=4){const x=e.x+Math.cos(e.mode.da)*r-Math.sin(e.mode.da)*off,y=e.y+Math.sin(e.mode.da)*r+Math.cos(e.mode.da)*off;ctx.fillRect(sx(x,y)-1,sy(x,y),2,1);}
   for(let r=8;r<(wide?300:115);r+=3){const x=e.x+Math.cos(e.mode.da)*r,y=e.y+Math.sin(e.mode.da)*r;ctx.fillRect(sx(x,y)-1,sy(x,y),3,1);}}
@@ -219,6 +219,7 @@ function drawProp(p){
    ctx.globalAlpha=.22+.1*Math.sin(time*3+p.x);disc(X,iy+6,9,gc);ctx.globalAlpha=1;
    if(it)relicBox(X-6,iy,it.id);else if(p.gear)drawItemIcon(p.gear,X-7,iy-1);else if(p.ench){drawItemIcon(p.ench,X-7,iy-1);}
    else if(p.reroll){relicBox(X-6,iy,'echo');ctx.fillStyle='#ffd040';ctx.fillRect(X-3,iy+5,7,1);}
+   else if(p.lairKey){ctx.fillStyle='#14101a';ctx.fillRect(X-7,iy+3,15,7);ctx.fillRect(X-6,iy+1,6,10);ctx.fillStyle='#e0b040';ctx.fillRect(X-5,iy+2,4,8);ctx.fillRect(X-1,iy+5,8,2);ctx.fillRect(X+4,iy+7,1,2);ctx.fillRect(X+6,iy+7,1,2);ctx.fillStyle='#14101a';ctx.fillRect(X-4,iy+4,2,4);ctx.fillStyle='#fff6c0';ctx.fillRect(X-5,iy+2,1,1);}
    else{ctx.fillStyle='#000';ctx.fillRect(X-7,iy-1,15,15);ctx.fillStyle='#e33';ctx.fillRect(X-6,iy,13,13);ctx.fillStyle='#14101a';ctx.fillRect(X-5,iy+1,11,11);ctx.fillStyle='#ddd';ctx.fillRect(X-1,iy+2,3,2);ctx.fillStyle='#e33';ctx.fillRect(X-3,iy+4,7,6);ctx.fillStyle='#ff8080';ctx.fillRect(X-2,iy+5,1,3);}
    const aff=R.sen>=p.price,s=String(p.price),tw=txtW(s)+6;ctx.fillStyle='#14101a';ctx.fillRect(X-Math.round(tw/2),iy-10,tw,8);ctx.fillStyle='#e0b040';ctx.fillRect(X-Math.round(tw/2),iy-10,2,8);
    txt(s,X-Math.round(tw/2)+4,iy-9,aff?'#fc4':'#c55');}}
@@ -561,7 +562,7 @@ function drawHUD(){
  const nb=nearBag(),np=nearProp();
  if(nb)drawBagPanel(nb);
  else if(portal&&!portal.pending&&dist(portal,P)<20)ctxt(R.di>=DUN.length-1?'G: THE EMPEROR IS DEAD - LEAVE THE PALACE':'G: ENTER THE PORTAL',H-44,Math.floor(time*3)%2?'#8cf':'#fff');
- else if(np){const s=np.k==='pedestal'?'G: BUY '+np.name+' - '+np.price+' GOLD':np.k==='chest'?'G: OPEN CHEST':np.k==='spring'?'G: DRINK FROM THE SPRING':np.k==='gong'?'G: STRIKE THE GONG - CHALLENGE FOR A RARE BAG':np.curse?'G: ACCEPT '+CURSES[np.ck||'frail'].n:np.k==='blantern'?(np.lit>0?'THE LANTERN BURNS':np.cd>0?'THE LANTERN IS COOLING':'G: LIGHT THE LANTERN - LURE HER IN'):'G: MAKE AN OFFERING';ctxt(s,H-44,'#fff');
+ else if(np){const s=np.k==='pedestal'?'G: BUY '+np.name+' - '+np.price+' GOLD':np.k==='chest'?'G: OPEN CHEST':np.k==='spring'?'G: DRINK FROM THE SPRING':np.k==='gong'?'G: STRIKE THE GONG - CHALLENGE FOR A RARE BAG':np.k==='lairdoor'?((R.keys||0)>0?'G: UNLOCK '+np.L.title:'SEALED: '+np.L.title+' - NEEDS A LAIR KEY'):np.curse?'G: ACCEPT '+CURSES[np.ck||'frail'].n:np.k==='blantern'?(np.lit>0?'THE LANTERN BURNS':np.cd>0?'THE LANTERN IS COOLING':'G: LIGHT THE LANTERN - LURE HER IN'):'G: MAKE AN OFFERING';ctxt(s,H-44,'#fff');
   // the curse altar spells out exactly what you are agreeing to
   if(np.curse){const C=CURSES[np.ck||'frail'],Ls=C.L.concat([{s:'LASTS ALL RUN AND STACKS',c:'#888'}]),w=196,h=Ls.length*9+18,x=Math.round((W-w)/2),y=H-50-h;ctx.fillStyle='rgba(20,8,12,.94)';ctx.fillRect(x,y,w,h);ctx.fillStyle=C.c;ctx.fillRect(x,y,w,1);ctx.fillRect(x,y+h-1,w,1);
    txt(C.n,x+4,y+4,C.c);{const s2='YOU CARRY '+curseCount();txt(s2,x+w-4-txtW(s2),y+4,'#c6f');}Ls.forEach((l,i)=>txt(l.s,x+4,y+14+i*9,l.c));}

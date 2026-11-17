@@ -160,7 +160,7 @@ function barrageTick(e,K,dt){const B=K.barrage;if(e.air)return;if(e.A&&B.during!
 function kitStart(e,K){if(e.kitOn)return;e.kitOn=1;if(e.r0==null){e.r0=e.r;e.spd0=e.spd;}Object.assign(e,{evSeen:{},bgT:null,bgN:0,brq:[],ph:1,half:0,evDone:0,EV:null,A:null,gapT:1.4,spdK:1,lastA:null,say:null,mins:[]});e.drawAfter=bossDrawAfter;if(K.draw)e.drawFn=K.draw;if(K.init)K.init(e);}
 function defaultMove(e,dt,d,a,K){const pref=K.pref||e.pref||70;if(d>pref+12)steer(e,a,e.spd,dt);else if(d<pref-20)steer(e,a+Math.PI,e.spd*.8,dt);else steer(e,a+Math.PI/2*e.sdir,e.spd*.6,dt);if(Math.random()<dt*.3)e.sdir*=-1;}
 function chooseAtk(e,K,d){let L=K.atks.filter(x=>(x.half==null||(x.half===1)===!!e.half)&&(!x.ok||x.ok(e,d)));if(L.length>1){const L2=L.filter(x=>x.n!==e.lastA);if(L2.length)L=L2;}if(!L.length)return null;return wpick(L);}
-function startAtk(e,at){e.A={n:at.n,t:0,run:at.run,end:at.end,gap:at.gap};e.lastA=at.n;}
+function startAtk(e,at){e.A={n:at.n,nm:at.n,t:0,run:at.run,end:at.end,gap:at.gap};e.lastA=at.n;} // nm keeps the name (some attacks reuse A.n as a counter)
 function cancelAtk(e){if(e.A&&e.A.end)e.A.end(e,e.A);e.A=null;e.tele=0;e.air=false;e.z=0;}
 function doHalf(e,K){e.half=1;e.phase=2;e.spdK=K.spdK||1.2;cancelAtk(e);clearEnemyShots(true,1);e.iv=1.4;e.gapT=1.6;
  if(!K.keepSpr)e.sprOv=bossHurtSpr(e.di);if(K.onHalf)K.onHalf(e);
@@ -344,10 +344,10 @@ BKIT['AKAGANE, THE RED OX']={director:bossDirector,pref:85,gap:1.25,halfName:'HE
   end(e,E){const left=E.mins.filter(m=>!m.dead).length;if(left)setToast(left+' ASHIGARU JOIN THE FIGHT','#ff8080',2.5);}},
 };
 
-// ================================================================ II. THE WHITE TIGER - tracking unseen threats
-// A sacred tiger that stalks you through the reeds: invisible in them, only bending stalks show his path. When the stalks
+// ================================================================ II. KUSAKARI, THE REED HUNTER - tracking unseen threats
+// A masked marsh hunter in a straw raincoat who stalks you through the reeds: invisible in them, only bending stalks show his path. When the stalks
 // go still he is about to strike. Your shots cut the reeds for good; a shrine lantern you shoot lights him up.
-BART['THE WHITE TIGER']=Object.assign(({R,E,L,f,atk})=>{
+BART['KUSAKARI, THE REED HUNTER']=Object.assign(({R,E,L,f,atk})=>{
  const ice='#f5f2e3',white='#cad8db',shade='#8399ae',dark='#43536a',ink='#24273a';
  const gold='#dfaa61',red='#a85158',eye=ARTHURT?'#ff826b':'#89ffff';
  const back=atk?3:0,head=atk?5:0,top=atk?3:f,step=f===1?3:0;
@@ -388,8 +388,8 @@ const TIG={inReed(e,x,y){for(const r of e.reeds)if(r.hp>0&&Math.hypot(x-r.x,y-r.
  mark(A,shape){const m=mark(shape);(A.marks??=[]).push(m);return m;},
  cancel(e,A){for(const m of A.marks||[])if(!m.fired){m.dead=true;m.t=Infinity;}e.air=false;e.z=0;},
  expose(e,t){e.recover=Math.max(e.recover,t);e.moving=false;e.alpha=1;e.hid=false;}};
-BKIT['THE WHITE TIGER']={director:bossDirector,pref:100,gap:.9,halfName:'SEAL BROKEN - FRENZY',noContact:true,
- style:{c:'#a8d8ff',t:['STALKING','ROAR STORM','FRENZY'],ph:[[],[],[]]},
+BKIT['KUSAKARI, THE REED HUNTER']={director:bossDirector,pref:100,gap:.9,halfName:'HAT CUT - FRENZY',noContact:true,
+ style:{c:'#a8d8ff',t:['STALKING','CHAIN STORM','FRENZY'],ph:[[],[],[]]},
  guide:['WATCH THE REEDS AND DODGE AFTER THE POUNCE RING LOCKS','SHOOT A LANTERN, THEN BAIT A POUNCE INTO ITS LIGHT','A LANDING IN LIGHT STAGGERS HIM AND ENDS THE LAST HUNT','SHOOT REEDS TO CLEAR COVER BEFORE HE STRIKES'],
  init(e){const A=arenaOf(e);e.reeds=[];e.walks=[{x0:A.cx-160,x1:A.cx+160,y0:A.cy-100,y1:A.cy-78},{x0:A.cx-160,x1:A.cx+160,y0:A.cy+78,y1:A.cy+100}];
   for(let gx=-3;gx<=3;gx++)for(let gy=-3;gy<=3;gy++){const x=A.cx+gx*66+rnd(-12,12),y=A.cy+gy*66+rnd(-12,12);if(Math.random()<.4||blocked(x,y,8)||Math.hypot(x-A.cx,y-A.cy)<40)continue;if(e.walks.some(w=>y>w.y0-14&&y<w.y1+14&&x>w.x0&&x<w.x1))continue;
@@ -405,7 +405,7 @@ BKIT['THE WHITE TIGER']={director:bossDirector,pref:100,gap:.9,halfName:'SEAL BR
   if(e.alpha>.05){
    ctx.globalAlpha=e.alpha;
    shadow(X,Y-2,e.r*2+6);
-   const frame=e.air||e.A?.wind||e.EV?.strike?.wind?2:e.moving?Math.floor(time*7)%2:0;
+   const frame=sp.pick?sp.pick(e):e.air||e.A?.wind||e.EV?.strike?.wind?2:e.moving?Math.floor(time*7)%2:0;
    const dir=e.A?.dir??e.EV?.strike?.dir;
    const facing=dir==null?sx(P.x,P.y)<X:scrVec(Math.cos(dir),Math.sin(dir))[0]<0;
    drawSpr(sp,X,Y-e.z,e.flash>0&&meta.opt.flash,frame,facing);
@@ -434,7 +434,7 @@ BKIT['THE WHITE TIGER']={director:bossDirector,pref:100,gap:.9,halfName:'SEAL BR
   for(const l of e.lamps)if(l.lit>0){
    ctx.globalAlpha=.13;wdisc(l.x,l.y,90,'#ffe080');ctx.globalAlpha=.7;wcirc(l.x,l.y,90,'#ffe080');ctx.globalAlpha=1;
   }
-  // reed beds: stalks sway, and part around the tiger as he slips through
+  // reed beds: stalks sway, and part around the hunter as he slips through
   for(const r of e.reeds){if(r.hp<=0)continue;ctx.globalAlpha=.45;wdisc(r.x,r.y,r.r,'#3a3018');ctx.globalAlpha=1;}
   for(const r of e.reeds){if(r.hp<=0)continue;for(const s of r.st){const X=sx(s.x,s.y),Y=sy(s.x,s.y),near=Math.hypot(e.x-s.x,e.y-s.y)<14&&e.moving,bend=Math.round(Math.sin(time*2+s.x*.3)*1+(near?Math.sin(time*30)*2:0));ctx.fillStyle=near?'#fff8c0':s.c;ctx.fillRect(X,Y-s.h,1,s.h);ctx.fillRect(X+bend,Y-s.h-3,1,3);ctx.fillStyle='#6a5020';ctx.fillRect(X+bend,Y-s.h-3,1,1);}}},
  hud:e=>e.recover>0?'EXPOSED - STRIKE NOW':e.half?'FRENZY - WATCH FOR A SECOND POUNCE':'SHOOT A LANTERN. BAIT HIS POUNCE INTO THE LIGHT.',
@@ -537,12 +537,12 @@ TIG.pounce=function(e,A,dt,count,wind){
  return false;
 };
 
-// ================================================================ III. TSUCHIGUMO, THE EARTH SPIDER - arena control
-// Half the fight she is on the ceiling, only a shadow: spitting and dropping. On the floor she is open but her patterns
+// ================================================================ III. ITOHIME, THE WIRE WEAVER - arena control
+// The spider-clan matriarch strings wires through the tunnels. Half the fight she is up in the rafters, only a shadow: spitting and dropping. On the floor she is open but her patterns
 // are dense. Webs slow you; shoot a brazier three times to loose a fire arrow that burns webs and knocks her off the ceiling.
 defProp('brazier','BRAZIER',99,6,miniSpr(10,12,R=>{R(1,0,8,4,'#5a4a3a');R(0,3,10,2,'#3a2a20');R(4,5,2,6,'#3a2a20');R(1,10,8,2,'#3a2a20');}));
 const SPI={};
-BKIT['TSUCHIGUMO, EARTH SPIDER']={director:bossDirector,pref:70,gap:.6,halfName:'LEGS LOST - SHE CANNOT CLIMB',
+BKIT['ITOHIME, THE WIRE WEAVER']={director:bossDirector,pref:70,gap:.6,halfName:'WIRES CUT - SHE CANNOT CLIMB',
  style:{c:'#c89040',t:['SILK','THE HATCHING','HUNGERING DARK'],ph:[[],[],[]]},
  guide:['SKILL: ARENA CONTROL. KEEP A LANE OPEN','ON THE CEILING SHE IS ONLY A SHADOW: SHE CANNOT BE HURT','SHOOT A BRAZIER 3 TIMES: A FIRE ARROW BURNS WEBS','AND KNOCKS HER OFF THE CEILING. BREAK THE EGG SACS'],
  shape(m,r){const cx=r.x+(r.w>>1),cy=r.y+(r.h>>1);for(let i=0;i<4;i++){const a=i/4*TAU+.78,x=Math.round(cx+Math.cos(a)*7),y=Math.round(cy+Math.sin(a)*7);solidBlock(m,x,y,2,2);}},
@@ -1056,8 +1056,8 @@ function bossDark(e){const a=BX.dark||0;if(a<=0)return;if(!darkCv||darkCv.width!
  ctx.drawImage(darkCv,0,0);
  if(BX.smoke){const S=BX.smoke;ctx.globalAlpha=.55*Math.min(1,S.t);wdisc(S.x,S.y,S.r,'#5a5a6a');ctx.globalAlpha=1;}}
 
-// ================================================================ X. THE NINE-TAILED KITSUNE - real vs fake
-// She fights through illusions. Her clones fire the same patterns, but their shots are hollow and harmless; only the real
+// ================================================================ X. TAMAMO, THE ILLUSIONIST - real vs fake
+// A court illusionist in a fox mask and a costume of nine paper tails. She fights through illusions. Her clones fire the same patterns, but their shots are hollow and harmless; only the real
 // fox casts a moon-shadow. She loses a tail at every step of damage (9 down to 3), and each tail lost changes her attacks.
 // Walk through a torii gate to see through every illusion for 3s.
 ET.foxclone={n:'ILLUSION',hp:1,spd:0,pos:9999,r:9,ai:'dummy',rng:0,wl:0,atks:[]};
@@ -1068,9 +1068,9 @@ const KIT={
  both(e,fn){fn(e,true);for(const c of KIT.clones(e))fn(c,false);},
  shot(e,src,real,a,sp,dmg,o){if(real)return bsh(e,src.x,src.y,a,sp,dmg,o);return fakeShot(e,src.x,src.y,a,sp,{st:o&&o.st==='seek'?'seek':o&&o.st==='curve'?'curve':null,curve:o&&o.curve,turn:o&&o.turn,seekT:o&&o.seekT,col:'#c8a0ff',r:3,life:o&&o.life||4});},
 };
-BKIT['THE NINE-TAILED KITSUNE']={director:bossDirector,pref:110,gap:.75,halfName:'THE TAILS BURN LOW',
+BKIT['TAMAMO, THE ILLUSIONIST']={director:bossDirector,pref:110,gap:.75,halfName:'THE TAILS BURN LOW',
  style:{c:'#c080ff',t:['FOX-FIRE','MAZE OF ILLUSIONS','RAW FOX-FIRE'],ph:[[],[],[]]},
- guide:['SKILL: REAL VS FAKE. ONLY THE REAL FOX CASTS A SHADOW','HOLLOW SHOTS ARE ILLUSIONS AND DO NO HARM','WALK THROUGH A TORII GATE TO SEE THROUGH ILLUSIONS FOR 3S','SHE LOSES TAILS AS SHE IS HURT: AT 3 TAILS NO MORE CLONES'],
+ guide:['SKILL: REAL VS FAKE. ONLY THE REAL TAMAMO CASTS A SHADOW','HOLLOW SHOTS ARE ILLUSIONS AND DO NO HARM','WALK THROUGH A TORII GATE TO SEE THROUGH ILLUSIONS FOR 3S','HER PAPER TAILS TEAR AS SHE IS HURT: AT 3 NO MORE CLONES'],
  init(e){const A=arenaOf(e);e.torii=[];for(let i=0;i<5;i++){const a=i/5*TAU+Math.PI/2,k=A.R*.62;e.torii.push({x:A.cx+Math.cos(a)*k,y:A.cy+Math.sin(a)*k,a:a+Math.PI/2,cd:0});}
   e.clones=[];e.cloudT=30;e.cloud=0;BX.reveal=0;},
  tick(e,dt,d,inEv){if(BX.reveal>0)BX.reveal-=dt;for(const g of e.torii){if(g.cd>0)g.cd-=dt;else if(Math.hypot(P.x-g.x,P.y-g.y)<13){g.cd=8;BX.reveal=3;sfx('heal');fxRing(P.x,P.y,40,'#ff4060',.4);setToast('THE TORII REVEALS THE ILLUSIONS','#ff4060',1.5);}}
@@ -1092,9 +1092,9 @@ BKIT['THE NINE-TAILED KITSUNE']={director:bossDirector,pref:110,gap:.75,halfName
      // the swap
      const c=pick(KIT.clones(e)),ox=e.x,oy=e.y;e.x=c.x;e.y=c.y;c.x=ox;c.y=oy;for(const q of [e,c])spark(q.x,q.y,'#ff9040',10,60);}return A.t>.7;}},
   // fox-flame orbs: wisps gather round her, brighten in turn, then launch one by one, slightly homing
-  {n:'orbs',wt:3,run(e,A){if(!A.go){A.go=1;const n=Math.min(8,KIT.tails(e));KIT.both(e,(src,real)=>{for(let i=0;i<n;i++){const a=i/n*TAU,x=src.x+Math.cos(a)*18,y=src.y+Math.sin(a)*18,ha=Math.atan2(P.y-y,P.x-x);
+  {n:'orbs',wt:3,run(e,A,dt){if(!A.go){A.go=1;const n=Math.min(8,KIT.tails(e));KIT.both(e,(src,real)=>{for(let i=0;i<n;i++){const a=i/n*TAU,x=src.x+Math.cos(a)*18,y=src.y+Math.sin(a)*18,ha=Math.atan2(P.y-y,P.x-x);
       if(real)bsh(e,x,y,ha,0,9,{spr:'wisp',st:'hang',wait:.7+i*.2,ha,csp:85,then:'seek',turn:.8,seekT:1.2,col:'#8080ff',r:3,life:5});else{const q=fakeShot(e,x,y,ha,0,{life:5});q.hold=.7+i*.2;q.ha=ha;}}});}
-    for(const q of fakes)if(q.hold>0){q.hold-=1/60;if(q.hold<=0){q.vx=Math.cos(q.ha)*85;q.vy=Math.sin(q.ha)*85;}}return A.t>2.4;}},
+    for(const q of fakes)if(q.hold>0){q.hold-=dt;if(q.hold<=0){q.vx=Math.cos(q.ha)*85;q.vy=Math.sin(q.ha)*85;}}return A.t>2.4;}},
   // tail sweep: one curved flame wave per remaining tail, fanned out. Find the gap between the arcs
   {n:'tails',wt:3,run(e,A){if(!A.go){A.go=1;e.tele=1;}if(at(A,.55)){e.tele=0;const n=KIT.tails(e);KIT.both(e,(src,real)=>{const base=Math.atan2(P.y-src.y,P.x-src.x);for(let t=0;t<n;t++){const ca=base+(t-(n-1)/2)*.36;for(let j=0;j<4;j++)KIT.shot(e,src,real,ca+(j-1.5)*.05,60+j*6+(9-n)*4,9,{st:'curve',curve:(t%2?1:-1)*.3,col:'#c080ff',r:3,life:4});}});sfx('shoot');}return A.t>.9;}},
   // illusion maze: walls rise around you for 8s; some are false. A torii shows which
@@ -1112,7 +1112,7 @@ BKIT['THE NINE-TAILED KITSUNE']={director:bossDirector,pref:110,gap:.75,halfName
   start(e,E){for(const c of KIT.clones(e))c.dead=true;e.clones=[];for(let i=0;i<5;i++){const c=bMin(e,'foxclone',e.x,e.y);c.hp=c.maxhp=1;c.wob=i;c.iv=999;c.drawFn=c=>{drawGhostly(c,revealed()?.35:1,0,0,sprOf(e));return false;};e.clones.push(c);}E.ang=0;E.st=1.2;E.mt=1;},
   tick(e,dt,E){E.ang+=dt*.45;const all=[e].concat(KIT.clones(e));all.forEach((q,i)=>{const a=E.ang+i/all.length*TAU;q.x+=(P.x+Math.cos(a)*120-q.x)*Math.min(1,dt*3);q.y+=(P.y+Math.sin(a)*120-q.y)*Math.min(1,dt*3);q.iv=999;});
    E.st-=dt;if(E.st<=0){E.st=1.1;KIT.both(e,(src,real)=>{const a=Math.atan2(P.y-src.y,P.x-src.x);for(let i=-1;i<=1;i++)KIT.shot(e,src,real,a+i*.25,62,9,{st:'seek',turn:.6,seekT:1.4,col:'#8080ff',r:3,life:5});});}
-   E.mt-=dt;if(E.mt<=0){E.mt=7;BKIT['THE NINE-TAILED KITSUNE'].atks.find(x=>x.n==='maze').run(e,{t:0});}},
+   E.mt-=dt;if(E.mt<=0){E.mt=7;BKIT['TAMAMO, THE ILLUSIONIST'].atks.find(x=>x.n==='maze').run(e,{t:0});}},
   end(e){for(const c of KIT.clones(e))c.dead=true;e.clones=[];}},
  onDeath(){BX.reveal=0;},
 };
@@ -1270,7 +1270,7 @@ const EMPATK={
 // the echoes: one signature of every guardian, recoloured and turned against you
 const ECHO={
  'OX CHARGE':{from:'AKAGANE',tick(e,x,dt){if(x.rt>0)return;x.rt=3;const a=aimAt(e);mark({k:'l',x:e.x,y:e.y,a,len:rayLen(e.x,e.y,a,520),w:22,t:.8,col:BC.cor,on:m=>{bsh(e,m.x,m.y,m.a,300,14,{spr:'rider',r:9,col:'#4a1a6a',st:'bounce',bn:2,life:4});}});}},
- 'CLAW X':{from:'THE WHITE TIGER',tick(e,x){if(x.rt>0)return;x.rt=2.4;const pl=EMPR.pools(),src=pl.length?pick(pl):{x:e.x,y:e.y},a=Math.atan2(P.y-src.y,P.x-src.x);for(const s of [1,-1]){const la=a+s*Math.PI/4;mark({k:'l',x:P.x-Math.cos(la)*80,y:P.y-Math.sin(la)*80,a:la,len:160,w:13,t:.6,dmg:15*e.dm,col:BC.cor,src:e});}}},
+ 'CLAW X':{from:'KUSAKARI, THE REED HUNTER',tick(e,x){if(x.rt>0)return;x.rt=2.4;const pl=EMPR.pools(),src=pl.length?pick(pl):{x:e.x,y:e.y},a=Math.atan2(P.y-src.y,P.x-src.x);for(const s of [1,-1]){const la=a+s*Math.PI/4;mark({k:'l',x:P.x-Math.cos(la)*80,y:P.y-Math.sin(la)*80,a:la,len:160,w:13,t:.6,dmg:15*e.dm,col:BC.cor,src:e});}}},
  'SILK WALLS':{from:'TSUCHIGUMO',tick(e,x){if(x.rt>0)return;x.rt=3;const n=5,o=Math.random()*TAU;for(let i=0;i<n;i++)for(let j=0;j<5;j++)bsh(e,e.x,e.y,o+i/n*TAU,60+j*10,8,Object.assign({spr:'silk',st:'stick',sd:60+j*20,life:5},COR));}},
  'TALISMAN SPIRAL':{from:'LADY HOTARU',tick(e,x,dt){x.a=(x.a||0)+dt*1.5;x.ft=(x.ft||0)-dt;if(x.ft<=0){x.ft=.2;for(let i=0;i<3;i++){bsh(e,e.x,e.y,x.a+i/3*TAU,55,8,{spr:'charm',col:BC.cor2,r:3,life:5});bsh(e,e.x,e.y,-x.a+i/3*TAU+.4,55,8,{spr:'charm',col:BC.cor2,r:3,life:5});}}}},
  'LANCE PASS':{from:'LORD KUROGANE',tick(e,x){if(x.rt>0)return;x.rt=2.2;const A=arenaOf(e),dir=Math.random()<.5?1:-1,y=P.y;mark({k:'l',x:dir>0?A.x0+4:A.x1-4,y,a:dir>0?0:Math.PI,len:520,w:22,t:.9,col:BC.cor,grow:false,on:m=>bsh(e,m.x,m.y,m.a,290,14,{spr:'rider',r:9,col:'#4a1a6a',life:2.4})});}},
@@ -1459,7 +1459,7 @@ BART['THE NINE-TAILED KITSUNE']=Object.assign(p=>{const {R,E,L,b,atk,f}=p,two=AR
 // classic SURVIVAL storm as a second event (BKIT.storm) at whichever of 70% / 30% its own event does not use.
 // Colours follow the shared language: red aimed, pale fixed, green leaves a hazard, purple the Emperor.
 {const set=(n,b,st)=>{const K=BKIT[n];K.barrage=b;if(st)K.storm=st;K._evs=null;};
- set('TSUCHIGUMO, EARTH SPIDER',{rate:[.62,.46],during:'all',not:['climb'],
+ set('ITOHIME, THE WIRE WEAVER',{rate:[.62,.46],during:'all',not:['climb'],
   ph1:[{pat:'web',cnt:10,rings:3,sp:55,col:BC.fix},{pat:'spiral',arms:5,spin:.32,sp:56,col:'#e8e8f0',burst:7,gap:.1},{cnt:5,spread:1,sp:55,st:'big',r:4,spr:'venom',col:BC.haz,pool:{r:10,t:2.5,dps:8,col:'#4a9a20'}},{pat:'flower',cnt:20,sp:50,st:'split',splitT:.9,col:'#c89040'},{cnt:7,spread:.6,sp:90,col:BC.aim,burst:2,gap:.18}],
   half:[{pat:'web',cnt:12,rings:3,sp:58,col:BC.fix,burst:2,gap:.4},{pat:'spiral',arms:7,spin:.36,sp:60,col:'#e8e8f0',burst:9,gap:.08},{cnt:7,spread:1.4,sp:58,st:'big',r:4,spr:'venom',col:BC.haz,pool:{r:10,t:2.5,dps:8,col:'#4a9a20'}},{pat:'flower',cnt:24,sp:52,st:'split',splitT:.9,col:'#c89040'},{pat:'gapring',cnt:30,gw:.4,sp:56,col:'#c89040',burst:2,gap:.3}]},
   {at:.3,dur:9,name:'HUNGERING DARK',rate:.38});
@@ -1483,7 +1483,7 @@ BART['THE NINE-TAILED KITSUNE']=Object.assign(p=>{const {R,E,L,b,atk,f}=p,two=AR
   ph1:[{cnt:5,spread:.6,sp:105,st:'boom',bT:1.5,col:BC.aim,burst:2,gap:.18},{pat:'lance',cnt:5,spread:.8,sp:240,col:'#e8eef6'},{pat:'stream',cnt:6,sp:115,st:'zig',col:BC.aim2},{pat:'gapring',cnt:24,gw:.4,sp:55,col:'#8a8aa0',burst:2,gap:.3},{pat:'curtain',cnt:9,sp:90,col:BC.aim}],
   half:[{cnt:7,spread:.8,sp:115,st:'boom',bT:1.4,col:BC.aim,burst:3,gap:.14},{pat:'lance',cnt:7,spread:1,sp:260,col:'#e8eef6'},{pat:'spiral',arms:6,spin:.45,sp:66,col:'#8a8aa0',burst:8,gap:.08},{pat:'cross',dirs:8,cnt:3,sp:80,st:'boom',bT:1.3,col:BC.aim2,rot:.3},{pat:'stream',cnt:8,sp:125,st:'zig',col:BC.aim2,burst:2,gap:.2}]},
   {at:.3,dur:9,name:'SHADOW STORM',rate:.36});
- set('THE NINE-TAILED KITSUNE',{rate:[.5,.4],during:'all',not:['clones'],
+ set('TAMAMO, THE ILLUSIONIST',{rate:[.5,.4],during:'all',not:['clones'],
   ph1:[{pat:'orbitring',cnt:10,ow:3,orv:32,col:'#8080ff'},{cnt:5,spread:1,sp:60,st:'seek',turn:1.4,seekT:1.6,spr:'wisp',col:'#8080ff'},{pat:'spiral',arms:6,spin:.4,sp:60,st:'wave',col:'#c080ff',burst:7,gap:.1},{pat:'gapring',cnt:26,gw:.42,sp:55,col:'#ff9040',burst:2,gap:.35}],
   half:[{pat:'orbitring',cnt:12,ow:-3.2,orv:36,col:'#8080ff'},{cnt:7,spread:1.4,sp:64,st:'seek',turn:1.6,seekT:1.8,spr:'wisp',col:'#8080ff'},{pat:'spiral',arms:9,spin:.45,sp:64,st:'wave',col:'#c080ff',burst:9,gap:.09},{pat:'lance',cnt:5,spread:.6,sp:230,col:'#ffd060'},{pat:'gapring',cnt:32,gw:.38,sp:60,col:'#ff9040',burst:3,gap:.3}]},
   {at:.7,dur:9,name:'FOX-FIRE STORM',rate:.38});

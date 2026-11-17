@@ -43,7 +43,7 @@ function drawPause(){
  // hero, form, trophy and health
  const C=CLS(),st=P.evo||0,sp=heroSpr(C.k,st);ctx.fillStyle='#1e1628';ctx.fillRect(X+6,Y+6,30,34);ctx.drawImage(sp.c,WIZ.idle[Math.floor(time*2.5)%2]*sp.fw,0,sp.fw,sp.fh,X+11,Y+10,sp.fw,sp.fh);
  txt(C.n,X+42,Y+7,C.col);txt('FORM '+(st+1)+'/10: '+heroEV(C.k,st).n,X+42,Y+15,'#ffe060');
- txt(st&&typeof EVOGEAR!=='undefined'?'TROPHY: '+EVOGEAR[st]:'BEAT A BOSS TO EARN A TROPHY',X+42,Y+23,'#aa9');
+ txt(st<9?'EVOLVES AFTER EACH GUARDIAN':'FINAL FORM',X+42,Y+23,'#aa9');
  bar(X+42,Y+31,90,6,P.hp/S.maxhp,'#c22','#3a1010');txt(Math.ceil(P.hp)+'/'+S.maxhp,X+45,Y+32,'#fff');
  {hudCoin(X+Wd-48,Y+7);txt(String(R.sen),X+Wd-39,Y+8,'#fc4');hudRevive(X+Wd-48,Y+17);txt('X'+P.rez,X+Wd-39,Y+18,'#bfe8ff');txt('SCORE '+(R.score||0),X+Wd-txtW('SCORE '+(R.score||0))-6,Y+30,'#fff8c0');}
  // stats

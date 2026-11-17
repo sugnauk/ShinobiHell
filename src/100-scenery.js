@@ -7,9 +7,9 @@
 const SCN=[
  {short:'AKAGANE\'S WARBAND HAS CAMPED IN THE BAMBOO',tale:'THE MARCH BEGINS. AKAGANE, THE RED OX, HAS CAMPED HIS WARBAND IN THE BAMBOO AND BURNS THE VILLAGES THAT CANNOT PAY THE EMPEROR\'S TAX. BREAK HIM AND THE ROAD OPENS.',
   wall:'bamboo',gr:['#232c19','#27301c'],out:'forest',seal:'ox'},
- {short:'SOMETHING WHITE HUNTS IN THE FLOODED PADDIES',tale:'THE RICE MARSH GUARDS THE CASTLE FLANK. THE FARMERS FLED AND LEFT THEIR LANTERNS LIT TO KEEP THE WHITE TIGER AWAY. IT STILL HUNTS IN THE REEDS.',
+ {short:'SOMEONE HUNTS IN THE FLOODED PADDIES',tale:'THE RICE MARSH GUARDS THE CASTLE FLANK. THE FARMERS FLED AND LEFT THEIR LANTERNS LIT TO KEEP THE REED HUNTER AWAY. HE STILL HUNTS IN THE REEDS.',
   wall:'reeds',gr:['#1c3634','#203b38'],out:'paddy',seal:'tiger'},
- {short:'THE EARTH SPIDER NESTS IN THE SMUGGLERS\' TUNNELS',tale:'SMUGGLERS DUG THESE TUNNELS UNDER THE HILLS TO SNEAK RICE PAST THE EMPEROR\'S TAX MEN. THEN TSUCHIGUMO, THE EARTH SPIDER, MOVED IN. MIND THE WEBS AND THE EGGS.',
+ {short:'THE SPIDER CLAN STRINGS ITS WIRES THROUGH THE SMUGGLERS\' TUNNELS',tale:'SMUGGLERS DUG THESE TUNNELS UNDER THE HILLS TO SNEAK RICE PAST THE EMPEROR\'S TAX MEN. NOW ITOHIME OF THE SPIDER CLAN HOLDS THEM, AND THE EARTH SPIDER SHE KEEPS SLEEPS BEHIND A LOCKED DOOR.',
   wall:'rock',gr:['#1a1324','#1e1628'],out:'cave',seal:'spider'},
  {short:'LADY HOTARU\'S LANTERNS BURN IN THE ASHES',tale:'LADY HOTARU SET THE TOWN AT THE CASTLE\'S FEET ALIGHT SO NO ONE COULD FLEE TO WARN US. HER FIREFLY LANTERNS STILL BURN AMONG THE ASHES.',
   wall:'ruin',gr:['#261612','#2a1914'],out:'ashes',seal:'lantern'},
@@ -23,7 +23,7 @@ const SCN=[
   wall:'brick',gr:['#121216','#15151a'],out:'pit',seal:'chain'},
  {short:'KAGE WAITS ON THE ROOFS OF THE KEEP',tale:'THE HALLS OF CRANE CASTLE ARE DARK. KAGE, MASTER OF THE SHINOBI, WAITS ON THE ROOFS ABOVE. KEEP THE TORCHES LIT.',
   wall:'shoji',gr:['#343b47','#39414e'],out:'roofs',seal:'shuriken'},
- {short:'A FOX SPIRIT WEAVES ILLUSIONS AMONG THE CHERRY TREES',tale:'THE EMPEROR\'S PRIVATE GARDENS BLOOM OUT OF SEASON. THE NINE-TAILED KITSUNE WEAVES ILLUSIONS AMONG THE CHERRY TREES. TRUST NOTHING.',
+ {short:'A MASKED ILLUSIONIST HAUNTS THE CHERRY TREES',tale:'THE EMPEROR\'S PRIVATE GARDENS BLOOM OUT OF SEASON. TAMAMO, HIS COURT ILLUSIONIST, WEAVES TRICKS AMONG THE CHERRY TREES, AND THE FOX SHE LEARNED THEM FROM IS LOCKED AWAY NEARBY. TRUST NOTHING.',
   wall:'hedge',gr:['#33502a','#37552c'],out:'garden',seal:'tails'},
  {short:'THE BLACK HORSE GENERAL GUARDS THE LAST COURT',tale:'THE JADE PALACE. LORD KUROGANE, THE BLACK HORSE GENERAL, GUARDS THE LAST COURT BEFORE THE THRONE WITH HIS STANDARD-BEARERS.',
   wall:'palace',gr:['#6a7a7a','#728282'],out:'court',seal:'tomoe'},
@@ -194,7 +194,7 @@ function drawSeal(k,cx,cy,R0,c,t){
   case 'ox': // a horned crest over crossed spears
    wArc(cx,cy-R0*.05,R0*.5,Math.PI*1.05,Math.PI*1.45,c);wArc(cx,cy-R0*.05,R0*.5,-Math.PI*.45,-Math.PI*.05,c);
    wcirc(cx,cy,R0*.28,c);wl(...P2(Math.PI*.75,R0*.8),...P2(-Math.PI*.25,R0*.8),c);wl(...P2(Math.PI*.25,R0*.8),...P2(Math.PI*1.25,R0*.8),c);break;
-  case 'tiger': // three claw slashes
+  case 'tiger': // three sickle slashes
    for(let i=-1;i<=1;i++){const o=i*R0*.22;wl(cx-R0*.55+o,cy-R0*.6,cx+R0*.45+o,cy+R0*.6,c);wl(cx-R0*.5+o,cy-R0*.6,cx+R0*.5+o,cy+R0*.6,c);}wcirc(cx,cy,R0*.85,c);break;
   case 'spider': // a web: eight spokes and three rings of threads
    for(let i=0;i<8;i++)wl(cx,cy,...P2(i/8*TAU,R0*.9),c);for(const f of [.3,.55,.8])for(let i=0;i<8;i++)wl(...P2(i/8*TAU,R0*f),...P2((i+1)/8*TAU,R0*f*.92),c);break;
@@ -251,7 +251,5 @@ function evoFront(st,X,Y,f){
   if(gold){ctx.fillRect(X-2,y-2,1,2);ctx.fillRect(X,y-3,1,3);ctx.fillRect(X+2,y-2,1,2);}}
  const nw=st>=8?3:st>=3?1:0;for(let i=0;i<nw;i++){const a=time*2.2+i*TAU/3,wx=X+Math.round(Math.cos(a)*11),wy=Y-12+Math.round(Math.sin(a)*4);ctx.globalAlpha=.35;ctx.fillStyle='#8cf';ctx.fillRect(wx-1,wy-1,3,3);ctx.globalAlpha=1;ctx.fillStyle='#fff';ctx.fillRect(wx,wy,1,1);}
  if(st>=9)for(let i=0;i<6;i++){const ph=(time*1.5+i/6)%1,ax=X-7+((i*37)%15),ay=Y-2-ph*16;ctx.globalAlpha=1-ph;ctx.fillStyle=i%2?'#ffd040':'#ff9020';ctx.fillRect(ax,Math.round(ay),1,2);}ctx.globalAlpha=1;}
-{const _dp=drawPlayer;drawPlayer=function(){const st=P&&!(P.dying>0)?Math.min(9,P.evo||0):0;if(!st)return _dp();
- const X=sx(P.x,P.y),Y=sy(P.x,P.y)+3,f=P.dash>0?(scrVec(P.dx,P.dy)[0]<0?-1:1):(P.face<0?-1:1),c=(CLS()&&CLS().col)||'#c02020';
- evoBack(st,X,Y,f,c);_dp();evoFront(st,X,Y,f);};}
-{const _ev=evolve;evolve=function(){const b=P&&P.evo||0;_ev();const st=P&&P.evo||0;if(st!==b&&EVOGEAR[st])setToast('NEW TROPHY: '+EVOGEAR[st],'#ffe060',3.5);};}
+// The trophies are no longer drawn on the player: in a bullet hell nothing should crowd the hitbox. Your form still
+// changes with each boss (the hero sprites themselves evolve). evoBack/evoFront are kept for menus that may show them.

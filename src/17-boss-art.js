@@ -101,7 +101,7 @@ Object.assign(BART,{
   // a great naginata
   if(atk){L(h.hx-14,h.hy+8,h.hx+16,h.hy-6,'#5a3a22',2);L(h.hx+14,h.hy-6,h.hx+22,h.hy-12,'#e8eef6',2);R(h.hx+20,h.hy-14,3,3,'#ffffff');}
   else{R(h.hx+1,2,2,50,'#5a3a22');L(h.hx+2,2,h.hx+6,-6,'#e8eef6',2);R(h.hx,8,4,2,'#e0b040');}},{sc:1.1}),
- 'THE WHITE TIGER':Object.assign(p=>{const {R,E,L,b,atk,f}=p;
+ 'KUSAKARI, THE REED HUNTER':Object.assign(p=>{const {R,E,L,b,atk,f}=p;
   // a lean duelist wearing a white tiger's pelt: the head as a hood, the paws knotted at the chest, the tail behind
   const h=bWarrior(p,{ar:'#1e2a50',ad:'#121a34',ac:'#f0f0f4',lg:'#1e2a50',hand:'#e0b080',arm:'#2a3a6a',chest:'#2a3a6a'});
   for(let i=0;i<14;i++)R(4+i*.6,40-Math.sin(i/13*3)*8+b,2,2,i%3?'#f0f0f4':'#14101a');
