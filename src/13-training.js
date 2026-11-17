@@ -18,7 +18,7 @@ function loadTraining(){
  map={t,vis,rooms:[room],liq:new Uint8Array(MW*MH),liqList:[],env:ENV[0],expl:new Uint8Array(MW*MH).fill(1),startRoom:room,bossRoom:room,train:1,th,mc:{}};mapCanvas=map.mc[camRot]=renderMap(th);
  enemies=[];projs=[];pickups=[];fx=[];particles=[];texts=[];props=[];traps=[];hz=[];dh=[];zones=[];freezeT=0;portal=null;boss=null;trainMarks=[];
  P.x=(rx+5)*T;P.y=(ry+rh/2)*T;P.iv=1;P.hp=S.maxhp;P.gourd=S.gourdMax;P.lock={m:1,h:1,q:1,w:1,f:1,e:1,d:1};
- decos=genDecos(0).filter(o=>Math.hypot(o.x-P.x,o.y-P.y)>60);ambient=[];setToast('TRAINING GROUNDS','#fff',3);nextLesson();}
+ decos=genDecos(0).filter(o=>Math.hypot(o.x-P.x,o.y-P.y)>60);ambient=[];nextLesson();}
 const tRoom=()=>map.rooms[0],tAt=(fx,fy)=>{const r=tRoom();return {x:(r.x+r.w*fx)*T,y:(r.y+r.h*fy)*T};};
 function tSpawn(type,fx,fy,o){const p=tAt(fx,fy),e=mkEnemy(type,p.x,p.y,tRoom(),0);e.awake=true;Object.assign(e,o||{});enemies.push(e);spark(p.x,p.y,'#fff',8,50);return e;}
 const spName=k=>SPELLS[k][P.lo[k]].n,spDesc=k=>SPELLS[k][P.lo[k]].d;

@@ -274,7 +274,7 @@ function drawProj(q){
    case 'split':circ(X,Y,q.r,q.col);disc(X,Y,q.r-2,'#fff');ctx.globalAlpha=.4;disc(X,Y,q.r+1,q.col);ctx.globalAlpha=1;break;
    case 'mine':{const bl=q.fuse<.4?Math.floor(time*20)%2:Math.floor(time*6)%2;circ(X,Y+3,8-q.fuse*3|0,q.col);disc(X,Y,3,bl?'#fff':q.col);ctx.fillStyle='#14101a';ctx.fillRect(X-1,Y,3,1);ctx.fillRect(X,Y-1,1,3);break;}
    case 'star':ctx.fillStyle=q.col;ctx.fillRect(X-2,Y,5,1);ctx.fillRect(X,Y-2,1,5);ctx.fillStyle='#fff';ctx.fillRect(X,Y,1,1);break;
-   case 'big':{const r=Math.max(3,Math.round(q.r)),pl=.18+.1*Math.sin(time*8+q.x);ctx.globalAlpha=pl;disc(X,Y,r+3,q.col);ctx.globalAlpha=1; // a heavy shaded orb
+   case 'big':{const r=Math.max(3,Math.round(q.r)); // a heavy shaded orb (no glow, so it reads steady as it flies)
     disc(X,Y,r+1,'#14101a');disc(X,Y,r,shade(q.col,.45));disc(X,Y,r-1,shade(q.col,-.28));disc(X-1,Y-1,r-2,q.col);disc(X-Math.round(r*.4),Y-Math.round(r*.4),Math.max(1,Math.round(r*.3)),shade(q.col,.55));ctx.fillStyle='#fff';ctx.fillRect(X-Math.round(r*.45),Y-Math.round(r*.55),1,1);break;}
    // lance: while waiting it shows a thin aim line along its path, then it is a bright needle
    case 'lance':{const lv=q.wait>0?scrVec(q.lvx,q.lvy):[vx,vy],ll=Math.hypot(lv[0],lv[1])||1,lx=lv[0]/ll,ly=lv[1]/ll;
@@ -540,7 +540,7 @@ function drawHUD(){
   ctx.globalAlpha=Math.min(1,(2-age)*2);txt(s,W-6-txtW(s,pop),H/2-20,c,pop);ctx.fillStyle=c;ctx.fillRect(W-6-40,H/2-20+(pop===2?12:7),Math.round(40*(1-age/2)),1);ctx.globalAlpha=1;}}
  if(P.storm>0)ctxt('STORM '+P.storm.toFixed(1),H-52,'#ff8a30');
  if(freezeT>0)ctxt('TIME STOPPED '+freezeT.toFixed(1),H-52,'#8cf');
- if(!boss?.awake||boss.dead)ctxt(R.training?'TRAINING GROUNDS':ROMAN[R.di]+'. '+DUN[R.di].name,4,'#ddd');
+ if((!boss?.awake||boss.dead)&&!R.training)ctxt(R.training?'TRAINING GROUNDS':ROMAN[R.di]+'. '+DUN[R.di].name,4,'#ddd');
 
  if(P.hCh>0){const k=Math.min(1,P.hCh/HCHARGE);ctx.fillStyle='#14101a';ctx.fillRect(Math.round(W/2-9),H/2+17,18,3);ctx.fillStyle=k>=1?(Math.floor(time*12)%2?'#fff':'#fd4'):'#a89ab8';ctx.fillRect(Math.round(W/2-8),H/2+18,Math.round(16*k),1);}
  if(P.dashCd>0){ctx.fillStyle='#fff';ctx.fillRect(Math.round(W/2-8),H/2+14,Math.round(16*(1-P.dashCd/S.dashCd)),1);}
