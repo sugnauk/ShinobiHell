@@ -80,24 +80,39 @@ function oni2(p,Q){const K=HUM(p,Q),{R,E,L,seg,trap,leg,face,lt,dk,by}=K,two=ART
   for(const s of [-1,1]){L(hx+s*3,hy+1,hx+s*3,hy+6,'#f0e8d8',2);R(hx+s*3,hy+6,1,1,'#ffffff');}
   for(let i=0;i<10;i++){const a=Math.PI*.1+i/9*Math.PI*.8;R(hx+Math.cos(a)*14,hy-2+Math.sin(a)*-1-8,1,2,F3);}}
  else{
-  // shackled legs, the mawashi and its tassels
-  leg(29,54,27,63,26,73,SK,SK,'#3a2a1a',9);leg(43,54,46,63,47,73,SK,SK,'#3a2a1a',9);for(const x of [26,47]){R(x-4,64,9,3,OUTC);R(x-3,64,7,2,I2);R(x-3,64,7,1,I3);}
-  // the body: a huge belly with real shading
-  E(cx,40+by,17,15,OUTC);E(cx,40+by,16,14,SK);E(cx-5,35+by,9,8,SK2);E(cx+7,44+by,8,9,SK3);E(cx,46+by,11,6,SK);E(cx-3,44+by,5,3,SK2);R(cx,44+by,1,1,SK3);
-  E(cx-6,30+by,6,4,SK2);E(cx+6,30+by,6,4,SK);R(cx-1,27+by,2,8,SK3);
-  for(const [a,b,c,d] of [[-10,32,-3,38],[6,36,11,30],[-8,46,-1,50]])L(cx+a,b+by,cx+c,d+by,'#8a3a2a',1);
-  R(cx-15,50+by,31,7,OUTC);R(cx-14,51+by,29,5,'#2a2a44');R(cx-14,51+by,29,1,'#4a4a6a');R(cx-3,51+by,7,10,'#2a2a44');
-  for(let i=0;i<7;i++){const x=cx-12+i*4;R(x,56+by,2,7,'#3a3a5a');R(x,62+by,2,1,'#6a6a8a');}
-  // arms: thick, chains round the fists
-  const far=Q.far||[[21,30],[15,42],[18,52]],near=Q.near||[[51,30],[57,42],[54,52]];
-  K.arm(far,SK,SK,SK2,8);K.arm(near,SK,SK,SK2,8);
-  for(const A of [far,near]){const [x,y]=A[2];for(let i=0;i<4;i++)R(x-4,y+by-6+i*2+(i%2),9,1,i%2?CH:CH2);E(x,y+by,4,3,OUTC);E(x,y+by,3,2,SK2);}
-  // head: oiled topknot, heavy brow, a scar, a snarl
-  const hx=cx,hy=16+by;face(hx,hy,SK,{eye:OUTC,brow:'#1a1010',mouth:'#5a1a10',ey:0});E(hx-1,hy-1,3,3,SK2);R(hx-3,hy,2,1,'#ff4030');
-  R(hx-5,hy-6,11,3,'#1a1010');R(hx-2,hy-10,5,4,'#1a1010');R(hx-1,hy-12,3,2,'#2a2028');R(hx+2,hy-9,1,1,'#5a5a6a');L(hx+2,hy-4,hx+5,hy+5,'#8a3a2a',1);
-  R(hx-6,hy-1,1,4,SK3);R(hx+6,hy-1,1,4,SK3);}}
+  // second form: the hood torn off and thrown back, the chest plate ripped away, chains wrapped round his torso, and a
+  // length of chain held between his fists for the grabs
+  trap(cx,22+by,50,13,17,F1);for(let i=0;i<8;i++){const x=cx-16+i*4.5,h=3+((i*5)%4);L(x,46,x-1,46+h,F2,2);}
+  E(cx-2,22+by,10,5,OUTC);E(cx-2,22+by,9,4,F2);E(cx-6,21+by,3,2,F3);for(const s of [-1,1])E(cx-2+s*7,19+by,2,2,F2);
+  leg(30,54,28,63,27,73,I1,I2,'#3a2a1a',8);leg(42,54,45,63,46,73,I1,I2,'#3a2a1a',8);for(const x of [27,46])for(let y=60;y<70;y+=3)R(x-3,y,7,1,I3);
+  lam(cx-15,44+by,31,14,4);R(cx-14,42+by,29,3,'#5a1a18');R(cx-14,42+by,29,1,LC2);
+  // the broken key ring hanging by one key
+  R(cx-10,46+by,1,4,'#e0c050');E(cx-10,51+by,2,2,'#e0c050');
+  // the bare chest: big shaded muscle, scars, the chains crossing it
+  trap(cx,24+by,42+by,13,12,SK);E(cx-6,29+by,6,4,SK2);E(cx+6,29+by,6,4,SK);R(cx-1,26+by,2,9,SK3);E(cx-5,37+by,4,3,SK2);E(cx+5,37+by,4,3,SK);R(cx-1,35+by,2,6,SK3);
+  for(const [x0,y0,x1,y1] of [[-11,27,-4,33],[5,37,10,31]])L(cx+x0,y0+by,cx+x1,y1+by,'#8a3a2a',1);
+  for(const [x0,y0,x1,y1] of [[-13,24,13,42],[13,24,-13,42]]){const n=14;for(let i=0;i<=n;i++){const x=cx+x0+(x1-x0)*i/n,y=y0+by+(y1-y0)*i/n;R(x-1,y-1,3,3,OUTC);}for(let i=0;i<=n;i++){const x=cx+x0+(x1-x0)*i/n,y=y0+by+(y1-y0)*i/n;R(x,y,i%2?1:2,i%2?2:1,i%2?CH:CH2);}}
+  E(cx,33+by,3,3,OUTC);E(cx,33+by,2,2,CH);R(cx-1,32+by,1,1,CH2);
+  // one shoulder plate left, the other shoulder bare and scarred
+  {const x=cx-16;R(x-6,23+by,13,10,OUTC);for(let r=0;r<3;r++){R(x-5,24+r*3+by,11,2,I2);R(x-5,24+r*3+by,11,1,I3);R(x+2,25+r*3+by,4,1,LC);}}
+  // arms: bare above, iron bracers below, fists wrapped in chain
+  const far=Q.far||[[21,28],[17,38],[26,46]],near=Q.near||[[51,28],[56,38],[46,46]];
+  K.arm(far,SK,I2,SK2,7);K.arm(near,SK,I2,SK2,7);
+  for(const A of [far,near]){const [[a,b],[c,d],[e,f]]=A;E(a,b+by+2,3,3,SK2);for(let t=.35;t<.9;t+=.25)R(c+(e-c)*t-3,d+by+(f-d)*t,7,1,I3);for(let i=0;i<3;i++)R(e-4,f+by-3+i*2,9,1,i%2?CH:CH2);}
+  // the chain between his fists: sagging, or whirled overhead
+  const [f0,f1]=far[2],[n0,n1]=near[2],pts=[];
+  if(Q.whirl){const wx=(f0+n0)/2,wy=Math.min(f1,n1)-12;for(let i=0;i<=16;i++){const a=i/16*TAU*.9+.6;pts.push([wx+Math.cos(a)*16,wy+Math.sin(a)*6]);}pts.unshift([f0,f1]);pts.push([n0,n1]);}
+  else for(let i=0;i<=10;i++){const t=i/10;pts.push([f0+(n0-f0)*t,f1+(n1-f1)*t+Math.sin(t*Math.PI)*9]);}
+  for(const [x,y] of pts)R(x-1,y+by-1,3,3,OUTC);pts.forEach(([x,y],i)=>R(x,y+by,i%2?1:2,i%2?2:1,i%2?CH:CH2));
+  // head: shaven and stubbled, a thick black beard, a scar over the eye that burns red, teeth bared
+  const hx=cx,hy=14+by;E(hx,hy,7,8,OUTC);E(hx,hy,6,7,SK);E(hx-2,hy-3,3,3,SK2);R(hx+3,hy-2,2,6,SK3);
+  for(let i=0;i<10;i++)R(hx-5+((i*7)%11),hy-6+((i*3)%4),1,1,'#7a5040');
+  R(hx-4,hy-1,3,1,'#1a1010');R(hx+2,hy-1,3,1,'#1a1010');R(hx-3,hy,2,1,OUTC);R(hx+2,hy,2,1,'#ff4030');R(hx+3,hy-1,1,1,'#ffb080');
+  L(hx+1,hy-6,hx+5,hy+4,'#8a3a2a',1);
+  E(hx,hy+6,7,5,OUTC);E(hx,hy+6,6,4,'#1a1210');E(hx-2,hy+5,2,2,'#3a2a20');R(hx-3,hy+3,7,2,'#5a1a10');R(hx-2,hy+3,5,1,'#f0e8d8');
+  R(hx-7,hy-1,2,4,SK);R(hx+6,hy-1,2,4,SK3);}}
 humBoss('ONIKUMA, THE JAILER',oni2,{idle0:{},idle1:{b:1},
- atk:{dy:-1,near:[[52,28],[56,16],[52,6]],club:[[52,6],[26,-4]],far:[[20,28],[13,36],[11,46]]}},{sc:1.15});
+ atk:{dy:-1,whirl:1,near:[[52,28],[56,16],[52,6]],club:[[52,6],[26,-4]],far:[[20,28],[13,20],[22,8]]}},{sc:1.15});
 
 // ---------------------------------------------------------------- IX. KAGE, THE SHINOBI MASTER
 // The crow of the castle roofs: a black-feathered cape over charcoal-blue shinobi garb, a lacquered karasu-tengu crow
@@ -250,3 +265,113 @@ EMPR.mkTrue=function(e){let s;ARTHURT=true;try{s=bossArt('THE CORRUPT EMPEROR');
  const c=mk(s.c.width,s.c.height,g=>{g.drawImage(s.c,0,0);g.globalCompositeOperation='source-atop';g.fillStyle='rgba(90,10,140,.4)';g.fillRect(0,0,s.c.width,s.c.height);});
  const g=c.getContext('2d');for(let f=0;f<s.frames;f++){const x0=f*s.fw+36;for(const k of [-1,1]){g.fillStyle='#14101a';for(let i=0;i<10;i++)g.fillRect(x0+k*(7+i)-1,5-i*.7,3,4);g.fillStyle='#ffd040';for(let i=0;i<10;i++)g.fillRect(x0+k*(7+i),6-i*.7,1,2);}}
  return Object.assign({},s,{c,wc:whiteOf(c),sc:(s.sc||1)*1.6});};
+
+// ---------------------------------------------------------------- XI. LORD KUROGANE, third pass: a big canvas (128x112)
+// Room for real anatomy: Yamikaze has a deep chest, a rounded croup, a long arched neck with a flowing silver mane, a fine
+// head under a horned gold chamfron, jointed legs with feathered fetlocks, and red lacquered breast and crupper plates
+// with tassels. Kurogane rides tall: lacquered black plate laced in red, broad shoulder guards, a flaring neck guard, the
+// great gold crescent, a red mask, a yari, and his red horo billowing behind.
+function kur3(p,Q){const {R:R_,E:E_,L:L_}=p,ox=Q.dx||0,oy=Q.dy||0,by=Q.b||0,g=Q.gallop;
+ const R=(x,y,w,h,c)=>R_(x+ox,y+oy,w,h,c),E=(x,y,rx,ry,c)=>E_(x+ox,y+oy,rx,ry,c),L=(a,b,c,d,col,t)=>L_(a+ox,b+oy,c+ox,d+oy,col,t);
+ const O=OUTC,H0='#121218',H1='#1e1e2a',H2='#30304a',H3='#4a4a6c',H4='#7a7aa4',MN='#d8dce8',MN2='#9aa0b8',MN3='#6a7088',
+  BK='#16161c',BK2='#2a2a36',BK3='#46465a',BK4='#6a6a84',RD='#8a1414',RD2='#c42a22',RD3='#ff5a48',GD='#c89a30',GD2='#f0cc60',GD3='#fff0b0',SK='#c8a080';
+ const seg=(x0,y0,x1,y1,w,c,lite)=>{L(x0,y0,x1,y1,O,w+2);L(x0,y0,x1,y1,c,w);if(lite)L(x0-1,y0-1,x1-1,y1-1,lite,1);};
+ const blob=(x,y,rx,ry,c1,c2,c3)=>{E(x,y,rx+1,ry+1,O);E(x,y,rx,ry,c1);E(x-1,y-Math.round(ry*.25),rx-2,Math.round(ry*.6),c2);if(c3)E(x-Math.round(rx*.3),y-Math.round(ry*.5),Math.max(1,Math.round(rx*.35)),Math.max(1,Math.round(ry*.2)),c3);};
+ // the tail
+ const tl=g?[[34,52],[24,50],[14,52],[6,58],[2,64]]:[[33,52],[27,58],[24,70],[24,82],[26,92]];
+ for(let i=0;i<tl.length-1;i++)L(tl[i][0],tl[i][1]+by,tl[i+1][0],tl[i+1][1]+by,O,8-i);
+ for(let i=0;i<tl.length-1;i++){L(tl[i][0],tl[i][1]+by,tl[i+1][0],tl[i+1][1]+by,MN2,6-i);L(tl[i][0]-1,tl[i][1]+by,tl[i+1][0]-1,tl[i+1][1]+by,MN,Math.max(1,3-i));L(tl[i][0]+2,tl[i][1]+by,tl[i+1][0]+2,tl[i+1][1]+by,MN3,1);}
+ // legs: [top, knee/hock, fetlock, hoof]
+ const leg=(P4,dim,hind)=>{const [a,b,c,d]=P4,c1=dim?H1:H2,c2=dim?H2:H3;seg(a[0],a[1]+by,b[0],b[1],hind?7:6,c1,c2);seg(b[0],b[1],c[0],c[1],4,c1,c2);seg(c[0],c[1],d[0],d[1]-2,3,c1);
+  E(b[0],b[1],3,3,c1);for(let k=0;k<3;k++)L(c[0]-2+k*2,c[1]-1,c[0]-3+k*2,c[1]+3,dim?MN3:MN2,1);R(d[0]-4,d[1]-3,8,4,O);R(d[0]-3,d[1]-3,6,3,'#3a3a44');R(d[0]-3,d[1]-3,6,1,'#6a6a78');};
+ const LG=g?{fh:[[52,72],[40,84],[28,92],[22,96]],ff:[[88,70],[100,74],[110,80],[116,80]],nh:[[48,72],[44,88],[34,96],[30,102]],nf:[[92,72],[100,84],[110,90],[116,92]]}
+          :{fh:[[50,72],[54,86],[50,98],[51,108]],ff:[[86,74],[87,88],[87,100],[88,108]],nh:[[42,72],[46,86],[40,98],[41,108]],nf:[[92,74],[93,88],[94,100],[95,108]]};
+ leg(LG.fh,1,1);leg(LG.ff,1,0);
+ // body: croup, barrel, chest
+ blob(64,60+by,30,14,H2,H3,H4);blob(42,56+by,16,16,H2,H3,H4);blob(88,60+by,14,15,H2,H3,H4);E(64,70+by,24,4,H1);E(42,66+by,12,5,H1);
+ R(46,44+by,36,1,H4);
+ // the crupper over the rump and the breastplate, red lacquer with gold rims and tassels
+ const plates=(x,y,w,rows)=>{R(x-1,y-1,w+2,rows*4+2,O);for(let r=0;r<rows;r++){R(x,y+r*4,w,3,r%2?RD:RD2);R(x,y+r*4,w,1,RD3);for(let k=x+2;k<x+w-1;k+=4)R(k,y+r*4+2,1,1,GD);}R(x,y+rows*4-1,w,1,GD);
+  for(let k=x+2;k<x+w;k+=5){R(k,y+rows*4,1,4,GD);R(k-1,y+rows*4+4,3,3,RD2);}};
+ plates(30,50+by,24,3);plates(88,60+by,12,3);
+ // saddle, saddle cloth, stirrup
+ R(52,44+by,26,8,O);R(53,45+by,24,6,'#5a1410');R(53,45+by,24,1,GD);R(53,50+by,24,1,GD2);R(56,52+by,18,10,O);R(57,52+by,16,9,'#7a1a14');for(let k=58;k<72;k+=3)R(k,60+by,1,1,GD);
+ leg(LG.nh,0,1);leg(LG.nf,0,0);
+ // the neck, arched, and the mane
+ const hd=g?-4:0,nk=[[88,54],[94,42],[100,30],[104,22]];
+ for(let i=0;i<nk.length;i++){const [x,y]=nk[i];E(x,y+by+hd*i/3,9-i,8-i,O);}
+ for(let i=0;i<nk.length;i++){const [x,y]=nk[i];E(x,y+by+hd*i/3,8-i,7-i,H2);E(x-1,y-2+by+hd*i/3,5-i,3,H3);}
+ // the head: long, angled down to the muzzle, under the chamfron
+ const hx=106,hy=22+hd+by;
+ for(let i=0;i<=6;i++){const x=hx+i*2.2,y=hy+i*2.6,r=7.5-i*.5;E(x,y,r+1,r,O);}
+ for(let i=0;i<=6;i++){const x=hx+i*2.2,y=hy+i*2.6,r=7.5-i*.5;E(x,y,r,r-1,H2);E(x-1,y-1,r-2,1,H3);}
+ E(120,39+hd+by,3,3,H1);R(120,38+hd+by,1,1,'#05050a');R(118,42+hd+by,4,1,O);
+ // ears
+ L(103,17+hd+by,101,10+hd+by,O,4);L(103,17+hd+by,101,11+hd+by,H2,2);
+ // chamfron: red with gold rims, a gold horn
+ for(let i=1;i<=5;i++){const x=hx+i*2.2,y=hy+i*2.6;R(x-3,y-3,6,4,O);R(x-2,y-3,4,3,RD2);R(x-2,y-3,4,1,RD3);}R(hx+2,hy-2,5,3,GD);L(hx+4,hy-2,hx+9,hy-14,O,3);L(hx+4,hy-2,hx+9,hy-14,GD,1);L(hx+5,hy-3,hx+9,hy-13,GD3,1);
+ R(hx+1,hy+1,2,2,'#ffe040');R(hx+2,hy+1,1,1,O);
+ // reins
+ L(118,40+hd+by,80,38+by,'#8a1818',1);
+ // the mane, silver, falling down the right side of the neck
+ for(let i=0;i<9;i++){const t=i/8,x=86+t*18,y=46+by-t*28+hd*t,len=9-t*4;L(x,y,x-4,y+len,O,3);L(x,y,x-3,y+len,i%2?MN:MN2,1);L(x+1,y,x-2,y+len-1,MN3,1);}
+ // the horo, billowing behind
+ const rx=64,ry=22+by,hw=Q.horo||0;
+ blob(rx-18-hw,ry-2,17+hw,15,RD,RD2,RD3);for(const a of [2.5,3.0,3.5,3.9])L(rx-6,ry-12,rx-18-hw+Math.cos(a)*15,ry-2+Math.sin(a)*13,'#5a0a0a',1);
+ L(rx-6,ry-14,rx-6,ry+8,'#3a2a1a',2);R(rx-8,ry-16,5,3,GD);
+ // the rider's legs: thigh along the saddle, shin down to the stirrup, armoured
+ seg(rx-2,ry+18,rx+8,ry+28,7,BK2,BK3);seg(rx+8,ry+28,rx+6,ry+40,5,BK,BK3);for(let y=ry+30;y<ry+40;y+=3)R(rx+4,y,5,1,BK4);R(rx+3,ry+40,8,3,O);R(rx+4,ry+40,6,2,GD);
+ // the skirt of plates over the saddle
+ for(let r=0;r<3;r++){R(rx-10,ry+14+r*4,20,4,O);R(rx-9,ry+14+r*4,18,3,BK2);R(rx-9,ry+14+r*4,18,1,BK4);for(let k=rx-8;k<rx+9;k+=3)R(k,ry+16+r*4,1,1,RD2);}
+ // the cuirass, laced in red, a gold crest
+ R(rx-10,ry-6,21,20,O);for(let r=0;r<6;r++){R(rx-9,ry-5+r*3,19,2,BK2);R(rx-9,ry-5+r*3,19,1,BK4);R(rx+5,ry-5+r*3,4,2,BK);for(let k=rx-8;k<rx+6;k+=3)R(k,ry-4+r*3,1,1,RD2);}
+ R(rx-3,ry-2,7,6,GD);R(rx-2,ry-1,5,4,GD2);R(rx,ry,1,2,RD);R(rx-9,ry+12,19,2,RD);
+ // shoulder guards
+ for(const s of [-1,1]){const x=rx+s*12;R(x-6,ry-8,13,14,O);for(let r=0;r<4;r++){R(x-5,ry-7+r*3,11,2,BK2);R(x-5,ry-7+r*3,11,1,BK4);for(let k=x-4;k<x+5;k+=3)R(k,ry-6+r*3,1,1,RD2);}R(x-5,ry+5,11,1,GD);}
+ // arms: the near hand on the yari (or couched), the far on the reins
+ seg(rx+12,ry-2,rx+16,ry+8,4,BK2,BK3);
+ if(Q.couch){L(rx-28,ry+16,rx+60,ry+2,O,4);L(rx-28,ry+16,rx+60,ry+2,'#5a3a22',2);L(rx-28,ry+15,rx+60,ry+1,'#8a6040',1);L(rx+56,ry+3,rx+70,ry,O,4);L(rx+56,ry+3,rx+70,ry,'#e8eef6',2);L(rx+56,ry+2,rx+66,ry,'#ffffff',1);R(rx+52,ry+1,5,4,RD2);seg(rx+16,ry+8,rx+22,ry+6,3,BK2);}
+ else{L(rx+20,ry+48,rx+28,ry-26,O,4);L(rx+20,ry+48,rx+28,ry-26,'#5a3a22',2);L(rx+19,ry+48,rx+27,ry-26,'#8a6040',1);L(rx+28,ry-26,rx+30,ry-38,O,4);L(rx+28,ry-26,rx+30,ry-38,'#e8eef6',2);L(rx+28,ry-27,rx+29,ry-35,'#ffffff',1);R(rx+25,ry-26,6,3,RD2);seg(rx+16,ry+8,rx+23,ry+4,3,BK2);}
+ E(rx+22,ry+5,3,3,O);E(rx+22,ry+5,2,2,SK);
+ seg(rx-12,ry-2,rx-8,ry+10,4,BK2,BK3);E(rx-6,ry+11,3,3,O);E(rx-6,ry+11,2,2,SK);
+ // the helmet: a black ridged bowl, flaring neck guard, the gold crescent, the red mask with a white moustache
+ const kx=rx,ky=ry-16;
+ E(kx,ky+4,6,5,O);E(kx,ky+4,5,4,'#8a1818');E(kx-1,ky+3,2,2,'#b02a28');R(kx-3,ky+3,2,1,'#ffd040');R(kx+2,ky+3,2,1,'#ffd040');R(kx-3,ky+6,7,1,'#f0e8d8');R(kx-1,ky+7,3,2,'#f0e8d8');
+ for(let r=0;r<3;r++){R(kx-10-r,ky+r*2,21+r*2,2,O);R(kx-9-r,ky+r*2,19+r*2,1,BK2);R(kx-9-r,ky+r*2+1,19+r*2,1,BK3);}
+ E(kx,ky-3,8,5,O);E(kx,ky-3,7,4,BK);for(let k=-5;k<=5;k+=2)L(kx+k,ky-6,kx+k,ky,BK3,1);E(kx-2,ky-5,3,1,BK4);
+ R(kx-2,ky-9,5,3,GD2);for(const s of [-1,1]){L(kx+s*2,ky-7,kx+s*14,ky-20,O,4);L(kx+s*2,ky-7,kx+s*14,ky-20,GD,2);L(kx+s*2,ky-8,kx+s*13,ky-20,GD3,1);R(kx+s*14-1,ky-22,3,3,GD2);}}
+BART['LORD KUROGANE']=Object.assign(p=>kur3(p,[{dy:20},{dy:20,b:1,horo:1},{gallop:1,couch:1,horo:4,dy:18}][p.f]||{}),{fw:128,fh:132,raw:1,sc:.95});
+// on foot (after Yamikaze falls): the same armour and crest at full height, the horo torn, a nodachi in both hands
+function kf3(p,Q){const {R:R_,E:E_,L:L_}=p,ox=Q.dx||0,oy=(Q.dy||0)+2,by=Q.b||0;
+ const R=(x,y,w,h,c)=>R_(x+ox,y+oy,w,h,c),E=(x,y,rx,ry,c)=>E_(x+ox,y+oy,rx,ry,c),L=(a,b,c,d,col,t)=>L_(a+ox,b+oy,c+ox,d+oy,col,t);
+ const O=OUTC,BK='#16161c',BK2='#2a2a36',BK3='#46465a',BK4='#6a6a84',RD='#8a1414',RD2='#c42a22',RD3='#ff5a48',GD='#c89a30',GD2='#f0cc60',GD3='#fff0b0',SK='#c8a080',ST='#c8d0dc';
+ const seg=(x0,y0,x1,y1,w,c,lite)=>{L(x0,y0,x1,y1,O,w+2);L(x0,y0,x1,y1,c,w);if(lite)L(x0-1,y0-1,x1-1,y1-1,lite,1);};
+ const cx=42;
+ // the torn horo
+ E(cx-8,40+by,19,18,O);E(cx-8,40+by,18,17,RD);E(cx-12,34+by,9,8,RD2);E(cx-15,30+by,3,2,RD3);for(const a of [2.4,2.9,3.4])L(cx,30+by,cx-8+Math.cos(a)*17,40+by+Math.sin(a)*15,'#5a0a0a',1);
+ for(const [x,y,w,h] of [[-24,48,5,8],[-12,52,6,6],[-2,50,4,7]])R(cx+x,y+by,w,h,'#2a0606');
+ // legs: armoured thighs and greaves
+ const leg=(hx,kx,ky,fx)=>{seg(hx,64,kx,ky,7,BK2,BK3);seg(kx,ky,fx,94,6,BK,BK3);for(let y=ky+3;y<92;y+=3)R(fx-3+(kx-fx)*(92-y)/(92-ky),y,7,1,BK4);R(fx-5,94,11,3,O);R(fx-4,94,9,2,'#3a2a1a');};
+ leg(cx-6,cx-9,78,cx-10);leg(cx+6,cx+10,78,cx+11);
+ // the plated skirt, laced red
+ for(let r=0;r<4;r++){R(cx-15,56+r*5+by*(r<1?1:0),31,5,O);R(cx-14,56+r*5,29,4,BK2);R(cx-14,56+r*5,29,1,BK4);for(let k=cx-13;k<cx+15;k+=3)R(k,58+r*5,1,1,RD2);}
+ // cuirass
+ R(cx-13,32+by,27,25,O);for(let r=0;r<8;r++){R(cx-12,33+r*3+by,25,2,BK2);R(cx-12,33+r*3+by,25,1,BK4);R(cx+8,33+r*3+by,4,2,BK);for(let k=cx-11;k<cx+8;k+=3)R(k,34+r*3+by,1,1,RD2);}
+ R(cx-4,36+by,9,7,GD);R(cx-3,37+by,7,5,GD2);R(cx,38+by,1,3,RD);R(cx-12,54+by,25,3,RD);R(cx-12,54+by,25,1,RD3);
+ // shoulder guards
+ for(const s of [-1,1]){const x=cx+s*16;R(x-7,30+by,15,17,O);for(let r=0;r<5;r++){R(x-6,31+r*3+by,13,2,BK2);R(x-6,31+r*3+by,13,1,BK4);for(let k=x-5;k<x+6;k+=3)R(k,32+r*3+by,1,1,RD2);}R(x-6,46+by,13,1,GD);}
+ // the nodachi, both hands on the long grip
+ const sw=Q.sw||[[cx-2,62],[cx+30,6]];const [[a,b],[c,d]]=sw;
+ L(a,b+by,c,d+by,O,5);L(a,b+by,c,d+by,ST,3);L(a-1,b+by-1,c-1,d+by-1,'#ffffff',1);L(a+(c-a)*.05,b+by+(d-b)*.05,c,d+by,'#8a94a8',1);
+ E(a,b+by,4,2,O);E(a,b+by,3,1,GD);const ga=Math.atan2(b-d,a-c);L(a,b+by,a+Math.cos(ga)*12,b+by+Math.sin(ga)*12,O,5);L(a,b+by,a+Math.cos(ga)*12,b+by+Math.sin(ga)*12,'#2a1a10',3);for(let i=1;i<6;i++)R(a+Math.cos(ga)*i*2,b+by+Math.sin(ga)*i*2,1,1,'#f0e8d8');
+ const h1=[a+Math.cos(ga)*3,b+Math.sin(ga)*3],h2=[a+Math.cos(ga)*9,b+Math.sin(ga)*9];
+ seg(cx-16,36+by,cx-14,48+by,5,BK2,BK3);seg(cx-14,48+by,h2[0],h2[1]+by,4,BK,BK3);seg(cx+16,36+by,cx+14,48+by,5,BK2,BK3);seg(cx+14,48+by,h1[0],h1[1]+by,4,BK,BK3);
+ for(const [x,y] of [h1,h2]){E(x,y+by,3,3,O);E(x,y+by,2,2,SK);}
+ // the helmet: ridged bowl, flaring neck guard, gold crescent; the red mask with a white moustache
+ const kx=cx,ky=20+by;
+ for(let r=0;r<3;r++){R(kx-12-r,ky+r*2,25+r*2,2,O);R(kx-11-r,ky+r*2,23+r*2,1,BK2);R(kx-11-r,ky+r*2+1,23+r*2,1,BK3);}
+ E(kx,ky+5,7,6,O);E(kx,ky+5,6,5,'#8a1818');E(kx-2,ky+3,2,2,'#b02a28');R(kx-3,ky+3,2,1,'#ffd040');R(kx+2,ky+3,2,1,'#ffd040');R(kx-3,ky+7,7,1,'#f0e8d8');R(kx-1,ky+8,3,2,'#f0e8d8');
+ E(kx,ky-3,9,6,O);E(kx,ky-3,8,5,BK);for(let k=-6;k<=6;k+=2)L(kx+k,ky-7,kx+k,ky,BK3,1);E(kx-2,ky-6,3,1,BK4);
+ R(kx-2,ky-10,5,3,GD2);for(const s of [-1,1]){L(kx+s*2,ky-8,kx+s*16,ky-22,O,4);L(kx+s*2,ky-8,kx+s*16,ky-22,GD,2);L(kx+s*2,ky-9,kx+s*15,ky-22,GD3,1);R(kx+s*16-1,ky-24,3,3,GD2);}}
+humBoss('KUROGANE ON FOOT',kf3,{idle0:{},idle1:{b:1},atk:{sw:[[50,46],[82,84]]}},{fw:84,fh:100,sc:.95});
+if(typeof KUR!=='undefined')KUR.foot=null;
