@@ -66,7 +66,7 @@ function drawControlsCard(X,Y,Wd){txt('CONTROLS',X+6,Y+6,'#d02030');txt('CHANGE 
 
 // =============== SETTINGS ===============
 const OCATS=[{n:'GAMEPLAY',c:'#ffd040'},{n:'AUDIO',c:'#40c0ff'},{n:'DISPLAY',c:'#c080ff'},{n:'CONTROLS',c:'#50e060'}];
-const OCATOF={'DIFFICULTY':0,'AUTO FIRE':0,'DAMAGE NUMBERS':0,'SPIRIT TRAIL':0,'NEW GAME+':0,'MUSIC VOLUME':1,'SOUND EFFECTS':1,'FULLSCREEN':2,'VIEW ZOOM':2,'SCREEN SHAKE':2,'BULLET CONTRAST':2,'SCREEN FLASHES':2,'DEBUG OVERLAY':2};
+const OCATOF={'TIPS':0,'SUGGESTIONS':0,'DANGER WARNINGS':0,'DIFFICULTY':0,'AUTO FIRE':0,'DAMAGE NUMBERS':0,'SPIRIT TRAIL':0,'NEW GAME+':0,'MUSIC VOLUME':1,'SOUND EFFECTS':1,'FULLSCREEN':2,'VIEW ZOOM':2,'SCREEN SHAKE':2,'BULLET CONTRAST':2,'SCREEN FLASHES':2,'DEBUG OVERLAY':2};
 const ORows=()=>{const r=OPTROWS();r.forEach(x=>x.cat=x.key||x.act?3:(OCATOF[x.n]!=null?OCATOF[x.n]:0));return [0,1,2,3].flatMap(c=>r.filter(x=>x.cat===c));};
 const OROWH=13,OVIS=9,OX=92,OY=34;
 let optTop=0;

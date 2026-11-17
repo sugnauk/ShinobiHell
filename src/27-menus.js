@@ -448,8 +448,11 @@ let optSel=0,optFrom='title',optWait=null;
 const OPTROWS=()=>[
  {n:'MUSIC VOLUME',v:()=>OPT().mus+'/10',ch:d=>{OPT().mus=clamp(OPT().mus+d,0,10);if(mus.gain)mus.gain.gain.value=musVol();}},
  {n:'SOUND EFFECTS',v:()=>OPT().sfx+'/10',ch:d=>{OPT().sfx=clamp(OPT().sfx+d,0,10);sfx('coin');}},
- {n:'DIFFICULTY',v:()=>DF().n,c:()=>DF().c,info:()=>DF().d+(mode==='options'&&optFrom==='play'?' (FROM NEXT STAGE)':''),ch:d=>{OPT().diff=clamp(OPT().diff+d,0,2);}},
+ {n:'DIFFICULTY',v:()=>DF().n,c:()=>DF().c,info:()=>DF().d+(mode==='options'&&optFrom==='play'?' (FROM NEXT STAGE)':''),ch:d=>{OPT().diff=clamp(OPT().diff+d,0,DIFFS.length-1);}},
  {n:'AUTO FIRE',v:()=>['OFF (HOLD LMB)','LMB TOGGLE','IN COMBAT'][OPT().autoFire|0],info:()=>['HOLD LEFT MOUSE TO FIRE','CLICK LEFT MOUSE ONCE TO START FIRING, AGAIN TO STOP','FIRES AT THE CURSOR BY ITSELF WHILE YOU ARE IN A FIGHT'][OPT().autoFire|0],ch:d=>{OPT().autoFire=(((OPT().autoFire|0)+(d||1))%3+3)%3;fireOn=false;}},
+ {n:'TIPS',v:()=>OPT().tips===0?'OFF':'ON',info:()=>'SHORT HINTS THE FIRST TIME SOMETHING NEW HAPPENS. EACH ONE SHOWS ONCE',ch:()=>{OPT().tips=OPT().tips===0?1:0;}},
+ {n:'SUGGESTIONS',v:()=>OPT().sugg===0?'OFF':'ON',info:()=>'A STAR MARKS A GOOD PICK FOR YOUR HERO ON REWARD CARDS AND IN THE SHOP',ch:()=>{OPT().sugg=OPT().sugg===0?1:0;}},
+ {n:'DANGER WARNINGS',v:()=>OPT().bold?'BOLD':'NORMAL',info:()=>'BOLD: A PULSING RING SHOWS EACH FOE ATTACK AS IT WINDS UP, AND GROUND DANGERS ARE EASIER TO SEE',ch:()=>{OPT().bold=OPT().bold?0:1;}},
  {n:'FULLSCREEN',v:()=>OPT().fs===0?'OFF':'ON',info:()=>'FILL THE WHOLE SCREEN (ESC OR F11 LEAVES IT FOR NOW)',ch:()=>{OPT().fs=OPT().fs===0?1:0;goFullscreen(OPT().fs!==0);}},
  {n:'VIEW ZOOM',v:()=>['NEAR','NORMAL','FAR'][OPT().zoom==null?1:OPT().zoom],info:()=>'HOW MUCH OF THE DUNGEON YOU SEE AROUND YOU',ch:d=>{OPT().zoom=clamp((OPT().zoom==null?1:OPT().zoom)+d,0,2);W=0;setView(VIEWWIDE);}},
  {n:'SCREEN SHAKE',v:()=>OPT().shake?'ON':'OFF',ch:()=>{OPT().shake^=1;}},
