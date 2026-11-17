@@ -81,7 +81,7 @@ function heroSpr(cls,st,back){const k=cls+st+(back?'b':'');if(HEROC[k])return HE
  return HEROC[k]=buildHero({...heroEV(cls,st),detail:cls},false,back);}
 const evoName=st=>heroEV(CLS().k,st).n;
 // class ability helpers
-const EMP=k=>(P?.emp?.[k]?1.6:1)*(R?.addon?.[k]?.focus?1.1:1);
+const EMP=k=>(P?.emp?.[k]?1.6:1)*(R?.addon?.[k]?.focus?1.1:1)*(P?.asc?.[k]?1.3:1); // asc: a legendary spell learned from a scroll
 function setCd(k){if(k==='m')return;if(k==='h')P.ab.h=spellCd('h')/S.aspd;else if(k==='w')P.ab.rmb=spellCd('w');else P.ab[k]=spellCd(k);}
 function lineHit(x,y,a,len,wid,fn){for(const e of enemies){if(e.dead||e.air)continue;const dx=e.x-x,dy=e.y-y,al=dx*Math.cos(a)+dy*Math.sin(a),pe=Math.abs(-dx*Math.sin(a)+dy*Math.cos(a));if(al>-6&&al<len+e.r&&pe<wid+e.r&&los(x,y,e.x,e.y))fn(e);}}
 function nearestFoe(x,y,r){let best=null,bd=r;for(const e of enemies){if(e.dead||e.air||e.type==='turret')continue;const d=Math.hypot(e.x-x,e.y-y);if(d<bd&&los(x,y,e.x,e.y)){bd=d;best=e;}}return best;}

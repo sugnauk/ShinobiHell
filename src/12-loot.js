@@ -284,11 +284,11 @@ const SCROLL_ADDONS=[...ADDONS,...TECHNIQUES];
 const fxLabel=(n,t)=>n+' '+ROM[t-1];
 let scrollOpts=null,scrollSource=null;
 function rollScrollOpts(){const slots=[...'hqwfe'].filter(k=>!P.lock?.[k]),used=new Set();if(!slots.length)return [];
- // replacements lean toward the slot's legendary spell, so a scroll is a real upgrade, not a sidegrade
- const rep=()=>{for(let t=0;t<40;t++){const k=pick(slots);if(used.has(k))continue;const vs=[];for(let v=0;v<SPELLS[k].length;v++)if(v!==P.lo[k])vs.push(v);if(!vs.length)continue;used.add(k);
-  return {kind:'rep',k,v:P.lo[k]!==3&&Math.random()<.6?3:pick(vs)};}return null;};
+ // a replacement is rare and always an upgrade: only the slot's LEGENDARY spell (never a sidegrade), on at most one card,
+ // and only on about a quarter of legendary scrolls; the rest offer add-ons that keep the ability as it is
+ const rep=()=>{if(Math.random()>.25)return null;for(let t=0;t<40;t++){const k=pick(slots);if(used.has(k)||P.lo[k]===3||!SPELLS[k][3])continue;used.add(k);return {kind:'rep',k,v:3};}return null;};
  const add=()=>{for(let t=0;t<40;t++){const k=pick(slots);if(used.has(k))continue;const L=ADDONS.filter(a=>!(a.k==='emp'&&P.emp&&P.emp[k]));used.add(k);return {kind:'add',k,a:pick(L).k};}return null;};
- return [rep()||add(),add()||rep(),Math.random()<.5?(rep()||add()):(add()||rep())].filter(Boolean);}
+ const r=rep(),o=[add(),add(),add()].filter(Boolean);if(r)o.splice(ri(0,o.length),0,r);return o.slice(0,3);}
 function rollTechniques(){
  const slots=[...'hqwfe'].filter(k=>!P.lock?.[k]),pool=[];
  for(const k of slots)for(const a of TECHNIQUES)if(!R.addon?.[k]?.[a.k])pool.push({kind:'add',k,a:a.k});
@@ -324,7 +324,7 @@ function pickScroll(i){
   txtFx(P.x,P.y-16,'EMPOWERED!',col,2);
  }
  if(o.kind==='rep'){
-  P.lo[k]=o.v;if(o.v===3)codexAdd('sp',k);setToast(SLOTKEY[k]+' REPLACED: '+cur.n+' > '+SPELLS[k][o.v].n,'#ff9040',3.5);
+  P.lo[k]=o.v;if(o.v===3)codexAdd('sp',k);P.asc=P.asc||{};P.asc[k]=1;setToast(SLOTKEY[k]+' BECOMES '+SPELLS[k][o.v].n+' (+30% POWER)','#ffe060',3.5);
  }else if(o.a==='emp')setToast(cur.n+' EMPOWERED',col,3);
  else{
   R.addon=R.addon||{};R.addon[k]=R.addon[k]||{};R.addon[k][o.a]=(R.addon[k][o.a]||0)+1;
@@ -353,12 +353,12 @@ function renderScroll(){
   if(rep){const nw=SPELLS[o.k][o.v],ow=txtW(cur.n);
    ctxt2(cur.n,x,cw,y+28,'#777');ctx.fillStyle='#c33';ctx.fillRect(Math.round(x+(cw-ow)/2),y+30,ow,1);
    ctxt2('V',x,cw,y+37,tc);ctxt2(nw.n,x,cw,y+46,nw.c);if(nw.rare)ctxt2('LEGENDARY SPELL',x,cw,y+55,'#ffe060');
-   wrapTxt(nw.d,22).slice(0,4).forEach((l,j)=>ctxt2(l,x,cw,y+66+j*8,'#ccc'));
-   ctxt2('+ EMPOWERED',x,cw,y+h-30,'#ffe060');ctxt2('CHANGES THE',x,cw,y+h-20,tc);ctxt2('WHOLE ATTACK',x,cw,y+h-12,tc);}
+   wrapTxt(nw.d,22).slice(0,3).forEach((l,j)=>ctxt2(l,x,cw,y+66+j*8,'#ccc'));
+   ctxt2('+ EMPOWERED',x,cw,y+h-38,'#ffe060');ctxt2('+30% POWER',x,cw,y+h-30,'#ffe060');ctxt2('CHANGES THE',x,cw,y+h-20,tc);ctxt2('WHOLE ABILITY',x,cw,y+h-12,tc);}
   else{const A=SCROLL_ADDONS.find(a=>a.k===o.a);
    ctxt2(cur.n,x,cw,y+28,cur.c);ctxt2('+',x,cw,y+38,tc);wrapTxt(regular?A.n:fxLabel(A.n,A.tier),22).forEach((l,j)=>ctxt2(l,x,cw,y+47+j*8,A.c));
    wrapTxt(cur.d,22).slice(0,3).forEach((l,j)=>ctxt2(l,x,cw,y+72+j*8,'#888'));
-   if(!regular&&o.a!=='emp')ctxt2('+ EMPOWERED',x,cw,y+h-30,'#ffe060');ctxt2('KEEPS YOUR',x,cw,y+h-20,tc);ctxt2('ATTACK',x,cw,y+h-12,tc);}
+   if(!regular&&o.a!=='emp')ctxt2('+ EMPOWERED',x,cw,y+h-12,'#ffe060');}
  });
 }
 function swapGear(b){const i=b.items.findIndex(it=>it.t==='gear');if(i<0)return false;const g=b.items[i],old=R.eq[g.slot];b.items.splice(i,1);
