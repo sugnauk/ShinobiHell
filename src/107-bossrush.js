@@ -1,11 +1,13 @@
 'use strict';
-// ===== BOSS RUSH: every guardian you have beaten, back to back =====
+// ===== BOSS RUSH: all twelve guardians, back to back =====
 // Unlocks once you have beaten two guardians (press B in the temple). You start in the first boss arena with your chosen
 // hero and a little starting gear; each boss gives the usual relic pick, then the portal takes you straight to the next
 // arena with a 30% heal. Your best rush (guardians beaten, then time) is kept, and all gold you carry turns into jade.
-const rushPool=()=>BOSS.map((b,i)=>i).filter(i=>meta.guide&&meta.guide.e&&meta.guide.e['boss'+i]);
-const rushOpen=()=>rushPool().length>=2;
-function startRush(){const pool=rushPool();if(pool.length<2){sfx('block');setToast('BEAT TWO GUARDIANS TO OPEN THE BOSS RUSH','#c55',2.5);return;}
+// every guardian is in the gauntlet; it opens once you have beaten two of them
+const rushBeaten=()=>BOSS.map((b,i)=>i).filter(i=>meta.guide&&meta.guide.e&&meta.guide.e['boss'+i]);
+const rushPool=()=>BOSS.map((b,i)=>i);
+const rushOpen=()=>rushBeaten().length>=2;
+function startRush(){const pool=rushPool();if(!rushOpen()){sfx('block');setToast('BEAT TWO GUARDIANS TO OPEN THE BOSS RUSH','#c55',2.5);return;}
  startRun(pool[0]);R.rush={pool,i:0,t0:0};
  // a little help so the rush isn't a stage I hero against stage XII guardians: gear and relics grow with the first boss
  rushArena();setToast('BOSS RUSH: '+pool.length+' GUARDIANS','#ff6070',3);}
