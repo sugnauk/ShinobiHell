@@ -434,7 +434,7 @@ function drawCursor(){const mx=Math.round(mouse.x),my=Math.round(mouse.y);
  const A=['1','11','1w1','1ww1','1www1','1wwww1','1www11','1w1w1','11.1w1','....11'];A.forEach((r,y)=>{for(let x=0;x<r.length;x++){const c=r[x];if(c==='.')continue;ctx.fillStyle=c==='1'?'#14101a':'#fff';ctx.fillRect(mx+x,my+y,1,1);}});}
 
 // ---------- options: volume, difficulty, toggles, key rebinding, debug overlay ----------
-const KBACTS=[['up','MOVE UP','KeyW'],['down','MOVE DOWN','KeyS'],['left','MOVE LEFT','KeyA'],['right','MOVE RIGHT','KeyD'],['dash','DASH','Space'],['focus','FOCUS (HOLD)','ShiftLeft'],
+const KBACTS=[['up','MOVE UP','KeyW'],['down','MOVE DOWN','KeyS'],['left','MOVE LEFT','KeyA'],['right','MOVE RIGHT','KeyD'],['dash','DASH','Space'],
  ['q','ABILITY Q','KeyQ'],['w','ABILITY E','KeyE'],['f','ABILITY F','KeyF'],['e','ULTIMATE','KeyR'],['heal','DRINK POTION','KeyC'],['use','INTERACT','KeyG'],['swap','SWAP WEAPON','KeyX'],['pack','BACKPACK','Tab']];
 const DIFFS=[{n:'STORY',d:'55% DAMAGE, 75% HP, FEWER BOSS BULLETS',dmg:.55,hp:.75,bh:.65,c:'#6c6'},{n:'NORMAL',d:'THE GAME AS DESIGNED',dmg:1,hp:1,bh:1,c:'#ddd'},{n:'HARD',d:'130% DAMAGE, 125% HP, MORE BOSS BULLETS',dmg:1.3,hp:1.25,bh:1.35,c:'#f55'}];
 (function initOpt(){const d={mus:6,sfx:7,diff:1,shake:1,flash:1,dmgNum:1,dbg:0,kb:{}};meta.opt=Object.assign(d,meta.opt||{});for(const [k,,c] of KBACTS)if(!meta.opt.kb[k])meta.opt.kb[k]=c;})();

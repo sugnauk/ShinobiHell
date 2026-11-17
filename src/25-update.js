@@ -9,7 +9,7 @@ function updPlayer(dt){
  if(p.stag>0){p.stag-=dt;if(p.stag<=0)p.pos=Math.min(p.pos,S.maxpos*.3);}
  if(p.animT>0)p.animT-=dt;
  const lq=liqAt(p.x,p.y);
- const shf=!!(keys[KB.focus]||keys.ShiftRight),cmb=inCombat();if(p.combatT>0)p.combatT-=dt;p.focus=shf&&cmb;if(cmb&&p.oocRun){p.oocRun=false;}const [mx,my]=moveVec();p.sprintK=clamp((p.sprintK||0)+(p.oocRun?dt*4:-dt*8),0,1);if(p.sprintK>.5&&(mx||my)&&Math.random()<dt*14)particles.push({x:p.x-(mx||0)*4+rnd(-2,2),y:p.y-(my||0)*4+rnd(-2,2),vx:-(mx||0)*20,vy:-(my||0)*20,t:.35,col:'#9a9488'});const spd=S.spd*(p.focus?.45:1)*(1+.75*p.sprintK)*(p.haste>0?1.3:1)*(lq===1||lq===5?.72:lq===3?.85:1)*(P.webT>0?.55:1);p.mv=!!(mx||my);p.mvx=mx;p.mvy=my;
+ const cmb=inCombat();if(p.combatT>0)p.combatT-=dt;p.focus=false; /* focus mode (hold SHIFT) was removed */if(cmb&&p.oocRun){p.oocRun=false;}const [mx,my]=moveVec();p.sprintK=clamp((p.sprintK||0)+(p.oocRun?dt*4:-dt*8),0,1);if(p.sprintK>.5&&(mx||my)&&Math.random()<dt*14)particles.push({x:p.x-(mx||0)*4+rnd(-2,2),y:p.y-(my||0)*4+rnd(-2,2),vx:-(mx||0)*20,vy:-(my||0)*20,t:.35,col:'#9a9488'});const spd=S.spd*(p.focus?.45:1)*(1+.75*p.sprintK)*(p.haste>0?1.3:1)*(lq===1||lq===5?.72:lq===3?.85:1)*(P.webT>0?.55:1);p.mv=!!(mx||my);p.mvx=mx;p.mvy=my;
  if(p.mv&&(lq===1||lq===5)&&Math.random()<dt*8)particles.push({x:p.x+rnd(-3,3),y:p.y+rnd(-3,3),vx:0,vy:0,t:.3,col:map.env.lc[2]});
  if(p.dash>0){p.dash-=dt;move(p,p.dx*185*dt,p.dy*185*dt,4);}
  else if(p.stag<=0){move(p,mx*spd*dt,my*spd*dt,4);if(wantFire()&&p.atkCd<=0&&!hoverSlot()&&!(p.lockT>0&&p.lockK!=='m'))castBolt();if(mouse.rdown&&p.ab.h<=0&&(p.hCh>0||!(p.lockT>0))){p.hCh=(p.hCh||0)+dt;}else if(!mouse.rdown&&p.hCh>0){p.hFull=p.hCh>=HCHARGE;castHeavy();p.hCh=0;p.hFull=false;}}

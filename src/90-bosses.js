@@ -215,7 +215,9 @@ Object.assign(PSPR,{
  petal(X,Y,ux,uy,q){ctx.fillStyle=q.col;ctx.fillRect(X-2,Y-1,4,3);ctx.fillRect(X-1,Y-2,2,5);ctx.fillStyle='#fff';ctx.fillRect(X,Y,1,1);},
  bead(X,Y,ux,uy,q){disc(X,Y,2,'#7a4a20');ctx.fillStyle='#d8a060';ctx.fillRect(X-1,Y-1,1,1);},
  ball(X,Y,ux,uy,q){disc(X,Y,q.r,'#1a1a20');circ(X,Y,q.r,'#5a5a66');ctx.fillStyle='#8a8a96';ctx.fillRect(X-2,Y-3,2,1);},
- shackle(X,Y,ux,uy,q){const a=time*10+q.x;circ(X,Y,4,'#5a5a66');ctx.fillStyle='#9a9aa8';ctx.fillRect(Math.round(X+Math.cos(a)*4),Math.round(Y+Math.sin(a)*4),2,2);},
+ shackle(X,Y,ux,uy,q){const a=time*10+q.x; // a solid iron ring with a spinning link
+  disc(X,Y,5,'#14101a');disc(X,Y,4,'#8a8a9a');disc(X-1,Y-1,3,'#c8c8d8');disc(X,Y,2,'#14101a');ctx.fillStyle='#ffffff';ctx.fillRect(X-3,Y-2,1,1);
+  const lx=Math.round(X+Math.cos(a)*5),ly=Math.round(Y+Math.sin(a)*5);ctx.fillStyle='#14101a';ctx.fillRect(lx-2,ly-2,4,4);ctx.fillStyle=q.col||'#dfccab';ctx.fillRect(lx-1,ly-1,2,2);},
  wisp(X,Y,ux,uy,q){const f=Math.floor(time*12+q.x)%2;disc(X,Y,3,q.col);ctx.fillStyle='#fff';ctx.fillRect(X-1,Y-1,2,2);ctx.fillStyle=q.col;ctx.fillRect(Math.round(X-ux*4),Math.round(Y-uy*4)-f,1,2);},
  scale(X,Y,ux,uy,q){ctx.fillStyle='#2a1030';ctx.fillRect(X-2,Y-2,5,5);ctx.fillStyle=q.col;ctx.fillRect(X-1,Y-1,3,3);ctx.fillStyle='#ffd040';ctx.fillRect(X-2,Y-2,5,1);},
  rider(X,Y,ux,uy,q){const f=Math.floor(time*12+q.y)%2;ctx.fillStyle='#14101a';ctx.fillRect(X-7,Y-6,14,7);ctx.fillStyle=q.col;ctx.fillRect(X-6,Y-5,12,5);ctx.fillRect(Math.round(X+ux*6)-1,Y-8,3,3);ctx.fillStyle='#14101a';ctx.fillRect(X-5,Y-1+f,2,3);ctx.fillRect(X+3,Y-1+(1-f),2,3);ctx.fillStyle='#e8eef6';ctx.fillRect(X-1,Y-12,2,6);ctx.fillRect(Math.round(X+ux*9),Math.round(Y-9+uy*3),2,1);},
