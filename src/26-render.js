@@ -243,7 +243,11 @@ const PSPR={
  arrow(X,Y,ux,uy,q){for(let i=-5;i<=3;i++){ctx.fillStyle=i>1?'#e8eef6':'#6a4428';ctx.fillRect(Math.round(X+ux*i),Math.round(Y+uy*i),1,1);}ctx.fillStyle='#ffffff';ctx.fillRect(Math.round(X+ux*4),Math.round(Y+uy*4),1,1);
   ctx.fillStyle=q.col||'#d02030';const tx=X-ux*5,ty=Y-uy*5;ctx.fillRect(Math.round(tx-uy*1.5),Math.round(ty+ux*1.5),1,1);ctx.fillRect(Math.round(tx+uy*1.5),Math.round(ty-ux*1.5),1,1);},
  naginata(X,Y,ux,uy,q){const px=-uy,py=ux;for(let i=-9;i<=9;i++){const bend=(1-(i/9)**2)*5,cx=X+px*i+ux*bend,cy=Y+py*i*.8+uy*bend;ctx.fillStyle=Math.abs(i)<6?'#ffffff':q.col;ctx.fillRect(Math.round(cx),Math.round(cy),2,1);ctx.fillStyle=q.col;ctx.fillRect(Math.round(cx-ux*2),Math.round(cy-uy*2),1,1);}},
- drum(X,Y,ux,uy,q){circ(X,Y,3,'#e0b040');disc(X,Y,1,Math.floor(time*10)%2?'#ff4030':'#c02020');},
+ drum(X,Y,ux,uy,q){const beat=Math.floor(time*4+q.x*.05)%2,g=q.col||'#e0b040'; // a little taiko drum: lacquered barrel, gold bands and studs, a drumhead that flashes on the beat
+  ctx.fillStyle='#14101a';ctx.fillRect(X-5,Y-4,11,9);ctx.fillRect(X-4,Y-5,9,11);
+  ctx.fillStyle='#a02818';ctx.fillRect(X-4,Y-2,9,6);ctx.fillStyle='#d03a24';ctx.fillRect(X-4,Y-2,3,6);ctx.fillStyle='#6a140c';ctx.fillRect(X+3,Y-2,2,6);
+  ctx.fillStyle=g;ctx.fillRect(X-4,Y-1,9,1);ctx.fillRect(X-4,Y+3,9,1);ctx.fillStyle='#fff6c0';ctx.fillRect(X-3,Y-1,1,1);ctx.fillRect(X,Y+3,1,1);ctx.fillRect(X+3,Y-1,1,1);
+  ctx.fillStyle=beat?'#ffffff':'#f0e0b8';ctx.fillRect(X-3,Y-4,7,2);ctx.fillRect(X-4,Y-3,9,1);ctx.fillStyle=beat?'#ffd060':'#c8a878';ctx.fillRect(X-1,Y-4,3,1);},
  silk(X,Y,ux,uy,q){if(q.stuck){ctx.fillStyle='#e8e8f0';ctx.fillRect(X-3,Y,7,1);ctx.fillRect(X,Y-3,1,7);ctx.fillStyle='#a0a0b0';ctx.fillRect(X-2,Y-2,1,1);ctx.fillRect(X+2,Y+2,1,1);ctx.fillRect(X-2,Y+2,1,1);ctx.fillRect(X+2,Y-2,1,1);ctx.fillStyle='#fff';ctx.fillRect(X,Y,1,1);}
   else{for(let i=-4;i<=1;i++){ctx.fillStyle=i>-1?'#ffffff':'#c8c8d8';ctx.fillRect(Math.round(X+ux*i),Math.round(Y+uy*i),1,1);}}},
  venom(X,Y,ux,uy,q){disc(X,Y,4,'#3a8a20');disc(X,Y,3,'#70d040');ctx.fillStyle='#d8ff90';ctx.fillRect(X-2,Y-2,2,1);ctx.fillStyle='#3a8a20';ctx.fillRect(X,Y+4+(Math.floor(time*6)%2),1,2);},
