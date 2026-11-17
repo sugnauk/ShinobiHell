@@ -106,18 +106,31 @@ function kgMount(p,Q){const {R:R_,E:E_,L:L_}=p,ox=Q.dx||0,oy=Q.dy||0,by=Q.b||0,g
  const tl=g?[[32,76],[22,74],[12,78],[4,86],[0,94]]:[[32,76],[26,84],[22,98],[22,112],[24,124]];
  for(let i=0;i<tl.length-1;i++)L(tl[i][0],tl[i][1],tl[i+1][0],tl[i+1][1],O,9-i);
  for(let i=0;i<tl.length-1;i++){L(tl[i][0],tl[i][1],tl[i+1][0],tl[i+1][1],MN2,7-i);L(tl[i][0]-1,tl[i][1],tl[i+1][0]-1,tl[i+1][1],MN,Math.max(1,4-i));L(tl[i][0]+2,tl[i][1]+1,tl[i+1][0]+2,tl[i+1][1]+1,MN3,1);}
- // ---- legs: [top, joint, fetlock, hoof]
- const leg=(P4,dim,hind)=>{const [a,b,c,d]=P4,c1=dim?H1:H2,c2=dim?H2:H3;seg(a[0],a[1],b[0],b[1],hind?9:8,c1,c2);seg(b[0],b[1],c[0],c[1],5,c1,c2);seg(c[0],c[1],d[0],d[1]-3,4,c1);
-  E(b[0],b[1],4,3,c1);for(let k=0;k<4;k++)L(c[0]-3+k*2,c[1]-1,c[0]-4+k*2,c[1]+4,dim?MN3:MN2,1);R(d[0]-5,d[1]-4,10,5,O);R(d[0]-4,d[1]-4,8,4,'#2a2a30');R(d[0]-4,d[1]-4,8,1,'#5a5a66');};
- const LG=g?{fh:[[60,98],[46,114],[34,124],[28,128]],nh:[[52,98],[44,116],[30,128],[24,134]],ff:[[96,96],[110,104],[122,108],[130,106]],nf:[[102,98],[112,112],[124,118],[132,118]]}
-          :{fh:[[60,98],[56,118],[58,132],[59,144]],nh:[[50,98],[46,118],[48,132],[49,144]],ff:[[96,98],[95,118],[95,132],[96,144]],nf:[[104,98],[105,118],[106,132],[107,144]]};
- leg(LG.fh,1,1);leg(LG.ff,1,0);
- // ---- the body silhouette
- const hy=g?4:0,BODY=[[30,80],[36,72],[46,68],[60,72],[74,74],[88,70],[98,64],[106,54+hy],[112,44+hy],[118,36+hy],[124,32+hy],[128,30+hy],[132,34+hy],[138,46+hy],[142,56+hy],[140,62+hy],[132,60+hy],[124,56+hy],[118,60+hy],[112,74],[108,90],[102,100],[90,104],[72,106],[54,104],[42,100],[32,92]];
- const body=BODY.map(([x,y])=>[x,y+(x<112?by:0)]);artPoly(R,body,H2);
+ // ---- legs: tapered shapes along a path of [x, y, width] nodes, outlined, with a lit front edge and a hoof
+ const limb=(N,c1,c2,c3)=>{const Lp=[],Rp=[];N.forEach((n,i)=>{const a=N[Math.max(0,i-1)],b=N[Math.min(N.length-1,i+1)],dx=b[0]-a[0],dy=b[1]-a[1],l=Math.hypot(dx,dy)||1,nx=-dy/l,ny=dx/l;
+   Lp.push([n[0]+nx*n[2]/2,n[1]+ny*n[2]/2]);Rp.push([n[0]-nx*n[2]/2,n[1]-ny*n[2]/2]);});
+  const poly=[...Lp,...Rp.reverse()],big=[];N.forEach((n,i)=>{});
+  // outline: the same shape one pixel fatter
+  {const Lo=[],Ro=[];N.forEach((n,i)=>{const a=N[Math.max(0,i-1)],b=N[Math.min(N.length-1,i+1)],dx=b[0]-a[0],dy=b[1]-a[1],l=Math.hypot(dx,dy)||1,nx=-dy/l,ny=dx/l,w=n[2]/2+1.2;Lo.push([n[0]+nx*w,n[1]+ny*w]);Ro.push([n[0]-nx*w,n[1]-ny*w]);});artPoly(R,[...Lo,...Ro.reverse()],O);}
+  artPoly(R,poly,c1);
+  // lit strip along the front (right-hand, facing) edge, darker strip at the back
+  for(let i=0;i<N.length-1;i++){const [x0,y0,w0]=N[i],[x1,y1,w1]=N[i+1];L(x0+w0*.25,y0,x1+w1*.25,y1,c2,1);L(x0-w0*.35,y0,x1-w1*.35,y1,c3,1);}};
+ const hoof=(x,y,dim)=>{artPoly(R,[[x-4,y-6],[x+3,y-6],[x+5,y],[x-4,y]],O);artPoly(R,[[x-3,y-5],[x+2,y-5],[x+4,y-1],[x-3,y-1]],'#2a2a30');R(x-3,y-5,5,1,'#6a6a78');
+  for(let k=0;k<4;k++)L(x-3+k*2,y-8,x-4+k*2,y-5,dim?MN3:MN2,1);};
+ // legs as node paths: front = forearm, knee, cannon, fetlock, pastern; hind = thigh, gaskin, hock, cannon, fetlock, pastern
+ const FRONT=(x,y,o,g2)=>g2?[[x,y,11],[x+6,y+10,8],[x+12,y+14,6],[x+20,y+14,4],[x+26,y+12,5],[x+30,y+10,3]]
+   :[[x,y,11],[x+1,y+10,9],[x+1,y+20,6],[x+1,y+24,5],[x+1,y+34,4],[x+1,y+38,6],[x+3,y+44,3]];
+ const HIND=(x,y,g2)=>g2?[[x,y,16],[x-6,y+8,11],[x-12,y+16,7],[x-18,y+24,5],[x-24,y+28,4],[x-28,y+30,6],[x-32,y+32,3]]
+   :[[x,y,16],[x-2,y+10,12],[x-6,y+18,8],[x-9,y+24,6],[x-8,y+30,4],[x-8,y+40,4],[x-7,y+42,6],[x-5,y+48,3]];
+ const legF=(x,y,dim,g2)=>{const N=FRONT(x,y,0,g2);limb(N,dim?H1:H2,dim?H2:H4,dim?H0:H1);const e=N[N.length-1];hoof(e[0]+(g2?2:1),e[1]+(g2?3:6),dim);};
+ const legH=(x,y,dim,g2)=>{const N=HIND(x,y,g2);limb(N,dim?H1:H2,dim?H2:H4,dim?H0:H1);const hk=N[g2?2:3];artPoly(R,[[hk[0]-3,hk[1]-3],[hk[0]-6,hk[1]+1],[hk[0]-1,hk[1]+3]],dim?H1:H2);const e=N[N.length-1];hoof(e[0]+(g2?0:1),e[1]+(g2?3:6),dim);};
+ if(g){legH(56,92,1,1);legF(96,92,1,1);}else{legH(58,92,1,0);legF(96,94,1,0);}
+ // ---- the body silhouette: croup, a dipped back, withers, an arched neck, the head; deep chest, tucked belly, round rump
+ const hy=g?4:0,BODY=[[30,82],[32,74],[38,69],[46,67],[56,70],[68,73],[80,73],[90,69],[97,64],[104,55+hy],[110,46+hy],[116,39+hy],[122,33+hy],[127,30+hy],[132,33+hy],[136,40+hy],[140,48+hy],[143,55+hy],[142,60+hy],[137,61+hy],[131,58+hy],[125,54+hy],[120,52+hy],[116,60],[112,72],[110,82],[108,92],[102,98],[92,101],[80,101],[68,99],[60,96],[54,96],[46,97],[38,95],[32,90]];
+ const body=BODY.map(([x,y])=>[x,y+(x<112?by:0)]);artPoly(R,body.map(([x,y])=>[x,y]),H2);
  // light along the back and neck, shadow along the belly, muscle masses
  artPoly(R,[[34,76],[46,70],[60,74],[74,76],[88,72],[98,66],[106,56+hy],[112,46+hy],[120,38+hy],[126,34+hy],[128,38+hy],[118,46+hy],[110,60+hy],[100,74],[88,78],[72,82],[56,80],[40,80]].map(([x,y])=>[x,y+(x<112?by:0)]),H3);
- artPoly(R,[[40,98],[54,102],[72,104],[90,102],[102,98],[98,104],[72,108],[50,106]].map(([x,y])=>[x,y+by]),H1);
+ artPoly(R,[[40,93],[54,94],[68,97],[80,99],[92,99],[102,96],[100,99],[90,101],[70,100],[54,97],[42,96]].map(([x,y])=>[x,y+by]),H1);
  E(46,84+by,10,9,H3);E(43,80+by,5,4,H4);E(100,82+by,8,10,H3);E(98,77+by,3,4,H4);L(90,74+by,96,98+by,H1,1);L(58,80+by,54,100+by,H1,1);L(70,80+by,70,100+by,H1,1);
  // ---- the head: eye, nostril, mouth, cheek; chamfron with a gold crescent; bridle
  E(128,44+hy,5,4,H3);R(127,40+hy,3,2,O);R(128,40+hy,1,1,'#c0c8ff');R(139,55+hy,2,2,H0);L(134,60+hy,141,61+hy,H1,1);
@@ -139,7 +152,7 @@ function kgMount(p,Q){const {R:R_,E:E_,L:L_}=p,ox=Q.dx||0,oy=Q.dy||0,by=Q.b||0,g
  // ---- saddle cloth and saddle
  R(64,72+by,22,13,O);R(65,73+by,20,11,BL);R(65,73+by,20,1,BL2);for(let k=66;k<85;k+=3){R(k,83+by,1,2,G2);}R(65,82+by,20,1,G2);
  R(64,66+by,24,8,O);R(65,67+by,22,6,K1);R(65,67+by,22,1,G2);R(66,72+by,20,1,G1);
- leg(LG.nh,0,1);leg(LG.nf,0,0);
+ if(g){legH(48,92,0,1);legF(102,94,0,1);}else{legH(50,92,0,0);legF(103,96,0,0);}
  // ---- the general in the saddle (his own sprite, seated)
  kgDraw(p,Object.assign({},Q.rider||{},{mounted:1,dx:ox+49,dy:oy+4+(Q.rdy||0),b:by,stream:g?3:Q.b?1:0}));
  // ---- reins from the bit to his far hand
