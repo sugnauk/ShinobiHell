@@ -25,18 +25,20 @@ function chestLocked(p){return !!(p&&p.k==='chest'&&!p.used&&p.room&&p.room.type
  else if(p.wasL){p.wasL=0;sfx('rare');fxRing(p.x,p.y,26,'#ffd040',.5);spark(p.x,p.y-6,'#ffb040',14,70);setToast('THE SEAL BREAKS - THE CHEST IS OPEN','#ffd040',2);}};}
 
 // ---------- the shop: lanterns wide apart at every opening into it, and the sign beside one of them ----------
-dressShopEntrance=function(r){
- const index=map.rooms.indexOf(r),seen=new Set(),groups=[];
+// every opening out of a room: runs of edge tiles whose outside neighbour is corridor floor, grouped per side
+function roomOpenings(r){const index=map.rooms.indexOf(r),seen=new Set(),groups=[];
  const isExit=(x,y,dx,dy)=>{const i=y*MW+x;if(!map.t[i]||map.liq[i]||map.roomOf[i]!==index)return false;const nx=x+dx,ny=y+dy,v=ny*MW+nx;return nx>0&&ny>0&&nx<MW-1&&ny<MH-1&&map.t[v]&&!map.liq[v]&&map.roomOf[v]<0;};
  for(const [dx,dy] of [[1,0],[-1,0],[0,1],[0,-1]])for(let y=r.y;y<r.y+r.h;y++)for(let x=r.x;x<r.x+r.w;x++){const key=x+','+y+','+dx+','+dy;if(seen.has(key)||!isExit(x,y,dx,dy))continue;
-  // one opening: the run of exit tiles along the wall
   const g=[],st=[[x,y]];seen.add(key);while(st.length){const [cx,cy]=st.pop();g.push([cx,cy]);for(const [ax,ay] of [[dy,dx],[-dy,-dx]]){const nx=cx+ax,ny=cy+ay,k2=nx+','+ny+','+dx+','+dy;if(!seen.has(k2)&&isExit(nx,ny,dx,dy)){seen.add(k2);st.push([nx,ny]);}}}
   groups.push({g,dx,dy});}
- groups.forEach(({g,dx,dy},gi)=>{
-  // along = the axis running beside the opening
-  const ax=Math.abs(dy),ay=Math.abs(dx),along=g.map(([x,y])=>x*ax+y*ay),lo=Math.min(...along),hi=Math.max(...along),fx=g[0][0],fy=g[0][1];
-  const at=a=>({x:(ax?a:fx)*T+8-dx*4,y:(ay?a:fy)*T+8-dy*4});
-  const posts=[];for(const [a0,step] of [[lo,-1],[hi,1]]){let put=null;for(const off of [2,1.5,1]){const a=a0+step*off,q=at(a);if(!solid(q.x,q.y)){put=q;break;}}if(put){posts.push(put);props.push({k:'doorpost',x:put.x,y:put.y,used:true,room:r,gate:'shop'});}}
+ return groups;}
+// the two spots that frame an opening, a little wider than it, pulled just inside the room
+function openingPosts(o,off){const {g,dx,dy}=o,ax=Math.abs(dy),ay=Math.abs(dx),along=g.map(([x,y])=>x*ax+y*ay),lo=Math.min(...along),hi=Math.max(...along),fx=g[0][0],fy=g[0][1];
+ const at=a=>({x:(ax?a:fx)*T+8-dx*4,y:(ay?a:fy)*T+8-dy*4}),out=[];
+ for(const [a0,step] of [[lo,-1],[hi,1]]){for(const k of off||[2,1.5,1]){const q=at(a0+step*k);if(!solid(q.x,q.y)){out.push(q);break;}}}return out;}
+dressShopEntrance=function(r){const groups=roomOpenings(r);
+ groups.forEach(o=>{const {dx,dy}=o,ax=Math.abs(dy),ay=Math.abs(dx),posts=openingPosts(o);
+  for(const q of posts)props.push({k:'doorpost',x:q.x,y:q.y,used:true,room:r,gate:'shop'});
   // the sign hangs just inside, beside the far lantern, so it never sits in the doorway
   if(posts.length){const pp=posts[posts.length-1],sx2=pp.x-dx*14+ax*8,sy2=pp.y-dy*14+ay*8;props.push({k:'entrancePlaque',x:solid(sx2,sy2)?pp.x-dx*14:sx2,y:solid(sx2,sy2)?pp.y-dy*14:sy2,used:true,room:r,gate:'shop'});}});};
 
@@ -60,3 +62,14 @@ function guidePortrait(i){if(GPORT[i])return GPORT[i];let s;try{s=bossSheet(i);}
  const sc=Math.min(1,64/s.fh,64/s.fw),fw=Math.round(s.fw*sc),fh=Math.round(s.fh*sc),c=mk(fw*2,fh,()=>{}),g=c.getContext('2d');g.imageSmoothingEnabled=false;
  for(let f=0;f<2;f++)g.drawImage(s.c,f*s.fw,0,s.fw,s.fh,f*fw,0,fw,fh);return GPORT[i]={c,fw,fh,frames:2};}
 {const _ge=guideEntries;guideEntries=function(tab){const L=_ge(tab);if(tab===1)L.forEach((e,i)=>{if(!e.u||!BOSS[i])return;const P2=guidePortrait(i);if(!P2)return;e.spr=()=>P2;const tale=(DUN[i]&&DUN[i].tale)||'';if(tale)e.L=[tale,...e.L];});return L;};}
+
+// ---------- sealed pockets: floor the player can't walk to (a corner alcove that missed the room) becomes wall ----------
+// otherwise foes could spawn there, out of reach and behind walls your shots can't pass
+function sealPockets(m){const t=m.t,seen=new Uint8Array(MW*MH),s=m.startRoom,q=[];
+ const door=new Set(m.lair&&m.lair.locked?m.lair.door.map(([i,j])=>j*MW+i):[]);
+ const st=(s.y+(s.h>>1))*MW+s.x+(s.w>>1);if(!t[st])return 0;seen[st]=1;q.push(st);
+ while(q.length){const i=q.pop();for(const d of [1,-1,MW,-MW]){const j=i+d;if(!seen[j]&&(t[j]||door.has(j))){seen[j]=1;q.push(j);}}}
+ let n=0;for(let i=0;i<MW*MH;i++)if(t[i]&&!seen[i]){t[i]=0;m.liq[i]=0;m.roomOf[i]=-1;n++;}
+ if(n){m.liqList=[];for(let i=0;i<MW*MH;i++)if(m.liq[i])m.liqList.push(i);rebuildVis(m);}
+ return n;}
+{const _gm=genMap;genMap=function(di){const m=_gm.apply(this,arguments);try{m.pockets=sealPockets(m);}catch(e){console.error(e);}return m;};}
