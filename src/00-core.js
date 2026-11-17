@@ -5,9 +5,14 @@
 let W=320,H=180;const T=16,MW=140,MH=116,TAU=Math.PI*2,WH=10;
 const cv=document.getElementById('c'),ctx=cv.getContext('2d');
 cv.width=W;cv.height=H;
-function setView(wide){const nw=wide?448:320,nh=wide?252:180;if(nw===W)return;W=nw;H=nh;cv.width=W;cv.height=H;fit();}
-function fit(){const s=Math.max(1,Math.floor(Math.min(innerWidth/W,innerHeight/H)));cv.style.width=W*s+'px';cv.style.height=H*s+'px';cv.style.left=Math.floor((innerWidth-W*s)/2)+'px';cv.style.top=Math.floor((innerHeight-H*s)/2)+'px';}
-addEventListener('resize',fit);fit();
+// the wide view (play, and the newer menus) fills the window: its height is the zoom (more pixels = zoomed further out)
+// and its width follows the window's shape, so there are no black bars. Narrow menus stay 320x180, scaled to fit.
+let VIEWWIDE=false;const VIEWHS=[252,300,348];
+const viewH=()=>{try{return VIEWHS[(typeof meta!=='undefined'&&meta.opt&&meta.opt.zoom!=null)?meta.opt.zoom:1]||300;}catch(_){return 300;}};
+function viewDims(wide){if(!wide)return [320,180];const h=viewH(),a=innerWidth/Math.max(1,innerHeight),w=Math.round(clamp(h*a,h*1.3,h*2.4)/2)*2;return [w,h];}
+function setView(wide){VIEWWIDE=!!wide;const [nw,nh]=viewDims(wide);if(nw===W&&nh===H)return;W=nw;H=nh;cv.width=W;cv.height=H;fit();}
+function fit(){const s=Math.min(innerWidth/W,innerHeight/H);const w=Math.round(W*s),h=Math.round(H*s);cv.style.width=w+'px';cv.style.height=h+'px';cv.style.left=Math.floor((innerWidth-w)/2)+'px';cv.style.top=Math.floor((innerHeight-h)/2)+'px';}
+addEventListener('resize',()=>{const v=VIEWWIDE;W=0;setView(v);fit();});fit();
 
 // the game's version, shown on the title screen. Bump it with every change that reaches main.
 const GAME_VERSION='0.6.4';

@@ -77,7 +77,9 @@ function oni2(p,Q){const K=HUM(p,Q),{R,E,L,seg,trap,leg,face,lt,dk,by}=K,two=ART
   E(hx,hy+4,9,7,OUTC);E(hx,hy+4,8,6,'#1a1210');R(hx-4,hy+2,2,1,'#ffd040');R(hx+3,hy+2,2,1,'#ffd040');R(hx-4,hy+1,2,1,'#806020');R(hx+3,hy+1,2,1,'#806020');
   for(let i=-3;i<=3;i+=2)L(hx+i,hy+6,hx+i,hy+10,'#3a2a20',1);
   E(hx,hy-2,7,4,OUTC);E(hx,hy-2,6,3,F3);E(hx,hy+1,4,2,F2);R(hx-2,hy-2,5,2,OUTC);R(hx-1,hy-3,2,1,'#5a5a64');
-  for(const s of [-1,1]){L(hx+s*3,hy+1,hx+s*3,hy+6,'#f0e8d8',2);R(hx+s*3,hy+6,1,1,'#ffffff');}
+  // the hood's upper jaw: a row of small teeth along the brow, longer canines at the corners (instead of two long tusks over his face)
+  for(let i=-5;i<=5;i+=2){R(hx+i,hy+1,1,i%4===1||i%4===-3?2:1,'#d8ccb4');}
+  for(const s of [-1,1]){const x=hx+s*7;R(x-(s<0?0:1),hy,2,1,'#f0e8d8');R(x-(s<0?0:1),hy+1,2,2,'#e8dcc4');R(x-(s<0?-1:0),hy+3,1,1,'#c8bca4');}
   for(let i=0;i<10;i++){const a=Math.PI*.1+i/9*Math.PI*.8;R(hx+Math.cos(a)*14,hy-2+Math.sin(a)*-1-8,1,2,F3);}}
  else{
   // second form: the hood torn off and thrown back, the chest plate ripped away, chains wrapped round his torso, and a
