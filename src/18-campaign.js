@@ -15,7 +15,7 @@ function storyCampaign(){
  const charge=o=>CH(Object.assign({w:.75,sp:250,dur:1,dmg:30,rec:.7,dmin:30,pd:30,peril:true},o)),stomp=o=>SM(Object.assign({w:.9,rad:52,dmg:28,peril:true,rec:.8},o));
  BOSS.push(Object.assign({},tiger,{name:'THE WAR ELEPHANT',r:18,spd:(tiger.spd||40)*.85,pal:basePal('#7a7a84','#4a4a54','#c02020','#3a3a44','#9a9aa4'),
    k1:[charge({wt:3}),stomp({wt:1})],k2:[charge({wt:3,sp:280}),charge({wt:2,sp:300,dur:.8}),stomp({wt:1,rad:58})],k3:[charge({wt:4,sp:320,dur:1.1}),stomp({wt:2,rad:64,dmg:32})]}),
-  Object.assign({},moth,{name:'THE NINE-TAILED KITSUNE',pal:basePal('#e8823a','#8a3a10','#fff0e0','#5a2a10'),k2:moth.k2.concat([SU({types:['kitsune','kitsune'],cnt:2,wt:2})])}));
+  Object.assign({},moth,{name:'TAMAMO, THE ILLUSIONIST',pal:basePal('#e8823a','#8a3a10','#fff0e0','#5a2a10'),k2:moth.k2.concat([SU({types:['kitsune','kitsune'],cnt:2,wt:2})])}));
  BLOOK.push({bw:11,skin:'#9a9a90',ar:'#7a7a72',ad:'#4a4a44',ac:'#3e8a5a',lg:'#5a5a54',head:'ape',wpn:'fists',back:null,big:1,fur:'#b0b0a8'},
   {bw:6,skin:'#f0d8c0',ar:'#e8823a',ad:'#8a3a10',ac:'#fff0e0',lg:'#5a2a10',head:'bun',wpn:'daggers',back:'wings',w1:'#ff9040',w2:'#fff0d0'});
  BSTYLE.push({c:'#a8b0a0',t:['WAR DRUMS','SIEGE BREAKER','RAMPAGE'],ph:[
@@ -38,7 +38,7 @@ function storyCampaign(){
  // guardians get tougher by their place in the march, not by who they are
  const HP=[520,700,820,950,1100,1250,1350,1500,1650,1800,2100,2800];BOSS.forEach((b,i)=>b.hp=HP[i]);
  // hitboxes follow the body: the wide spider and elephant are much easier to hit (and to get trampled by)
- const BR={'TSUCHIGUMO, EARTH SPIDER':14,'THE JADE SERPENT':11,'THE WAR ELEPHANT':18,'THE NINE-TAILED KITSUNE':10};BOSS.forEach(b=>{if(BR[b.name])b.r=BR[b.name];});
+ const BR={'ITOHIME, THE WIRE WEAVER':14,'THE JADE SERPENT':11,'THE WAR ELEPHANT':18,'TAMAMO, THE ILLUSIONIST':10};BOSS.forEach(b=>{if(BR[b.name])b.r=BR[b.name];});
  while(BMODES.length<DUN.length)BMODES.push(['dashes','blink','circle','chase']);
  BMODES[5]=['stampede','stampede','chase']; // the war elephant (outer walls) lives to charge
  ROMAN.push('XI','XII');}

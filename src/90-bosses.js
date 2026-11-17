@@ -537,12 +537,12 @@ TIG.pounce=function(e,A,dt,count,wind){
  return false;
 };
 
-// ================================================================ III. TSUCHIGUMO, THE EARTH SPIDER - arena control
-// Half the fight she is on the ceiling, only a shadow: spitting and dropping. On the floor she is open but her patterns
+// ================================================================ III. ITOHIME, THE WIRE WEAVER - arena control
+// The spider-clan matriarch strings wires through the tunnels. Half the fight she is up in the rafters, only a shadow: spitting and dropping. On the floor she is open but her patterns
 // are dense. Webs slow you; shoot a brazier three times to loose a fire arrow that burns webs and knocks her off the ceiling.
 defProp('brazier','BRAZIER',99,6,miniSpr(10,12,R=>{R(1,0,8,4,'#5a4a3a');R(0,3,10,2,'#3a2a20');R(4,5,2,6,'#3a2a20');R(1,10,8,2,'#3a2a20');}));
 const SPI={};
-BKIT['TSUCHIGUMO, EARTH SPIDER']={director:bossDirector,pref:70,gap:.6,halfName:'LEGS LOST - SHE CANNOT CLIMB',
+BKIT['ITOHIME, THE WIRE WEAVER']={director:bossDirector,pref:70,gap:.6,halfName:'WIRES CUT - SHE CANNOT CLIMB',
  style:{c:'#c89040',t:['SILK','THE HATCHING','HUNGERING DARK'],ph:[[],[],[]]},
  guide:['SKILL: ARENA CONTROL. KEEP A LANE OPEN','ON THE CEILING SHE IS ONLY A SHADOW: SHE CANNOT BE HURT','SHOOT A BRAZIER 3 TIMES: A FIRE ARROW BURNS WEBS','AND KNOCKS HER OFF THE CEILING. BREAK THE EGG SACS'],
  shape(m,r){const cx=r.x+(r.w>>1),cy=r.y+(r.h>>1);for(let i=0;i<4;i++){const a=i/4*TAU+.78,x=Math.round(cx+Math.cos(a)*7),y=Math.round(cy+Math.sin(a)*7);solidBlock(m,x,y,2,2);}},
@@ -1056,8 +1056,8 @@ function bossDark(e){const a=BX.dark||0;if(a<=0)return;if(!darkCv||darkCv.width!
  ctx.drawImage(darkCv,0,0);
  if(BX.smoke){const S=BX.smoke;ctx.globalAlpha=.55*Math.min(1,S.t);wdisc(S.x,S.y,S.r,'#5a5a6a');ctx.globalAlpha=1;}}
 
-// ================================================================ X. THE NINE-TAILED KITSUNE - real vs fake
-// She fights through illusions. Her clones fire the same patterns, but their shots are hollow and harmless; only the real
+// ================================================================ X. TAMAMO, THE ILLUSIONIST - real vs fake
+// A court illusionist in a fox mask and a costume of nine paper tails. She fights through illusions. Her clones fire the same patterns, but their shots are hollow and harmless; only the real
 // fox casts a moon-shadow. She loses a tail at every step of damage (9 down to 3), and each tail lost changes her attacks.
 // Walk through a torii gate to see through every illusion for 3s.
 ET.foxclone={n:'ILLUSION',hp:1,spd:0,pos:9999,r:9,ai:'dummy',rng:0,wl:0,atks:[]};
@@ -1068,9 +1068,9 @@ const KIT={
  both(e,fn){fn(e,true);for(const c of KIT.clones(e))fn(c,false);},
  shot(e,src,real,a,sp,dmg,o){if(real)return bsh(e,src.x,src.y,a,sp,dmg,o);return fakeShot(e,src.x,src.y,a,sp,{st:o&&o.st==='seek'?'seek':o&&o.st==='curve'?'curve':null,curve:o&&o.curve,turn:o&&o.turn,seekT:o&&o.seekT,col:'#c8a0ff',r:3,life:o&&o.life||4});},
 };
-BKIT['THE NINE-TAILED KITSUNE']={director:bossDirector,pref:110,gap:.75,halfName:'THE TAILS BURN LOW',
+BKIT['TAMAMO, THE ILLUSIONIST']={director:bossDirector,pref:110,gap:.75,halfName:'THE TAILS BURN LOW',
  style:{c:'#c080ff',t:['FOX-FIRE','MAZE OF ILLUSIONS','RAW FOX-FIRE'],ph:[[],[],[]]},
- guide:['SKILL: REAL VS FAKE. ONLY THE REAL FOX CASTS A SHADOW','HOLLOW SHOTS ARE ILLUSIONS AND DO NO HARM','WALK THROUGH A TORII GATE TO SEE THROUGH ILLUSIONS FOR 3S','SHE LOSES TAILS AS SHE IS HURT: AT 3 TAILS NO MORE CLONES'],
+ guide:['SKILL: REAL VS FAKE. ONLY THE REAL TAMAMO CASTS A SHADOW','HOLLOW SHOTS ARE ILLUSIONS AND DO NO HARM','WALK THROUGH A TORII GATE TO SEE THROUGH ILLUSIONS FOR 3S','HER PAPER TAILS TEAR AS SHE IS HURT: AT 3 NO MORE CLONES'],
  init(e){const A=arenaOf(e);e.torii=[];for(let i=0;i<5;i++){const a=i/5*TAU+Math.PI/2,k=A.R*.62;e.torii.push({x:A.cx+Math.cos(a)*k,y:A.cy+Math.sin(a)*k,a:a+Math.PI/2,cd:0});}
   e.clones=[];e.cloudT=30;e.cloud=0;BX.reveal=0;},
  tick(e,dt,d,inEv){if(BX.reveal>0)BX.reveal-=dt;for(const g of e.torii){if(g.cd>0)g.cd-=dt;else if(Math.hypot(P.x-g.x,P.y-g.y)<13){g.cd=8;BX.reveal=3;sfx('heal');fxRing(P.x,P.y,40,'#ff4060',.4);setToast('THE TORII REVEALS THE ILLUSIONS','#ff4060',1.5);}}
@@ -1112,7 +1112,7 @@ BKIT['THE NINE-TAILED KITSUNE']={director:bossDirector,pref:110,gap:.75,halfName
   start(e,E){for(const c of KIT.clones(e))c.dead=true;e.clones=[];for(let i=0;i<5;i++){const c=bMin(e,'foxclone',e.x,e.y);c.hp=c.maxhp=1;c.wob=i;c.iv=999;c.drawFn=c=>{drawGhostly(c,revealed()?.35:1,0,0,sprOf(e));return false;};e.clones.push(c);}E.ang=0;E.st=1.2;E.mt=1;},
   tick(e,dt,E){E.ang+=dt*.45;const all=[e].concat(KIT.clones(e));all.forEach((q,i)=>{const a=E.ang+i/all.length*TAU;q.x+=(P.x+Math.cos(a)*120-q.x)*Math.min(1,dt*3);q.y+=(P.y+Math.sin(a)*120-q.y)*Math.min(1,dt*3);q.iv=999;});
    E.st-=dt;if(E.st<=0){E.st=1.1;KIT.both(e,(src,real)=>{const a=Math.atan2(P.y-src.y,P.x-src.x);for(let i=-1;i<=1;i++)KIT.shot(e,src,real,a+i*.25,62,9,{st:'seek',turn:.6,seekT:1.4,col:'#8080ff',r:3,life:5});});}
-   E.mt-=dt;if(E.mt<=0){E.mt=7;BKIT['THE NINE-TAILED KITSUNE'].atks.find(x=>x.n==='maze').run(e,{t:0});}},
+   E.mt-=dt;if(E.mt<=0){E.mt=7;BKIT['TAMAMO, THE ILLUSIONIST'].atks.find(x=>x.n==='maze').run(e,{t:0});}},
   end(e){for(const c of KIT.clones(e))c.dead=true;e.clones=[];}},
  onDeath(){BX.reveal=0;},
 };
@@ -1459,7 +1459,7 @@ BART['THE NINE-TAILED KITSUNE']=Object.assign(p=>{const {R,E,L,b,atk,f}=p,two=AR
 // classic SURVIVAL storm as a second event (BKIT.storm) at whichever of 70% / 30% its own event does not use.
 // Colours follow the shared language: red aimed, pale fixed, green leaves a hazard, purple the Emperor.
 {const set=(n,b,st)=>{const K=BKIT[n];K.barrage=b;if(st)K.storm=st;K._evs=null;};
- set('TSUCHIGUMO, EARTH SPIDER',{rate:[.62,.46],during:'all',not:['climb'],
+ set('ITOHIME, THE WIRE WEAVER',{rate:[.62,.46],during:'all',not:['climb'],
   ph1:[{pat:'web',cnt:10,rings:3,sp:55,col:BC.fix},{pat:'spiral',arms:5,spin:.32,sp:56,col:'#e8e8f0',burst:7,gap:.1},{cnt:5,spread:1,sp:55,st:'big',r:4,spr:'venom',col:BC.haz,pool:{r:10,t:2.5,dps:8,col:'#4a9a20'}},{pat:'flower',cnt:20,sp:50,st:'split',splitT:.9,col:'#c89040'},{cnt:7,spread:.6,sp:90,col:BC.aim,burst:2,gap:.18}],
   half:[{pat:'web',cnt:12,rings:3,sp:58,col:BC.fix,burst:2,gap:.4},{pat:'spiral',arms:7,spin:.36,sp:60,col:'#e8e8f0',burst:9,gap:.08},{cnt:7,spread:1.4,sp:58,st:'big',r:4,spr:'venom',col:BC.haz,pool:{r:10,t:2.5,dps:8,col:'#4a9a20'}},{pat:'flower',cnt:24,sp:52,st:'split',splitT:.9,col:'#c89040'},{pat:'gapring',cnt:30,gw:.4,sp:56,col:'#c89040',burst:2,gap:.3}]},
   {at:.3,dur:9,name:'HUNGERING DARK',rate:.38});
@@ -1483,7 +1483,7 @@ BART['THE NINE-TAILED KITSUNE']=Object.assign(p=>{const {R,E,L,b,atk,f}=p,two=AR
   ph1:[{cnt:5,spread:.6,sp:105,st:'boom',bT:1.5,col:BC.aim,burst:2,gap:.18},{pat:'lance',cnt:5,spread:.8,sp:240,col:'#e8eef6'},{pat:'stream',cnt:6,sp:115,st:'zig',col:BC.aim2},{pat:'gapring',cnt:24,gw:.4,sp:55,col:'#8a8aa0',burst:2,gap:.3},{pat:'curtain',cnt:9,sp:90,col:BC.aim}],
   half:[{cnt:7,spread:.8,sp:115,st:'boom',bT:1.4,col:BC.aim,burst:3,gap:.14},{pat:'lance',cnt:7,spread:1,sp:260,col:'#e8eef6'},{pat:'spiral',arms:6,spin:.45,sp:66,col:'#8a8aa0',burst:8,gap:.08},{pat:'cross',dirs:8,cnt:3,sp:80,st:'boom',bT:1.3,col:BC.aim2,rot:.3},{pat:'stream',cnt:8,sp:125,st:'zig',col:BC.aim2,burst:2,gap:.2}]},
   {at:.3,dur:9,name:'SHADOW STORM',rate:.36});
- set('THE NINE-TAILED KITSUNE',{rate:[.5,.4],during:'all',not:['clones'],
+ set('TAMAMO, THE ILLUSIONIST',{rate:[.5,.4],during:'all',not:['clones'],
   ph1:[{pat:'orbitring',cnt:10,ow:3,orv:32,col:'#8080ff'},{cnt:5,spread:1,sp:60,st:'seek',turn:1.4,seekT:1.6,spr:'wisp',col:'#8080ff'},{pat:'spiral',arms:6,spin:.4,sp:60,st:'wave',col:'#c080ff',burst:7,gap:.1},{pat:'gapring',cnt:26,gw:.42,sp:55,col:'#ff9040',burst:2,gap:.35}],
   half:[{pat:'orbitring',cnt:12,ow:-3.2,orv:36,col:'#8080ff'},{cnt:7,spread:1.4,sp:64,st:'seek',turn:1.6,seekT:1.8,spr:'wisp',col:'#8080ff'},{pat:'spiral',arms:9,spin:.45,sp:64,st:'wave',col:'#c080ff',burst:9,gap:.09},{pat:'lance',cnt:5,spread:.6,sp:230,col:'#ffd060'},{pat:'gapring',cnt:32,gw:.38,sp:60,col:'#ff9040',burst:3,gap:.3}]},
   {at:.7,dur:9,name:'FOX-FIRE STORM',rate:.38});

@@ -25,7 +25,7 @@ const BOSS=[
  {name:'THE JADE SERPENT',hp:1400,hat:'hood',pal:basePal('#2e7a4a','#184a2a','#d0e060','#123a20'),pref:50,spd:56,
   k1:[TH({dist:100,sp:320,w:.3,dmg:16,wt:3}),SH({cnt:3,spread:.5,sp:130,dmg:10,wt:3,col:'#9f9'}),SU({types:['ninja'],cnt:3,wt:1}),LP({wt:2,w:.45,peril:false})],
   k2:[TH({dist:110,sp:340,w:.25,dmg:18,wt:3}),SH({cnt:5,spread:.7,sp:140,dmg:11,wt:3,col:'#9f9'}),SU({types:['ninja'],cnt:3,wt:1}),LP({wt:2,w:.4,peril:false}),SL({hits:3,w:.35,w2:.15,wt:2,dmg:16})]},
- {name:'TSUCHIGUMO, EARTH SPIDER',hp:1900,hat:'bald',horns:1,sc:3,pal:basePal('#3a1a4a','#1a0a24','#c060e0','#1a0a24','#6a3a8a'),pref:36,spd:38,
+ {name:'ITOHIME, THE WIRE WEAVER',hp:1900,hat:'bald',horns:1,sc:3,pal:basePal('#3a1a4a','#1a0a24','#c060e0','#1a0a24','#6a3a8a'),pref:36,spd:38,
   k1:[SM({peril:true,rad:54,wt:2,dmg:34}),SH({ring:true,cnt:12,reps:2,gap:.35,sp:70,dmg:14,col:'#f60',wt:3}),LP({wt:2,rad:48}),CH({peril:true,wt:2,dur:.9,dmg:34}),SL({hits:2,wt:2,range:44,dmg:28})],
   k2:[SM({peril:true,rad:60,wt:2,dmg:36,w:.7}),SH({ring:true,cnt:16,reps:3,gap:.3,sp:75,dmg:14,col:'#f60',wt:3}),LP({wt:2,rad:52,w:.45}),CH({peril:true,wt:2,dur:1,dmg:36}),SL({hits:3,wt:2,range:46,dmg:28,w:.45,w2:.22})]},
  {name:'THE PHOENIX SHOGUN',hp:2600,hat:'hair',pal:basePal('#e8e8f0','#8a8a98','#d0a030','#f0f0f8'),pref:34,spd:52,

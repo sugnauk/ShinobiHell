@@ -61,7 +61,7 @@ const BOSS_DANMAKU={
    }
   })
  ],
- 'TSUCHIGUMO, EARTH SPIDER':[
+ 'ITOHIME, THE WIRE WEAVER':[
   danmaku('THE SILK LOOM',3,.4,(e,s,i)=>{
    // Opposite looms leave temporary strands that change the next dodge lane.
    const a=s.a+i*TAU/3,o=dPoint(e,s.p,a,108);
@@ -162,7 +162,7 @@ const BOSS_DANMAKU={
    }
   })
  ],
- 'THE NINE-TAILED KITSUNE':[
+ 'TAMAMO, THE ILLUSIONIST':[
   danmaku('NINE TAIL WEAVE',5,.24,(e,s,i)=>{
    // Nine drifting tails follow sine-wave paths with two alternating amplitudes.
    for(let j=0;j<9;j++)dShot(e,s.o,s.a+j*TAU/9+i*.17,61+i*5,{st:'wave',wa:j%2?34:17,wf:6,spr:'wisp',col:'#e0b7ff'});
