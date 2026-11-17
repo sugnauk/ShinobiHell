@@ -6,3 +6,4 @@ backups/
 .DS_Store
 Thumbs.db
 .vscode/
+*-preview.gif

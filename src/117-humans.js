@@ -163,7 +163,9 @@ function tetDraw(p,Q){const K=HUM(p,Q),{R,E,L,seg,trap,arm,leg,face,by}=K,two=AR
  L(cx-9,27+by,cx+9,45+by,LE,3);for(let i=0;i<4;i++){const x=cx-6+i*5,y=30+i*4+by;R(x-1,y,3,4,OUTC);R(x,y,2,3,'#c8a060');}
  R(cx-10,44+by,21,3,'#5a1a18');
  // the matchlock: long, held across the body (levelled to fire in the attack)
- const g=Q.gun||[[18,58],[56,22]];if(!two){const [[x0,y0],[x1,y1]]=g;L(x0,y0+by,x1,y1+by,OUTC,4);L(x0,y0+by,x1,y1+by,WD,2);const t=.3;L(x0+(x1-x0)*t,y0+(y1-y0)*t+by,x1,y1+by,IR,2);
+ const far0=Q.far||[[27,29],[23,39],[25,49]],near0=Q.near||[[45,29],[50,37],[46,40]];
+ // the gun always runs through both hands: stock behind the back hand, muzzle past the front one
+ const g=(()=>{const [fx,fy]=far0[2],[nx,ny]=near0[2],dx=nx-fx,dy=ny-fy,l=Math.hypot(dx,dy);if(l<6)return Q.gun||[[18,58],[56,22]];const ux=dx/l,uy=dy/l;return [[Math.round(fx-ux*10),Math.round(fy-uy*10)],[Math.round(nx+ux*14),Math.round(ny+uy*14)]];})();if(!two){const [[x0,y0],[x1,y1]]=g;L(x0,y0+by,x1,y1+by,OUTC,4);L(x0,y0+by,x1,y1+by,WD,2);const t=.3;L(x0+(x1-x0)*t,y0+(y1-y0)*t+by,x1,y1+by,IR,2);
   L(x0+(x1-x0)*.28,y0+(y1-y0)*.28+by,x0+(x1-x0)*.28-2,y0+(y1-y0)*.28+by+3,GD,1);
   const mx=x0+(x1-x0)*.26,my=y0+(y1-y0)*.26+by;R(mx-1,my-3,1,1,'#ff6020');R(mx-2,my-5,1,1,'#a09890');R(mx-1,my-7,1,1,'#7a7470');
   if(Q.flash){E(x1+3,y1+by,4,3,'#ffd040');E(x1+3,y1+by,2,2,'#ffffff');R(x1+6,y1+by-1,4,1,'#ff8030');}}

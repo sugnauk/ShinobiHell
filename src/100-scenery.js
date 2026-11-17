@@ -122,8 +122,8 @@ function outsideDeco(g,k,X,Y,gx,gy,h,h2,fr,far,x,y){
    else if(h<.14)sBush(g,gx,gy,3,'#2e5a2a');else if(h<.2)SP(g,'#8a8a82',gx-2,gy,5,2);break;
   case 'court': // palace courtyard: pavers, bonsai pines, red pillars
    isoLn(g,'#5a6a6a',X-16,Y+HY,8,1);if(h2<.1)SP(g,'#e0b040',gx,gy,1,1);
-   if(tall){if(h<.2)sPillar(g,gx,gy,22,'#a02018','#e0b040');else if(h<.32)sPine(g,gx,gy,12,'#2a5a3a');}
-   else if(h<.12){SP(g,'#5a5a54',gx-3,gy-2,7,2);sPine(g,gx-1,gy-2,7,'#2a5a3a');}break;
+   if(tall){if(h<.2)sPillar(g,gx,gy,22,'#a02018','#e0b040');else if(h<.32)sToro(g,gx,gy);}
+   else if(h<.12){SP(g,'#2a6a4a',gx-2,gy-5,5,5);SP(g,'#3e9a6a',gx-1,gy-5,2,4);SP(g,'#e0b040',gx-2,gy-6,5,1);}break; // palace halls: lanterns and jade urns, no plants
   case 'hall': // the throne hall: black lacquer, gold inlay, red pillars and braziers
    if((x+y)%4===0)isoLn(g,'#3a2a10',X-16,Y+HY,8,1);if(h2<.06)SP(g,'#e0b040',gx,gy,2,1);
    if(tall){if(h<.22)sPillar(g,gx,gy,26,'#7a1018','#e0b040');else if(h<.27){SP(g,'#3a3a3a',gx-3,gy-6,7,6);SP(g,'#e04020',gx-2,gy-9,5,3);SP(g,'#ffc060',gx-1,gy-10,3,2);}}break;
