@@ -1,15 +1,12 @@
 'use strict';
 // ===== LAIRS: optional challenge bosses behind locked doors =====
 // The twelve guardians on the story path are all people. The old monsters still live in the dungeons, each sealed in a
-// side room off the main path: the Earth Spider in the tunnels of stage III, the Nine-Tailed Kitsune in the gardens of
-// stage X. Their doors open with a LAIR KEY, sold by the trader in the stages before. Fighting one is optional and
+// side room off the main path: the Earth Spider in the tunnels of stage III. Their doors open with a LAIR KEY, sold by the trader in the stages before. Fighting one is optional and
 // hard; beating it drops a royal bag (a legendary) and a war trophy.
 const LAIRS=[
- {stage:2,art:'TSUCHIGUMO, EARTH SPIDER',name:'TSUCHIGUMO, THE EARTH SPIDER',title:"THE EARTH SPIDER'S DEN",col:'#c89040',et:'lairspider',hp:.5},
- {stage:9,art:'THE NINE-TAILED KITSUNE',name:'THE NINE-TAILED KITSUNE',title:"THE FOX'S HIDDEN SHRINE",col:'#c080ff',et:'lairfox',hp:.5}];
+ {stage:2,art:'TSUCHIGUMO, EARTH SPIDER',name:'TSUCHIGUMO, THE EARTH SPIDER',title:"THE EARTH SPIDER'S DEN",col:'#c89040',et:'lairspider',hp:.5}];
 const lairFor=di=>LAIRS.find(L=>L.stage===di);
 ET.lairspider={n:'TSUCHIGUMO',desc:'THE EARTH SPIDER, SEALED IN A LOCKED DEN',hp:400,spd:40,pos:700,r:14,ai:'dummy',rng:0,wl:0,atks:[]};
-ET.lairfox={n:'THE KITSUNE',desc:'THE NINE-TAILED FOX, SEALED IN A HIDDEN SHRINE',hp:400,spd:52,pos:600,r:10,ai:'dummy',rng:0,wl:0,atks:[]};
 ROOMCOL.lair='#e05050';
 
 // ---------- the map: a sealed room off one of the middle rooms, behind a locked door ----------
@@ -92,8 +89,8 @@ const inRoomR=(r,x,y)=>x>r.x*T&&x<(r.x+r.w)*T&&y>r.y*T&&y<(r.y+r.h)*T;
  if(e.stag>0||e.stun>0||(e.st&&e.st.frozen>0))return;
  if(!inside){e.at=Math.max(e.at,1.5);return;} // it will not chase you out of its lair
  tickBarrage(e,dt);
- if(!e.half&&e.hp<e.maxhp*.5){e.half=1;e.phase=2;e.sprOv=lairSpr(L,1);for(const q of projs)if(q.from==='e'&&q.own===e)q.dead=true;impact(e.x,e.y,L.col,10,true);sfx('break');txtFx(e.x,e.y-20,L.et==='lairspider'?'IT SHEDS ITS SHELL':'THE NINE TAILS BLAZE',L.col,2);e.iv=1;}
- (L.et==='lairspider'?LAIRAI.spider:LAIRAI.fox)(e,dt,e.half?1.3:1);};}
+ if(!e.half&&e.hp<e.maxhp*.5){e.half=1;e.phase=2;e.sprOv=lairSpr(L,1);for(const q of projs)if(q.from==='e'&&q.own===e)q.dead=true;impact(e.x,e.y,L.col,10,true);sfx('break');txtFx(e.x,e.y-20,'IT SHEDS ITS SHELL',L.col,2);e.iv=1;}
+ LAIRAI.spider(e,dt,e.half?1.3:1);};}
 const LAIRAI={
  // the spider: crawls after you, spits venom fans, webs the floor, broods spiderlings and leaps onto you
  spider(e,dt,k){const a=aimAt(e),d=dist(e,P);
@@ -105,22 +102,10 @@ const LAIRAI={
    if(n==='spit'){for(let w=0;w<(e.half?3:2);w++)setTimeout(()=>{if(e.dead)return;const a2=aimAt(e);for(let i=-3;i<=3;i++)bsh(e,e.x,e.y,a2+i*.16,96,11,{col:BC.haz,r:3});sfx('shoot');},w*260);say(e,'',null,.1);}
    if(n==='web'){for(let i=0;i<(e.half?7:5);i++){const an=Math.random()*TAU,r=i?rnd(20,70):0;mark({k:'c',x:P.x+Math.cos(an)*r,y:P.y+Math.sin(an)*r,r:16,t:1+i*.12,dmg:12*e.dm,col:'#e8e0c8',src:e});}}
    if(n==='brood'&&enemies.filter(o=>!o.dead&&o.type==='spiderling').length<8){for(let i=0;i<(e.half?4:3);i++){const an=i/3*TAU,s=freeSpot(e,e.x+Math.cos(an)*24,e.y+Math.sin(an)*24,4);const m=mkEnemy('spiderling',s.x,s.y,e.room,R.di);m.awake=true;enemies.push(m);spark(s.x,s.y,'#e8e0c8',8,50);}txtFx(e.x,e.y-20,'THE BROOD STIRS','#e8e0c8',1.4);}
-   if(n==='leap'&&d>40){const s=freeSpot(e,P.x,P.y,e.r);e.leap={x:s.x,y:s.y,t:0};mark({k:'c',x:s.x,y:s.y,r:30,t:.9,dmg:24*e.dm,col:BC.aim,src:e});sfx('tool');}}},
- // the fox: drifts round you, sends foxfire after you, splits into illusions and blinks behind you
- fox(e,dt,k){e.ang+=dt*.7*k;const tx=P.x+Math.cos(e.ang)*90,ty=P.y+Math.sin(e.ang)*90,p=freeSpot(e,tx,ty,e.r),da=Math.atan2(p.y-e.y,p.x-e.x),dd=Math.hypot(p.x-e.x,p.y-e.y);if(dd>4)steer(e,da,Math.min(dd/dt,e.spd*1.3*k),dt);
-  e.bt-=dt;if(e.bt<=0){e.bt=(e.half?.8:1.1)/(DF().bh||1);e.k++;const Lp=[{pat:'rose',cnt:27,petals:9,sp:58,col:'#c080ff'},{pat:'dspiral',arms:3,sp:56,burst:6,gap:.1,col:'#ffb070'},{cnt:7,spread:.9,sp:88,col:BC.aim}];if(eShots()<210)bossBarrage(e,Object.assign({dmg:10},Lp[e.k%Lp.length]));}
-  e.at-=dt;if(e.at<=0){e.at=e.half?2.2:3;const n=pick(['foxfire','illusion','blink']);
-   if(n==='foxfire'){for(let i=0;i<(e.half?9:6);i++)bsh(e,e.x,e.y,i/(e.half?9:6)*TAU,64,10,{spr:'wisp',st:'seek',turn:1.2,seekT:1.8,col:'#ffb070',r:3,life:5});sfx('tool');}
-   if(n==='illusion'&&!(e.clones||[]).some(c=>!c.dead)){e.clones=[];for(let i=0;i<(e.half?3:2);i++){const an=Math.random()*TAU,s=freeSpot(e,P.x+Math.cos(an)*80,P.y+Math.sin(an)*80,8);
-     const c=mkEnemy('foxclone',s.x,s.y,e.room,R.di);Object.assign(c,{awake:true,sprOv:e.sprOv,hp:1,maxhp:1,lairClone:e});enemies.push(c);e.clones.push(c);spark(s.x,s.y,'#c080ff',10,60);}
-    txtFx(e.x,e.y-20,'WHICH ONE IS REAL?','#c080ff',1.6);}
-   if(n==='blink'){const an=aimAt(e)+Math.PI+rnd(-.5,.5),s=freeSpot(e,P.x+Math.cos(an)*-50,P.y+Math.sin(an)*-50,e.r);spark(e.x,e.y,'#c080ff',14,70);e.x=s.x;e.y=s.y;spark(e.x,e.y,'#c080ff',14,70);sfx('dash');
-    for(let i=0;i<(e.half?14:10);i++)bsh(e,e.x,e.y,i/(e.half?14:10)*TAU,58,10,{col:'#c080ff',r:3});}}
-  // illusions drift too, and fire hollow rings that do no harm
-  for(const c of e.clones||[]){if(c.dead)continue;c.ct=(c.ct||rnd(.5,1.5))-dt;if(c.ct<=0){c.ct=1.6;for(let i=0;i<8;i++)fakeShot(e,c.x,c.y,i/8*TAU,52,{col:'#c8a0ff',r:3,life:3});}}}};
+   if(n==='leap'&&d>40){const s=freeSpot(e,P.x,P.y,e.r);e.leap={x:s.x,y:s.y,t:0};mark({k:'c',x:s.x,y:s.y,r:30,t:.9,dmg:24*e.dm,col:BC.aim,src:e});sfx('tool');}}}
+};
 // a lair boss's death: the rare rewards, and the lair stays beaten for the rest of the run
 {const _k=killE;killE=function(e){const L=e.lairBoss,was=L&&!e.dead;_k(e);
- if(e.lairClone&&e.dead){spark(e.x,e.y,'#c080ff',12,60);txtFx(e.x,e.y,'ONLY AN ILLUSION','#c8a0ff',1);}
  if(was&&e.dead){for(const q of projs)if(q.own===e)q.dead=true;for(const c of e.clones||[])if(!c.dead)c.dead=true;for(const o of enemies)if(!o.dead&&o.type==='spiderling'&&o.room===e.room)o.dead=true;
   (R.lairDone??={})[L.stage]=1;dropBag(e.x-10,e.y+10,GOLDBAG,true);dropBag(e.x+12,e.y+12,TROPHY,true);for(let i=0;i<8;i++)dropPickup(e.x,e.y,'sen',Math.round(rnd(8,14)*(1+R.di*.3)*S.sen));
   addScore(6000,e.x,e.y,L.col);setToast(L.name+' IS SLAIN. ITS HOARD IS YOURS','#ffd040',4);shake=Math.max(shake,8);fxRing(e.x,e.y,80,L.col,.7);}};}

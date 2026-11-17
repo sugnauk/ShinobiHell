@@ -51,40 +51,5 @@ function mothDraw(p,Q){const K=HUM(p,Q),{R,E,L,seg,trap,face,lt,dk,by}=K,two=ART
  E(hx+5,hy-6,3,2,OUTC);E(hx+5,hy-6,2,1,W3);R(hx+4,hy-6,1,1,CR);}
 humBoss('THE MOTH QUEEN',mothDraw,{idle0:{},idle1:{b:1,flap:1},atk:{flap:2,dust:1,near:[[55,29],[62,26],[66,18]]}},{fw:100,fh:78,sc:1});
 
-// ---------------------------------------------------------------- THE NINE-TAILED KITSUNE (optional lair, stage X)
-// The fox spirit itself, the one Tamamo imitates: a tall silver-haired woman in crimson and white shrine robes with gold
-// trim, tall fox ears tipped black, golden eyes, and nine thick furred tails (gold to cream, white tips) fanned behind.
-// Second form: the fox shows through - red markings on her cheeks, slit eyes, clawed hands, blue foxfire on every tail tip.
-function kitDraw(p,Q){const K=HUM(p,Q),{R,E,L,seg,trap,face,by}=K,two=ARTHURT,cx=40;
- const T1='#8a4410',T2='#d87a26',T3='#f0b050',T4='#fff4e0',RD='#a81828',RD2='#d83040',WH='#f4f0ea',WH2='#c8c0b8',GD='#e0b040',SK='#f6e4d8',HR='#e8e6f0',HR2='#b8b4c8',BF='#4ab0ff',BF2='#c8f0ff';
- // ---- nine tails, thick and furred, fanned behind her
- const sp=Q.spread||1;for(let i=0;i<9;i++){const a=-Math.PI/2+(i-4)*.3*sp,c=Math.cos(a),s=Math.sin(a),bx=cx,byy=48+by,curl=(i-4)*.08;
-  const N=[];for(let k=0;k<=7;k++){const t=k/7,r=4+t*30,an=a+curl*t*t*4;N.push([bx+Math.cos(an)*r,byy+Math.sin(an)*r*.9,[4,7,9,10,10,9,6,2][k]]);}
-  artPoly(R,tubePoly(R,N,1),OUTC);artPoly(R,tubePoly(R,N),T2);
-  artPoly(R,tubePoly(R,N.map(([x,y,w])=>[x-c*0+(-s)*1.2,y+c*1.2,w*.3])),T3);
-  for(let k=6;k<=7;k++){const [x,y,w]=N[k];E(x,y,Math.max(1,Math.round(w/2.6)),Math.max(1,Math.round(w/2.6)),T4);}
-  for(let k=1;k<6;k++){const [x,y]=N[k];L(x,y,x+Math.cos(a+.6)*3,y+Math.sin(a+.6)*3,T1,1);}
-  if(two){const [x,y]=N[7];E(x,y-2,3,4,BF);E(x,y-3,1,2,BF2);R(x,y-8,1,3,BF2);}}
- // ---- hair down her back
- trap(cx,14+by,48+by,7,10,HR);for(let k=-6;k<=6;k+=3)L(cx+k,20+by,cx+k*1.3,46+by,HR2,1);
- // ---- robes: white kimono, crimson hakama with gold trim
- trap(cx,26+by,46+by,8,9,WH);trap(cx,44+by,73,9,15,RD,{pleats:2});R(cx-15,72,31,1,OUTC);R(cx-15,70,31,1,GD);
- L(cx,26+by,cx-5,40+by,RD2,1);L(cx,26+by,cx+5,40+by,RD2,1);R(cx-9,42+by,19,3,GD);R(cx-1,42+by,3,3,RD2);
- // ---- arms in wide white sleeves with red cords
- const far=Q.far||[[33,29],[28,38],[31,45]],near=Q.near||[[47,29],[52,38],[49,45]];
- for(const A of [far,near]){const [[a,b],[c,d]]=A;trap(c,d+by-2,d+by+11,3,6,WH);R(c-6,d+by+11,13,1,RD2);}
- K.arm(far,WH,WH,SK,4);K.arm(near,WH,WH,SK,4);
- if(two)for(const A of [far,near]){const [x,y]=A[2];for(let k=-1;k<=1;k++)L(x+k,y+by+1,x+k*2,y+by+4,'#f8f8ff',1);}
- // foxfire in the near hand when she attacks
- if(Q.fire){const [x,y]=near[2];E(x+2,y+by-6,4,5,BF);E(x+2,y+by-7,2,3,BF2);R(x+2,y+by-14,1,4,BF2);}
- // ---- head: silver hair, golden eyes, tall fox ears
- const hx=cx,hy=17+by;
- for(const s of [-1,1]){const ex=hx+s*6;artPoly(R,[[ex-3,hy-6],[ex+3,hy-6],[ex+s*2,hy-17]],OUTC);artPoly(R,[[ex-2,hy-6],[ex+2,hy-6],[ex+s*2,hy-15]],HR);artPoly(R,[[ex-1,hy-7],[ex+1,hy-7],[ex+s*2,hy-12]],'#f0a0b0');R(ex+s*2-1,hy-16,2,2,'#2a2030');}
- E(hx,hy,8,9,OUTC);E(hx,hy,7,8,HR);face(hx,hy+1,SK,{eye:two?'#ffd040':'#d0901a',mouth:'#c02840',brow:HR2});R(hx-6,hy-4,12,3,HR);R(hx-7,hy-3,2,12,HR);R(hx+6,hy-3,2,12,HR);
- R(hx-3,hy+1,1,1,OUTC);R(hx+3,hy+1,1,1,OUTC);
- if(two){for(const s of [-1,1]){L(hx+s*2,hy+3,hx+s*4,hy+4,RD2,1);L(hx+s*2,hy+4,hx+s*4,hy+5,RD2,1);}R(hx-3,hy+1,2,1,'#ffd040');R(hx+2,hy+1,2,1,'#ffd040');R(hx-2,hy+1,1,1,OUTC);R(hx+2,hy+1,1,1,OUTC);}
- // a red-and-gold ornament
- R(hx-2,hy-7,5,2,RD2);R(hx-1,hy-8,3,1,GD);}
-humBoss('THE NINE-TAILED KITSUNE',kitDraw,{idle0:{},idle1:{b:1,spread:1.04},atk:{fire:1,spread:1.12,near:[[47,29],[55,24],[60,18]]}},{fw:84,fh:80,sc:1.05});
 // the lair caches its sprites; clear them so the new art is used
 if(typeof LAIRSPR!=='undefined')for(const k in LAIRSPR)delete LAIRSPR[k];if(typeof MOTH!=='undefined'){delete MOTH.n;delete MOTH.h;}
