@@ -51,5 +51,44 @@ function mothDraw(p,Q){const K=HUM(p,Q),{R,E,L,seg,trap,face,lt,dk,by}=K,two=ART
  E(hx+5,hy-6,3,2,OUTC);E(hx+5,hy-6,2,1,W3);R(hx+4,hy-6,1,1,CR);}
 humBoss('THE MOTH QUEEN',mothDraw,{idle0:{},idle1:{b:1,flap:1},atk:{flap:2,dust:1,near:[[55,29],[62,26],[66,18]]}},{fw:100,fh:78,sc:1});
 
+// ---------------------------------------------------------------- THE HITOBASHIRA, MAIDEN OF THE WALL (optional lair, stage VI)
+// A maiden walled up alive in the castle foundations so the walls would hold, risen as a yurei. A cracked wooden pillar
+// stands behind her with a straw rope still binding her to it; white burial kimono crossed left over right; the white
+// triangle on her brow; black hair so long it hides half her face and falls past her waist; arms raised with the hands
+// hanging limp; no feet - her robe thins into drifting mist. Ghost-fires circle her. Second form: the pillar shatters and
+// the rope snaps, her hair parts to show both eyes burning, cracks of ghost-light run through her skin, the hem is dark
+// with the earth of the foundations.
+function hitoDraw(p,Q){const K=HUM(p,Q),{R,E,L,seg,trap,face,by}=K,two=ARTHURT,cx=36,fl=Q.float||0;
+ const WD='#4a3a2a',WD2='#6a5640',WD3='#8a7458',RP='#a89058',RP2='#d0b878',W1='#9aa8a8',W2='#d4dcd8',W3='#f2f6f2',SK='#d8e8e4',SK2='#b0c8c4',HR='#0e0c12',HR2='#24202c',GF='#7af0d0',GF2='#d0fff4',MU='#5a4a3a';
+ const Y=y=>y+by-fl;
+ // ---- the pillar behind her (broken in the second form)
+ if(!two){R(cx-6,4,13,70,OUTC);R(cx-5,5,11,69,WD);R(cx-5,5,3,69,WD3);R(cx+3,5,3,69,'#3a2c20');for(const y of [14,30,52,66])L(cx-4,y,cx+1,y+5,'#2a1e14',1);L(cx+2,8,cx-1,24,'#2a1e14',1);}
+ else{artPoly(R,[[cx-6,74],[cx-6,44],[cx-2,40],[cx+1,46],[cx+4,38],[cx+7,44],[cx+7,74]],OUTC);artPoly(R,[[cx-5,73],[cx-5,45],[cx-2,42],[cx+1,47],[cx+4,40],[cx+6,45],[cx+6,73]],WD);R(cx-5,45,3,28,WD3);
+  for(const [x,y] of [[cx-14,20],[cx+12,14],[cx+16,30]]){R(x-1,y-1,5,4,OUTC);R(x,y,3,2,WD2);}}
+ // ---- long hair down her back
+ trap(cx,Y(14),Y(54),7,10,HR);for(let k=-7;k<=7;k+=3)L(cx+k,Y(22),cx+k*1.4,Y(54),HR2,1);
+ // ---- the kimono, thinning into mist below the knees
+ trap(cx,Y(26),Y(56),8,12,W2,{pleats:1});
+ for(let i=0;i<5;i++){const x0=cx-10+i*5,N=[[x0,Y(56),5],[x0-2+(i%2)*3,Y(62),4],[x0+((i*3)%5)-2,Y(68),3],[x0+((i*5)%7)-3,Y(73)+((i%2)*2),1]];artPoly(R,tubePoly(R,N,1),OUTC);artPoly(R,tubePoly(R,N),i%2?W1:W2);}
+ if(two)for(const [x,w] of [[-11,5],[-3,4],[5,6]]){R(cx+x,Y(53),w,3,MU);R(cx+x+1,Y(55),Math.max(1,w-2),2,MU);}
+ // crossed collar, left over right, and the straw rope binding her to the pillar
+ L(cx+1,Y(26),cx-5,Y(40),W1,2);L(cx-1,Y(26),cx+5,Y(36),W1,1);R(cx-9,Y(40),19,3,OUTC);R(cx-8,Y(40),17,2,W1);
+ if(!two){for(let i=0;i<9;i++){const x=cx-10+i*2.5;R(x,Y(43)+(i%2),3,2,i%2?RP:RP2);}L(cx-10,Y(44),cx-7,Y(36),RP,2);L(cx+10,Y(44),cx+7,Y(36),RP,2);}
+ else{for(let i=0;i<4;i++){const x=cx-10+i*2.5;R(x,Y(43)+(i%2),3,2,i%2?RP:RP2);}L(cx-1,Y(44),cx+2,Y(50),RP,1);L(cx+2,Y(50),cx+1,Y(53),RP2,1);}
+ // ---- arms raised forward, hands hanging limp at the wrists, long sleeves drooping
+ const far=Q.far||[[29,29],[25,34],[27,38]],near=Q.near||[[43,29],[48,34],[50,38]];
+ for(const A of [far,near]){const [[a,b],[c,d]]=A;trap(c,Y(d)-2,Y(d)+10,3,5,W2);R(c-5,Y(d)+10,11,1,W1);}
+ for(const A of [far,near]){const [[a,b],[c,d],[e,f]]=A;seg(a,Y(b),c,Y(d),4,W2);seg(c,Y(d),e,Y(f),3,W3);const s2=e>cx?1:-1;seg(e,Y(f),e+s2,Y(f)+4,2,SK);for(let k=0;k<3;k++)L(e+s2+k-1,Y(f)+4,e+s2+k-1,Y(f)+7,SK2,1);}
+ // ---- head: hair parted to one side hiding half her face, the white triangle on her brow
+ const hx=cx,hy=Y(17);E(hx,hy,8,9,OUTC);E(hx,hy,7,8,HR);
+ face(hx,hy+1,SK,{eye:two?GF:OUTC,mouth:Q.wail?OUTC:'#5a6a6a',brow:false});if(Q.wail){R(hx-1,hy+4,3,3,OUTC);R(hx,hy+5,1,1,'#2a3a3a');}
+ if(!two){artPoly(R,[[hx-8,hy-6],[hx+3,hy-7],[hx+1,hy+4],[hx-2,hy+12],[hx-8,hy+16]],HR);R(hx+2,hy,2,1,GF);}
+ else{R(hx-7,hy-5,3,14,HR);R(hx+5,hy-5,3,14,HR);R(hx-3,hy+1,2,1,GF2);R(hx+2,hy+1,2,1,GF2);for(const [a,b,c2,d] of [[-4,3,-2,8],[3,-1,5,4],[-1,6,1,9]])L(hx+a,hy+b,hx+c2,hy+d,GF,1);}
+ R(hx-6,hy-5,12,2,HR);artPoly(R,[[hx-3,hy-6],[hx+3,hy-6],[hx,hy-2]],'#f8fcf8');
+ for(const [a,b] of [[-10,-2],[-11,8],[10,-3],[11,7]])L(hx+a*.7,hy+b*.6,hx+a,hy+b+12,HR,2);
+ // ---- ghost-fires circling her
+ const fires=Q.fires||[[10,30],[62,24],[60,56]];for(const [x,y] of (two?fires.concat([[12,58],[58,8]]):fires)){E(x,Y(y),3,4,OUTC);E(x,Y(y),2,3,GF);E(x,Y(y)-1,1,1,GF2);R(x,Y(y)-6,1,2,GF2);}}
+humBoss('THE HITOBASHIRA',hitoDraw,{idle0:{},idle1:{b:0,float:2,fires:[[11,28],[61,26],[59,54]]},
+ atk:{wail:1,float:3,far:[[29,29],[20,26],[14,22]],near:[[43,29],[52,26],[58,22]],fires:[[6,20],[66,16],[64,50],[8,52]]}},{fw:72,fh:78,sc:1.05});
 // the lair caches its sprites; clear them so the new art is used
 if(typeof LAIRSPR!=='undefined')for(const k in LAIRSPR)delete LAIRSPR[k];if(typeof MOTH!=='undefined'){delete MOTH.n;delete MOTH.h;}
