@@ -1,5 +1,56 @@
 # Changelog
 
+## 0.7.1: ShinobiDungeons
+
+### Name and menus
+- **ShinobiDungeons:** the game's new name. The title card is kept, and ENTER opens a new main menu in the pause screen's style.
+- **Main menu:** Continue, New Run, Training, Boss Rush, Skill Tree, Guide and Settings, with a detail panel for each.
+- **Character select:** restyled to match the menus. The in-between "hub" screen is gone, and picking a hero starts the run.
+- **Victory screen:** its own animated celebration. Dawn breaks over the castle with fireworks, the stats count up, a rank (S, A, B or C) stamps down, and jade flies into its counter.
+- **Death screen:** shows where the march halted and gives a tip about what killed you.
+
+### New players
+- **Apprentice difficulty:** below Story. You take 40% damage, foes have 60% health, foe bullets are slower, and you get an extra revive.
+- **One-time tips:** short hints the first time something new happens.
+- **Danger warnings:** a BOLD setting adds pulsing rings around foes winding up an attack.
+- **Suggestions:** a star marks a good pick on reward cards and in the shop.
+- **Training:** Master Kaito's Trials, a new ten-trial tutorial. The main menu recommends it until you have finished it once.
+
+### Guide and skill tree
+- **Guide:** wider, with sprites for every foe and guardian and silhouettes for undiscovered ones.
+- **New guide tabs:** ENCHANTS, with every enchant grouped and explained, and CHRONICLE, with the story of each stage.
+- **Skill tree:** wider, with a stat icon on every node, tooltips and a branch legend.
+
+### World
+- **Indoor stages:** furnished (cushions, tables, scrolls, shelves, lamps) instead of overgrown.
+- **Stage props:** placed as small scenes, with lamps in pairs at doorways.
+- **Province campaign map:** slides in at the start of each stage.
+- **Treasure rooms:** guarded, with the chest sealed until the room is clear.
+- **Shops:** marked at every entrance.
+- **Minimap:** enemies show as dots.
+- **Corner pockets:** unreachable pockets are sealed.
+- **Bags:** they no longer pick themselves up. G takes everything, and 1-6 take one item.
+
+### Guardians and foes
+- **Hitboxes:** guardian hitboxes match their sprites.
+- **Defeat sequence:** a beaten guardian shudders, topples and bursts into embers under a GUARDIAN DEFEATED banner.
+- **Intro:** a letterbox intro for every guardian.
+- **Phase changes:** you can't attack while a guardian is changing phase.
+- **Boss rush:** includes all twelve guardians.
+- **Animation pass:**
+  - Foes walk, wind up, lunge, recoil, flinch, rise when they spawn and topple when they die.
+  - Humanoid foes have four-frame walk cycles.
+  - Guardians gain new frames, and Kurogane's horse gallops.
+- **New foes:** kappa, tengu, kasa-obake, gaikotsu and yamabushi.
+- **New projectiles:** 15 new projectile sprites, handed out to the foes that shoot.
+- **Tetsuo and Onikuma:** Tetsuo holds his gun in every frame, and Onikuma's hood has proper teeth.
+
+### Feel, sound and screen
+- **Abilities:** every cast has its own light show and layered sound, and big hits land with impact rings.
+- **Piano score:** replaces the chiptune and intensifies with fights and guardian phases.
+- **New sounds:** footsteps, bags, chests, the stage bell, and the guardian taiko and gong.
+- **Full screen:** the game fills the window and is zoomed further out. Settings has FULLSCREEN and VIEW ZOOM.
+
 ## 0.6.4: stages, sprites and gameplay (second batch)
 
 ### Fixed
