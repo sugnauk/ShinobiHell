@@ -65,7 +65,7 @@ function renderMenu(){
  else if(it.k==='train'){txt('MASTER KAITO\'S TRIALS',x,y,'#fff',2);y+=18;para('TEN SHORT TRIALS IN THE TRAINING YARD: EVERY ABILITY, DODGING, HEALING, LOOT AND A SPAR. CLEAR THEM ALL FOR A STAR RATING'+(meta.trialsReward?'.':' AND 50 JADE.'),'#ddd');y+=6;
   mmSect('THE TRIALS',x,y);y+=10;LESSONS.forEach((l,i)=>{txt((i+1)+'. '+l.t,x+(i%2)*Math.floor((Wd-16)/2),y+((i/2)|0)*9,'#bbb');});y+=Math.ceil(LESSONS.length/2)*9+6;
   txt('PLAYS AS '+CLS().n,x,y,CLS().col);}
- else if(it.k==='rush'){txt('BOSS RUSH',x,y,'#fff',2);y+=18;para('EVERY GUARDIAN YOU HAVE BEATEN, BACK TO BACK, IN ONE SITTING. NO SHOPS, NO SAVING.','#ddd');y+=6;
+ else if(it.k==='rush'){txt('BOSS RUSH',x,y,'#fff',2);y+=18;para('ALL TWELVE GUARDIANS, BACK TO BACK, IN ONE SITTING. NO SHOPS, NO SAVING.','#ddd');y+=6;
   if(it.lock){txt('LOCKED',x,y,'#e0c070',2);y+=16;para('BEAT 2 GUARDIANS IN A RUN TO OPEN IT.','#999');}
   else{txt(rushPool().length+' GUARDIANS IN THE GAUNTLET',x,y,'#ffd8a0');y+=10;if(meta.rushBest)txt('BEST: '+meta.rushBest.n+' BEATEN',x,y,'#fd4');
    let gx=x;y+=14;rushPool().slice(0,12).forEach(i=>{const s=bossSheet(i);if(!s||!s.c)return;const sc=Math.min(1,26/s.fh,26/s.fw);ctx.drawImage(s.c,0,0,s.fw,s.fh,gx,y,Math.round(s.fw*sc),Math.round(s.fh*sc));gx+=Math.round(s.fw*sc)+3;});}}

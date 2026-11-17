@@ -450,6 +450,8 @@ const OPTROWS=()=>[
  {n:'SOUND EFFECTS',v:()=>OPT().sfx+'/10',ch:d=>{OPT().sfx=clamp(OPT().sfx+d,0,10);sfx('coin');}},
  {n:'DIFFICULTY',v:()=>DF().n,c:()=>DF().c,info:()=>DF().d+(mode==='options'&&optFrom==='play'?' (FROM NEXT STAGE)':''),ch:d=>{OPT().diff=clamp(OPT().diff+d,0,2);}},
  {n:'AUTO FIRE',v:()=>['OFF (HOLD LMB)','LMB TOGGLE','IN COMBAT'][OPT().autoFire|0],info:()=>['HOLD LEFT MOUSE TO FIRE','CLICK LEFT MOUSE ONCE TO START FIRING, AGAIN TO STOP','FIRES AT THE CURSOR BY ITSELF WHILE YOU ARE IN A FIGHT'][OPT().autoFire|0],ch:d=>{OPT().autoFire=(((OPT().autoFire|0)+(d||1))%3+3)%3;fireOn=false;}},
+ {n:'FULLSCREEN',v:()=>OPT().fs===0?'OFF':'ON',info:()=>'FILL THE WHOLE SCREEN (ESC OR F11 LEAVES IT FOR NOW)',ch:()=>{OPT().fs=OPT().fs===0?1:0;goFullscreen(OPT().fs!==0);}},
+ {n:'VIEW ZOOM',v:()=>['NEAR','NORMAL','FAR'][OPT().zoom==null?1:OPT().zoom],info:()=>'HOW MUCH OF THE DUNGEON YOU SEE AROUND YOU',ch:d=>{OPT().zoom=clamp((OPT().zoom==null?1:OPT().zoom)+d,0,2);W=0;setView(VIEWWIDE);}},
  {n:'SCREEN SHAKE',v:()=>OPT().shake?'ON':'OFF',ch:()=>{OPT().shake^=1;}},
  {n:'SCREEN FLASHES',v:()=>OPT().flash?'ON':'OFF',ch:()=>{OPT().flash^=1;}},
  {n:'BULLET CONTRAST',v:()=>OPT().bcon?'ON':'OFF',info:()=>'ENEMY BULLETS GET A DARK RIM AND A BRIGHT CORE SO THEY STAND OUT ON BUSY FLOORS',ch:()=>{OPT().bcon^=1;}},
