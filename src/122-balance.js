@@ -6,8 +6,8 @@
 // 2. CLASSES: with its signature weapon and its abilities, each class aims at a damage target that trades off against its
 //    survivability - target ~ 1/sqrt(HP multiplier) x (1 - 3% per DEF) x (melee 1.12 / ranged 0.95) - averaged to today's
 //    overall damage so the game as a whole is not stronger or weaker.
-const WTUNE={"STAFF":1.15,"WAR FAN":2.25,"CENSER":1.38,"KATANA":1.0,"NAGINATA":1.35,"ODACHI":1.33,"YUMI":0.76,"HANKYU":0.85,"REPEATER":0.72,"KUNAI":0.56,"SHURIKEN":0.86,"KUSARIGAMA":1.26,"OFUDA":1.22,"SUZU BELL":2.57,"SPIRIT MIRROR":0.92,"TANEGASHIMA":1.04,"YARI":0.72};
-const CTUNE={"wizard":1.09,"archer":1.63,"samurai":0.8,"shinobi":1.08,"onmyoji":0.88,"gunner":0.9,"lancer":0.85};
+const WTUNE={"KATANA":0.89,"ODACHI":1.21,"SUZU BELL":2.57,"WAR FAN":2.21,"NAGINATA":1.18,"KUSARIGAMA":1.28,"STAFF":1.38,"HANKYU":1.11,"YARI":0.66,"YUMI":0.76,"CENSER":1.46,"REPEATER":0.82,"KUNAI":0.57,"SHURIKEN":0.91,"OFUDA":1.16,"SPIRIT MIRROR":0.94,"TANEGASHIMA":1.04};
+const CTUNE={"wizard":0.99,"archer":1.75,"samurai":0.86,"shinobi":1.01,"onmyoji":0.88,"gunner":0.97,"lancer":0.85};
 {const _h=hurtE;hurtE=function(e,dmg,pd,o){if(e&&e!==P&&!(o&&o.foe)&&R){const src=o&&o.src!==undefined?o.src:castSrc;
   if(src==='m'&&R.eq&&R.eq.wpn){const t=WTUNE[wtName(R.eq.wpn)];if(t)dmg*=t;}
   if(src||castSrc)dmg*=CTUNE[CLS().k]||1;}
@@ -19,7 +19,7 @@ const CTUNE={"wizard":1.09,"archer":1.63,"samurai":0.8,"shinobi":1.08,"onmyoji":
 //    kill time is aimed at ~0.65x the design length (Akagane ~70s, ten seconds more each guardian, the Emperor ~3 minutes).
 //    The invulnerable events, phase changes and the Emperor's last stand are fixed time, so the late bosses need far more
 //    health for the fight itself to lengthen. Lady Hotaru ran long and comes down.
-const BOSS_HPT=[.85,1.0,1.1,.45,2.4,1.8,2.9,2.7,1.0,3.5,7.6,8.6];
+const BOSS_HPT=[.7,1.3,1.1,.35,2.4,1.8,2.9,2.7,1.0,3.5,7.6,8.6];
 {const _mb=mkBoss;mkBoss=function(di){const e=_mb.apply(this,arguments);const f=BOSS_HPT[di]||1;e.hp*=f;e.maxhp*=f;e.di=di;return e;};}
 
 // 4. THE DAMAGE CHECK: every guardian enrages if the fight runs past 1.6x its target length. A well-built character finishes
@@ -41,3 +41,10 @@ function bossActive(e){return e.awake&&!e.dead&&!e.phx&&!(e.EV&&(e.EV.survival||
 {const _hud=drawHUD;drawHUD=function(){_hud();const b=boss;if(!b||!b.awake||b.dead||!BKIT[b.name]||!b.fightClock)return;const {x,y,w}=bossBarBox();
   const left=Math.max(0,ENRAGE_AT(b.di)-b.fightClock),m=Math.floor(left/60),s=String(Math.floor(left%60)).padStart(2,'0');
   const str=b.enr?'ENRAGED':'ENRAGE '+m+':'+s,col=b.enr?(Math.floor(time*6)%2?'#ff4040':'#ffb040'):left<15?(Math.floor(time*4)%2?'#ff5050':'#ff9070'):'#b8a8b8';ctx.fillStyle='rgba(10,6,14,.9)';ctx.fillRect(x+w-txtW(str)-4,y+8,txtW(str)+4,8);txt(str,x+w-txtW(str)-2,y+9,col);};}
+
+// 5. ABILITIES SCALE EVENLY: measured from stage I to XII with a full-upgrade loadout, Q, F and R damage grew 17-48x while
+//    the basic attack and the RMB heavy grew 5-10x, so by the end the ultimate was everything and the basic attack an
+//    afterthought. Every damage source now follows the same curve as a character's overall damage: each slot gets a
+//    multiplier that moves smoothly from 1 at stage I to the value below at stage XII.
+const SLOTSCALE={"m":2.234,"h":1.729,"q":0.55,"f":0.841,"e":0.357};
+{const _h=hurtE;hurtE=function(e,dmg,pd,o){if(e&&e!==P&&R){const src=o&&o.src!==undefined?o.src:castSrc,m=SLOTSCALE[src];if(m)dmg*=Math.pow(m,Math.min(11,R.di||0)/11);}return _h.call(this,e,dmg,pd,o);};}

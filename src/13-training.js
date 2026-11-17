@@ -34,7 +34,6 @@ const LESSONS=[
   go:()=>{tClear();tTurret(.75,{cnt:1,spread:.12,sp:70,dmg:3,pd:2,col:'#fd4'});},need:1,ev:'perfect',
   // keep the turret in range, whatever you do
   tick:(dt,T)=>{const t=enemies.find(e=>e.type==='turret'&&!e.dead);if(t&&Math.hypot(t.x-P.x,t.y-P.y)>170)tTurret(.75,t.tPat);}},
- {t:'FOCUS (HOLD '+'SHIFT)',l:()=>['HOLD '+kN('focus')+' IN COMBAT: YOU MOVE SLOWLY AND YOUR HITBOX','SHRINKS TO A DOT. WEAVE THROUGH THE RINGS FOR 5S.'],go:()=>{tTurret(.55,{pat:'gapring',cnt:22,gw:.5,sp:42,dmg:3,pd:2,col:'#f8c'});},timer:5},
  {t:'ABILITIES',l:()=>[kN('q')+': '+spName('q')+'   '+kN('w')+': '+spName('w')+'   '+kN('f')+': '+spName('f'),kN('e')+': '+spName('e')+' - YOUR ULTIMATE. KILLS CUT ITS COOLDOWN.','EACH ABILITY HAS A COOLDOWN. USE ALL FOUR ('+(R.training&&R.training.slots?R.training.slots.size:0)+'/4).'],
   unlock:['q','w','f','e'],go:()=>{const t=enemies.find(e=>e.type==='turret');if(t)t.tRate=99;for(let i=0;i<4;i++)tSpawn('dummy',.55+(i%2)*.08,.4+(i>>1)*.2);R.training.slots=new Set();},
   done:T=>T.slots&&T.slots.size>=4},

@@ -270,7 +270,8 @@ function drawProj(q){
    case 'split':circ(X,Y,q.r,q.col);disc(X,Y,q.r-2,'#fff');ctx.globalAlpha=.4;disc(X,Y,q.r+1,q.col);ctx.globalAlpha=1;break;
    case 'mine':{const bl=q.fuse<.4?Math.floor(time*20)%2:Math.floor(time*6)%2;circ(X,Y+3,8-q.fuse*3|0,q.col);disc(X,Y,3,bl?'#fff':q.col);ctx.fillStyle='#14101a';ctx.fillRect(X-1,Y,3,1);ctx.fillRect(X,Y-1,1,3);break;}
    case 'star':ctx.fillStyle=q.col;ctx.fillRect(X-2,Y,5,1);ctx.fillRect(X,Y-2,1,5);ctx.fillStyle='#fff';ctx.fillRect(X,Y,1,1);break;
-   case 'big':disc(X,Y,q.r,q.col);circ(X,Y,q.r,'#fff');ctx.fillStyle='#fff';ctx.fillRect(X-1,Y-2,2,1);break;
+   case 'big':{const r=Math.max(3,Math.round(q.r)),pl=.18+.1*Math.sin(time*8+q.x);ctx.globalAlpha=pl;disc(X,Y,r+3,q.col);ctx.globalAlpha=1; // a heavy shaded orb
+    disc(X,Y,r+1,'#14101a');disc(X,Y,r,shade(q.col,.45));disc(X,Y,r-1,shade(q.col,-.28));disc(X-1,Y-1,r-2,q.col);disc(X-Math.round(r*.4),Y-Math.round(r*.4),Math.max(1,Math.round(r*.3)),shade(q.col,.55));ctx.fillStyle='#fff';ctx.fillRect(X-Math.round(r*.45),Y-Math.round(r*.55),1,1);break;}
    // lance: while waiting it shows a thin aim line along its path, then it is a bright needle
    case 'lance':{const lv=q.wait>0?scrVec(q.lvx,q.lvy):[vx,vy],ll=Math.hypot(lv[0],lv[1])||1,lx=lv[0]/ll,ly=lv[1]/ll;
     if(q.wait>0){ctx.globalAlpha=Math.floor(time*16)%2?.55:.3;ctx.fillStyle=q.col;for(let r=4;r<140;r+=3)ctx.fillRect(Math.round(X+lx*r),Math.round(Y+ly*r),1,1);ctx.globalAlpha=1;}

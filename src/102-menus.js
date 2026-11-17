@@ -61,7 +61,7 @@ function drawPause(){
 }
 function drawControlsCard(X,Y,Wd){txt('CONTROLS',X+6,Y+6,'#d02030');txt('CHANGE THEM IN SETTINGS',X+Wd-6-txtW('CHANGE THEM IN SETTINGS'),Y+6,'#666');
  const L=[['MOVE',[KB.up,KB.left,KB.down,KB.right].map(keyName)],['AIM',['MOUSE']],['ATTACK / HEAVY',['LMB','RMB']],['ABILITIES',[KB.q,KB.w,KB.f].map(keyName)],['ULTIMATE',[keyName(KB.e)]],['DASH',[keyName(KB.dash)]],
-  ['FOCUS (HOLD)',[keyName(KB.focus)]],['POTION',[keyName(KB.heal)]],['INTERACT',[keyName(KB.use)]],['TAKE FROM BAG',['1-6']],['BACKPACK',[keyName(KB.pack)]],['SWAP WEAPON',[keyName(KB.swap)]],['ROTATE CAMERA',[',','.']],['GUIDE / SETTINGS',['K','O']]];
+  ['POTION',[keyName(KB.heal)]],['INTERACT',[keyName(KB.use)]],['TAKE FROM BAG',['1-6']],['BACKPACK',[keyName(KB.pack)]],['SWAP WEAPON',[keyName(KB.swap)]],['ROTATE CAMERA',[',','.']],['GUIDE / SETTINGS',['K','O']]];
  L.forEach(([n,ks],i)=>{const col=i%2,row=(i/2)|0,x=X+6+col*96,y=Y+18+row*21;txt(n,x,y,'#999');let kx=x;for(const k of ks)kx+=m2Key(kx,y+8,k,true)+3;});}
 
 // =============== SETTINGS ===============

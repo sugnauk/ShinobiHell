@@ -12,7 +12,7 @@ function fxRing(x,y,max,col,dur){fx.push({k:'ring',x,y,max,t:dur||.3,dur:dur||.3
 // ---------- projectiles ----------
 // enemy bullets hit this many times harder than their listed damage (melee and contact hits are unchanged)
 const ESHOT_DMG=2.5;
-// the player's bullet hitbox: a round core in screen pixels (smaller while focusing with SHIFT)
+// the player's bullet hitbox: a round core in screen pixels (HITR_FOCUS is unused since focus mode was removed)
 const HITR=2.5,HITR_FOCUS=1.5;
 const scrDist=q=>{const s=scrVec(q.x-P.x,q.y-P.y);return Math.hypot(s[0],s[1]);};
 function mkProj(from,x,y,a,sp,dmg,o){if(from==='e'&&R&&R.asc)sp*=1+.06*R.asc;return Object.assign({from,x,y,vx:Math.cos(a)*sp,vy:Math.sin(a)*sp,r:3,dmg,life:3,col:'#d44',pd:12,pierce:0,hit:new Set(),own:null,peril:false,arrow:false},o||{});}
