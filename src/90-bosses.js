@@ -213,7 +213,8 @@ Object.assign(PSPR,{
  kunai(X,Y,ux,uy,q){for(let i=-4;i<=3;i++){ctx.fillStyle=i>0?'#e8eef6':i>-2?'#3a3a48':q.col;ctx.fillRect(Math.round(X+ux*i),Math.round(Y+uy*i),1,1);}},
  shuriken(X,Y,ux,uy,q){const a=time*20+q.x;for(let i=0;i<4;i++){const c=Math.cos(a+i*Math.PI/2),s=Math.sin(a+i*Math.PI/2);ctx.fillStyle=q.col;ctx.fillRect(Math.round(X+c*2),Math.round(Y+s*2),1,1);ctx.fillRect(Math.round(X+c*3+s),Math.round(Y+s*3-c),1,1);}ctx.fillStyle='#fff';ctx.fillRect(X,Y,1,1);},
  petal(X,Y,ux,uy,q){ctx.fillStyle=q.col;ctx.fillRect(X-2,Y-1,4,3);ctx.fillRect(X-1,Y-2,2,5);ctx.fillStyle='#fff';ctx.fillRect(X,Y,1,1);},
- bead(X,Y,ux,uy,q){disc(X,Y,2,'#7a4a20');ctx.fillStyle='#d8a060';ctx.fillRect(X-1,Y-1,1,1);},
+ bead(X,Y,ux,uy,q){ // a polished amber prayer bead: dark edge, shading, a bright highlight and the threading hole
+  disc(X,Y,4,'#14101a');disc(X,Y,3,'#8a4a1a');disc(X-1,Y-1,2,'#d88a38');ctx.fillStyle='#ffe0a0';ctx.fillRect(X-2,Y-2,2,1);ctx.fillRect(X-2,Y-1,1,1);ctx.fillStyle='#2a1408';ctx.fillRect(X,Y,1,1);},
  ball(X,Y,ux,uy,q){disc(X,Y,q.r,'#1a1a20');circ(X,Y,q.r,'#5a5a66');ctx.fillStyle='#8a8a96';ctx.fillRect(X-2,Y-3,2,1);},
  shackle(X,Y,ux,uy,q){const a=time*10+q.x; // a solid iron ring with a spinning link
   disc(X,Y,5,'#14101a');disc(X,Y,4,'#8a8a9a');disc(X-1,Y-1,3,'#c8c8d8');disc(X,Y,2,'#14101a');ctx.fillStyle='#ffffff';ctx.fillRect(X-3,Y-2,1,1);
