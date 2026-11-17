@@ -109,11 +109,15 @@ const STS={lastHit:-9,cds:{}};
 // ---------------------------------------------------------------- the tree screen
 const stView={x:6,y:36,w:210,h:118};
 const stBuyBox={x:226,y:137,w:82,h:13};
-const stMapZoom=.40,stDetailZoom=1.2;
+const stMapZoom=.6,stDetailZoom=1.55;
 const stUI={zoom:stDetailZoom,target:stDetailZoom,x:0,y:0,press:null,notice:null,catalog:false,routes:new Map()};
 const stMotion=()=>!window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
 const stIn=(x,y,r)=>x>=r.x&&x<r.x+r.w&&y>=r.y&&y<r.y+r.h;
-const stScreen=(x,y)=>[Math.round(111+(x-SKT.cam.x)*stUI.zoom),Math.round(95+(y-SKT.cam.y)*stUI.zoom)];
+const stScreen=(x,y)=>[Math.round(stView.x+(stView.w>>1)+(x-SKT.cam.x)*stUI.zoom),Math.round(stView.y+(stView.h>>1)+(y-SKT.cam.y)*stUI.zoom)];
+// the layout follows the screen size: map on the left, details on the right, buttons along the bottom
+let SDX=220,SDH=120;
+function stLayout(){SDX=W-100;SDH=H-36-30;stView.x=6;stView.y=36;stView.w=SDX-12;stView.h=H-36-30;
+ stBuyBox.x=SDX+6;stBuyBox.y=35+SDH-17;const by=H-23;stOverviewBox.y=stCatalogBox.y=stNextBox.y=by;stPinBox.x=SDX;stPinBox.y=by;}
 const stRadius=n=>stUI.zoom<.65?n.big?3:n.mid?2:1:n.big?9:n.mid?6:n.old?5:3;
 const stAffordable=n=>stLv(n.k)<n.max&&stOpen(n)&&meta.sen>=stCost(n);
 const stActive=()=>mode==='select'&&selTab===1;
@@ -391,7 +395,7 @@ function stDrawMap(sel,hover,route,plan){
 // Ink flecks and wave lines stay behind the graph at both scales.
 let stPaper=null;
 function stMapPaper(){
- if(stPaper)return stPaper;
+ if(stPaper&&stPaper.width===stView.w&&stPaper.height===stView.h)return stPaper;
  return stPaper=mk(stView.w,stView.h,g=>{
   g.fillStyle='#100d17';g.fillRect(0,0,stView.w,stView.h);
   for(let y=0;y<stView.h;y++)for(let x=0;x<stView.w;x++){
@@ -420,33 +424,34 @@ function stDrawCatalog(sel){
 }
 function stDetails(n,route){
  const lv=stLv(n.k),ready=stAffordable(n),col=n.free?'#efe3b9':stRGB[n.b],full=lv>=n.max,open=stOpen(n);
- stPanel(220,35,94,120,'#17111e','#4a3949');
- stFill(221,36,92,1,col);
+ stPanel(SDX,35,94,SDH,'#17111e','#4a3949');
+ stFill((SDX+1),36,92,1,col);
  const art=stArt(n,true),crest=n.big?13:10;
  const glow=SKT.unlock?.key===n.k&&time-SKT.unlock.t<.8;
- stFill(221,37,92,27,shade(col,-.89));
- stFill(221,63,92,1,shade(col,-.60));
- stSeal(267,50,crest,col,glow);
+ stFill((SDX+1),37,92,27,shade(col,-.89));
+ stFill((SDX+1),63,92,1,shade(col,-.60));
+ stSeal((SDX+47),50,crest,col,glow);
  const smooth=ctx.imageSmoothingEnabled;
  ctx.imageSmoothingEnabled=false;
- ctx.drawImage(art,267-art.width,50-art.height,art.width*2,art.height*2);
+ ctx.drawImage(art,(SDX+47)-art.width,50-art.height,art.width*2,art.height*2);
  ctx.imageSmoothingEnabled=smooth;
  const kind=n.free?'TEMPLE':n.big?'KEYSTONE':n.mid?'NOTABLE':'PASSIVE';
- stCenter(n.free?kind:STB[n.b].n+' / '+kind,221,92,66,col);
- const y=stWrap(n.n,226,76,82,'#fff0cf',7);
- stWrap(n.d,226,y+3,82,'#dad0d9');
+ stCenter(n.free?kind:STB[n.b].n+' / '+kind,(SDX+1),92,66,col);
+ const y=stWrap(n.n,(SDX+6),76,82,'#fff0cf',7);
+ stWrap(n.d,(SDX+6),y+3,82,'#dad0d9');
  const unlock=SKT.unlock,justBought=unlock&&unlock.key===n.k&&time-unlock.t<1.3;
  const notice=stUI.notice,denied=notice?.key===n.k&&time-notice.t<1.2;
  const status=denied?notice.text:justBought?(unlock.goal?'GOAL REACHED':'LEARNED  -'+unlock.cost):!open?route.edges.size+' TO LEARN / '+route.cost+' JADE':n.max>1&&lv?'RANK '+ROMAN[lv-1]+' / '+ROMAN[n.max-1]:full?'ACTIVE':ready?'READY TO UNLOCK':'NEED '+(stCost(n)-meta.sen)+' MORE';
- stCenter(status,221,92,128,denied?'#ef9c97':justBought||ready?'#f3d795':'#bdadbd');
+ stCenter(status,(SDX+1),92,35+SDH-30,denied?'#ef9c97':justBought||ready?'#f3d795':'#bdadbd');
  stButton(stBuyBox,full?n.free?'STARTING POINT':'MASTERED':!open?'LOCKED':(lv?'RANK UP ':'UNLOCK ')+stCost(n),ready);
  const goal=stGoal();
  if(stCanPin(n))stButton(stPinBox,n===goal?'P / CLEAR GOAL':'P / PIN KEYSTONE');
  else if(goal)stButton(stPinBox,'VIEW PINNED GOAL');
- else if(n.old&&!full&&!ready&&open)stCenter('NEED '+(stCost(n)-meta.sen)+' MORE JADE',220,94,160,'#d5ba83');
+ else if(n.old&&!full&&!ready&&open)stCenter('NEED '+(stCost(n)-meta.sen)+' MORE JADE',SDX,94,stPinBox.y+3,'#d5ba83');
 
 }
 renderUpgrades=function(){
+ stLayout();
  const n=SKT.byK[SKT.sel];
  const motion=stMotion();
  SKT.cam.x+=(stUI.x-SKT.cam.x)*(motion?.22:1);SKT.cam.y+=(stUI.y-SKT.cam.y)*(motion?.22:1);
@@ -469,9 +474,9 @@ renderUpgrades=function(){
  stDetails(n,route);
  const unlock=SKT.unlock,learned=unlock&&SKT.byK[unlock.key];
  if(learned?.big&&time-unlock.t<1.7){
-  const name=learned.n+' LEARNED',width=txtW(name)+14,x=111-Math.floor(width/2);
-  stPanel(x,140,width,11,'#251b23','#e6bf73');
-  stCenter(name,x,width,143,'#ffebba');
+  const name=learned.n+' LEARNED',width=txtW(name)+14,x=stView.x+(stView.w>>1)-Math.floor(width/2),y=stView.y+stView.h-16;
+  stPanel(x,y,width,11,'#251b23','#e6bf73');
+  stCenter(name,x,width,y+3,'#ffebba');
  }
  stButton(stOverviewBox,!stUI.catalog&&stOverview()?'ZOOM IN':'OVERVIEW');
  stButton(stCatalogBox,stUI.catalog?'V / TREE':'V / KEYSTONES');
@@ -484,7 +489,7 @@ renderUpgrades=function(){
  else if(stOverview())hint='CLICK TO ZOOM IN   1-8 BRANCHES   HOME GATE';
  else if(stIn(mouse.x,mouse.y,stNextBox))hint='N / JUMP TO THE NEXT AFFORDABLE SKILL';
  else if(goal)hint='PINNED '+goal.n+' / '+plan.cost+' JADE LEFT';
- ctxt(hint,172,'#afa0b3');
+ ctxt(hint,H-9,'#afa0b3');
 };
 function stMove(dx,dy){
  if(stUI.catalog){stCatalogMove(dx,dy);return;}

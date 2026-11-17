@@ -101,7 +101,7 @@ selConfirm=function(){if(selLock)return;if(isLocked(selIdx)){sfx('block');return
 {const _uk=upgradesKey;upgradesKey=function(c){if((c==='Escape'||c==='Tab')&&treeFrom==='menu'){mode='menu';selTab=0;sfx('coin');return;}return _uk(c);};}
 {const _ok=onKey;onKey=function(c){if(mode==='select'&&selTab===1&&treeFrom==='menu'&&(c==='Escape')){mode='menu';selTab=0;sfx('coin');return;}return _ok.apply(this,arguments);};}
 // the menus and the select screen use the wide view, like the pause screen
-{const _sv=setView;setView=function(w){if(mode==='menu'||(mode==='select'&&selTab===0))w=true;return _sv(w);};}
+{const _sv=setView;setView=function(w){if(mode==='menu'||mode==='select')w=true;return _sv(w);};}
 
 {const _rs=renderSelect;renderSelect=function(){if(selTab===1)return _rs.apply(this,arguments);
  bg();ctx.fillStyle='rgba(6,3,10,.8)';ctx.fillRect(0,0,W,H);
