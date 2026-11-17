@@ -344,10 +344,10 @@ BKIT['AKAGANE, THE RED OX']={director:bossDirector,pref:85,gap:1.25,halfName:'HE
   end(e,E){const left=E.mins.filter(m=>!m.dead).length;if(left)setToast(left+' ASHIGARU JOIN THE FIGHT','#ff8080',2.5);}},
 };
 
-// ================================================================ II. KAMAKIRI, THE REED MANTIS - tracking unseen threats
-// A giant praying mantis that stalks you through the reeds: invisible in them, only bending stalks show its path. When the stalks
+// ================================================================ II. KUSAKARI, THE REED HUNTER - tracking unseen threats
+// A masked marsh hunter in a straw raincoat who stalks you through the reeds: invisible in them, only bending stalks show his path. When the stalks
 // go still he is about to strike. Your shots cut the reeds for good; a shrine lantern you shoot lights him up.
-BART['KAMAKIRI, THE REED MANTIS']=Object.assign(({R,E,L,f,atk})=>{
+BART['KUSAKARI, THE REED HUNTER']=Object.assign(({R,E,L,f,atk})=>{
  const ice='#f5f2e3',white='#cad8db',shade='#8399ae',dark='#43536a',ink='#24273a';
  const gold='#dfaa61',red='#a85158',eye=ARTHURT?'#ff826b':'#89ffff';
  const back=atk?3:0,head=atk?5:0,top=atk?3:f,step=f===1?3:0;
@@ -388,9 +388,9 @@ const TIG={inReed(e,x,y){for(const r of e.reeds)if(r.hp>0&&Math.hypot(x-r.x,y-r.
  mark(A,shape){const m=mark(shape);(A.marks??=[]).push(m);return m;},
  cancel(e,A){for(const m of A.marks||[])if(!m.fired){m.dead=true;m.t=Infinity;}e.air=false;e.z=0;},
  expose(e,t){e.recover=Math.max(e.recover,t);e.moving=false;e.alpha=1;e.hid=false;}};
-BKIT['KAMAKIRI, THE REED MANTIS']={director:bossDirector,pref:100,gap:.9,halfName:'WINGS SPREAD - FRENZY',noContact:true,
- style:{c:'#a8d8ff',t:['STALKING','SCREECH STORM','FRENZY'],ph:[[],[],[]]},
- guide:['WATCH THE REEDS AND DODGE AFTER THE POUNCE RING LOCKS','SHOOT A LANTERN, THEN BAIT A POUNCE INTO ITS LIGHT','A LANDING IN LIGHT STAGGERS IT AND ENDS THE LAST HUNT','SHOOT REEDS TO CLEAR COVER BEFORE IT STRIKES'],
+BKIT['KUSAKARI, THE REED HUNTER']={director:bossDirector,pref:100,gap:.9,halfName:'HAT CUT - FRENZY',noContact:true,
+ style:{c:'#a8d8ff',t:['STALKING','CHAIN STORM','FRENZY'],ph:[[],[],[]]},
+ guide:['WATCH THE REEDS AND DODGE AFTER THE POUNCE RING LOCKS','SHOOT A LANTERN, THEN BAIT A POUNCE INTO ITS LIGHT','A LANDING IN LIGHT STAGGERS HIM AND ENDS THE LAST HUNT','SHOOT REEDS TO CLEAR COVER BEFORE HE STRIKES'],
  init(e){const A=arenaOf(e);e.reeds=[];e.walks=[{x0:A.cx-160,x1:A.cx+160,y0:A.cy-100,y1:A.cy-78},{x0:A.cx-160,x1:A.cx+160,y0:A.cy+78,y1:A.cy+100}];
   for(let gx=-3;gx<=3;gx++)for(let gy=-3;gy<=3;gy++){const x=A.cx+gx*66+rnd(-12,12),y=A.cy+gy*66+rnd(-12,12);if(Math.random()<.4||blocked(x,y,8)||Math.hypot(x-A.cx,y-A.cy)<40)continue;if(e.walks.some(w=>y>w.y0-14&&y<w.y1+14&&x>w.x0&&x<w.x1))continue;
    const r=rnd(26,34),st=[];for(let i=0;i<46;i++){const a=Math.random()*TAU,d=Math.sqrt(Math.random())*r*.95;st.push({x:x+Math.cos(a)*d,y:y+Math.sin(a)*d,h:ri(9,15),c:pick(['#b8a050','#c8b060','#a89040','#d8c878'])});}e.reeds.push({x,y,r,hp:4,st});}
@@ -434,10 +434,10 @@ BKIT['KAMAKIRI, THE REED MANTIS']={director:bossDirector,pref:100,gap:.9,halfNam
   for(const l of e.lamps)if(l.lit>0){
    ctx.globalAlpha=.13;wdisc(l.x,l.y,90,'#ffe080');ctx.globalAlpha=.7;wcirc(l.x,l.y,90,'#ffe080');ctx.globalAlpha=1;
   }
-  // reed beds: stalks sway, and part around the mantis as it slips through
+  // reed beds: stalks sway, and part around the hunter as he slips through
   for(const r of e.reeds){if(r.hp<=0)continue;ctx.globalAlpha=.45;wdisc(r.x,r.y,r.r,'#3a3018');ctx.globalAlpha=1;}
   for(const r of e.reeds){if(r.hp<=0)continue;for(const s of r.st){const X=sx(s.x,s.y),Y=sy(s.x,s.y),near=Math.hypot(e.x-s.x,e.y-s.y)<14&&e.moving,bend=Math.round(Math.sin(time*2+s.x*.3)*1+(near?Math.sin(time*30)*2:0));ctx.fillStyle=near?'#fff8c0':s.c;ctx.fillRect(X,Y-s.h,1,s.h);ctx.fillRect(X+bend,Y-s.h-3,1,3);ctx.fillStyle='#6a5020';ctx.fillRect(X+bend,Y-s.h-3,1,1);}}},
- hud:e=>e.recover>0?'EXPOSED - STRIKE NOW':e.half?'FRENZY - WATCH FOR A SECOND POUNCE':'SHOOT A LANTERN. BAIT ITS POUNCE INTO THE LIGHT.',
+ hud:e=>e.recover>0?'EXPOSED - STRIKE NOW':e.half?'FRENZY - WATCH FOR A SECOND POUNCE':'SHOOT A LANTERN. BAIT HIS POUNCE INTO THE LIGHT.',
  atks:[
   {n:'pounce',wt:4,half:0,end:TIG.cancel,run:(e,A,dt)=>TIG.pounce(e,A,dt,1,.98)},
   {n:'frenzy',wt:4,half:1,end:TIG.cancel,run:(e,A,dt)=>TIG.pounce(e,A,dt,2,.78)},
@@ -1270,7 +1270,7 @@ const EMPATK={
 // the echoes: one signature of every guardian, recoloured and turned against you
 const ECHO={
  'OX CHARGE':{from:'AKAGANE',tick(e,x,dt){if(x.rt>0)return;x.rt=3;const a=aimAt(e);mark({k:'l',x:e.x,y:e.y,a,len:rayLen(e.x,e.y,a,520),w:22,t:.8,col:BC.cor,on:m=>{bsh(e,m.x,m.y,m.a,300,14,{spr:'rider',r:9,col:'#4a1a6a',st:'bounce',bn:2,life:4});}});}},
- 'CLAW X':{from:'KAMAKIRI, THE REED MANTIS',tick(e,x){if(x.rt>0)return;x.rt=2.4;const pl=EMPR.pools(),src=pl.length?pick(pl):{x:e.x,y:e.y},a=Math.atan2(P.y-src.y,P.x-src.x);for(const s of [1,-1]){const la=a+s*Math.PI/4;mark({k:'l',x:P.x-Math.cos(la)*80,y:P.y-Math.sin(la)*80,a:la,len:160,w:13,t:.6,dmg:15*e.dm,col:BC.cor,src:e});}}},
+ 'CLAW X':{from:'KUSAKARI, THE REED HUNTER',tick(e,x){if(x.rt>0)return;x.rt=2.4;const pl=EMPR.pools(),src=pl.length?pick(pl):{x:e.x,y:e.y},a=Math.atan2(P.y-src.y,P.x-src.x);for(const s of [1,-1]){const la=a+s*Math.PI/4;mark({k:'l',x:P.x-Math.cos(la)*80,y:P.y-Math.sin(la)*80,a:la,len:160,w:13,t:.6,dmg:15*e.dm,col:BC.cor,src:e});}}},
  'SILK WALLS':{from:'TSUCHIGUMO',tick(e,x){if(x.rt>0)return;x.rt=3;const n=5,o=Math.random()*TAU;for(let i=0;i<n;i++)for(let j=0;j<5;j++)bsh(e,e.x,e.y,o+i/n*TAU,60+j*10,8,Object.assign({spr:'silk',st:'stick',sd:60+j*20,life:5},COR));}},
  'TALISMAN SPIRAL':{from:'LADY HOTARU',tick(e,x,dt){x.a=(x.a||0)+dt*1.5;x.ft=(x.ft||0)-dt;if(x.ft<=0){x.ft=.2;for(let i=0;i<3;i++){bsh(e,e.x,e.y,x.a+i/3*TAU,55,8,{spr:'charm',col:BC.cor2,r:3,life:5});bsh(e,e.x,e.y,-x.a+i/3*TAU+.4,55,8,{spr:'charm',col:BC.cor2,r:3,life:5});}}}},
  'LANCE PASS':{from:'LORD KUROGANE',tick(e,x){if(x.rt>0)return;x.rt=2.2;const A=arenaOf(e),dir=Math.random()<.5?1:-1,y=P.y;mark({k:'l',x:dir>0?A.x0+4:A.x1-4,y,a:dir>0?0:Math.PI,len:520,w:22,t:.9,col:BC.cor,grow:false,on:m=>bsh(e,m.x,m.y,m.a,290,14,{spr:'rider',r:9,col:'#4a1a6a',life:2.4})});}},

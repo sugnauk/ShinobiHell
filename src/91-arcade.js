@@ -49,7 +49,7 @@ function bossRank(hits){return hits===0?0:hits<=2?1:hits<=5?2:3;}
 // relics: one per guardian, tied to the skill its fight teaches
 const BOSSRELIC=[
  {id:'wardrum',name:'WAR DRUM',d:'A DRUM WARNS OF STRIKES OFF SCREEN',g:'D',fx:'control',mo:'bell'},
- {id:'whisker',name:"MANTIS EYE",d:'HIDDEN FOES SHOW A FAINT OUTLINE NEARBY',g:'W',fx:'control',mo:'shards'},
+ {id:'whisker',name:"HUNTER'S EYE",d:'HIDDEN FOES SHOW A FAINT OUTLINE NEARBY',g:'W',fx:'control',mo:'shards'},
  {id:'silkspool',name:'SILK SPOOL',d:'EACH OF YOUR SHOTS CANCELS ONE ENEMY BULLET',g:'S',fx:'guard',mo:'vortex'},
  {id:'spiritlantern',name:'SPIRIT LANTERN',d:'SHIELDS AND ARMOUR BLOCK HALF AS MUCH OF YOUR DAMAGE',g:'L',fx:'dmg',mo:'flame'},
  {id:'roninCrest',name:'RONIN CREST',d:'+25% DAMAGE TO A BOSS\'S MINIONS AND SQUADS',g:'R',fx:'dmg',mo:'sword'},
@@ -90,7 +90,7 @@ let bossRankFx=null;
   for(const o of enemies)if(!o.dead&&o!==e&&!o.air&&Math.hypot(o.x-e.x,o.y-e.y)<40+o.r)hurtE(o,S.atk*2,20,{nost:true});}};}
 // war drum: a strike that starts off screen beats a drum and flashes an arrow at the screen edge
 {const _mk=mark;mark=function(o){const m=_mk(o);if(R&&R.inv&&R.inv.wardrum&&(m.dmg||m.sdmg)&&m.x!=null){const X=sx(m.x,m.y),Y=sy(m.x,m.y);if(X<0||X>W||Y<0||Y>H){BX.warn=BX.warn||[];BX.warn.push({sx:clamp(X,8,W-8),sy:clamp(Y,8,H-8),t:Math.max(.6,m.t)});tone(90,.12,'sine',.08,-20);}}return m;};}
-// mantis eye: hidden bosses never fade below a faint outline when close
+// hunter's eye: hidden bosses never fade below a faint outline when close
 {const _de=drawEnemy;drawEnemy=function(e){if(R&&R.inv&&R.inv.whisker&&e.alpha!=null&&e.alpha<.3&&P&&Math.hypot(e.x-P.x,e.y-P.y)<120){const a=e.alpha;e.alpha=.3;_de(e);e.alpha=a;return;}return _de(e);};}
 
 // ---------------------------------------------------------------- New Game+

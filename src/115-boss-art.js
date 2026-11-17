@@ -110,79 +110,92 @@ const AKA_ANIM={crescent:[['cr1','cr2','cr3'],[0,.55,.75]],rain:[['rn1','rn2'],[
 BART['AKAGANE, THE RED OX']=Object.assign(p=>akaDraw(p,AKA_POSES[p.f===2?'atk':p.f===1?'idle1':'idle0']),{fw:72,fh:76,raw:1,sc:1.1,posed:{draw:akaDraw,poses:AKA_POSES,anim:AKA_ANIM}});
 
 
-// KAMAKIRI, THE REED MANTIS: a giant praying mantis, reed-green and straw-gold, that hunts the flooded paddies.
-// Three-quarter view, facing right. The triangular head with two great compound eyes and long antennae, a long upright
-// neck, the raptorial forelegs folded in prayer (spined femurs, hooked tibiae), four thin walking legs, folded leaf wings
-// over a segmented abdomen. Second form (wings spread): the wings flare open in a threat display with eye-spots, the
-// eyes turn red and the scythes edge in red.
-// pose: dx/dy, b (breath), lean (neck tilt forward), head [x,y], arms 'fold' | 'raise' | 'reach', legs 'stand' | 'step1' |
-// 'step2' | 'leap', wings 'fold' | 'buzz' (half open, in flight)
-function manDraw(p,Q){const {R:R_,E:E_,L:L_}=p,two=ARTHURT,ox=Q.dx||0,oy=Q.dy||0,by=Q.b||0;
+// KUSAKARI, THE REED HUNTER: a masked marsh hunter who stalks the flooded paddies. A wide sedge hat shading a dark cloth
+// mask with two glowing eyes, a shaggy straw raincoat (mino) in three tiers, indigo leggings with white wraps and straw
+// sandals, and a kusarigama: a sickle in one hand, its chain hanging to an iron weight in the other.
+// Second form (hat cut): a wedge cut out of the hat, the eyes burning red, the coat torn, blood on the blade, the chain
+// wound round his forearm.
+// pose: dx/dy, b (breath), cr (crouch: bends the knees, lowers the body), legs 'stand' | 'walk1' | 'walk2' | 'leap',
+// near/far arms [shoulder,elbow,hand], sk [angle] the sickle in the near hand, chain 'hang' | 'whirl' | 'trail',
+// tilt (hat dips forward), flare (the coat swings out)
+function hunDraw(p,Q){const {R:R_,E:E_,L:L_}=p,two=ARTHURT,ox=Q.dx||0,oy=Q.dy||0,by=Q.b||0,cr=Q.cr||0;
  const R=(x,y,w,h,c)=>R_(x+ox,y+oy,w,h,c),E=(x,y,rx,ry,c)=>E_(x+ox,y+oy,rx,ry,c),L=(a,b2,c2,d,c,t)=>L_(a+ox,b2+oy,c2+ox,d+oy,c,t);
- const G0='#14240f',G1='#2e4a1e',G2='#4e7a2a',G3='#7eaa3a',G4='#b8d860',G5='#e8f8a0',ST='#c8a850',ST2='#e8d080',
-  SP=two?'#ff6050':'#f0e8b0',EYE=two?'#e03020':'#e0a030',EYE2=two?'#ff8060':'#ffe080';
- const seg=(x0,y0,x1,y1,w,dim)=>{L(x0,y0,x1,y1,G0,w+2);L(x0,y0,x1,y1,dim?G1:G2,w);if(w>2)L(x0,y0-1,x1,y1-1,dim?G2:G3,Math.max(1,w-2));if(!dim&&w>2)L(x0-1,y0-1,x1-1,y1-1,G4,1);};
- const dot=(x,y,c)=>R(x,y,1,1,c);
- const lg=Q.legs||'stand',arms=Q.arms||'fold',lean=Q.lean||0;
- // where the body sits for each stance
- const low=lg==='step1'||lg==='step2'?5:lg==='leap'?-2:0,th=[40,46+low+by],nk=[50+lean,24+low+by+Math.round(lean*.5)],hd=Q.head||[nk[0]+5+lean*.3,nk[1]-7];
- // ---- open wings (second form threat display, or buzzing in a leap) behind everything
- const wingOpen=two||Q.wings==='buzz';
- if(wingOpen){const fan=(ang0,ang1,r,col1,col2,spot)=>{for(let a=ang0;a<=ang1;a+=.04){const x=th[0]-2+Math.cos(a)*r,y=th[1]-4+Math.sin(a)*r;L(th[0]-2,th[1]-4,x,y,G0,3);}
-    for(let a=ang0+.03;a<=ang1-.03;a+=.04){const x=th[0]-2+Math.cos(a)*(r-1),y=th[1]-4+Math.sin(a)*(r-1);L(th[0]-2,th[1]-4,x,y,Math.round(a*12)%3?col1:col2,1);}
-    if(spot){const a=(ang0+ang1)/2,sx2=th[0]-2+Math.cos(a)*r*.62,sy2=th[1]-4+Math.sin(a)*r*.62;E(sx2,sy2,4,4,G0);E(sx2,sy2,3,3,'#f0d040');E(sx2,sy2,2,2,'#401018');R(sx2-1,sy2-2,1,1,'#ffffff');}};
-  if(Q.wings==='buzz'&&!two){fan(-2.9,-2.1,26,'#a8c890','#d8f0c0',0);fan(-2.4,-1.7,24,'#c8e0b0','#e8f8d8',0);}
-  else{fan(-3.05,-2.0,32,'#5a3a5a','#8a4a6a',1);fan(-2.35,-1.45,30,'#6a4a3a','#b06a50',1);}}
- // ---- far walking legs
- const legsFar={stand:[[[38,48],[30,42],[24,70]],[[44,48],[52,44],[58,70]]],step1:[[[38,50],[28,46],[20,70]],[[44,50],[54,47],[62,70]]],step2:[[[38,50],[31,45],[27,70]],[[44,50],[51,46],[54,70]]],leap:[[[38,44],[26,50],[16,58]],[[44,44],[38,54],[30,62]]]}[lg];
- const legsNear={stand:[[[36,50],[26,44],[18,70]],[[46,50],[56,46],[64,70]]],step1:[[[36,52],[27,47],[24,70]],[[46,52],[55,48],[58,70]]],step2:[[[36,52],[24,48],[16,70]],[[46,52],[57,49],[66,70]]],leap:[[[36,46],[22,52],[10,60]],[[46,46],[36,56],[26,64]]]}[lg];
- const walk=([[a,b],[c,d],[e,f]],dim)=>{const yb=lg==='leap'?0:low+by;seg(a,b+yb,c,d+yb,2,dim);seg(c,d+yb,e,f,1,dim);R(e-1,f,3,1,G0);};
- for(const l of legsFar)walk(l,1);
- // ---- abdomen: segmented, sloping down and back
- const ab=lg==='leap'?[[38,44],[30,44],[22,45],[15,46],[10,47]]:[[38,46+low],[31,49+low],[24,52+low],[18,55+low],[13,57+low]];
- ab.forEach(([x,y],i)=>{const r=7-i;E(x,y+by,r+3,r+1,G0);});
- ab.forEach(([x,y],i)=>{const r=7-i;E(x,y+by,r+2,r,G2);E(x,y+by-1,r+1,r-1,G3);R(x-r,y+by+r-1,r*2,1,G1);if(i)R(x+r+1,y+by-r+1,1,r*2-1,G1);});
- // folded leaf wings along the back (first form, standing or stalking)
- if(!wingOpen){const [x0,y0]=[th[0]+2,th[1]-6],[x1,y1]=[ab[4][0]-4,ab[4][1]-2+by];for(let k=-3;k<=3;k++)L(x0,y0+k*.4,x1,y1+k,G0,1);
-  for(let k=-2;k<=2;k++)L(x0,y0+k*.4,x1,y1+k,k<0?G4:k?G3:G5,1);L(x0-2,y0+1,x1+2,y1+3,G2,1);for(let i=1;i<5;i++){const t=i/5;dot(x0+(x1-x0)*t,y0+(y1-y0)*t+1,G2);}
-  R(x0-6,y0,3,2,'#e8e8a0');}
- // ---- thorax and the long neck
- E(th[0]+2,th[1]-3+(lg==='leap'?-2:0),6,5,G0);E(th[0]+2,th[1]-3+(lg==='leap'?-2:0),5,4,G2);E(th[0]+1,th[1]-5+(lg==='leap'?-2:0),3,2,G3);
- seg(th[0]+4,th[1]-6,nk[0],nk[1],4);R(nk[0]-1,nk[1]+2,3,1,G4);
- for(const l of legsNear)walk(l,0);
- // ---- the far raptorial foreleg (behind the head)
- const fore=(dim,off)=>{const o=off||0,[sx2,sy2]=[nk[0]+1+o,nk[1]+3];let cxk,cyk,fx,fy,tx,ty;
-  if(arms==='fold'){cxk=sx2+8;cyk=sy2+11;fx=sx2+13;fy=sy2-3;tx=sx2+10;ty=sy2+9;}
-  else if(arms==='raise'){cxk=sx2+6;cyk=sy2+7;fx=sx2+11;fy=sy2-14;tx=sx2+22;ty=sy2-6;}
-  else{cxk=sx2+6;cyk=sy2+4;fx=sx2+18;fy=sy2+1;tx=sx2+30;ty=sy2+6;}
-  cxk+=o;fx+=o;tx+=o;
-  seg(sx2,sy2,cxk,cyk,3,dim);                                 // coxa
-  seg(cxk,cyk,fx,fy,5,dim);                                   // femur, spined on the inner edge
-  const n=6;for(let i=1;i<n;i++){const t=i/n,x=cxk+(fx-cxk)*t,y=cyk+(fy-cyk)*t,a=Math.atan2(fy-cyk,fx-cxk)+(arms==='fold'?-1.57:1.57);L(x,y,x+Math.cos(a)*3,y+Math.sin(a)*3,SP,1);}
-  seg(fx,fy,tx,ty,2,dim);                                     // tibia
-  const a=Math.atan2(ty-fy,tx-fx);L(tx,ty,tx+Math.cos(a+1.4)*4,ty+Math.sin(a+1.4)*4,ST2,1);dot(tx,ty,ST2);  // the hook
-  if(two)L(cxk,cyk,fx,fy,'#c03028',1);
-  if(!dim)R(cxk-1,cyk-1,2,2,G4);};
- fore(1,-3);
- // ---- head: a wide triangle, two great compound eyes, antennae sweeping back, mandibles
- const [hx,hy]=hd;
- L(hx-3,hy-4,hx-14,hy-18,G0,2);L(hx-3,hy-4,hx-13,hy-18,ST,1);L(hx+2,hy-5,hx-6,hy-22,G0,2);L(hx+2,hy-5,hx-5,hy-22,ST2,1);
- E(hx,hy,7,4,G0);E(hx,hy,6,3,G3);L(hx-5,hy+1,hx,hy+8,G0,3);L(hx+5,hy+1,hx,hy+8,G0,3);L(hx-4,hy+1,hx,hy+7,G3,1);L(hx+4,hy+1,hx,hy+7,G2,1);R(hx-3,hy+1,7,3,G3);R(hx-2,hy+4,5,2,G2);
- for(const s of [-1,1]){const ex=hx+s*6,ey=hy-1;E(ex,ey,4,4,G0);E(ex,ey,3,3,EYE);E(ex-1,ey-1,2,2,EYE2);R(ex+(s>0?0:-1),ey,1,2,two?'#300808':'#2a1a08');R(ex-2,ey-2,1,1,'#ffffff');}
- R(hx-1,hy-4,3,2,G4);dot(hx,hy-2,G5);
- R(hx-1,hy+7,3,2,G1);if(Q.open){R(hx-2,hy+8,1,2,ST2);R(hx+2,hy+8,1,2,ST2);R(hx-1,hy+9,3,1,'#401010');}
- // ---- the near raptorial foreleg in front
- fore(0,0);
+ const S0='#2a2010',S1='#5a4422',S2='#8a6a34',S3='#b89448',S4='#e0c070',I0='#12141e',I1='#1e2234',I2='#2e3450',I3='#4a5478',
+  WR='#d8d0bc',WR2='#a8a090',M1='#7a8494',M2='#c0c8d4',M3='#f0f4fa',WD='#6a4a2a',WD2='#9a7048',CH='#6a6a78',CH2='#a8a8b8',EYE=two?'#ff4030':'#ffd860';
+ const cx=36,Y=v=>v+cr+by; // body parts above the hips move down with the crouch
+ const seg=(x0,y0,x1,y1,w,c,lite)=>{L(x0,y0,x1,y1,I0,w+2);L(x0,y0,x1,y1,c,w);if(lite)L(x0-1,y0-1,x1-1,y1-1,lite,1);};
+ const hand=(x,y)=>{E(x,y,2,2,I0);R(x-1,y-1,3,2,WR);R(x-1,y-1,2,1,'#f4ecd8');};
+ // ---- legs: indigo leggings, white shin wraps, straw sandals
+ const lg=Q.legs||'stand';
+ const leg=(hx,hy,kx,ky,fx,fy,dir)=>{seg(hx,hy,kx,ky,5,I2,I3);seg(kx,ky,fx,fy-2,4,WR2,WR);for(let k=1;k<4;k++){const t=k/4;R(kx+(fx-kx)*t-2,ky+(fy-2-ky)*t,4,1,WR2);}
+  R(fx-4+dir,fy-1,9,2,S1);R(fx-4+dir,fy-1,9,1,S3);};
+ const hipY=Y(52);
+ if(lg==='stand'){leg(31,hipY,27,63+cr*.5,25,73,-1);leg(41,hipY,46,63+cr*.5,48,73,1);}
+ else if(lg==='walk1'){leg(31,hipY,24,64,20,73,-1);leg(41,hipY,46,62,50,73,1);}
+ else if(lg==='walk2'){leg(31,hipY,30,63,28,73,-1);leg(41,hipY,42,64,40,73,1);}
+ else {leg(31,hipY,24,hipY+6,30,hipY+14,-1);leg(41,hipY,50,hipY+4,46,hipY+13,1);}
+ // ---- the chain and weight (behind the coat when hanging)
+ const chainPts=[];
+ const link=(pts)=>{for(let i=0;i<pts.length-1;i++){const [a,b]=pts[i],[c,d]=pts[i+1],n=Math.max(1,Math.round(Math.hypot(c-a,d-b)/2));for(let k=0;k<n;k++){const x=a+(c-a)*k/n,y=b+(d-b)*k/n;R(x-1,y-1,3,3,I0);}}
+  let j=0;for(let i=0;i<pts.length-1;i++){const [a,b]=pts[i],[c,d]=pts[i+1],n=Math.max(1,Math.round(Math.hypot(c-a,d-b)/2));for(let k=0;k<n;k++,j++){const x=a+(c-a)*k/n,y=b+(d-b)*k/n;R(x,y,j%2?1:2,j%2?2:1,j%2?CH:CH2);}}};
+ const weight=(x,y)=>{E(x,y,3,3,I0);E(x,y,2,2,CH);R(x-1,y-1,1,1,CH2);};
+ // ---- straw raincoat: three shaggy tiers
+ const fl=Q.flare||0;
+ const tier=(y0,h,w0,w1,seed,dark)=>{for(let x=-w1;x<=w1;x++){const t=(x+w1)/(2*w1),wTop=w0,xx=cx+x,inTop=Math.abs(x)<=wTop+ (w1-wTop)*0;const top=Y(y0)+Math.round(Math.abs(x)>wTop?(Math.abs(x)-wTop)*h/(w1-wTop+1)*.8:0);
+   const ragged=((x*7+seed*13)%5+5)%5,hole=two&&((x*11+seed*5)%9===0),bot=Y(y0)+h+ragged-(hole?4:0);if(bot<=top)continue;
+   R(xx,top-1,1,bot-top+2,S0);const c=((x+seed)%3===0)?S1:((x+seed)%3===1)?(dark?S2:S3):(dark?S1:S2);R(xx,top,1,bot-top,c);if((x+seed)%4===0)R(xx,top,1,Math.max(1,Math.round((bot-top)*.4)),dark?S3:S4);}};
+ tier(42,15,10,18+fl,3,1);            // bottom tier, to the knees
+ tier(33,13,9,15+fl,7,0);             // middle tier
+ // ---- far arm (behind the shoulder cape)
+ const arm=(A,c)=>{if(!A)return;const [[sx2,sy2],[ex,ey],[hx2,hy2]]=A;seg(sx2,Y(sy2),ex,Y(ey),4,c,I3);seg(ex,Y(ey),hx2,Y(hy2),3,c,I3);R((ex+hx2)/2-1,Y((ey+hy2)/2),3,1,WR);hand(hx2,Y(hy2));};
+ const ch=Q.chain||'hang',far=Q.far||[[26,30],[20,40],[22,48]],near=Q.near||[[46,30],[52,40],[50,48]];
+ arm(far,I1);
+ // the chain: from the far hand down and up to the sickle's butt, or whirled overhead
+ const fh=[far[2][0],Y(far[2][1])],nh=[near[2][0],Y(near[2][1])];
+ if(ch==='hang'){link([fh,[fh[0]-1,fh[1]+8],[fh[0]+6,fh[1]+14],[cx+6,Y(60)],[nh[0]+1,nh[1]+6],nh]);weight(fh[0]-2,fh[1]+10);}
+ // shoulder cape (top tier) over the arms' roots
+ tier(25,11,7,13+fl,11,0);
+ // ---- head: cloth mask, hood
+ const tilt=Q.tilt||0,hx=cx+tilt,hy=Y(20)+Math.abs(tilt);
+ E(hx,hy+1,6,6,I0);E(hx,hy+1,5,5,I1);R(hx-4,hy+3,9,3,I2);for(let i=-3;i<=3;i+=2)R(hx+i,hy+4,1,2,I1);
+ R(hx-3,hy,2,1,EYE);R(hx+2,hy,2,1,EYE);if(two){R(hx-4,hy-1,1,1,'#ff9060');R(hx+4,hy-1,1,1,'#ff9060');}
+ // ---- the sedge hat: a wide shallow cone, woven rings, a dark band
+ const hb=hy-3,ap=[hx+tilt,hb-11];
+ for(let r=0;r<=11;r++){const y=hb-r,w=Math.round(19*(1-r/11.5)),lft=hx-w+Math.round(tilt*r/11),rt=hx+w+Math.round(tilt*r/11);if(w<1)continue;
+  R(lft-1,y,rt-lft+3,1,S0);}
+ for(let r=0;r<=10;r++){const y=hb-r,w=Math.round(18*(1-r/11.5)),off=Math.round(tilt*r/11);if(w<1)continue;
+  for(let x=-w;x<=w;x++){const c=(r%3===0)?S2:(x<-w*.2?S4:x<w*.4?S3:S2);R(hx+x+off,y,1,1,c);}}
+ R(hx-19,hb+1,39,1,S0);R(hx-18,hb,37,1,S1);
+ for(let r=2;r<=9;r+=3){const w=Math.round(18*(1-r/11.5));R(hx-w+Math.round(tilt*r/11),hb-r,w*2,1,S1);}
+ R(ap[0]-1,ap[1]-1,3,2,S1);R(ap[0],ap[1]-1,1,1,S4);
+ if(two){// a wedge cut out of the brim, the cut edges frayed
+  for(let i=0;i<=8;i++){const w=Math.max(1,Math.round((8-i)*.7));R(hx+6+i-Math.floor(w/2),hb-i,w+1,1,I0);}
+  for(let i=0;i<5;i++)R(hx+16+i,hb+1-i%2,1,2,S4);R(hx+9,hb-2,2,1,'#ff4030');}
+ // ---- near arm with the sickle
+ arm(near,I2);
+ const sk=Q.sk!=null?Q.sk:-1.4,[shx,shy]=nh,hl=11,tx=shx+Math.cos(sk)*hl,ty=shy+Math.sin(sk)*hl;
+ seg(shx-Math.cos(sk)*2,shy-Math.sin(sk)*2,tx,ty,2,WD,WD2);
+ // the blade: a hooked crescent at right angles to the handle
+ const ba=sk+Math.PI/2*(Q.flip?-1:1);for(let k=0;k<=9;k++){const t=k/9,bend=Math.sin(t*Math.PI*.9)*3,x=tx+Math.cos(ba)*k*1.1+Math.cos(sk)*(bend-1),y=ty+Math.sin(ba)*k*1.1+Math.sin(sk)*(bend-1);
+  R(x-1,y-1,3,3,I0);}
+ for(let k=0;k<=9;k++){const t=k/9,bend=Math.sin(t*Math.PI*.9)*3,x=tx+Math.cos(ba)*k*1.1+Math.cos(sk)*(bend-1),y=ty+Math.sin(ba)*k*1.1+Math.sin(sk)*(bend-1);
+  R(x,y,2,1,k>6?M3:M2);R(x,y+1,1,1,two&&k>3?'#c02020':M1);}
+ hand(shx,shy);
+ // whirling chain overhead, or trailing behind in a leap
+ if(ch==='whirl'){const wx=fh[0]-4,wy=fh[1]-6,pts=[];for(let i=0;i<=14;i++){const a=i/14*TAU*.85-1;pts.push([wx+Math.cos(a)*13,wy+Math.sin(a)*5]);}link([fh,...pts]);const a=TAU*.85-1;weight(wx+Math.cos(a)*13,wy+Math.sin(a)*5);
+  for(let i=0;i<6;i++){const a2=-1-i*.25;R(wx+Math.cos(a2)*15,wy+Math.sin(a2)*6,2,1,'#d8dce8');}}
+ if(ch==='trail'){link([fh,[fh[0]-8,fh[1]+4],[fh[0]-15,fh[1]+2],[fh[0]-22,fh[1]+6]]);weight(fh[0]-23,fh[1]+7);}
+ if(two&&ch!=='whirl'){for(let i=0;i<3;i++)R(far[1][0]-2+i,Y(far[1][1])+2+i*2,3,1,CH2);}
 }
-const MAN_POSES={
- idle0:{},
- idle1:{b:1,head:[56,16]},
- atk:{arms:'raise',lean:-2,open:1,dy:-1},
- pr1:{legs:'step1',lean:5},
- pr2:{legs:'step2',lean:5,b:1},
- pounce:{legs:'leap',arms:'reach',lean:8,wings:'buzz',open:1,dy:-4}};
-BART['KAMAKIRI, THE REED MANTIS']=Object.assign(p=>manDraw(p,MAN_POSES[p.f===2?'atk':p.f===1?'idle1':'idle0']),{fw:84,fh:74,raw:1,sc:1.05,posed:{draw:manDraw,poses:MAN_POSES,anim:{},roar:'atk',
-  // praying when still, low and stalking while it moves, scythes raised as it winds up, reaching out in the leap
+const HUN_POSES={
+ idle0:{cr:2},
+ idle1:{cr:3,b:0},
+ atk:{chain:'whirl',far:[[26,30],[16,24],[18,16]],near:[[46,30],[54,36],[58,30]],sk:-.6,tilt:1},
+ pr1:{cr:7,legs:'walk1',tilt:3,near:[[46,32],[54,42],[56,50]],sk:.4,far:[[26,32],[22,42],[26,50]]},
+ pr2:{cr:6,legs:'walk2',tilt:3,b:1,near:[[46,32],[54,42],[56,50]],sk:.4,far:[[26,32],[22,42],[26,50]]},
+ pounce:{dy:-4,legs:'leap',flare:4,chain:'trail',near:[[46,30],[52,18],[46,8]],sk:-2.2,far:[[26,30],[16,32],[12,38]],tilt:2}};
+BART['KUSAKARI, THE REED HUNTER']=Object.assign(p=>hunDraw(p,HUN_POSES[p.f===2?'atk':p.f===1?'idle1':'idle0']),{fw:72,fh:78,raw:1,sc:1.1,posed:{draw:hunDraw,poses:HUN_POSES,anim:{},roar:'atk',
+  // ready stance when still, a low creep while he stalks, the chain whirled overhead as he winds up, the sickle high in the leap
   pick:(e,ix)=>e.phx?ix.atk:e.air?ix.pounce:(e.A?.wind||e.EV?.strike?.wind)?ix.atk:e.moving?(Math.floor(time*5)%2?ix.pr2:ix.pr1):(Math.floor(time*1.5)%2?ix.idle1:ix.idle0)}});
 
 // ---- the posed sheet: idle, breathing and attack frames first (so everything that reads frames 0-2 still works),
