@@ -25,7 +25,7 @@
 - **No damage in training:** bullets and blows still hit you, with the flash and sound, but take no health. A "HIT" marker shows where a number would.
 
 ### Prologue I: The Burning Village
-- **The stage:** a gentle opening stage before stage I, with fewer and weaker foes. It is on by default, and P on character select switches it off.
+- **The stage:** a gentle opening stage before stage I, with fewer and weaker foes. Its layout is one winding road from the start to the guardian: every room is on the way, with no dead ends or detours. It is on by default, and P on character select switches it off.
 - **The boss:** Goro, the Bandit Captain, a new teaching boss with his own sprite and a second form.
 - **Falling here:** Master Kaito pulls you out. You restart the stage with everything you carry, and opened chests, killed foes and used shrines stay as they were.
 
