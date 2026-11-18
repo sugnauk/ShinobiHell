@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.7.4: the samurai's Iai Cleave becomes a dash
+
+### Samurai
+- **Iai Cleave (RMB) is a short dash with a cut:**
+  - The samurai darts about 40px along the aim, and is untouchable for the dash.
+  - Every foe on the way, and just ahead of the blade, is cut once (same damage and stun as before, about the same reach).
+  - On a full charge, it also cuts the enemy shots the dash passes through.
+  - Uses the lunge motion, and the blade cut is drawn along the whole dash when it ends.
+- **Description updated** on character select and in the tooltip.
+
 ## 0.7.3: ability animations, ultimates, strikes, revives and a gentler start
 
 ### A gentler start
