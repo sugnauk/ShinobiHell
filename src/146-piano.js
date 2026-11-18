@@ -71,7 +71,9 @@ musicTick=function(){
     // hammered chords on the downbeats (and the backbeat from phase two)
     if(i===0||(ph>=2&&i===8))PCH(t,chordOf(S,ch,0).map(K),.8,1.2,.006);
     // right hand: the melody on 8ths, doubled an octave up from phase two
-    if(i%2===0){const n=S.mel[(bar*8+i/2)%64];if(n){piano(t,K(n),.62,.5);if(ph>=2)piano(t,K(n+12),.45,.4);}}
+    // right hand: the guardian's own theme (BMOTIF), else the generated melody; phase 3 harmonises it a third up
+    if(i%2===0){const mo=typeof BMOTIF!=='undefined'&&BMOTIF[R.di];let n=null;if(mo){const d=mo[((bar%2)*8+i/2)];if(d!=null)n=S.deg(d+S.N*2+(bar>=2&&ph>=2?1:0));}else n=S.mel[(bar*8+i/2)%64];
+     if(n){piano(t,K(n),.62,.5);if(ph>=2)piano(t,K(n+12),.45,.4);if(ph>=3&&mo)piano(t,K(S.deg((mo[((bar%2)*8+i/2)]||0)+S.N*2+2)),.38,.4);}}
     // phase two: rushing arpeggios up high
     if(ph>=2&&i%2===1)piano(t,K(chordOf(S,ch,2)[(i>>1)%3]),.3,.22);
     // phase three: clusters on every beat
