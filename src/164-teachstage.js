@@ -21,4 +21,7 @@ let FIRSTLOAD=false,TEACHMAP=false;
    if(rm){const pool=DUN[di].pool.filter(t=>t!=='wisp'),s=spotIn(rm);enemies.push(mkElite(pick(pool),s.x,s.y,rm,di));}}}
  return r;};}
 // tips only on that first stage (not shown, and not used up, anywhere else)
-{const _tp=tip;tip=function(){if(!R||!R.tipStage)return;return _tp.apply(this,arguments);};}
+{const _tp=tip;tip=function(){if(!R||!R.tipStage)return;if(P&&(P.dying>0||P.hp<=0))return; // never on the blow that kills you
+ return _tp.apply(this,arguments);};}
+// a tip still up when you fall is cleared, so the death plays out
+{const _sd=startDeath;startDeath=function(){if(typeof TIPHOLD!=='undefined'){TIPHOLD=null;TIPQ.length=0;}return _sd.apply(this,arguments);};}
