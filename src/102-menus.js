@@ -50,7 +50,7 @@ function drawPause(){
  txt('STATS',X+6,Y+46,'#d02030');
  const SS=[['POWER',Math.round(S.atk)],['MAX HP',S.maxhp],['DEFENCE',S.def],['CRIT',Math.round(S.crit*100)+'%'],['COOLDOWNS','-'+Math.round((1-S.cdr)*100)+'%'],['DODGE',Math.round((S.dodge||0)*100)+'%'],['CAST SPEED',Math.round(S.aspd*100)+'%'],['MOVE SPEED',Math.round(S.spd||0)]];
  SS.forEach(([n,v],i)=>{const x=X+6+(i%2)*92,y=Y+55+((i/2)|0)*8;txt(n,x,y,'#888');const s=String(v);txt(s,x+86-txtW(s),y,'#ddd');});
- {let x=X+6;STATS.forEach(s=>{const b=meta.stats[s.k]||0,r=(S.st[s.k]||0)-b,t=s.n.slice(0,3)+' '+b+(r?'+'+r:'');txt(t,x,Y+89,s.c);x+=txtW(t)+6;});}
+ {let x=X+6;STATS.forEach(s=>{const b=(typeof heroBaseSt==='function'?heroBaseSt()[s.k]:0)||0,r=(S.st[s.k]||0)-b,t=s.n.slice(0,3)+' '+b+(r?'+'+r:'');txt(t,x,Y+89,s.c);x+=txtW(t)+6;});}
  // gear and relics
  txt('GEAR',X+6,Y+100,'#d02030');['wpn','arm','ring'].forEach((s,i)=>{const g=R.eq[s],y=Y+108+i*14;drawItemIcon(g,X+6,y);txt(g?g.name.slice(0,22):'NO '+SLOTNAME[s],X+24,y+1,g?itemCol(g):'#555');if(g)txt(gearLines(g)[1]?gearLines(g)[1].slice(0,22):'',X+24,y+7,'#777');});
  txt('RELICS',X+110,Y+100,'#d02030');{const ids=Object.keys(R.inv);if(!ids.length)txt('NONE YET',X+110,Y+109,'#555');ids.slice(0,24).forEach((id,i)=>{const x=X+110+(i%6)*13,y=Y+108+((i/6)|0)*13;relicBox(x,y,id,11);if(R.inv[id]>1)txt(R.inv[id],x+7,y+7,'#fff');});

@@ -1,7 +1,8 @@
 'use strict';
 // HELL OF THE EMPEROR - loot bags, gear, power systems (part of the former game.js; files load in numeric order, see index.html)
 // ---------- loot bags, potions & gear ----------
-// stat potions are permanent (saved), +1 point each, max 20 per stat
+// the six stats: a hero's base stats (balance) plus bonuses from relics, enchants and rings (see 177-stats.js).
+// The old stat potions (elixirs) are gone.
 const STATS=[{k:'att',n:'ATTACK',c:'#f55',d:'+1 SPELL POWER'},{k:'def',n:'DEFENSE',c:'#ccc',d:'-1 DAMAGE TAKEN'},{k:'spd',n:'SPEED',c:'#6cf',d:'+1% MOVE SPEED'},
  {k:'dex',n:'DEXTERITY',c:'#f9c',d:'+2% CAST SPEED'},{k:'vit',n:'VITALITY',c:'#f84',d:'+5 MAX HP'},{k:'wis',n:'WISDOM',c:'#a8f',d:'-1% COOLDOWNS'}],STATMAX=20;
 // 15 material tiers per slot; quality (common..legendary) multiplies the base stats and adds affixes
@@ -132,30 +133,30 @@ function itemCol(it){if(it.t==='gear')return QUAL[it.q||0].c;if(it.t==='ench')re
 function bagContents(tier,boss){
  const di=R.di,it=[],slot=()=>pick(['wpn','arm','ring']),gear=(b,q)=>mkGear(slot(),tierFor(di,b),false,q==null?rollQ(di,0):q);
  if(tier===1||tier===2){ // green pack / blue satchel: a decent piece of gear plus extras
-  it.push(gear(0,rollQ(di,tier-1)));if(Math.random()<.1)it.push({t:'hp'});if(tier===2&&Math.random()<.3)it.push({t:'stat',s:pick(STATS).k});if(Math.random()<.1*tier)it.push(mkEnch());if(tier===2&&Math.random()<.14)it.push({t:'scroll',regular:true});}
+  it.push(gear(0,rollQ(di,tier-1)));if(Math.random()<.1)it.push({t:'hp'});if(tier===2&&Math.random()<.3)it.push(statSwap());if(Math.random()<.1*tier)it.push(mkEnch());if(tier===2&&Math.random()<.14)it.push({t:'scroll',regular:true});}
  else if(tier===0){ // brown: 1-3 small things
   if(Math.random()<.08)it.push({t:'hp'});if(Math.random()<.45||!it.length)it.push(gear(-1,rollQ(di,-1)));if(di>=1&&Math.random()<.08)it.push(mkEnch());}
  else if(tier===3){ // purple: 2-4 things, better gear
-  it.push(gear(0,rollQ(di,1)));if(Math.random()<.45)it.push({t:'stat',s:pick(STATS).k});if(Math.random()<.3)it.push(mkEnch());if(Math.random()<.2)it.push({t:'relic',id:randItem(['rez']).id});if(Math.random()<.15)it.push({t:'hp'});}
+  it.push(gear(0,rollQ(di,1)));if(Math.random()<.45)it.push(statSwap());if(Math.random()<.3)it.push(mkEnch());if(Math.random()<.2)it.push({t:'relic',id:randItem(['rez']).id});if(Math.random()<.15)it.push({t:'hp'});}
  else if(tier===5){ // enchanter pouch: two different enchants, sometimes a scroll
   const a=mkEnch();let b=mkEnch();for(let i=0;i<5&&b.k===a.k;i++)b=mkEnch();it.push(a,b);if(Math.random()<.04)it.push({t:'scroll'});}
  else if(tier===6){ // scholar case: a guaranteed legendary scroll and an elixir
-  it.push({t:'scroll'},{t:'stat',s:pick(STATS).k});if(Math.random()<.3)it.push({t:'relic',id:randItem(['rez']).id});}
+  it.push({t:'scroll'},statSwap());if(Math.random()<.3)it.push({t:'relic',id:randItem(['rez']).id});}
  else if(tier===7){ // war chest: two epic pieces, one of them a weapon
   it.push(mkGear('wpn',tierFor(di,1),false,3),gear(1,3));}
  else if(tier===8){ // shogun's trophy (the usual boss bag): two epics, maybe a scroll and an enchant, an elixir
-  it.push(mkGear('wpn',tierFor(di,1),false,3),gear(1,3),{t:'stat',s:pick(STATS).k});if(Math.random()<.07)it.unshift({t:'scroll'});if(Math.random()<.5)it.push(mkEnch());if(!it.some(o=>o.t==='scroll')&&Math.random()<.45)it.push({t:'scroll',regular:true});}
+  it.push(mkGear('wpn',tierFor(di,1),false,3),gear(1,3),statSwap());if(Math.random()<.07)it.unshift({t:'scroll'});if(Math.random()<.5)it.push(mkEnch());if(!it.some(o=>o.t==='scroll')&&Math.random()<.45)it.push({t:'scroll',regular:true});}
  else if(tier===9){ // jade casket: an epic ring and elixirs
-  it.push(mkGear('ring',tierFor(di,1),false,3),{t:'stat',s:pick(STATS).k});if(Math.random()<.4)it.push({t:'stat',s:pick(STATS).k});}
+  it.push(mkGear('ring',tierFor(di,1),false,3),statSwap());if(Math.random()<.4)it.push(statSwap());}
  else if(tier===10){ // monk's bundle: relics, sometimes a potion
   const a=randItem(['rez']);it.push({t:'relic',id:a.id});if(Math.random()<.5)it.push({t:'relic',id:randItem(['rez',a.id]).id});if(Math.random()<.3)it.push({t:'hp'});}
  else if(tier===11){ // assassin kit: an epic weapon of ANY type (off-class finds) and an enchant
   const g=mkGear('wpn',tierFor(di,1),false,3);g.wt=pick(Object.keys(WTYPES));g.name=QUAL[3].n+' '+GEARN.wpn[g.tier]+' '+g.wt;it.push(g,mkEnch());}
  else{ // royal bag (super rare, white): always a named legendary, plus extras
   it.push(mkGear(null,tierFor(di,1),true));
-  if(Math.random()<.5)it.push({t:'stat',s:pick(STATS).k});
+  if(Math.random()<.5)it.push(statSwap());
   if(Math.random()<(boss?.2:.08))it.unshift({t:'scroll'});
-  if(boss){it.push(mkGear('wpn',tierFor(di,1),false,Math.min(3,1+rollQ(di,0))),mkEnch(),{t:'hp'},{t:'stat',s:pick(STATS).k});}}
+  if(boss){it.push(mkGear('wpn',tierFor(di,1),false,Math.min(3,1+rollQ(di,0))),mkEnch(),{t:'hp'},statSwap());}}
  return it;
 }
 // bag tiers: 0 sack, 1 pack (green), 2 satchel (blue), 3 pouch (purple), 4 royal bag (gold)
@@ -199,7 +200,7 @@ function itemCat(it){
  if(it.t==='ench')return {n:'ENCHANT',c:ENCH.find(x=>x.k===it.k).c,d:'ON-HIT EFFECT FOR ALL ABILITIES'};
  if(it.t==='scroll')return it.regular?{n:'TECHNIQUE',c:'#93d6de',d:'IMPROVES ONE ABILITY'}:{n:'LEGENDARY',c:'#ffe060',d:'EMPOWERS ONE ABILITY'};
  if(it.t==='hp')return {n:'POTION',c:'#e55',d:'HEAL WITH C'};
- if(it.t==='stat')return {n:'ELIXIR',c:'#f9c',d:'PERMANENT STAT, KEPT FOREVER'};
+ if(it.t==='stat')return {n:'ELIXIR',c:'#f9c',d:'NO LONGER FOUND'};
  if(it.t==='relic')return {n:'RELIC',c:'#c6f',d:'RUN-WIDE RULE'};
  return {n:'ITEM',c:'#aaa',d:''};}
 function takeItem(b,i){const it=b.items[i];if(!it)return;
