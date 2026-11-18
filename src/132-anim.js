@@ -90,3 +90,8 @@ function drawCorpses(){for(let i=CORPSES.length-1;i>=0;i--){const c=CORPSES[i],k
  if(p.mv&&!dashing){const st=Math.floor(time*10);if(st!==lastStep&&st%2===0){lastStep=st;dust(p.x-(p.dx||0)*3,p.y+2,1,'#8a807a');}}
  if(!C.shear&&!C.rows)return _dp.apply(this,arguments);
  CUR=C;try{_dp.apply(this,arguments);}finally{CUR=null;}};}
+// Tamamo's illusion clones are copies of her: anything that asks for a clone's sprite gets hers (they have no sheet of
+// their own, and building one used to throw "HATS[hat] is not iterable")
+{const _so=sprOf;sprOf=function(e){if(e&&e.type==='foxclone'&&!e.sprOv){const o=e.bossOwned||e.lairClone||(boss&&!boss.dead?boss:null);if(o&&o!==e)return sprOf(o);}return _so.apply(this,arguments);};}
+// and no foe type without a hat of its own can ever break the sprite builder
+{const _gs=getSpr;getSpr=function(type,di){const t=ET[type];if(t&&!FOESPR[type]&&!DUMMYSPR[type]&&!ANIM[type]&&type!=='wisp'&&!(t.hat in HATS))t.hat=Object.keys(HATS)[0];return _gs.apply(this,arguments);};}
