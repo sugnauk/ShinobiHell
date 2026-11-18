@@ -1,5 +1,92 @@
 # Changelog
 
+## 0.8.1: new kits for Sumo and the five newer heroes, fewer bags, the old archer
+
+### Five new hero kits (new: `179-hero-kits.js`)
+Every ability of Marionettist, Tengu, Kagura, Chimiko and Kanemori was replanned. Most used to be a ring of damage around a point. Now each one moves, controls, blocks or redirects something. Their shows come from shaped projectiles, objects in the world and the hero's pose, not particle clouds.
+
+**Marionettist: controls foes on strings**
+- **Silk Needle (LMB):** a needle trailing silk. Each hit stitches the foe, up to 3 stitches.
+- **Reel In (RMB):** a hook on a string yanks the first foe to you, stunned. Stitches add damage. A boss pulls you to it instead. Full charge: pierces and reels up to 3.
+- **Cursed Thread (Q):** a spool ricochets between up to 5 foes and links them. Hit one and the others hurt. Linked foes are tethered and can't spread apart.
+- **Swap Doll (E):** leaves a wooden doll and leaps you back. Nearby foes attack the doll for 3s, and it soaks up to 8 shots.
+- **Puppet Dance (F):** lifts a foe on strings for 3s. It follows your cursor, and you smash it into the others. A boss is bound and slowed instead.
+- **Grand Theatre (R):** a giant puppeteer's cross-bar appears overhead. Strings hoist up to 10 foes into the air, then yank them together and slam them down.
+
+**Tengu: wind that moves things**
+- **Feather Blade (LMB):** two feathers weave around each other.
+- **Gust (RMB):** a wall of wind shoves foes back and blows enemy shots back as yours.
+- **Wind Cutter (Q):** a spinning blade that ricochets off walls up to 3 times, faster and stronger after every bounce.
+- **Updraft (E):** leap on the wind toward the cursor, untouchable, with wings spread. Landing blasts foes away.
+- **Cyclone (F):** a real tornado drifts after your cursor. It sucks foes in and spins them around it, catches enemy shots in orbit, then flings them out as yours.
+- **Heaven's Gale (R):** a colossal tornado drags the room in while giant feathers dive from the sky onto everything caught in it.
+
+**Kagura: a dancer who reads the beat**
+- **Dancing Cut (LMB):** alternating left and right fan cuts build FLOW.
+- **Silk Veil (RMB):** a ribbon sweep throws enemy shots back as petals at the nearest foe.
+- **Fan Waltz (Q):** two fans fly to the cursor, dance a figure eight there, then return.
+- **Pirouette (E):** a spinning dash. Every foe you pass gets a petal that blooms into a cut a moment later.
+- **Rhythm (F):** a beat ring closes on you every half second. Hits on the beat deal +60% and build extra FLOW.
+- **Lotus Dance (R):** blink-strike foe after foe, untouchable. A lotus grows on each one, and they all bloom at once.
+
+**Chimiko: blood ink and seals**
+- **Scarlet Ink (LMB):** a piercing ink dart. Three hits seal a foe. Sealed foes take +20%.
+- **Blood Brush (RMB):** paint a brush stroke to the cursor that erupts into spikes. Full charge: the stroke stands as a wall that blocks enemy shots.
+- **Blood Seal (Q):** costs 6% HP. A talisman seals the first foe hit, and the seal jumps to 5 more.
+- **Blood Mirror (E):** swap places with a sealed (or any) foe. Shots meant for you hit it instead.
+- **Harvest (F):** red threads tear blood orbs out of sealed foes. The orbs fly back to heal you, hurting foes on the way.
+- **Crimson Moon (R):** a blood moon rises and a giant kanji is painted stroke by stroke. Each stroke erupts, and sealed foes that die burst into seeking lances.
+
+**Kanemori: the temple bell keeper**
+- **Bell Swing (LMB):** a wide swing that smashes up to 3 enemy shots for ECHO.
+- **Iron Bell (RMB):** hurl the bell on its chain. It stands as a shield that turns shots into ECHO, then is yanked back through foes.
+- **Standing Wave (Q):** three sound waves roll forward, shoving foes and destroying shots.
+- **Sanctuary (E):** a great bell drops over you: untouchable, and shots that hit it become ECHO. Its toll stuns foes beside you.
+- **Echo Notes (F):** every stored ECHO becomes a note that ricochets between foes.
+- **Heaven's Bell (R):** a colossal bell falls from the sky and rings 3 times. Each ring freezes every enemy shot, and the last ring fires them all back at the foes.
+
+**Ultimate lead-ins:** each of the five ultimates has its own (rise, leap, twirl, kneel or brace).
+
+### Sumo, renovated (new: `181-sumo.js`)
+Every move pushes, carries, throws or pins foes instead of hitting a ring around him.
+- **Tsuppari (LMB):** rapid open-palm thrusts, drawn as palms. Every third is a double palm that shoves the foe back.
+- **Tachiai (RMB):** the charging clash.
+  - You plow forward carrying the first foe you meet and bowl the others aside.
+  - Drive the carried foe into a wall for **Oshidashi**: double damage and a long stun.
+  - A boss stops you cold and takes heavy posture damage.
+- **Uwatenage (Q):** grab a foe, swing it round you to club anything it hits, then hurl it skidding through the pack.
+- **Salt Throw (E):** a fan of purifying salt. Each grain erases enemy shots, and the foes it hits are blinded and can't shoot for 2.5s.
+- **Shiko (F):** raise a leg high and stomp.
+  - Cracks race through the floor to the 3 nearest foes, and rock spikes launch them into the air.
+  - The stomp crushes shots at your feet.
+- **Yokozuna's Ring (R):** a towering spirit yokozuna stomps behind you, and a straw sumo ring forms with its four coloured corner tassels.
+  - For 6s, foes inside can't walk out, and shots from outside stop at the rope.
+  - You deal +40% inside.
+  - Any foe you shove, charge or throw out of the ring takes massive **Oshidashi** damage.
+- **Sprite:** the original compact shape, now with detail:
+  - A face with eyes, cheeks and a mouth, a topknot, belly shading and a navel.
+  - A mawashi with its knot and hanging fringe, and knuckled fists.
+  - Middle forms wear an embroidered apron instead of armour plates.
+  - The final form is a yokozuna, with the white braided rope, paper zigzags and a ginkgo-leaf topknot.
+
+### The five newer heroes' looks
+- **Marionettist:** a white porcelain mask, and a little marionette doll dancing on strings at her side.
+- **Tengu:** the red long-nosed face, a wild white mane, a black tokin, and folded black wings that spread wide in the final form.
+- **Kagura:** a shrine dancer: long black hair, a gold crown with dangling ornaments, a white kosode and red hakama.
+- **Chimiko:** a blood miko with a red ribbon and a seal talisman floating at her side, and a halo of seals in the final form.
+- **Kanemori:** a bronze temple bell strapped to his back and prayer beads, and a golden halo in the final form.
+- **Final forms:** each keeps its own headwear instead of the samurai helmet they all shared.
+
+### Archer
+- **The old archer sprite is back:** the awakened and final-form overlays from 0.8.0 no longer cover it.
+
+### Bags (new: `180-bags.js`)
+- **Five bags instead of twelve:** a bag looks like the best thing inside it: common, uncommon, rare, epic or legendary. Take the best item out and the bag changes to match what's left.
+- **One bag per foe:** no foe drops more than one bag.
+- **Random drops instead of last-kill bags:** rooms no longer give a bag to the last foe killed. Every minion has its own chance to drop one: about 8% of basic foes, 26% of heavy foes and 78% of elites.
+  - Foes in ambush and challenge rooms carry better odds, and those rooms pay a little more gold.
+  - Bosses and mini-bosses keep their trophy bags.
+
 ## 0.8.0: Character overhaul
 
 - Expand the playable roster to thirteen with Marionettist, Tengu, Kagura, Chimiko and Kanemori.

@@ -154,9 +154,9 @@ function updRoomEvents(dt){
   if(ev.k==='ambush'){
    if(ev.state===0&&inRoom(r,P.x,P.y,2.5)){ev.state=1;ev.wave=0;sfx('boss');shake=Math.max(shake,6);setToast('AMBUSH! THE ROOM IS SEALED','#f55',2.5);roomSpawn(r,4+Math.floor(R.di/2));}
    else if(ev.state===1){P.x=clamp(P.x,r.x*T+6,(r.x+r.w)*T-6);P.y=clamp(P.y,r.y*T+6,(r.y+r.h)*T-6);
-    if(alive===0){ev.wave++;if(ev.wave<2){setToast('WAVE '+(ev.wave+1)+'/2','#f55',1.5);roomSpawn(r,5+Math.floor(R.di/2));}else{ev.state=2;sfx('win');setToast('AMBUSH SURVIVED','#6f6',2);const c=R.lastKill||roomCenter(r);dropBag(c.x,c.y,goodBag());}}}}
+    if(alive===0){ev.wave++;if(ev.wave<2){setToast('WAVE '+(ev.wave+1)+'/2','#f55',1.5);roomSpawn(r,5+Math.floor(R.di/2));}else{ev.state=2;sfx('win');setToast('AMBUSH SURVIVED','#6f6',2);R.sen+=15+R.di*4;}}}}
   else if(ev.k==='challenge'&&ev.state===1){ev.t-=dt;
-   if(alive===0){ev.state=2;sfx('win');setToast('CHALLENGE COMPLETE!','#fc4',2.5);{const c=R.lastKill||{x:P.x,y:P.y-10};dropBag(c.x,c.y,rewardBag());}R.sen+=20+R.di*5;}
+   if(alive===0){ev.state=2;sfx('win');setToast('CHALLENGE COMPLETE!','#fc4',2.5);R.sen+=20+R.di*5;}
    else if(ev.t<=0){ev.state=2;sfx('hurt');setToast('CHALLENGE FAILED','#f66',2);}}
  }
 }

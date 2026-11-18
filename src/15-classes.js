@@ -79,7 +79,7 @@ function heroEV(cls,st){if(cls==='wizard')return WIZEVO[st];const t=st/9,n=EVONA
 const HEROC={};
 function heroSpr(cls,st,back){const k=cls+st+(back?'b':'');if(HEROC[k])return HEROC[k];
  if(cls==='wizard')return HEROC[k]=back?buildWiz(st,true):WIZSPR[st];
- return HEROC[k]=buildHero({...heroEV(cls,st),detail:cls,awakened:st>=5&&st<9,rosterFinal:st>=9},false,back);}
+ return HEROC[k]=buildHero({...heroEV(cls,st),detail:cls,awakened:cls!=='archer'&&st>=5&&st<9,rosterFinal:cls!=='archer'&&st>=9},false,back);}
 const evoName=st=>heroEV(CLS().k,st).n;
 // class ability helpers
 const EMP=k=>(P?.emp?.[k]?1.6:1)*(R?.addon?.[k]?.focus?1.1:1)*(P?.asc?.[k]?1.3:1); // asc: a legendary spell learned from a scroll
