@@ -3,6 +3,9 @@
 ## Unreleased (after 0.7.1)
 
 ### Bosses
+- **Armour floor:** whatever you stack, a hit always does at least half its damage. Defence and Iron Body could cut it to a third before.
+- **Guardians always hurt:** a hit from a guardian or anything it summons does at least 4% of your max health (bullets) or 8% (blows, charges, hazards), scaled by difficulty. Wards, shields, dodges and dashes still stop it.
+- **Guardians rise to your strength:** when a guardian wakes it compares your power to a well-equipped hero's at that stage. For every 10% you are above it, it gains 6% health, up to double, and a banner says so. A normal build meets the guardian as before.
 - **No skipping phases:** a guardian's health stops at its next phase threshold. Extra damage does nothing: the boss turns invulnerable for a moment and the next phase begins. It can only die after every phase has been played.
 - **Longer survival phases:** every survival phase lasts 50% longer.
 - **Rage:** eight guardians fly into a rage in their last 15% of health, with a red banner and glow and 20% harder hits:
