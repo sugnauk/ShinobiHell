@@ -16,7 +16,7 @@ function mmSect(s,x,y,c){txt(s,x,y,c||'#d02030');}
 let mmSel=0;
 function mmItems(){const L=[];const sv=savedRun();
  if(sv)L.push({k:'cont',n:'CONTINUE',r:ROMAN[sv.R.di]});
- L.push({k:'new',n:'NEW RUN'},{k:'train',n:'TRAINING'},{k:'rush',n:'BOSS RUSH',lock:!rushOpen()},{k:'tree',n:'SKILL TREE'},{k:'guide',n:'GUIDE'},{k:'set',n:'SETTINGS'});return L;}
+ L.push({k:'new',n:'NEW RUN'},{k:'train',n:'TUTORIAL'},{k:'rush',n:'BOSS RUSH',lock:!rushOpen()},{k:'tree',n:'SKILL TREE'},{k:'guide',n:'GUIDE'},{k:'set',n:'SETTINGS'});return L;}
 function mmDo(it){if(!it)return;sfx('tool');
  if(it.k==='cont')continueRun();else if(it.k==='new')openSelect('menu');else if(it.k==='train'){trainNext=true;startRun(0);}
  else if(it.k==='rush'){if(it.lock){sfx('block');return;}startRush();}else if(it.k==='tree')openTree('menu');else if(it.k==='guide')openGuide('menu');else if(it.k==='set')openOptions('menu');}

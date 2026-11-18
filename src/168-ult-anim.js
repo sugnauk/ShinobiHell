@@ -44,7 +44,9 @@ const ultName=()=>P&&SPELLS.e[P.lo.e]?SPELLS.e[P.lo.e].n:'';
 {const _pa=abPoseAt;abPoseAt=function(H){const D=H.D,u=clamp((time-H.t0)/H.dur,0,1),d=H.dir;
  const o={u,back:false,frame:null,flip:d<0,dx:0,dy:0,sx:1,sy:1,skew:0,rot:0,alpha:1};
  switch(H.k){
-  case 'u_hover':{const r=D.rise*abEase(Math.min(1,u/.7));o.frame=10;o.dy=-Math.round(r+Math.sin(time*18)*.8);o.sy=1+.06*u;o.float=r;o.glow=0;break;}
+  case 'u_hover':{const r=D.rise*abEase(Math.min(1,u/.7));o.frame=10;o.dy=-Math.round(r+Math.sin(time*18)*.8);o.sy=1+.06*u;o.float=r;o.glow=0;
+   // a dash ultimate leans forward into its line in the last moments, blade drawn back, before it launches
+   if(D.line&&u>.6){const k2=abEase((u-.6)/.4);o.frame=12;o.skew=.34*d*k2;o.dx=Math.round(2*d*k2);o.sy=1-.06*k2;o.sx=1+.04*k2;o.dy=-Math.round(r*(1-.35*k2));}break;}
   case 'u_leap':{const r=D.rise*Math.sin(Math.min(1,u)*Math.PI/2);o.frame=u<.4?12:13;o.dy=-Math.round(r);o.sy=u<.15?.82:1.05;o.float=r;break;}
   case 'u_smoke':{o.frame=8;o.alpha=Math.max(.05,1-u*1.4);o.clones=u;break;}
   case 'u_brace':{o.frame=13;o.sy=.84;o.sx=1.08;o.skew=.12*d;o.dx=Math.round(Math.sin(time*70)*u);o.muzzle=u;break;}

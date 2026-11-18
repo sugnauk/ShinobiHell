@@ -10,7 +10,7 @@
 
 | Ultimate | Lead-in | Follow-through |
 |---|---|---|
-| Dragon Cleave (samurai) | rises into the air, the dash line burning gold | a streak of afterimages along the path, then a landing slam |
+| Dragon Cleave (samurai) | rises into the air, the dash line burning gold, then leans forward into the line, blade drawn back | a streak of afterimages along the path, then a landing slam |
 | Arrow Storm (archer) | leaps high and looses the storm from the top of the leap | drops back down |
 | Shadow Clones (shinobi) | vanishes in smoke as three shadows split away | reappears among them |
 | Siegebreaker (gunner) | braces low while the barrel glows | fires and is shoved back by the blast |
@@ -75,6 +75,10 @@
   - Frenzy: Itohime turns much faster.
 
 ### Tutorial
+- **No forced tutorial:** a new player's first run starts straight away.
+  - The first stage teaches as you play, opening with a paused controls card (move, aim, attack, heavy, dash, abilities, potion, interact, pack, guide) and then the one-time tips.
+  - The tutorial is on the main menu, now called **TUTORIAL**, marked NEW until played.
+  - A new player's death screen points to it.
 - **About a minute of action:** the ten-trial tutorial is cut to four quick beats, one new key at a time, with Master Kaito shouting from the side:
   1. AMBUSH! Straw bandits rush in from both sides: walk, aim and LMB.
   2. ARROW STORM: dash through two volleys. A perfect dodge clears it at once.
