@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.8.1: new kits for the five newer heroes, fewer bags, the old archer
+## 0.8.1: new kits for Sumo and the five newer heroes, fewer bags, the old archer
 
 ### Five new hero kits (new: `179-hero-kits.js`)
 Every ability of Marionettist, Tengu, Kagura, Chimiko and Kanemori was replanned. Most used to be a ring of damage around a point. Now each one moves, controls, blocks or redirects something. Their shows come from shaped projectiles, objects in the world and the hero's pose, not particle clouds.
@@ -46,6 +46,28 @@ Every ability of Marionettist, Tengu, Kagura, Chimiko and Kanemori was replanned
 - **Heaven's Bell (R):** a colossal bell falls from the sky and rings 3 times. Each ring freezes every enemy shot, and the last ring fires them all back at the foes.
 
 **Ultimate lead-ins:** each of the five ultimates has its own (rise, leap, twirl, kneel or brace).
+
+### Sumo, renovated (new: `181-sumo.js`)
+Every move pushes, carries, throws or pins foes instead of hitting a ring around him.
+- **Tsuppari (LMB):** rapid open-palm thrusts, drawn as palms. Every third is a double palm that shoves the foe back.
+- **Tachiai (RMB):** the charging clash.
+  - You plow forward carrying the first foe you meet and bowl the others aside.
+  - Drive the carried foe into a wall for **Oshidashi**: double damage and a long stun.
+  - A boss stops you cold and takes heavy posture damage.
+- **Uwatenage (Q):** grab a foe, swing it round you to club anything it hits, then hurl it skidding through the pack.
+- **Salt Throw (E):** a fan of purifying salt. Each grain erases enemy shots, and the foes it hits are blinded and can't shoot for 2.5s.
+- **Shiko (F):** raise a leg high and stomp.
+  - Cracks race through the floor to the 3 nearest foes, and rock spikes launch them into the air.
+  - The stomp crushes shots at your feet.
+- **Yokozuna's Ring (R):** a towering spirit yokozuna stomps behind you, and a straw sumo ring forms with its four coloured corner tassels.
+  - For 6s, foes inside can't walk out, and shots from outside stop at the rope.
+  - You deal +40% inside.
+  - Any foe you shove, charge or throw out of the ring takes massive **Oshidashi** damage.
+- **Sprite:** the original compact shape, now with detail:
+  - A face with eyes, cheeks and a mouth, a topknot, belly shading and a navel.
+  - A mawashi with its knot and hanging fringe, and knuckled fists.
+  - Middle forms wear an embroidered apron instead of armour plates.
+  - The final form is a yokozuna, with the white braided rope, paper zigzags and a ginkgo-leaf topknot.
 
 ### The five newer heroes' looks
 - **Marionettist:** a white porcelain mask, and a little marionette doll dancing on strings at her side.
