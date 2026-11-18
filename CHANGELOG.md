@@ -1,5 +1,94 @@
 # Changelog
 
+## Unreleased (after 0.7.1)
+
+### Bosses
+- **No skipping phases:** a guardian's health stops at its next phase threshold. Extra damage does nothing: the boss turns invulnerable for a moment and the next phase begins. It can only die after every phase has been played.
+- **Longer survival phases:** every survival phase lasts 50% longer.
+- **Rage:** eight guardians fly into a rage in their last 15% of health, with a red banner and glow and 20% harder hits:
+  - Charge: Akagane, Kusakari, Onikuma and Kurogane charge along a telegraphed red line.
+  - Flee: Tetsuo, Kage and Tamamo back away and fire as they go, and Kage also vanishes across the arena.
+  - Frenzy: Itohime turns much faster.
+
+### Tutorial
+- **No damage in training:** bullets and blows in Master Kaito's trials still hit you, with the flash and sound, but take no health. A "HIT" marker shows where a number would.
+
+### Prologue I: The Burning Village
+- **The stage:** a gentle opening stage before stage I, with fewer and weaker foes. It is on by default, and P on character select switches it off.
+- **The boss:** Goro, the Bandit Captain, a new teaching boss with his own sprite and a second form.
+- **Falling here:** Master Kaito pulls you out. You restart the stage with everything you carry, and opened chests, killed foes and used shrines stay as they were.
+
+### Story encounters
+- **Prisoners:** prisoners of the Emperor are caged in fight rooms; the Iron Cellars hold two. Clear the room and free them.
+- **Allies:** freed prisoners sit at the campfire and help for the rest of the run:
+  - Hanzo the Smith: +5 power.
+  - Oyuki the Healer: a full heal at every fire.
+  - Genji the Peddler: shops 25% cheaper.
+  - Aya the Scout: every later stage's map revealed.
+  - Takeda the Ronin: fights at your side.
+
+### Foes and fights
+- **Foe health:** +30% for every stage foe, scaled by body size and speed. Big, slow foes are tougher; small, quick ones are frailer.
+- **Elites:** more of them, with four new elite powers: Giant, Berserk, Splitter and Vampiric.
+- **Ambushes:** they seal a smaller arena with solid palisade walls, so foes can no longer get stuck where you can't reach them.
+- **Blades and bullets:** blades no longer cut bullets. Only the very rare legendary scroll card BULLET CLEAVER grants it, to melee heroes.
+
+### Music and modes
+- **Boss themes:** every guardian has its own melody in the piano score.
+- **Hero mastery:** heroes level I to X from their runs, unlocking starting weapons (Q/E) and colour schemes (Z/C).
+- **Daily challenge:** the same stages, hero and twist for everyone each day, with your best kept.
+
+## 0.7.1: ShinobiDungeons
+
+### Name and menus
+- **ShinobiDungeons:** the game's new name. The title card is kept, and ENTER opens a new main menu in the pause screen's style.
+- **Main menu:** Continue, New Run, Training, Boss Rush, Skill Tree, Guide and Settings, with a detail panel for each.
+- **Character select:** restyled to match the menus. The in-between "hub" screen is gone, and picking a hero starts the run.
+- **Victory screen:** its own animated celebration. Dawn breaks over the castle with fireworks, the stats count up, a rank (S, A, B or C) stamps down, and jade flies into its counter.
+- **Death screen:** shows where the march halted and gives a tip about what killed you.
+
+### New players
+- **Apprentice difficulty:** below Story. You take 40% damage, foes have 60% health, foe bullets are slower, and you get an extra revive.
+- **One-time tips:** short hints the first time something new happens.
+- **Danger warnings:** a BOLD setting adds pulsing rings around foes winding up an attack.
+- **Suggestions:** a star marks a good pick on reward cards and in the shop.
+- **Training:** Master Kaito's Trials, a new ten-trial tutorial. The main menu recommends it until you have finished it once.
+
+### Guide and skill tree
+- **Guide:** wider, with sprites for every foe and guardian and silhouettes for undiscovered ones.
+- **New guide tabs:** ENCHANTS, with every enchant grouped and explained, and CHRONICLE, with the story of each stage.
+- **Skill tree:** wider, with a stat icon on every node, tooltips and a branch legend.
+
+### World
+- **Indoor stages:** furnished (cushions, tables, scrolls, shelves, lamps) instead of overgrown.
+- **Stage props:** placed as small scenes, with lamps in pairs at doorways.
+- **Province campaign map:** slides in at the start of each stage.
+- **Treasure rooms:** guarded, with the chest sealed until the room is clear.
+- **Shops:** marked at every entrance.
+- **Minimap:** enemies show as dots.
+- **Corner pockets:** unreachable pockets are sealed.
+- **Bags:** they no longer pick themselves up. G takes everything, and 1-6 take one item.
+
+### Guardians and foes
+- **Hitboxes:** guardian hitboxes match their sprites.
+- **Defeat sequence:** a beaten guardian shudders, topples and bursts into embers under a GUARDIAN DEFEATED banner.
+- **Intro:** a letterbox intro for every guardian.
+- **Phase changes:** you can't attack while a guardian is changing phase.
+- **Boss rush:** includes all twelve guardians.
+- **Animation pass:**
+  - Foes walk, wind up, lunge, recoil, flinch, rise when they spawn and topple when they die.
+  - Humanoid foes have four-frame walk cycles.
+  - Guardians gain new frames, and Kurogane's horse gallops.
+- **New foes:** kappa, tengu, kasa-obake, gaikotsu and yamabushi.
+- **New projectiles:** 15 new projectile sprites, handed out to the foes that shoot.
+- **Tetsuo and Onikuma:** Tetsuo holds his gun in every frame, and Onikuma's hood has proper teeth.
+
+### Feel, sound and screen
+- **Abilities:** every cast has its own light show and layered sound, and big hits land with impact rings.
+- **Piano score:** replaces the chiptune and intensifies with fights and guardian phases.
+- **New sounds:** footsteps, bags, chests, the stage bell, and the guardian taiko and gong.
+- **Full screen:** the game fills the window and is zoomed further out. Settings has FULLSCREEN and VIEW ZOOM.
+
 ## 0.6.4: stages, sprites and gameplay (second batch)
 
 ### Fixed

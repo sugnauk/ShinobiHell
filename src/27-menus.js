@@ -284,7 +284,7 @@ const BAGDESC=['A COMMON ITEM OR TWO','A DECENT PIECE OF GEAR','GEAR, MAYBE AN E
 const TERMS=[['FOCUS (SHIFT)','HOLD SHIFT TO MOVE SLOWLY. YOUR HITBOX SHRINKS','AND SHOWS AS A DOT. USE IT TO THREAD TIGHT BULLETS'],
  ['HITBOX','ONLY THE SMALL DOT AT YOUR CHEST CAN BE HIT.','YOUR HAT, WEAPON AND ROBE NEVER COUNT'],
  ['DASH (SPACE)','A QUICK SIDESTEP. YOU CANNOT BE HIT WHILE','DASHING. IT RECHARGES IN UNDER A SECOND'],
- ['PERFECT DODGE','DASH THROUGH A SHOT JUST AS IT HITS: NEARBY','BULLETS SHATTER AND YOUR NEXT ATTACK IS EMPOWERED'],
+ ['PERFECT DODGE','DASH THROUGH A SHOT JUST AS IT HITS: NEARBY','BULLETS SHATTER, THE COOLDOWN ON YOUR NEXT DASH IS HALVED','AND YOUR NEXT ATTACK IS EMPOWERED'],
  ['GRAZE','BULLETS THAT BRUSH PAST YOU CUT YOUR COOLDOWNS'],
  ['STUN','THE YELLOW BAR UNDER A FOE. HITS FILL IT. A FULL','BAR STUNS THEM: STUNNED FOES TAKE +50% DAMAGE'],
  ['DEATHBLOW','WITH THE EXECUTIONER MARK RELIC, HITTING A','STUNNED FOE KILLS IT (BOSSES LOSE 3% HP)'],
@@ -350,7 +350,7 @@ function guideEntries(tab){const g=meta.guide||{},has=(c,k)=>!!(g[c]&&g[c][k]);
   ...BAGN.map((nm,t)=>{const u=has('b',t);return {n:nm,u,col:BAGCOL[t],bag:t,L:u?[BAGDESC[t]||'']:['OPEN ONE TO LEARN WHAT IT HOLDS']};})];
  if(tab===4)return [...ENCH.map(E=>{const u=has('n',E.k);return {n:'ENCHANT '+E.n,u,col:E.c,L:u?[E.d,'A CHANCE ON EVERY ABILITY HIT (RMB Q E F R)','BOUND TO YOUR WEAPON: SWAP WEAPONS AND THEY STAY','ON THE OLD ONE. STACKS (II, III...), UP TO 5']:['FIND THIS ENCHANT TO LEARN ABOUT IT']};}),
   {n:'TECHNIQUE SCROLL',u:has('s','technique'),col:'#93d6de',L:has('s','technique')?['ADD A SMALL POWER, COOLDOWN OR CRIT BONUS','TO ONE ABILITY FOR THE REST OF THE RUN']:['FIND A TECHNIQUE SCROLL TO LEARN MORE']},
-  {n:'LEGENDARY SCROLL',u:has('s','scroll'),col:'#ffe060',L:has('s','scroll')?['PICK 1 OF 3: REPLACE AN ABILITY, OR ADD A','GUARANTEED EFFECT TO IT. EVERY PICK ALSO EMPOWERS','THAT SLOT (+60% POWER, -30% COOLDOWN)']:['FIND A SCROLL TO LEARN ABOUT IT']},
+  {n:'LEGENDARY SCROLL',u:has('s','scroll'),col:'#ffe060',L:has('s','scroll')?['PICK 1 OF 3: ADD A GUARANTEED EFFECT TO AN ABILITY.','EVERY PICK ALSO EMPOWERS THAT SLOT (+60% POWER, -30% COOLDOWN).','RARELY, ONE CARD OFFERS AN ABILITY\'S LEGENDARY FORM: IT CHANGES','THE WHOLE ABILITY AND ADDS ANOTHER +30% POWER']:['FIND A SCROLL TO LEARN ABOUT IT']},
   ...Object.keys(CURSES).map(k=>{const C=CURSES[k],u=has('c',k);return {n:'CURSE: '+C.n,u,col:C.c,L:u?C.L.map(l=>l.s).concat(['STACKS. LASTS THE RUN. A CRANE SHRINE CAN LIFT IT']):['ACCEPT THIS CURSE AT A CURSED ALTAR TO LEARN IT']};}),
   ...Object.keys(GODS).map(k=>{const D=GODS[k],u=has('g',k);return {n:D.n,u,col:D.c,L:u?[D.sub].concat(D.O.map(o=>o.t+': '+o.d)):['VISIT THIS SHRINE TO LEARN ITS OFFERINGS']};})];
  if(tab===5)return STATS.map(s=>{const u=has('t',s.k);return {n:s.n,u,col:s.c,L:u?[s.d+' PER POINT','RAISED BY ELIXIRS (PERMANENT, MAX 20) AND RINGS']:['FIND AN ELIXIR OR RING OF THIS STAT']};});
@@ -448,8 +448,11 @@ let optSel=0,optFrom='title',optWait=null;
 const OPTROWS=()=>[
  {n:'MUSIC VOLUME',v:()=>OPT().mus+'/10',ch:d=>{OPT().mus=clamp(OPT().mus+d,0,10);if(mus.gain)mus.gain.gain.value=musVol();}},
  {n:'SOUND EFFECTS',v:()=>OPT().sfx+'/10',ch:d=>{OPT().sfx=clamp(OPT().sfx+d,0,10);sfx('coin');}},
- {n:'DIFFICULTY',v:()=>DF().n,c:()=>DF().c,info:()=>DF().d+(mode==='options'&&optFrom==='play'?' (FROM NEXT STAGE)':''),ch:d=>{OPT().diff=clamp(OPT().diff+d,0,2);}},
+ {n:'DIFFICULTY',v:()=>DF().n,c:()=>DF().c,info:()=>DF().d+(mode==='options'&&optFrom==='play'?' (FROM NEXT STAGE)':''),ch:d=>{OPT().diff=clamp(OPT().diff+d,0,DIFFS.length-1);}},
  {n:'AUTO FIRE',v:()=>['OFF (HOLD LMB)','LMB TOGGLE','IN COMBAT'][OPT().autoFire|0],info:()=>['HOLD LEFT MOUSE TO FIRE','CLICK LEFT MOUSE ONCE TO START FIRING, AGAIN TO STOP','FIRES AT THE CURSOR BY ITSELF WHILE YOU ARE IN A FIGHT'][OPT().autoFire|0],ch:d=>{OPT().autoFire=(((OPT().autoFire|0)+(d||1))%3+3)%3;fireOn=false;}},
+ {n:'TIPS',v:()=>OPT().tips===0?'OFF':'ON',info:()=>'SHORT HINTS THE FIRST TIME SOMETHING NEW HAPPENS. EACH ONE SHOWS ONCE',ch:()=>{OPT().tips=OPT().tips===0?1:0;}},
+ {n:'SUGGESTIONS',v:()=>OPT().sugg===0?'OFF':'ON',info:()=>'A STAR MARKS A GOOD PICK FOR YOUR HERO ON REWARD CARDS AND IN THE SHOP',ch:()=>{OPT().sugg=OPT().sugg===0?1:0;}},
+ {n:'DANGER WARNINGS',v:()=>OPT().bold?'BOLD':'NORMAL',info:()=>'BOLD: A PULSING RING SHOWS EACH FOE ATTACK AS IT WINDS UP, AND GROUND DANGERS ARE EASIER TO SEE',ch:()=>{OPT().bold=OPT().bold?0:1;}},
  {n:'FULLSCREEN',v:()=>OPT().fs===0?'OFF':'ON',info:()=>'FILL THE WHOLE SCREEN (ESC OR F11 LEAVES IT FOR NOW)',ch:()=>{OPT().fs=OPT().fs===0?1:0;goFullscreen(OPT().fs!==0);}},
  {n:'VIEW ZOOM',v:()=>['NEAR','NORMAL','FAR'][OPT().zoom==null?1:OPT().zoom],info:()=>'HOW MUCH OF THE DUNGEON YOU SEE AROUND YOU',ch:d=>{OPT().zoom=clamp((OPT().zoom==null?1:OPT().zoom)+d,0,2);W=0;setView(VIEWWIDE);}},
  {n:'SCREEN SHAKE',v:()=>OPT().shake?'ON':'OFF',ch:()=>{OPT().shake^=1;}},

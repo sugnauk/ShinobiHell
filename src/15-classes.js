@@ -56,8 +56,8 @@ function syncLMB(){if(!P||!R||!R.eq)return;const g=R.eq.wpn;
 const CLASSES=[
  {k:'wizard',n:'WIZARD',col:'#c8f',d:'RANGED SPELLS, ELEMENTAL COMBOS. +20% POWER.',pw:1.2,hp:1,spd:1,dash:1,def:0,kit:{m:0,h:1,q:0,w:0,f:0,e:0}},
  {k:'archer',n:'ARCHER',col:'#8f8',d:'LONG RANGE, TRAPS AND A HAWK. FAST.',hp:.9,spd:1.08,dash:.9,def:0,kit:{m:5,h:5,q:5,w:5,f:5,e:5}},
- {k:'samurai',n:'SAMURAI',col:'#f55',d:'BLADES CUT BULLETS. GUARD COUNTERS. +35% HP, +3 DEF.',hp:1.35,spd:.97,dash:1.1,def:3,kit:{m:4,h:4,q:4,w:4,f:4,e:4}},
- {k:'shinobi',n:'SHINOBI',col:'#9a7aff',d:'BLINKS AND POISON. BLADES CUT BULLETS. SWIFT.',hp:.82,spd:1.15,dash:.65,def:0,kit:{m:4,h:6,q:6,w:6,f:6,e:6}},
+ {k:'samurai',n:'SAMURAI',col:'#f55',d:'TOUGH AGAINST BULLETS. GUARD COUNTERS. +35% HP, +3 DEF.',hp:1.35,spd:.97,dash:1.1,def:3,kit:{m:4,h:4,q:4,w:4,f:4,e:4}},
+ {k:'shinobi',n:'SHINOBI',col:'#9a7aff',d:'BLINKS AND POISON. TOUGH AGAINST BULLETS. SWIFT.',hp:.82,spd:1.15,dash:.65,def:0,kit:{m:4,h:6,q:6,w:6,f:6,e:6}},
  {k:'onmyoji',n:'ONMYOJI',col:'#f0e8d0',d:'SUMMONS SPIRITS, SHIELDS AND HEALS.',hp:.95,spd:1,dash:1,def:1,kit:{m:7,h:7,q:7,w:7,f:7,e:7}}];
 const CLS=()=>CLASSES[(R&&R.testCls!=null)?R.testCls:((meta&&meta.cls)||0)]; // a test run (99-testmode.js) plays its own character
 // class stat modifiers + the deathblow item effect, layered on top of the base stat calculation
@@ -81,7 +81,7 @@ function heroSpr(cls,st,back){const k=cls+st+(back?'b':'');if(HEROC[k])return HE
  return HEROC[k]=buildHero({...heroEV(cls,st),detail:cls},false,back);}
 const evoName=st=>heroEV(CLS().k,st).n;
 // class ability helpers
-const EMP=k=>(P?.emp?.[k]?1.6:1)*(R?.addon?.[k]?.focus?1.1:1);
+const EMP=k=>(P?.emp?.[k]?1.6:1)*(R?.addon?.[k]?.focus?1.1:1)*(P?.asc?.[k]?1.3:1); // asc: a legendary spell learned from a scroll
 function setCd(k){if(k==='m')return;if(k==='h')P.ab.h=spellCd('h')/S.aspd;else if(k==='w')P.ab.rmb=spellCd('w');else P.ab[k]=spellCd(k);}
 function lineHit(x,y,a,len,wid,fn){for(const e of enemies){if(e.dead||e.air)continue;const dx=e.x-x,dy=e.y-y,al=dx*Math.cos(a)+dy*Math.sin(a),pe=Math.abs(-dx*Math.sin(a)+dy*Math.cos(a));if(al>-6&&al<len+e.r&&pe<wid+e.r&&los(x,y,e.x,e.y))fn(e);}}
 function nearestFoe(x,y,r){let best=null,bd=r;for(const e of enemies){if(e.dead||e.air||e.type==='turret')continue;const d=Math.hypot(e.x-x,e.y-y);if(d<bd&&los(x,y,e.x,e.y)){bd=d;best=e;}}return best;}
