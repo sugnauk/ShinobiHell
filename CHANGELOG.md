@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased (after 0.7.1)
+## 0.7.2: the prologue, allies, honest damage and daily pacts
 
 ### Bosses
 - **Veteran:** each run a hero wins makes that hero's next runs a little harder and better paid. It is per hero, up to Veteran V. Each level gives foes and guardians +8% health and +5% damage, and you get +10% jade. Your own power is never looked at, so a god run stays a god run. It is not applied to the prologue, training, the daily challenge or boss rush, and character select shows each hero's level.

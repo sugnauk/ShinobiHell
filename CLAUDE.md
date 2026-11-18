@@ -1,0 +1,12 @@
+# ShinobiDungeons: notes for Claude
+
+## Every pull request bumps the version
+Each new pull request gets a new version number, and the PR includes it. Raise the patch number by one, for example 0.7.2 to 0.7.3, unless told otherwise. Update all of these:
+- `GAME_VERSION` in `src/00-core.js`: this is the version shown on the title screen.
+- The `?v=` cache-busting query on every script tag in `index.html`, for example `sed -i 's/?v=0\.7\.2/?v=0.7.3/g' index.html`.
+- `CHANGELOG.md`: a new `## <version>: <short title>` section at the top, listing the PR's changes.
+- The PR title, which starts with the version, for example `0.7.3: ...`, and the PR description, which names it.
+
+## Project layout
+- **Scripts:** plain JS, loaded in numeric order by the script tags in `index.html` (`src/NNN-*.js`). Later files extend earlier ones by wrapping their functions, for example `{const _x=fn;fn=function(){...}}`.
+- **Branches:** work on the session branch and also push to `develop`. PRs go from `develop` into `main`.
