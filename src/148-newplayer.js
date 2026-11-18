@@ -26,7 +26,7 @@ function drawTip(){if(!TIP.cur&&TIP.q.length){TIP.cur=TIP.q.shift();TIP.t=time;s
  txt('TIP',x+w-txtW('TIP')-4,y+3,'#ffd040');L.forEach((l,i)=>txt(l,x+8,y+6+i*9,i?'#ddd':'#fff'));ctx.globalAlpha=1;}
 {const _rp=renderPlay;renderPlay=function(){_rp.apply(this,arguments);if(!paused)drawTip();};}
 {let fightT=0,lastHp=null;const _u=update;update=function(dt){_u.apply(this,arguments);if(mode!=='play'||!P||!R||R.training||paused)return;
- if(P.hp<S.maxhp*.35&&R.pots>0)tip('pot',['LOW ON HEALTH!','PRESS '+KN('heal')+' TO DRINK A POTION']);
+ if(P.hp<S.maxhp*.35&&R.pots>0)tip('pot',['LOW ON HEALTH!','PRESS '+KN('heal')+' WHENEVER YOU WANT TO DRINK A POTION (+35% HEALTH).','YOU CARRY 3 AT MOST, SO CHOOSE YOUR MOMENT']);
  if(lastHp!=null&&P.hp<lastHp-.5)tip('hit',['YOU WERE HIT','ONLY THE SMALL WHITE DOT AT YOUR CENTRE CAN BE HIT.','DASH ('+KN('dash')+') THROUGH BULLETS: YOU ARE UNTOUCHABLE MID-DASH']);lastHp=P.hp;
  const fighting=enemies.some(e=>!e.dead&&e.awake&&!e.prop&&Math.hypot(e.x-P.x,e.y-P.y)<160);
  if(fighting){fightT+=dt;if(fightT>14&&P.ab&&['q','f','e'].every(k=>(P.ab[k]||0)<=0))tip('abil',['YOUR ABILITIES ARE READY','Q, '+KN('w')+', '+KN('f')+' AND '+KN('e')+' HIT HARD. USE THEM WHENEVER THEY ARE READY']);}else fightT=0;

@@ -9,3 +9,9 @@ TIPACT.controls={k:['use'],hold:['use'],say:'PRESS {use} OR ENTER TO BEGIN'};
   KN('heal')+': DRINK A POTION.  '+KN('use')+': INTERACT.  '+KN('pack')+': YOUR PACK.  K: THE GUIDE']);}catch(_){}return r;};}
 // the death screen: a new player who has not played the tutorial is pointed to it
 {const _dt=deathTip;deathTip=function(){const t=_dt.apply(this,arguments);return meta.trained?t:'NEW TO THE MARCH? THE TUTORIAL ON THE MAIN MENU TEACHES THE BASICS IN A MINUTE. '+t;};}
+// finishing (or skipping) the tutorial takes you back to the main menu, with NEW RUN selected
+{const _ft=finishTraining;finishTraining=function(){if(!(R&&R.training))return _ft.apply(this,arguments);
+ R.training=null;if(P)P.lock=null;meta.trained=true;saveMeta();props=[];dh=[];projs=[];if(typeof TIPHOLD!=='undefined'){TIPHOLD=null;}
+ mode='menu';paused=false;try{const L=mmItems();mmSel=Math.max(0,L.findIndex(x=>x.k==='new'));}catch(_){mmSel=0;}sfx('pickup');setToast('TUTORIAL COMPLETE','#80ff90',2.5);};}
+// the low-health tip never drinks a potion for you: C or ENTER only closes it, and drinking stays your call
+TIPACT.pot={k:['heal'],hold:['heal'],say:'PRESS {heal} OR ENTER TO CONTINUE'};

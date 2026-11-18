@@ -79,6 +79,8 @@
   - The first stage teaches as you play, opening with a paused controls card (move, aim, attack, heavy, dash, abilities, potion, interact, pack, guide) and then the one-time tips.
   - The tutorial is on the main menu, now called **TUTORIAL**, marked NEW until played.
   - A new player's death screen points to it.
+  - Finishing or skipping the tutorial returns you to the main menu, with NEW RUN selected.
+- **No potion is used for you:** the low-health tip only closes on C or ENTER. Drinking stays your call; the tip just reminds you that C drinks a potion.
 - **About a minute of action:** the ten-trial tutorial is cut to four quick beats, one new key at a time, with Master Kaito shouting from the side:
   1. AMBUSH! Straw bandits rush in from both sides: walk, aim and LMB.
   2. ARROW STORM: dash through two volleys. A perfect dodge clears it at once.
