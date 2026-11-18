@@ -20,7 +20,7 @@ SPELLS.e.push({n:'SIEGEBREAKER',g:'#',c:'#ffad5f',cd:32,d:'FIRES A WIDE CANNON B
 Object.assign(WTYPES,{TANEGASHIMA:16,YARI:17});Object.assign(LMBRATE,{16:.55,17:.3});
 Object.assign(WFAM,{gunner:['TANEGASHIMA','REPEATER'],lancer:['YARI','NAGINATA']});Object.assign(WSIG,{gunner:'TANEGASHIMA',lancer:'YARI'});
 CLASSES.push({k:'gunner',n:'GUNNER',col:'#ffb060',d:'MATCHLOCK: SLOW, PIERCING SHOTS, A TURRET. +2 DEF.',hp:1.05,spd:.95,dash:1.1,def:2,kit:{m:16,h:8,q:8,w:8,f:8,e:8}},
- {k:'lancer',n:'LANCER',col:'#80c0ff',d:'YARI: THE LONGEST REACH. BLADES CUT BULLETS. +20% HP.',hp:1.2,spd:1,dash:1,def:2,kit:{m:17,h:9,q:9,w:9,f:9,e:9}});
+ {k:'lancer',n:'LANCER',col:'#80c0ff',d:'YARI: THE LONGEST REACH. TOUGH AGAINST BULLETS. +20% HP.',hp:1.2,spd:1,dash:1,def:2,kit:{m:17,h:9,q:9,w:9,f:9,e:9}});
 EVONAMES.gunner=['RECRUIT','LOADER','MUSKETEER','SHARP GUN','GUN CAPTAIN','TEPPO','FIRE LANCE','THUNDER GUN','CANNONEER','GUN SAINT'];
 EVONAMES.lancer=['SPEAR BOY','PIKEMAN','YARI-ASHIGARU','LANCER','SPEAR CAPTAIN','HATAMOTO','SPIRAL SPEAR','HEAVEN PIERCER','DRAGON LANCE','SPEAR SAINT'];
 {const _he=heroEV;heroEV=function(cls,st){const t=st/9,n=(EVONAMES[cls]||[])[st];

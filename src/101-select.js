@@ -6,7 +6,7 @@
 const CLSINFO={
  wizard:{role:'CASTER - AREA',diff:1,lore:'MASTER KAITO\'S STUDENT. BOLTS AND STORMS.'},
  archer:{role:'RANGED - MOBILITY',diff:1,lore:'A HUNTER OF THE HILLS. NEVER STANDS STILL.'},
- samurai:{role:'MELEE - BRUISER',diff:2,lore:'A MASTERLESS SWORD. CUTS BULLETS IN TWO.'},
+ samurai:{role:'MELEE - BRUISER',diff:2,lore:'A MASTERLESS SWORD WHO FIGHTS UP CLOSE.'},
  shinobi:{role:'MELEE - ASSASSIN',diff:3,lore:'IN, KILL, OUT. FRAGILE BUT DEADLY.'},
  onmyoji:{role:'SUMMONER - CONTROL',diff:3,lore:'BINDS SPIRITS TO FIGHT AND SHIELD.'},
  gunner:{role:'RANGED - ARTILLERY',diff:2,lore:'A MATCHLOCK, A TURRET, A LOT OF POWDER.'},
