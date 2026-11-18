@@ -49,7 +49,7 @@
 - **Hero mastery:** heroes level I to X from their runs, unlocking starting weapons (Q/E) and colour schemes (Z/C).
 - **Daily challenge:** the same stages and hero for everyone each day, harder and better paid, with your best kept.
   - **Always:** foes have +15% health and damage, and the run pays +25% jade.
-  - **Three pacts a day:** each pact is a trade, a drawback paired with a reward, for example:
+  - **Two to five pacts a day, all at once:** each pact is a trade, a drawback paired with a reward, for example:
     - Brutal Blows: take 30% more damage, get 30% more jade.
     - Muddy Roads: move 10% slower, get 25% more gold.
     - Windwalker: move 50% faster, deal 10% less damage.
@@ -59,7 +59,7 @@
     - No Traders: the shops are gone, and every guardian gives a relic.
     - Blood Thirst: kills heal, but no potions.
     - Blood Price: start with 2 relics, 25% less health.
-  - **The pool:** 16 pacts in all. The menu panel shows the day's three and the jade multiplier.
+  - **The pool:** 16 pacts in all. The day draws 2 to 5 of them (all active together, multiplied), and the menu panel shows them with the combined jade multiplier.
 
 ## 0.7.1: ShinobiDungeons
 

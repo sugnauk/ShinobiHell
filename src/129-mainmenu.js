@@ -62,7 +62,7 @@ function renderMenu(){
   else{txt('WIN A RUN TO UNLOCK',x,y,'#666');y+=10;}
   y+=2;mmSect('RECORD',x,y);y+=9;txt('RUNS '+meta.runs+'   WINS '+meta.wins+'   FURTHEST '+(ROMAN[(meta.reached||0)]||ROMAN[0]),x,y,'#ccc');
   hudJade(x,y+10);txt('JADE '+meta.sen,x+10,y+11,JADEC);}
- else if(it.k==='train'){txt('MASTER KAITO\'S TRIALS',x,y,'#fff',2);y+=18;para('TEN SHORT TRIALS IN THE TRAINING YARD: EVERY ABILITY, DODGING, HEALING, LOOT AND A SPAR. CLEAR THEM ALL FOR A STAR RATING'+(meta.trialsReward?'.':' AND 50 JADE.'),'#ddd');y+=6;
+ else if(it.k==='train'){txt('MASTER KAITO\'S TRIALS',x,y,'#fff',2);y+=18;para('A MINUTE IN THE TRAINING YARD: FIGHT AN AMBUSH, DASH THROUGH ARROWS AND BRING DOWN THE STRAW OGRE WITH EVERY ABILITY. BEAT IT FAST FOR THREE STARS'+(meta.trialsReward?'.':' AND 50 JADE.'),'#ddd');y+=6;
   mmSect('THE TRIALS',x,y);y+=10;LESSONS.forEach((l,i)=>{txt((i+1)+'. '+l.t,x+(i%2)*Math.floor((Wd-16)/2),y+((i/2)|0)*9,'#bbb');});y+=Math.ceil(LESSONS.length/2)*9+6;
   txt('PLAYS AS '+CLS().n,x,y,CLS().col);}
  else if(it.k==='rush'){txt('BOSS RUSH',x,y,'#fff',2);y+=18;para('ALL TWELVE GUARDIANS, BACK TO BACK, IN ONE SITTING. NO SHOPS, NO SAVING.','#ddd');y+=6;

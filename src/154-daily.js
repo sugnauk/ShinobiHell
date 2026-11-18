@@ -30,7 +30,7 @@ const dayKey=()=>{const d=new Date();return d.getFullYear()+'-'+String(d.getMont
 const daySeed=k=>{let h=2166136261;for(const c of k)h=Math.imul(h^c.charCodeAt(0),16777619);return h>>>0;};
 function seededRng(s){return function(){s|=0;s=s+0x6D2B79F5|0;let t=Math.imul(s^s>>>15,1|s);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
 function dailyToday(){const k=dayKey(),s=daySeed(k),n=Math.min(meta.unlocked||2,CLASSES.length),rng=seededRng(s^0x9e3779b9),pool=DPACTS.slice(),pacts=[];
- for(let i=0;i<3;i++)pacts.push(pool.splice(Math.floor(rng()*pool.length),1)[0]);return {k,s,cls:s%n,pacts};}
+ const n2=2+Math.floor(rng()*4);for(let i=0;i<n2;i++)pacts.push(pool.splice(Math.floor(rng()*pool.length),1)[0]);return {k,s,cls:s%n,pacts};}
 let DPEND=null;const DAILY=()=>DPEND||(R&&R.daily?R.daily:null);
 const dHas=k=>{const D=DAILY();return !!(D&&(D.mods?D.mods.includes(k):D.mod===k));};
 // the day's numbers: the base, times every pact's effect
@@ -78,7 +78,8 @@ function startDaily(){const D=dailyToday();meta.cls=D.cls;saveMeta();DPEND={k:D.
  txt('THE SAME RUN FOR EVERYONE TODAY. HARDER, AND BETTER PAID.',x,y,'#ddd');y+=9;
  txt('ALWAYS: FOES +15% HEALTH AND DAMAGE  /  +25% JADE',x,y,'#aaa');y+=12;
  {const sp=heroSpr(C.k,0);txt('HERO',x,y,'#d02030');ctx.drawImage(sp.c,WIZ.idle[Math.floor(time*2.5)%2]*sp.fw,0,sp.fw,sp.fh,x+26,y-12,sp.fw,sp.fh);txt(C.n,x+30+sp.fw,y,C.col);}y+=14;
- txt('TODAY\'S PACTS',x,y,'#d02030');y+=10;
- for(const p of D.pacts){txt(p.n,x,y,'#ff80c0');y+=8;txt('+ '+p.good,x+6,y,'#70e090');y+=8;txt('- '+p.bad,x+6,y,'#ff7070');y+=10;}
+ txt('TODAY\'S PACTS ('+D.pacts.length+')',x,y,'#d02030');y+=10;
+ const tight=D.pacts.length>3;
+ for(const p of D.pacts){txt(p.n,x,y,'#ff80c0');y+=8;if(tight){const g='+ '+p.good;txt(g,x+6,y,'#70e090');txt('- '+p.bad,x+16+txtW(g),y,'#ff7070');y+=10;}else{txt('+ '+p.good,x+6,y,'#70e090');y+=8;txt('- '+p.bad,x+6,y,'#ff7070');y+=10;}}
  const f=dailyFx({mods:D.pacts.map(p=>p.k)}),jl='JADE x'+f.jade.toFixed(2).replace(/0$/,'');txt(jl,X+Wd-8-txtW(jl),Y+46,'#ffd040');
  const b=meta.daily[D.k];txt(b?('BEST TODAY: SCORE '+b.score+'  FURTHEST '+ROMAN[b.di]+(b.win?'  EMPEROR SLAIN!':'')+'  RUNS '+b.runs):'NOT PLAYED YET',x,Math.min(y+2,Y+Hd-10),b?'#ffd040':'#777');};}
