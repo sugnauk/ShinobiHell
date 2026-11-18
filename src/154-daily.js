@@ -35,7 +35,11 @@ let DPEND=null;const DAILY=()=>DPEND||(R&&R.daily?R.daily:null);
 const dHas=k=>{const D=DAILY();return !!(D&&(D.mods?D.mods.includes(k):D.mod===k));};
 // the day's numbers: the base, times every pact's effect
 function dailyFx(D){D=D||DAILY();const o={taken:1,deal:1,spd:1,maxhp:1,gold:1,jade:1,foeHp:1,foeSpd:1,cdr:1,dash:1};if(!D)return o;
- const all=[DBASE].concat((D.mods||[D.mod]).map(k=>(DPACTS.find(p=>p.k===k)||{}).fx||{}));for(const f of all)for(const k in f)o[k]*=f[k];return o;}
+ const ks=D.mods||[D.mod],all=[DBASE].concat(ks.map(k=>(DPACTS.find(p=>p.k===k)||{}).fx||{}));for(const f of all)for(const k in f)o[k]*=f[k];
+ o.pactBonus=pactBonus(ks.length);o.jade*=o.pactBonus;return o;}
+// the more pacts you carry, the bigger the payout: the jade bonus grows exponentially with the number of pacts
+// (x1.3 for each pact after the first: 2 pacts x1.3, 3 x1.69, 4 x2.2, 5 x2.86), on top of each pact's own jade
+const PACTX=1.3,pactBonus=n=>Math.pow(PACTX,Math.max(0,n-1));
 meta.daily=meta.daily||{};
 function startDaily(){const D=dailyToday();meta.cls=D.cls;saveMeta();DPEND={k:D.k,s:D.s,mods:D.pacts.map(p=>p.k)};try{startRun(0);}finally{R.daily=DPEND;DPEND=null;}
  if(dHas('blood'))for(let i=0;i<2;i++)applyItem(randItem(['rez']).id);
@@ -78,7 +82,7 @@ function startDaily(){const D=dailyToday();meta.cls=D.cls;saveMeta();DPEND={k:D.
  txt('THE SAME RUN FOR EVERYONE TODAY. HARDER, AND BETTER PAID.',x,y,'#ddd');y+=9;
  txt('ALWAYS: FOES +15% HEALTH AND DAMAGE  /  +25% JADE',x,y,'#aaa');y+=12;
  {const sp=heroSpr(C.k,0);txt('HERO',x,y,'#d02030');ctx.drawImage(sp.c,WIZ.idle[Math.floor(time*2.5)%2]*sp.fw,0,sp.fw,sp.fh,x+26,y-12,sp.fw,sp.fh);txt(C.n,x+30+sp.fw,y,C.col);}y+=14;
- txt('TODAY\'S PACTS ('+D.pacts.length+')',x,y,'#d02030');y+=10;
+ txt('TODAY\'S PACTS ('+D.pacts.length+')',x,y,'#d02030');{const pb='PACT BONUS: JADE x'+pactBonus(D.pacts.length).toFixed(2);txt(pb,x+txtW('TODAY\'S PACTS (5)')+12,y,'#ffd040');}y+=10;
  const tight=D.pacts.length>3;
  for(const p of D.pacts){txt(p.n,x,y,'#ff80c0');y+=8;if(tight){const g='+ '+p.good;txt(g,x+6,y,'#70e090');txt('- '+p.bad,x+16+txtW(g),y,'#ff7070');y+=10;}else{txt('+ '+p.good,x+6,y,'#70e090');y+=8;txt('- '+p.bad,x+6,y,'#ff7070');y+=10;}}
  const f=dailyFx({mods:D.pacts.map(p=>p.k)}),jl='JADE x'+f.jade.toFixed(2).replace(/0$/,'');txt(jl,X+Wd-8-txtW(jl),Y+46,'#ffd040');

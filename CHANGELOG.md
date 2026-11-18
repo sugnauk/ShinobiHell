@@ -49,6 +49,7 @@
 - **Hero mastery:** heroes level I to X from their runs, unlocking starting weapons (Q/E) and colour schemes (Z/C).
 - **Daily challenge:** the same stages and hero for everyone each day, harder and better paid, with your best kept.
   - **Always:** foes have +15% health and damage, and the run pays +25% jade.
+  - **Pact bonus:** the more pacts, the bigger the payout. Jade grows exponentially, ×1.3 for every pact after the first: 2 pacts give ×1.3, 3 give ×1.69, 4 give ×2.2 and 5 give ×2.86, on top of each pact's own jade.
   - **Two to five pacts a day, all at once:** each pact is a trade, a drawback paired with a reward, for example:
     - Brutal Blows: take 30% more damage, get 30% more jade.
     - Muddy Roads: move 10% slower, get 25% more gold.
