@@ -5,6 +5,18 @@
 ### Fixes
 - **Ronin Seven crash:** a member dying while its dash-aim telegraph was still up could crash the game. The telegraph now stops following a fallen member.
 
+### Straight-line strikes
+- **Drawn as what they are:** every line attack used to draw the same thin line. Damage and hitboxes are unchanged:
+
+| Strike | Abilities | What you see |
+|---|---|---|
+| Spear | Yari Thrust, Spiral Lunge | a spear drives out to the full reach, flashes at the tip, and snaps back |
+| Phantom spears | Thousand Thrusts | spectral spears stab out one after another, while a fan of phantom spears hovers behind the lancer |
+| Blade | Iai Cleave, Dragon Cleave | a thick, tapered cut of light splits apart in the air, shedding sparks |
+| Chain | Kusarigama | chain links lash out with the sickle blade on the end |
+| Beam | Spirit Mirror | a glowing beam thins away from a mirror flash |
+| Blast | Siegebreaker | a cannonball tears down a trail of fire and smoke, with shock rings, instead of five thin lines |
+
 ### Ultimates with a show
 - **Lead-in and follow-through:** pressing R plays a short lead-in before the ultimate fires. You are invulnerable and rooted for it, energy rushes in, and then the follow-through plays:
 
