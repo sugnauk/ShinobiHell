@@ -22,6 +22,9 @@ function spaceShopAndAltar(rooms,links,early){
  [rooms[shop].type,rooms[s].type]=[rooms[s].type,'shop'];
  [rooms[altar].type,rooms[a].type]=[rooms[a].type,'altar'];
 }
+// MAPCHAIN (set by the prologue): one winding road - every room grows off the previous one (never back west), each
+// corridor joins a room to the one before it, no extra loops, and the guardian is reached from the last room
+let MAPCHAIN=false;
 function genMap(di){
  const t=new Uint8Array(MW*MH),rooms=[];
  const carve=(x,y,w,h)=>{for(let j=y;j<y+h;j++)for(let i=x;i<x+w;i++)if(i>0&&j>0&&i<MW-1&&j<MH-1)t[j*MW+i]=1;};
@@ -29,16 +32,16 @@ function genMap(di){
  // big arenas: rooms are ~1.5x the old size, the boss arena 32x32
  // rooms grow as a winding chain from the start: each new room sits just 3-6 tiles from the one it grows off,
  // so hallways stay short while the rooms themselves are big arenas. The east strip is kept for the boss.
- rooms.push({x:3,y:ri(30,MH-44),w:14,h:14,k:'start'});
+ rooms.push({x:3,y:ri(30,MH-44),w:14,h:14,k:'start',ord:0});
  const want=7+Math.floor(di*.4)+ri(0,2);
  const free=(r,boss)=>r.x>=2&&r.y>=2&&r.y+r.h<=MH-2&&r.x+r.w<=(boss?MW-2:MW-40)&&!rooms.some(o=>hit(r,o,2));
  for(let tr=0;tr<5000&&rooms.length<want+1;tr++){
-  const par=rooms[Math.max(0,rooms.length-1-ri(0,2))]; // mostly grow off the newest rooms (a chain with short side branches)
-  const big=Math.random()<.4,w=big?ri(25,32):ri(17,24),h=big?ri(22,29):ri(16,22),gap=ri(3,6),d=wpick([{d:0,wt:5},{d:1,wt:2},{d:2,wt:2},{d:3,wt:.5}]).d;
+  const par=MAPCHAIN?rooms[rooms.length-1]:rooms[Math.max(0,rooms.length-1-ri(0,2))]; // mostly grow off the newest rooms (a chain with short side branches)
+  const big=Math.random()<.4,w=big?ri(25,32):ri(17,24),h=big?ri(22,29):ri(16,22),gap=ri(3,6),d=wpick(MAPCHAIN?[{d:0,wt:5},{d:1,wt:2},{d:2,wt:2}]:[{d:0,wt:5},{d:1,wt:2},{d:2,wt:2},{d:3,wt:.5}]).d;
   let x,y;if(d===0||d===3){x=d===0?par.x+par.w+gap:par.x-gap-w;y=par.y+ri(-Math.floor(h/2),Math.floor(par.h/2));}
   else{x=par.x+ri(-Math.floor(w/2),Math.floor(par.w/2));y=d===1?par.y-gap-h:par.y+par.h+gap;}
-  const r={x,y,w,h,k:'room'};if(free(r))rooms.push(r);}
- {const last=rooms.reduce((a,b)=>b.x+b.w>a.x+a.w?b:a);let placed=false;
+  const r={x,y,w,h,k:'room',ord:rooms.length};if(free(r))rooms.push(r);}
+ {const last=MAPCHAIN?rooms[rooms.length-1]:rooms.reduce((a,b)=>b.x+b.w>a.x+a.w?b:a);let placed=false;
   for(let tr=0;tr<300&&!placed;tr++){const r={x:MW-35,y:clamp(Math.round(last.y+last.h/2-16)+ri(-6,6),2,MH-34),w:32,h:32,k:'boss'};if(free(r,true)){rooms.push(r);placed=true;}}
   if(!placed)rooms.push({x:MW-35,y:clamp(Math.round(last.y+last.h/2-16),2,MH-34),w:32,h:32,k:'boss'});}
  // assign room types (shuffled so specials land in different places every run)
@@ -91,7 +94,10 @@ function genMap(di){
  // tree: each room links to its nearest room further left; the boss room gets exactly one way in
  const links=new Set(),bossRoom=rooms.find(r=>r.k==='boss');
  const approach={x:bossRoom.x-4,y:cy(bossRoom)-4,w:4,h:8,k:'approach',type:'approach'};
- for(let i=1;i<rooms.length;i++){
+ if(MAPCHAIN){const ch=rooms.filter(r=>r.ord!=null).sort((a,b)=>a.ord-b.ord);
+  for(let i=1;i<ch.length;i++){link(ch[i-1],ch[i]);const a=rooms.indexOf(ch[i-1]),b=rooms.indexOf(ch[i]);links.add(Math.min(a,b)+'-'+Math.max(a,b));}
+  link(ch[ch.length-1],approach);}
+ else for(let i=1;i<rooms.length;i++){
   const target=rooms[i]===bossRoom?approach:rooms[i];
   let best=0,bd=1e9;
   for(let j=0;j<i;j++){const d=rd(rooms[j],target);if(d<bd){bd=d;best=j;}}
@@ -101,7 +107,7 @@ function genMap(di){
  carve(approach.x,approach.y,approach.w,approach.h);
  carve(bossRoom.x-1,cy(bossRoom)-1,3,3);
  // a few loops so the dungeon is not a single line
- const nb=rooms.length-1;let loops=ri(2,3);for(let tr=0;tr<60&&loops>0;tr++){const i=ri(1,nb-1),j=ri(1,nb-1);if(i===j||links.has(Math.min(i,j)+'-'+Math.max(i,j))||rd(rooms[i],rooms[j])>44)continue;links.add(Math.min(i,j)+'-'+Math.max(i,j));link(rooms[i],rooms[j]);loops--;}
+ const nb=rooms.length-1;let loops=MAPCHAIN?0:ri(2,3);for(let tr=0;tr<60&&loops>0;tr++){const i=ri(1,nb-1),j=ri(1,nb-1);if(i===j||links.has(Math.min(i,j)+'-'+Math.max(i,j))||rd(rooms[i],rooms[j])>44)continue;links.add(Math.min(i,j)+'-'+Math.max(i,j));link(rooms[i],rooms[j]);loops--;}
  // smoothing: fill sharp inside corners so rooms and passages flow into each other
  for(let pass=0;pass<2;pass++){const c=t.slice();for(let j=2;j<MH-2;j++)for(let i=2;i<MW-2;i++){if(c[j*MW+i])continue;let nn=0;for(let b=-1;b<=1;b++)for(let a=-1;a<=1;a++)if((a||b)&&c[(j+b)*MW+i+a])nn++;if(nn>=5)t[j*MW+i]=1;}}
  // at least one monster room before any treasure: every room linked to the start is a fight, so specials sit deeper in

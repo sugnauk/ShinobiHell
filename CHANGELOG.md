@@ -3,6 +3,9 @@
 ## Unreleased (after 0.7.1)
 
 ### Bosses
+- **Veteran:** each run a hero wins makes that hero's next runs a little harder and better paid. It is per hero, up to Veteran V. Each level gives foes and guardians +8% health and +5% damage, and you get +10% jade. Your own power is never looked at, so a god run stays a god run. It is not applied to the prologue, training, the daily challenge or boss rush, and character select shows each hero's level.
+- **Armour floor:** whatever you stack, a hit always does at least half its damage. Defence and Iron Body could cut it to a third before.
+- **Guardians always hurt:** a hit from a guardian or anything it summons does at least 4% of your max health (bullets) or 8% (blows, charges, hazards), scaled by difficulty. Wards, shields, dodges and dashes still stop it.
 - **No skipping phases:** a guardian's health stops at its next phase threshold. Extra damage does nothing: the boss turns invulnerable for a moment and the next phase begins. It can only die after every phase has been played.
 - **Longer survival phases:** every survival phase lasts 50% longer.
 - **Rage:** eight guardians fly into a rage in their last 15% of health, with a red banner and glow and 20% harder hits:
@@ -11,10 +14,18 @@
   - Frenzy: Itohime turns much faster.
 
 ### Tutorial
-- **No damage in training:** bullets and blows in Master Kaito's trials still hit you, with the flash and sound, but take no health. A "HIT" marker shows where a number would.
+- **About a minute of action:** the ten-trial tutorial is cut to four quick beats, one new key at a time, with Master Kaito shouting from the side:
+  1. AMBUSH! Straw bandits rush in from both sides: walk, aim and LMB.
+  2. ARROW STORM: dash through two volleys. A perfect dodge clears it at once.
+  3. THE STRAW OGRE: a giant dummy with a health bar slams red circles at you. RMB and all four abilities unlock with near-instant cooldowns.
+  4. JACKPOT: the ogre bursts into a treasure bag and gold, and the portal opens beside you.
+- **Taught later instead:** potions, bags, shops, shrines, curse altars, stuns, elites, guardians and their invulnerable events are now one-time tips when you first meet them. Curse altars and guardian events are new tips.
+- **Tips only on the first stage:** one-time tips now only appear on a run's first stage (the prologue, or stage I), and are never shown or used up elsewhere. While a new player still has tips to see, that stage always holds a trader, a shrine, a curse altar and an elite, so it teaches everything.
+- **Tips pause the game:** when a one-time tip appears, the fight freezes and a compact card sits at the top of the screen. Play resumes when you do what it suggests: C to drink, dash to get away, an ability, G for a bag. The press also does the action, except at shops, shrines and curse altars, where G only closes the tip and never buys, prays or accepts a curse. ENTER always works as "got it".
+- **No damage in training:** bullets and blows still hit you, with the flash and sound, but take no health. A "HIT" marker shows where a number would.
 
 ### Prologue I: The Burning Village
-- **The stage:** a gentle opening stage before stage I, with fewer and weaker foes. It is on by default, and P on character select switches it off.
+- **The stage:** a gentle opening stage before stage I, with fewer and weaker foes. Its layout is one winding road from the start to the guardian: every room is on the way, with no dead ends or detours. It is on by default, and P on character select switches it off.
 - **The boss:** Goro, the Bandit Captain, a new teaching boss with his own sprite and a second form.
 - **Falling here:** Master Kaito pulls you out. You restart the stage with everything you carry, and opened chests, killed foes and used shrines stay as they were.
 
@@ -36,7 +47,20 @@
 ### Music and modes
 - **Boss themes:** every guardian has its own melody in the piano score.
 - **Hero mastery:** heroes level I to X from their runs, unlocking starting weapons (Q/E) and colour schemes (Z/C).
-- **Daily challenge:** the same stages, hero and twist for everyone each day, with your best kept.
+- **Daily challenge:** the same stages and hero for everyone each day, harder and better paid, with your best kept.
+  - **Always:** foes have +15% health and damage, and the run pays +25% jade.
+  - **Pact bonus:** the more pacts, the bigger the payout. Jade grows exponentially, ×1.3 for every pact after the first: 2 pacts give ×1.3, 3 give ×1.69, 4 give ×2.2 and 5 give ×2.86, on top of each pact's own jade.
+  - **Two to five pacts a day, all at once:** each pact is a trade, a drawback paired with a reward, for example:
+    - Brutal Blows: take 30% more damage, get 30% more jade.
+    - Muddy Roads: move 10% slower, get 25% more gold.
+    - Windwalker: move 50% faster, deal 10% less damage.
+    - Glass Cannon: +60% damage, half health.
+    - Ricochet: enemy shots bounce, +25% jade.
+    - Elite Hunt: an extra elite in every fight, and every elite drops a bag.
+    - No Traders: the shops are gone, and every guardian gives a relic.
+    - Blood Thirst: kills heal, but no potions.
+    - Blood Price: start with 2 relics, 25% less health.
+  - **The pool:** 16 pacts in all. The day draws 2 to 5 of them (all active together, multiplied), and the menu panel shows them with the combined jade multiplier.
 
 ## 0.7.1: ShinobiDungeons
 
