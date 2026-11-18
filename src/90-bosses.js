@@ -66,6 +66,7 @@ function inShape(m,x,y){switch(m.k){
  case 'ring':{const d=Math.hypot(x-m.x,y-m.y);return d>m.r0&&d<m.r1;}
  case 'rect':return x>m.x0&&x<m.x1&&y>m.y0&&y<m.y1;}return false;}
 function tickMarks(dt){for(const m of BMK){
+  if(m.survival&&m.src.EV!==m.survival){m.dead=1;continue;}
   if(m.follow&&(m.lock==null||m.t>m.lock))m.follow(m);m.t-=dt;
   if(!m.fired){if(m.t<=0){m.fired=1;
     if(m.dmg&&P.hp>0&&inShape(m,P.x,P.y))hitPlayer(m.dmg,m.x!=null?m.x:P.x,m.y!=null?m.y:P.y,{peril:!m.soft,src:m.src});
@@ -83,7 +84,7 @@ function shapePath(m,k){ctx.beginPath();k=k==null?1:k;switch(m.k){
  case 'rect':ctx.rect(m.x0,m.y0,m.x1-m.x0,m.y1-m.y0);break;}}
 function drawMarks(){if(!BMK.length)return;ctx.save();worldXf();ctx.lineWidth=1.2;
  // fake walls (the fox's illusions) look real until a torii gate reveals them
- for(const m0 of BMK){if(m0.hidden&&!(m0.reveal&&m0.reveal(m0)))continue;const m=m0.fake&&!(revealed())?Object.assign({},m0,{fake:false}):m0;if(m.thin){ctx.globalAlpha=.55+.3*Math.sin(time*9);ctx.strokeStyle=m.col;ctx.lineWidth=.8;shapePath(Object.assign({},m,{w:.5}));ctx.stroke();ctx.lineWidth=1.2;continue;}
+ for(const m0 of BMK){if(m0.survival&&m0.src.EV!==m0.survival)continue;if(m0.hidden&&!(m0.reveal&&m0.reveal(m0)))continue;const m=m0.fake&&!(revealed())?Object.assign({},m0,{fake:false}):m0;if(m.thin){ctx.globalAlpha=.55+.3*Math.sin(time*9);ctx.strokeStyle=m.col;ctx.lineWidth=.8;shapePath(Object.assign({},m,{w:.5}));ctx.stroke();ctx.lineWidth=1.2;continue;}
   const k=m.fired?1:clamp(1-m.t/m.dur,0,1),bl=Math.floor(time*14)%2;
   if(m.fired){ctx.globalAlpha=m.fake?.12:.35+.15*Math.sin(time*20);ctx.fillStyle=m.col;shapePath(m);ctx.fill();if(!m.fake){ctx.globalAlpha=.8;ctx.strokeStyle='#fff';ctx.stroke();}continue;}
   ctx.globalAlpha=m.fake?.06:.14;ctx.fillStyle=m.col;shapePath(m);ctx.fill();
@@ -170,12 +171,44 @@ function startEvent(e,K,ev){ev=ev||K.event;e.EVdef=ev;cancelAtk(e);e.brq=[];clea
  // the engine's HUD reads storm/stormMax for the SURVIVE countdown and ev.mins for "defeat the guard"
  e.storm=ev.dur;e.stormMax=ev.dur;e.ev={name:ev.name,mins:[]};if(ev.start)ev.start(e,e.EV);
  const c=bsty(e).c;sfx('boss');shake=Math.max(shake,8);fxRing(e.x,e.y,80,c,.5);txtFx(e.x,e.y-16,ev.name,c,2);setToast(ev.name+' - '+(ev.hint||'SURVIVE!'),c,3.5);}
+// Stationary wall and long-range cover buy time, but a fixed tell makes either spot unsafe to hold.
+function survivalPressure(e,E,dt){
+ E.edgeCd=Math.max(0,(E.edgeCd||0)-dt);
+ if(!P||e.storm<1.2||E.edgeCd>0)return;
+ const A=arenaOf(e),x=P.x,y=P.y;
+ const far=Math.hypot((x-A.cx)/(A.x1-A.cx),(y-A.cy)/(A.y1-A.cy))>.66||dist(e,P)>Math.min(A.x1-A.x0,A.y1-A.y0)*.38;
+ let nearWall=false;
+ for(let i=0;i<8&&!nearWall;i++)nearWall=solid(x+Math.cos(i*TAU/8)*28,y+Math.sin(i*TAU/8)*28);
+ E.edgeTime=far||nearWall?(E.edgeTime||0)+dt:0;
+ if(E.edgeTime<.65)return;
+ E.edgeTime=0;E.edgeCd=1.7;
+ const col=BC.aim,t=.95;
+ mark({k:'c',x,y,r:24,t,col,dmg:13*e.dm,src:e,survival:E,quiet:true,on:()=>{
+  fxRing(x,y,26,col,.32);sfx('beat');
+  if(eShots()>210*BHK())return;
+  // Aim from a nearby clear lane so a pillar cannot absorb the whole volley.
+  const toward=aimAt({x,y},A.cx,A.cy);
+  for(const offset of [0,1,-1,2,-2]){
+   const a=toward+offset*.65,ox=x+Math.cos(a)*92,oy=y+Math.sin(a)*92;
+   if(ox<A.x0||ox>A.x1||oy<A.y0||oy>A.y1||blocked(ox,oy,4)||!los(ox,oy,x,y))continue;
+   bfan(e,ox,oy,Math.atan2(y-oy,x-ox),3,.38,108,8,{r:2,col,life:1.7});break;
+  }
+ }});
+}
 function runEvent(e,K,dt){const ev=e.EVdef||K.event,E=e.EV;E.t+=dt;e.iv=999;e.storm=Math.max(0,ev.dur-E.t);if(ev.tick)ev.tick(e,dt,E);
+ if(ev.survival&&!E.done)survivalPressure(e,E,dt);
  if(!ev.storm&&!ev.quiet&&E.t>.8)bossPressure(e);
  if(!ev.storm&&K.barrage&&!ev.quiet&&!e.ghost&&!e.air){E.bb=(E.bb==null?1.5:E.bb)-dt;if(E.bb<=0){E.bb=(K.barrage.rate||[1])[0]*1.7/BHK();if(eShots()<160){const L=K.barrage.ph1;bossBarrage(e,L[(E.bk=(E.bk||0)+1)%L.length]);}}}
  if(E.t>=ev.dur||(E.done)){if(ev.end)ev.end(e,E);if(ev.survival)clearEnemyShots(true,1);e.EV=null;e.ev=null;e.storm=0;e.iv=.5;e.gapT=1.2;e.air=false;e.z=0;e.alpha=null;sfx('break');fxRing(e.x,e.y,60,'#fff',.4);setToast(ev.name+' ENDS - STRIKE NOW!','#fff',2.2);}}
 // speech bubble over the boss, and the generic sprite extras
-function bossDrawAfter(e){const K=BKIT[e.name];if(K&&K.drawAfter)K.drawAfter(e);
+function drawSurvivalWard(e){
+ if(!(e.EV&&e.EVdef?.survival)||e.dead)return;
+ const col='#8fe0ff',r=Math.max(16,e.r+9),x=sx(e.x,e.y),y=sy(e.x,e.y)-(e.z||0)-15;
+ ctx.globalAlpha=.55+.16*Math.sin(time*7);wcirc(e.x,e.y,r,col);
+ ctx.strokeStyle=col;ctx.lineWidth=1;ctx.beginPath();ctx.ellipse(x,y,r*1.24,r,0,Math.PI,TAU);ctx.stroke();ctx.globalAlpha=1;
+ const label='INVULNERABLE';txt(label,x-Math.round(txtW(label)/2),y-r-8,col);
+}
+function bossDrawAfter(e){const K=BKIT[e.name];if(K&&K.drawAfter)K.drawAfter(e);drawSurvivalWard(e);
  if(e.say&&!e.dead){const X=sx(e.x,e.y),Y=sy(e.x,e.y)-e.z-58,s=e.say.s,w=txtW(s)+6;ctx.fillStyle='#14101a';ctx.fillRect(X-(w>>1)-1,Y-1,w+2,11);ctx.fillStyle='#f8f4e8';ctx.fillRect(X-(w>>1),Y,w,9);ctx.fillRect(X-1,Y+9,3,2);txt(s,X-(w>>1)+3,Y+2,e.say.c==='#fff'?'#14101a':e.say.c);}}
 // draw a sprite by hand at some alpha (the engine's drawEnemy always draws fully opaque)
 function drawGhostly(e,alpha,ox,oy,s){s=s||sprOf(e);const X=sx(e.x,e.y)+(ox||0),Y=sy(e.x,e.y)+(oy||0)+Math.min(6,Math.round(e.r*.6))+2;ctx.globalAlpha=alpha;

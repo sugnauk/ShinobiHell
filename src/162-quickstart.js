@@ -22,7 +22,7 @@ LESSONS.push(
    if(TR.ht<=0&&alive<3&&TR.c+alive<6){TR.ht=.5;const r=tRoom(),side=TR.spawned%2,y=(r.y+3+Math.random()*(r.h-6))*T,x=(side?r.x+r.w-2:r.x+2)*T;TR.spawned++;
     const e=tTarget(x,y,{horde:1,hp:QS_DUMMY_HP(),maxhp:QS_DUMMY_HP()});TR.hd.push(e);}
    for(const e of TR.hd)if(!e.dead){const a=Math.atan2(P.y-e.y,P.x-e.x);if(Math.hypot(P.x-e.x,P.y-e.y)>16)move(e,Math.cos(a)*30*dt,Math.sin(a)*30*dt,5);}}},
- {t:'ARROW STORM',l:()=>[kN('dash')+' DASHES - NOTHING CAN TOUCH YOU MID-DASH.','DASH THROUGH 2 VOLLEYS. TIME IT AS THEY ARRIVE FOR A PERFECT DODGE!'],unlock:['d'],need:2,ev:'dodge',
+ {t:'ARROW STORM',l:()=>[kN('dash')+' DASHES - NOTHING CAN TOUCH YOU MID-DASH.','DASH THROUGH 2 VOLLEYS. TIME IT AS THEY ARRIVE FOR A PERFECT DODGE!','PERFECT DODGE SHATTERS SHOTS AND REFUNDS UP TO 0.15S OF DASH COOLDOWN.'],unlock:['d'],need:2,ev:'dodge',
   say:'ARCHERS! DO NOT RUN FROM THE ARROWS - DASH THROUGH THEM!',
   go:()=>{tClear();tTurret(1.2,{cnt:5,spread:.7,sp:64,dmg:3,pd:2,col:'#fd4'});},
   tick:(dt,T)=>{const t=enemies.find(e=>e.type==='turret'&&!e.dead);if(t&&Math.hypot(t.x-P.x,t.y-P.y)>170)tTurret(1.2,t.tPat);},

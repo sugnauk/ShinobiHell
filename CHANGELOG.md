@@ -2,11 +2,16 @@
 
 ## 0.8.0: Character overhaul
 
-- Expand the playable roster to thirteen with Marionettist, Tengu, Kagura, Blood Oracle and Bellwarden.
+- Expand the playable roster to thirteen with Marionettist, Tengu, Kagura, Chimiko and Kanemori.
 - Sumo has innate damage reduction, an aimed Toss with collision and landing damage, and a Grand Slam that knocks enemies up and damages them again on landing.
 - Original characters gain combat techniques tied to their existing moves and evolutions. Final forms feature new looks and effects.
-- Show class resources during combat and preview both forms on character select.
+- Show class resources during combat.
 - Pace updates and drawing to a maximum of 60 FPS on high-refresh displays.
+- Awaken at evolution V with new sprites and an ultimate aftershock. At evolution IX the final form enlarges and strengthens that aftershock. Preview all three forms in character selection.
+- Give the five new heroes distinct weapon sprites and Shinobi a Shadow Katana with its existing attack. Rename Blood Oracle to Chimiko and Bellwarden to Kanemori while keeping their saved mastery.
+- Give survival bosses a visible shield and an invulnerability label. Telegraph a blast and aimed volley when players linger against walls or at long range. Keep enemy room centres more open.
+- Lower base dash invulnerability from 0.22s to 0.18s. Shadow Step relics shorten cooldown only. Dash uptime is capped at 40%, perfect dodges refund up to 0.15s of dash cooldown and 0.2s on Q, E and F, and random dodge chance is capped at 30%.
+- Test Mode shows the share of combat spent in i-frames. Press J to reset the sample.
 - Character mastery now goes to level 50, carries existing XP and unlocks forward, and adds cosmetic rewards. The Temple Skill Tree remains shared.
 
 ## 0.7.4: Iai Cleave becomes a dash, and stat potions are gone

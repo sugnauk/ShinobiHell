@@ -15,6 +15,14 @@ for(const [key,name] of Object.entries(FINAL_HERO_NAMES)){
  if(key==='wizard')WIZEVO[9].n=name;
  else EVONAMES[key][9]=name;
 }
+// The fifth boss reward awakens the existing evolution path. Keep both form names in the same save progression.
+const AWAKENED_NAMES={wizard:'STORM ADEPT',archer:'GALE MARKSMAN',samurai:'CRIMSON HATAMOTO',
+ shinobi:'VEILED ASSASSIN',onmyoji:'SPIRIT BINDER',gunner:'POWDER CAPTAIN',lancer:'DRAGON VANGUARD',
+ sumo:'STABLE GRANDMASTER',marionettist:'SILK WEAVER',tengu:'GALE HERALD',kagura:'PETAL DANCER',
+ bloodoracle:'CRIMSON MIKO',bellwarden:'RESONANT KEEPER'};
+for(const [key,name] of Object.entries(AWAKENED_NAMES)){
+ if(key==='wizard')WIZEVO[5].n=name;else EVONAMES[key][5]=name;
+}
 Object.assign(CLSINFO,ROSTER_INFO);
 for(const [key,trait] of Object.entries(HERO_TRAITS))CLSINFO[key].lore=trait;
 const HERO_LIMITS={
@@ -213,12 +221,24 @@ CZD.rosterYokai=function(z){
  };
 }
 
+// Awakened ultimates leave a second strike. Its origin follows the hero's combat role.
+const HERO_RESURGE={
+ wizard:96,archer:108,samurai:24,shinobi:28,onmyoji:53,gunner:106,lancer:58,
+ sumo:0,marionettist:90,tengu:78,kagura:0,bloodoracle:70,bellwarden:0
+};
+CZ.heroResurge=function(z){if(z.t>0)return;
+ rosterBurst(z.x,z.y,z.r,z.dm,22,z.col,{src:'e',chain:true});sfx('break');};
+CZD.heroResurge=z=>{ctx.globalAlpha=.42;wcirc(z.x,z.y,z.r,z.col);ctx.globalAlpha=1;};
+
 {
  const base=castUlt;
  castUlt=function(){
   const before=P.ab.e;
   const result=base.apply(this,arguments);
-  if(CLS().k==='wizard'&&heroTransformed()&&P.ab.e>before){
+  if(P.ab.e<=before||P.evo<5)return result;
+  const key=CLS().k,final=heroTransformed(),range=HERO_RESURGE[key],v=range?rosterAim(P,range):P;
+  zones.push({k:'heroResurge',src:'e',x:v.x,y:v.y,r:final?36:27,t:.42,tk:0,dm:S.atk*(final?1.75:1.1),col:CLS().col});
+  if(key==='wizard'&&final){
    const v=rosterAim(P,135);
    windColumn(v,P.aim,S.atk*.75,1.7,36,35);
    zones[zones.length-1].src='e';
@@ -255,6 +275,7 @@ CZD.rosterYokai=function(z){
  if(P.evo>previous){
   const key=CLS().k,col=CLS().col,look=masteryLook(key);
   fxRing(P.x,P.y,heroTransformed()?48:31,col,.54);
+  if(P.evo===5){txtFx(P.x,P.y-24,'AWAKENED',col,2);fxRing(P.x,P.y,40,'#fff',.62);sfx('rare');}
   if(look.skin===2){
    fxRing(P.x,P.y,58,'#fff0b0',.65);spark(P.x,P.y,col,12,82);
   }
@@ -295,3 +316,7 @@ function heroTechniqueDisplay(){
  const count=arrows||1;
  for(let i=0;i<count;i++)ctx.fillRect(x-2*count+1+4*i,y,2,2);
 };}
+
+// Last stats wrapper: class, gear, Temple, synergies and Daily have all applied.
+{const _cs=calcStats;calcStats=function(){const s=_cs.apply(this,arguments);
+ s.dashCd=Math.max(s.dashCd,s.dashIv*2.5);s.dodge=Math.min(.30,s.dodge||0);return s;};}

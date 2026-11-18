@@ -96,7 +96,7 @@ function threadBind(p,r){
 }
 rosterAdd({
  key:'marionettist',name:'MARIONETTIST',final:'SILK TYRANT',col:MARIONETTE,weapon:'PUPPET ROD',
- pose:'gohei',hat:'mask',role:'RANGED - CONTROL',lore:'LINK ENEMIES TO SHARE DAMAGE.',art:['#32203c','#724a89','#461f6a'],
+ pose:'puppet',hat:'mask',role:'RANGED - CONTROL',lore:'LINK ENEMIES TO SHARE DAMAGE.',art:['#32203c','#724a89','#461f6a'],
  stats:{hp:.9,pw:.97},
  kit:[
  ['NEEDLE CAST',0,'FIRES A FAST SPIRIT NEEDLE.',({p,a,A,bp,em})=>{rosterShots(p,a,1,0,A*bp*em,MARIONETTE);p.atkCd=.31/S.aspd;}],
@@ -132,7 +132,7 @@ function windColumn(p,a,A,duration,radius,speed){
 }
 rosterAdd({
  key:'tengu',name:'TENGU',final:'STORM ASCENDANT',col:WIND,weapon:'GALE FAN',
- pose:'kunai',hat:'kasa',role:'RANGED - MOBILITY',lore:'DASH THROUGH THE FIGHT ON WIND CURRENTS.',art:['#193a3e','#36746b','#285854'],
+ pose:'gale',hat:'kasa',role:'RANGED - MOBILITY',lore:'DASH THROUGH THE FIGHT ON WIND CURRENTS.',art:['#193a3e','#36746b','#285854'],
  stats:{hp:.89,spd:1.12,dash:.78},
  kit:[
  ['FEATHER BLADE',0,'THROW A PAIR OF WIND FEATHERS.',({p,a,A,bp,em})=>{rosterShots(p,a,2,.17,A*.68*bp*em,WIND);p.atkCd=.25/S.aspd;}],
@@ -173,7 +173,7 @@ function kaguraCut(p,a,r,damage,col){
 }
 rosterAdd({
  key:'kagura',name:'KAGURA',final:'CRIMSON LOTUS',col:PETAL,weapon:'RITUAL FANS',
- pose:'kunai',hat:'eboshi',role:'MELEE - COMBO',lore:'CHAIN HITS TO BUILD FLOW AND FINISH STRONG.',art:['#541c36','#9a3b55','#9d253c'],
+ pose:'fans',hat:'eboshi',role:'MELEE - COMBO',lore:'CHAIN HITS TO BUILD FLOW AND FINISH STRONG.',art:['#541c36','#9a3b55','#9d253c'],
  stats:{hp:.94,spd:1.04,dash:.88},
  kit:[
  ['DANCING CUT',0,'CLOSE FAN SLASHES BUILD FLOW.',({p,a,A,bp,em})=>{
@@ -214,8 +214,8 @@ function popSeals(p,damage,limit){
  p.hp=Math.min(S.maxhp,p.hp+Math.min(heal,S.maxhp*.16));
 }
 rosterAdd({
- key:'bloodoracle',name:'BLOOD ORACLE',final:'SCARLET PROPHET',col:BLOOD,weapon:'RITUAL BRUSH',
- pose:'staff',hat:'hood',role:'RANGED - SACRIFICE',lore:'SPEND HEALTH ON SEALS AND HARVEST THE DEAD.',art:['#421726','#7e2848','#491431'],
+ key:'bloodoracle',name:'CHIMIKO',final:'SCARLET PROPHET',col:BLOOD,weapon:'RITUAL BRUSH',
+ pose:'brush',hat:'hood',role:'RANGED - SACRIFICE',lore:'SPEND HEALTH ON SEALS AND HARVEST THE DEAD.',art:['#421726','#7e2848','#491431'],
  stats:{hp:1.05,def:0,pw:1.08},
  kit:[
  ['SCARLET INK',0,'FIRE A PIERCING INK DART.',({p,a,A,bp,em})=>{rosterShots(p,a,1,0,A*1.22*bp*em,BLOOD,{pierce:1});p.atkCd=.32/S.aspd;}],
@@ -241,8 +241,8 @@ function addEcho(amount){
  P.bellEcho=Math.min(cap,(P.bellEcho||0)+amount);
 }
 rosterAdd({
- key:'bellwarden',name:'BELLWARDEN',final:'ENLIGHTENED GUARDIAN',col:CHIME,weapon:'TEMPLE BELL',
- pose:'gohei',hat:'pilgrim',role:'MELEE - COUNTER',lore:'INTERCEPT SHOTS AND TURN THEM INTO ECHO.',art:['#51413a','#9b7443','#71502a'],
+ key:'bellwarden',name:'KANEMORI',final:'ENLIGHTENED GUARDIAN',col:CHIME,weapon:'TEMPLE BELL',
+ pose:'bell',hat:'pilgrim',role:'MELEE - COUNTER',lore:'INTERCEPT SHOTS AND TURN THEM INTO ECHO.',art:['#51413a','#9b7443','#71502a'],
  stats:{hp:1.28,spd:.93,def:2},
  kit:[
  ['BELL SWING',0,'SWING YOUR TEMPLE BELL IN A WIDE ARC.',({p,a,A,bp,em})=>{

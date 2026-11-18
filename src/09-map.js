@@ -54,7 +54,7 @@ function genMap(di){
   if(sh){const near=[...mids].sort((a,b)=>bd(a)-bd(b)).slice(0,2),tg=pick(near);if(tg!==sh){const t=tg.type;tg.type='shop';sh.type=t;}}}
  const set=(i,j,v)=>{if(i>0&&j>0&&i<MW-1&&j<MH-1)t[j*MW+i]=v;};
  // room shapes: specials stay simple with an open centre, fights get varied arenas
- const SHAPES=['rect','round','round','cross','cave','cave','cave','hall','ring','octa'];
+ const SHAPES=['rect','round','round','cross','cave','cave','cave','hall','octa','octa'];
  for(const r of rooms){
   r.shape=r.k==='start'?'octa':r.k==='boss'?'arena':['combat','elite','trap'].includes(r.type)?pick(r.type==='elite'?['round','cross','cave','hall','octa']:SHAPES):pick(['rect','round','octa']);
   const w=r.w,h=r.h,mx=r.x+(w-1)/2,my=r.y+(h-1)/2;
@@ -68,10 +68,9 @@ function genMap(di){
    }
    if(ok)set(i,j,1);
   }
-  if(r.shape==='ring'&&w>=12&&h>=12)for(let j=r.y+5;j<r.y+h-5;j++)for(let i=r.x+5;i<r.x+w-5;i++)set(i,j,0);
   if(r.shape==='hall'){for(let i=r.x+2;i<r.x+w-2;i+=3){set(i,r.y+2,0);set(i,r.y+h-3,0);}}
   if(r.shape==='cross'||r.shape==='cave'){set(Math.round(mx),Math.round(my),1);}
-  if(r.shape==='rect'&&['combat','trap'].includes(r.type)&&w>=9&&h>=9){const np=ri(1,3);for(let k=0;k<np;k++){const px=ri(r.x+2,r.x+w-4),py=ri(r.y+2,r.y+h-4);if(Math.abs(px-(r.x+(w>>1)))<2&&Math.abs(py-(r.y+(h>>1)))<2)continue;for(let jj=0;jj<2;jj++)for(let ii=0;ii<2;ii++)set(px+ii,py+jj,0);}}
+  if(r.shape==='rect'&&['combat','trap'].includes(r.type)&&w>=9&&h>=9){const px=ri(r.x+2,r.x+w-3),py=ri(r.y+2,r.y+h-3);if(Math.abs(px-mx)>2||Math.abs(py-my)>2)set(px,py,0);}
   if(r.k==='boss'){const c=[[6,6],[w-8,6],[6,h-8],[w-8,h-8]];for(const [px,py] of c)for(let jj=0;jj<2;jj++)for(let ii=0;ii<2;ii++)set(r.x+px+ii,r.y+py+jj,0);}
   // organic outlines: round alcoves and bulges around the edge so rooms are not perfect boxes (the boss arena stays clean)
   if(r.k!=='boss'){const nb=Math.round((w+h)/5);for(let k=0;k<nb;k++){const side=ri(0,3),f=Math.random();
@@ -122,7 +121,7 @@ function genMap(di){
   spaceShopAndAltar(rooms,links,first);}
  rooms.push(approach);
  // reopen room centres that corridors or shapes may have closed
- for(const r of rooms)if(r.shape!=='ring')set(cx(r),cy(r),1);
+ for(const r of rooms)set(cx(r),cy(r),1);
  // liquid pools (water, lava, poison...) inside rooms, kept away from room centres
  const env=ENV[di],liq=new Uint8Array(MW*MH);
  if(env.liq)for(const r of rooms){if(r.k==='start'||r.k==='approach')continue;const n=Math.round(r.w*r.h*env.amt/6)+(Math.random()<env.amt*4?1:0);

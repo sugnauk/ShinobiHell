@@ -27,7 +27,8 @@ function testMenuKey(c){const r=TROWS[TEST.sel];
  else if((c==='ArrowLeft'||c==='KeyA')&&r.ch){r.ch(-1);sfx('coin');}else if((c==='ArrowRight'||c==='KeyD')&&r.ch){r.ch(1);sfx('coin');}
  else if(c==='Enter'||c==='Space'){if(r.act)r.act();else if(r.ch){r.ch(1);sfx('coin');}}else if(c==='Escape'){mode='title';sfx('coin');}}
 // a test run: the chosen character and stage, skipping training, and the extras asked for
-function testStart(){const keep={cls:meta.cls,trained:meta.trained,ngp:OPT().ngp,unlocked:meta.unlocked,ngU:meta.ngUnlocked};
+function resetTestInvulnerability(){TEST.combatT=0;TEST.invT=0;}
+function testStart(){resetTestInvulnerability();const keep={cls:meta.cls,trained:meta.trained,ngp:OPT().ngp,unlocked:meta.unlocked,ngU:meta.ngUnlocked};
  meta.cls=TEST.cls;meta.trained=true;meta.ngUnlocked=true;OPT().ngp=TEST.ngp;
  startRun(TEST.stage);R.test=true;R.testCls=TEST.cls;R.god=!!TEST.god;R.ngp=!!TEST.ngp;
  Object.assign(meta,{cls:keep.cls,trained:keep.trained,ngUnlocked:keep.ngU});OPT().ngp=keep.ngp;S=calcStats();
@@ -52,14 +53,20 @@ const TCMDS=[['1','GOD MODE',()=>{R.god=!R.god;setToast('GOD MODE '+(R.god?'ON':
   if(mode==='testmenu'){testMenuKey(c);return;}
   if((mode==='title'||mode==='hub')&&c==='KeyT'){openTest();return;}
   if(mode==='play'&&R&&R.test&&!paused&&!invOpen){if(c==='Backquote'){TEST.panel=!TEST.panel;sfx('tool');return;}
+   if(c==='KeyJ'){resetTestInvulnerability();setToast('INVULNERABILITY METER RESET','#ffd040',1);return;}
    if(TEST.panel){const m=/^Digit(\d)$/.exec(c);if(m){const cmd=TCMDS.find(t=>t[0]===m[1]);if(cmd){cmd[2]();sfx('pickup');}return;}}}
   return _ok(c);};}
 {const _r=render;render=function(){if(mode==='testmenu'){setView(false);ctx.imageSmoothingEnabled=false;renderTestMenu();return;}return _r();};}
 {const _rt=renderTitle;renderTitle=function(){_rt();txt('T: TEST MODE',4,H-9,'#666');};}
 {const _rh=renderHub;renderHub=function(){_rh();txt('T: TEST',W-4-txtW('T: TEST'),4,'#555');};}
-{const _h=drawHUD;drawHUD=function(){_h();if(!R||!R.test)return;txt('TEST'+(R.god?' GOD':''),Math.round(W/2)-40,14,'#ffd040');
-  if(TEST.panel){const x=6,y=52,w=150;ctx.fillStyle='rgba(8,4,12,.9)';ctx.fillRect(x,y,w,12+TCMDS.length*9);ctx.fillStyle='#ffd040';ctx.fillRect(x,y,w,1);txt('TEST PANEL  ` CLOSES',x+4,y+3,'#ffd040');
+{const _h=drawHUD;drawHUD=function(){_h();if(!R||!R.test)return;txt('TEST'+(R.god?' GOD':''),6,52,'#ffd040');
+  const pct=TEST.combatT?Math.round(100*TEST.invT/TEST.combatT)+'%':'--';
+  txt('COMBAT I-FRAMES '+pct+" [J RESET]",6,61,'#ffd040');
+  if(TEST.panel){const x=6,y=70,w=150;ctx.fillStyle='rgba(8,4,12,.9)';ctx.fillRect(x,y,w,12+TCMDS.length*9);ctx.fillStyle='#ffd040';ctx.fillRect(x,y,w,1);txt('TEST PANEL  ` CLOSES',x+4,y+3,'#ffd040');
    TCMDS.forEach((t,i)=>{txt(t[0],x+4,y+13+i*9,'#ffd040');txt(t[1],x+14,y+13+i*9,'#ddd');});}};}
+// Only count simulated combat ticks. Pauses, introductions and hitstop never enter updPlay.
+{const _up=updPlay;updPlay=function(dt){const during=R?.test&&inCombat(),safe=during?Math.min(dt,Math.max(P.iv||0,P.dash||0)):0;
+ if(during){TEST.combatT+=dt;TEST.invT+=safe;}return _up.apply(this,arguments);};}
 // god mode, and the start point once the boss is awake
 {const _uw=updWorld;updWorld=function(dt){_uw(dt);if(!R||!R.test||!P)return;if(R.god){P.hp=S.maxhp;P.stag=0;}
   if(!TEST.applied&&boss&&boss.awake&&boss.kitOn){TEST.applied=true;if(TEST.start===2)testBossHp(.49);else if(TEST.start===3)testNextEvent();else if(TEST.start===4)testBossHp(.2);}};}

@@ -39,15 +39,16 @@ SPELLS.m.push(
  {n:'SPIRIT MIRROR',g:'|',c:'#e0f0ff',d:'PIERCING BEAM OF LIGHT',dm:1.3,db:'b'});
 // every weapon type and the LMB attack it gives. Any class can wield any type;
 // each class mostly finds its own family and gets +25% LMB damage with its SIGNATURE type.
-const WTYPES={STAFF:0,'WAR FAN':1,CENSER:2,KATANA:4,NAGINATA:8,ODACHI:9,YUMI:5,HANKYU:10,REPEATER:11,KUNAI:6,SHURIKEN:12,KUSARIGAMA:13,OFUDA:7,'SUZU BELL':14,'SPIRIT MIRROR':15};
+const WTYPES={STAFF:0,'WAR FAN':1,CENSER:2,KATANA:4,'SHADOW KATANA':4,NAGINATA:8,ODACHI:9,YUMI:5,HANKYU:10,REPEATER:11,KUNAI:6,SHURIKEN:12,KUSARIGAMA:13,OFUDA:7,'SUZU BELL':14,'SPIRIT MIRROR':15};
 const WFAM={wizard:['STAFF','WAR FAN','CENSER'],samurai:['KATANA','NAGINATA','ODACHI'],archer:['YUMI','HANKYU','REPEATER'],
- shinobi:['KATANA','KUNAI','SHURIKEN','KUSARIGAMA'],onmyoji:['OFUDA','SUZU BELL','SPIRIT MIRROR']};
-const WSIG={wizard:'STAFF',samurai:'KATANA',archer:'YUMI',shinobi:'KATANA',onmyoji:'OFUDA'},SIGBONUS=1.25;
+ shinobi:['SHADOW KATANA','KUNAI','SHURIKEN','KUSARIGAMA'],onmyoji:['OFUDA','SUZU BELL','SPIRIT MIRROR']};
+const WSIG={wizard:'STAFF',samurai:'KATANA',archer:'YUMI',shinobi:'SHADOW KATANA',onmyoji:'OFUDA'},SIGBONUS=1.25;
 const LMBRATE={0:.3,1:.5,2:.5,3:.38,4:.3,5:.22,6:.2,7:.3,8:.4,9:.75,10:.3,11:.11,12:.28,13:.38,14:.45,15:.42};
 const wfam=()=>WFAM[CLS().k];
 function rollWT(){return Math.random()<.75?pick(wfam()):pick(Object.keys(WTYPES));}
 const wtName=g=>(g&&typeof g.wt==='string')?g.wt:WSIG[CLS().k];
-const isSig=g=>wtName(g)===WSIG[CLS().k];
+// Old Shinobi saves and the legendary katana retain the same signature bonus.
+const isSig=g=>{const k=CLS().k,w=wtName(g);return w===WSIG[k]||k==='shinobi'&&w==='KATANA';};
 // legendary weapons: a wizard's legendary staff fires Kami Seekers; every other legendary empowers its attack
 function wpnLMB(g){if(!g)return WTYPES[WSIG[CLS().k]];if(g.rare&&CLS().k==='wizard'&&wtName(g)==='STAFF')return 3;return WTYPES[wtName(g)];}
 function syncLMB(){if(!P||!R||!R.eq)return;const g=R.eq.wpn;
@@ -73,12 +74,12 @@ function mixC(a,b,t){const p=s=>[1,3,5].map(i=>parseInt(s.slice(i,i+2),16)),A=p(
 function heroEV(cls,st){if(cls==='wizard')return WIZEVO[st];const t=st/9,n=EVONAMES[cls][st];
  if(cls==='samurai')return {n,hat:st<3?'kasa':'kabuto',crest:st>=6,beard:st>=8?1:0,wpn:st<1?'bokken':'katana',C:{hat:st<3?'#c8a050':mixC('#5a4a3a','#8a1818',t),hatL:st<3?'#e0c070':'#c8c8d0',band:st>=4?'#e0b040':'#6a5a4a',robe:mixC('#6a5a4a','#a02020',t),robeS:mixC('#4a3a2a','#5a1010',t),trim:st>=4?'#e0b040':'#3a2a1a',beard:'#3a3a3a',beardS:'#2a2a2a'}};
  if(cls==='archer')return {n,hat:st<6?'hood':'kasa',beard:0,wpn:'bow',C:{hat:mixC('#5a5a3a','#2e6a2a',t),hatL:mixC('#7a7a5a','#4a9a3a',t),band:st>=6?'#c8c8d0':'#4a4a2a',robe:mixC('#6a6a4a','#2e7a3a',t),robeS:mixC('#4a4a2a','#1e4a22',t),trim:st>=5?'#c8c8d0':'#5a4a2a'}};
- if(cls==='shinobi')return {n,hat:'mask',beard:0,wpn:'kunai',C:{hat:mixC('#2a3147','#1a1628',t),hatL:'#5a5a6a',band:st>=2?mixC('#802020','#e02040',t):'#ac5462',robe:mixC('#38435b','#1e1a30',t),robeS:mixC('#32323a','#100c1c',t),trim:st>=4?'#9a7aff':'#2a2a32'}};
+ if(cls==='shinobi')return {n,hat:'mask',beard:0,wpn:'shadowKatana',C:{hat:mixC('#2a3147','#1a1628',t),hatL:'#5a5a6a',band:st>=2?mixC('#802020','#e02040',t):'#ac5462',robe:mixC('#38435b','#1e1a30',t),robeS:mixC('#32323a','#100c1c',t),trim:st>=4?'#9a7aff':'#2a2a32'}};
  return {n,hat:st<2?'hood':'eboshi',beard:st>=7?1:0,wpn:'gohei',C:{hat:st<2?'#a8a090':'#1a1a1a',hatL:st<2?'#c8c0b0':'#3a3a3a',band:st>=5?'#8a3ac8':'#a8a090',robe:mixC('#c8c0b0','#f4f4fc',t),robeS:mixC('#a8a090','#c8c8e0',t),trim:st>=3?mixC('#c03030','#8a3ac8',t):'#a8a090',beard:'#2a2a2a',beardS:'#1a1a1a'}};}
 const HEROC={};
 function heroSpr(cls,st,back){const k=cls+st+(back?'b':'');if(HEROC[k])return HEROC[k];
  if(cls==='wizard')return HEROC[k]=back?buildWiz(st,true):WIZSPR[st];
- return HEROC[k]=buildHero({...heroEV(cls,st),detail:cls,rosterFinal:st>=9},false,back);}
+ return HEROC[k]=buildHero({...heroEV(cls,st),detail:cls,awakened:st>=5&&st<9,rosterFinal:st>=9},false,back);}
 const evoName=st=>heroEV(CLS().k,st).n;
 // class ability helpers
 const EMP=k=>(P?.emp?.[k]?1.6:1)*(R?.addon?.[k]?.focus?1.1:1)*(P?.asc?.[k]?1.3:1); // asc: a legendary spell learned from a scroll

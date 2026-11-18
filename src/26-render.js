@@ -554,8 +554,8 @@ function drawHUD(){
  if(P.hCh>0){const k=Math.min(1,P.hCh/HCHARGE);ctx.fillStyle='#14101a';ctx.fillRect(Math.round(W/2-9),H/2+17,18,3);ctx.fillStyle=k>=1?(Math.floor(time*12)%2?'#fff':'#fd4'):'#a89ab8';ctx.fillRect(Math.round(W/2-8),H/2+18,Math.round(16*k),1);}
  if(P.dashCd>0){ctx.fillStyle='#fff';ctx.fillRect(Math.round(W/2-8),H/2+14,Math.round(16*(1-P.dashCd/S.dashCd)),1);}
  // survival phase: big countdown while the boss is invulnerable
- if(boss&&boss.awake&&!boss.dead&&boss.storm>0){const c=bsty(boss).c,s='SURVIVE '+Math.ceil(boss.storm);txt(s,Math.round((W-txtW(s,2))/2),32,Math.floor(time*4)%2?c:'#fff',2);
-  bar(Math.round(W/2-60),46,120,3,boss.storm/(boss.stormMax||8),c,'#2a1a2a');ctxt(boss.EVdef?.hint||'THE BOSS CANNOT BE HURT - DODGE!',52,'#ddd');}
+ if(boss&&boss.awake&&!boss.dead&&boss.storm>0){const survival=!!(boss.EV&&boss.EVdef?.survival),c=survival?'#8fe0ff':bsty(boss).c,s=(survival?'SURVIVE  ':'EVENT  ')+Math.ceil(boss.storm);txt(s,Math.round((W-txtW(s,2))/2),32,Math.floor(time*4)%2?c:'#fff',2);
+  bar(Math.round(W/2-60),46,120,3,boss.storm/(boss.stormMax||8),c,'#2a1a2a');ctxt(survival?'BOSS INVULNERABLE - KEEP MOVING':boss.EVdef?.hint||'THE BOSS CANNOT BE HURT - DODGE!',52,survival?c:'#ddd');}
  // minion event: how many of the guard are left before the shield breaks
  if(boss&&boss.awake&&!boss.dead&&boss.ev&&boss.ev.mins.length){const n=boss.ev.mins.filter(m=>!m.dead).length;if(n){const c=bsty(boss).c,s=boss.ev.name;txt(s,Math.round((W-txtW(s,2))/2),boss.storm>0?62:32,c,2);ctxt('SHIELDED - DEFEAT THE GUARD: '+n+' LEFT',boss.storm>0?78:48,Math.floor(time*3)%2?'#fff':'#9cf');}}
  // arena mechanics the player can use

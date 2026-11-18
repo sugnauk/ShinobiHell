@@ -43,9 +43,9 @@ const WIZEVO=[{n:'APPRENTICE',hat:'pilgrim',beard:0,orb:1,C:{hat:'#253955',hatL:
  {n:'ARCHMAGE',hat:'pointed',beard:2,orb:1,C:{hat:'#1a2a6a',hatL:'#34489a',robe:'#24348a',robeS:'#16205a',beard:'#a8a8b4',beardS:'#80808c'}},
  {n:'ELDER',hat:'pointed',beard:2,orb:1,C:{hat:'#3a1a5a',hatL:'#5a3a8a',robe:'#4a2a7a',robeS:'#30184e'}},
  {n:'MASTER WIZARD',hat:'pointed',beard:2,orb:1,C:{}}];
-function buildWiz(stage,back=false){return buildHero({...WIZEVO[stage],detail:'wizard'},stage>=9,back);}
+function buildWiz(stage,back=false){return buildHero({...WIZEVO[stage],detail:'wizard',awakened:stage>=5&&stage<9},stage>=9,back);}
 function drawSumoFrame(R,frame,back,stage,skin){
- const crest=stage>=6,final=stage>=9;
+ const crest=stage>=5,final=stage>=9;
  const walk=frame>=2&&frame<=5;
  const bob=walk&&frame%2===1?1:0;
  const y=12+bob;
@@ -117,7 +117,7 @@ function drawRosterDetail(R,kind,final,bob,back){
 function buildHero(EV,star,back){const stage=star?9:0;
  const FW=20,FH=24,N=16,C=Object.assign({o:'#14101a',hat:'#2e3a8a',hatL:'#4656b4',band:'#e8c050',skin:'#e0b080',beard:'#eceef6',beardS:'#b8bccc',robe:'#5a2e9a',robeS:'#3e1e70',trim:'#e8c050',staff:'#8a5a2a',staffL:'#b07a40',orb:'#ff8a30',orbL:'#ffe080',boot:'#2a2236'},EV.C);
  const sheet=mk(FW*N,FH,()=>{}),sg=sheet.getContext('2d');
- const CK={staff:'wiz',katana:'sam',bokken:'sam',bow:'arc',kunai:'nin',gohei:'onm',gun:'arc',spear:'sam'}[EV.wpn||'staff']||'wiz';
+ const CK={staff:'wiz',puppet:'onm',gale:'nin',fans:'nin',brush:'onm',bell:'sam',katana:'sam',shadowKatana:'nin',bokken:'sam',bow:'arc',kunai:'nin',gohei:'onm',gun:'arc',spear:'sam'}[EV.wpn||'staff']||'wiz';
  for(let f0=0;f0<N;f0++){
   // a class pose (cz) replaces the arms + weapon for this frame; for the wizard the new frames reuse his own poses
   let cz=HPOSE[CK][f0],f=f0;if(typeof cz==='number'){f=cz;cz=null;}
@@ -167,7 +167,10 @@ function buildHero(EV,star,back){const stage=star?9:0;
    if(WP!=='staff'){ // weapons drawn as a line from the hand at a per-pose angle
     const hand=cz?[cz.hand[0]+lean,cz.hand[1]+bob]:f===6?[5,14]:f===7?[16,15]:up?[15,9]:f===11?[15,14]:[sx,16],ang=cz?cz.ang:f===6?-2.4:f===7?-.15:up?-1.57:f===11?0:-1.1,L=(x,y,len,a,c)=>{for(let i=0;i<len;i++)R(Math.round(x+Math.cos(a)*i),Math.round(y+Math.sin(a)*i),1,1,c);};
     const [hx0,hy0]=hand,fx=cz&&cz.fx;
-    if(WP==='katana'||WP==='bokken'){
+    if(WP==='shadowKatana'&&f!==13){
+     L(hx0,hy0,10,ang,'#aa9bc8');L(hx0,hy0,8,ang,'#5d4c77');R(hx0,hy0,1,1,'band');
+    }
+    else if(WP==='katana'||WP==='bokken'){
      if(fx==='slash'){for(let i=0;i<9;i++){const a=-1.9+i*.32;R(Math.round(9+Math.cos(a)*10),Math.round(14+Math.sin(a)*9),2,1,i>6?'#a0c8ff':'#ffffff');}} // the cut's crescent
      if(cz&&cz.arm==='hilt'){L(hx0,hy0,9,ang,'#3a2a2a');R(hx0,hy0,1,1,EV.C.trim||'#e0b040');} // still sheathed, hand on the hilt
      else{L(hx0,hy0,3,ang+Math.PI,'#3a2a2a');L(hx0,hy0,11,ang,WP==='bokken'?'#a07a48':'#e8eef6');R(hx0,hy0,1,1,EV.C.trim||'#e0b040');if(WP==='katana')L(hx0+Math.round(Math.cos(ang+1.57)),hy0+Math.round(Math.sin(ang+1.57)),9,ang,'#a8b0c0');}
@@ -178,11 +181,21 @@ function buildHero(EV,star,back){const stage=star?9:0;
       else if(fx==='nock'){L(hx0-4,hy0+1,6,0,'#d8c8a0');}else if(f===7||f===6)L(hx0-5,hy0,7,0,'#d8c8a0');}}
     else if(WP==='spear'){L(hx0,hy0,6,ang+Math.PI,'#5a3a22');L(hx0,hy0,15,ang,'#7a5a3a');const tx=Math.round(hx0+Math.cos(ang)*15),ty=Math.round(hy0+Math.sin(ang)*15);L(tx,ty,4,ang,'#e8eef6');R(tx,ty,1,1,EV.C.trim||'#c02020');}
     else if(WP==='gun'){const ga=fx==='loose'||f===7?0:ang;L(hx0,hy0,4,ga+Math.PI,'#6a4a2a');L(hx0,hy0,11,ga,'#464858');L(hx0,hy0-1,9,ga,'#9eabae');L(hx0-2,hy0+1,6,ga,'#8c5035');L(hx0+Math.round(Math.cos(ga+1.57)),hy0+Math.round(Math.sin(ga+1.57)),5,ga,'#6a4a2a');if(fx==='loose'){const tx=Math.round(hx0+Math.cos(ga)*12),ty=Math.round(hy0+Math.sin(ga)*12);R(tx,ty-1,2,2,'#ffd060');R(tx+1,ty,1,1,'#fff');}else R(hx0+1,hy0-1,1,1,'#ff8030');}
-    else if(WP==='kunai'){
+    else if(WP==='kunai'||WP==='shadowKatana'){
      if(fx==='throw'){R(hx0+3,hy0-1,4,1,'#d0d8e0');R(hx0+6,hy0-1,1,1,'#ffffff');R(hx0+1,hy0-1,1,1,'#c02030');for(let i=0;i<3;i++)R(hx0-2-i*2,hy0+1+i,1,1,'#9aa');} // the kunai leaves the hand
      else if(fx==='smoke'){for(const [x,y] of [[3,18],[15,17],[5,11],[14,10],[9,8]])R(x,y,2,2,'#c8c8d0');}
      else{L(hx0,hy0,4,ang,'#d0d8e0');R(hx0,hy0,1,1,'#c02030');}
      if(!cz||cz.arm!=='seal')R(4,15+bob,2,1,'#d0d8e0');}
+    else if(WP==='puppet'){L(hx0,hy0,7,ang,'staff');const x=Math.round(hx0+Math.cos(ang)*6),y=Math.round(hy0+Math.sin(ang)*6);
+     R(x-2,y-1,5,1,'orbL');R(x-2,y,1,3,'band');R(x+2,y,1,3,'band');R(x-1,y+3,3,1,'hatL');}
+    else if(WP==='gale'||WP==='fans'){const x=Math.min(16,Math.max(3,hx0)),y=hy0-3;
+     R(x-2,y,5,2,'trim');R(x-1,y+2,4,1,'orbL');R(x,y+3,2,2,'band');R(x+1,y,1,3,'hatL');
+     if(WP==='fans'){R(3,13+bob,4,2,'trim');R(4,15+bob,2,2,'band');}
+     else R(x-3,y-1,3,1,'orbL');}
+    else if(WP==='brush'){L(hx0,hy0,8,ang,'staffL');const x=Math.round(hx0+Math.cos(ang)*7),y=Math.round(hy0+Math.sin(ang)*7);
+     R(x-1,y-1,3,3,'orbL');R(x,y-2,2,1,'orb');R(hx0,hy0,1,1,'band');}
+    else if(WP==='bell'){const x=Math.min(15,hx0),y=hy0-3;R(x,y,2,2,'staffL');R(x-1,y+2,4,3,'band');
+     R(x-2,y+5,6,1,'orbL');R(x,y+6,2,1,'hatL');}
     else if(WP==='gohei'){L(hx0,hy0,9,ang,'#c8a060');const tx=Math.round(hx0+Math.cos(ang)*8),ty=Math.round(hy0+Math.sin(ang)*8);R(tx,ty,1,1,'#fff');R(tx-1,ty+1,2,1,'#fff');R(tx,ty+2,2,1,'#fff');R(tx-1,ty+3,2,1,'#fff');R(tx+1,ty+1,1,1,'#e03040');
      if(fx==='charm'){R(17,9,3,4,'#f8f4e8');R(18,10,1,2,'#d02030');R(16,10,1,1,'#f8f4e8');} // a paper charm flung forward
      if(fx==='float'){R(hx0-1,hy0-6,3,4,'#f8f4e8');R(hx0,hy0-5,1,2,'#d02030');R(hx0-2,hy0-7,1,1,'#c8a0ff');R(hx0+2,hy0-3,1,1,'#c8a0ff');}}}
@@ -236,6 +249,12 @@ function buildHero(EV,star,back){const stage=star?9:0;
    R(7+hx,5+hy,6,2,'hat');R(8+hx,3+hy,4,2,'hat');R(9+hx+Math.round(tx/3),2+hy,3,1,'hat');R(10+hx+Math.round(tx/2),1+hy,2,1,'hat');R(12+hx+tx,0+hy,2,1,'hatL');
    R(8+hx,5+hy,1,2,'hatL');R(9+hx,3+hy,1,2,'hatL');if(stage>=9)R(11+hx,5+hy,1,1,'band');}
    if(EV.rosterDetail||EV.rosterFinal||star)drawRosterDetail(R,EV.rosterDetail,EV.rosterFinal||star,bob,back);
+   if(EV.awakened){
+    // Shoulder cords, charm and crest identify the middle form even through mastery palettes.
+    R(4,13+bob,3,2,'band');R(13,13+bob,3,2,'band');
+    R(5,13+bob,1,5,'orbL');R(14,13+bob,1,5,'orbL');
+    R(9,7+hy,3,1,'orbL');R(9,18+bob,2,2,'trim');
+   }
    if(EV.masterySkin){
     R(5,13+bob,2,3,'hat');R(12,13+bob,2,3,'hat');
     R(4,13+bob,3,1,'trim');R(12,13+bob,3,1,'trim');
