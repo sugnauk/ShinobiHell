@@ -1,5 +1,26 @@
 # Changelog
 
+## 0.7.4: Iai Cleave becomes a dash, and stat potions are gone
+
+### Stats: no more stat potions
+- **Stat potions (elixirs) are gone.** They gave permanent saved points, so long-played saves kept growing stronger.
+- **Where the six stats (ATT, DEF, SPD, DEX, VIT, WIS) come from now:**
+  - **Hero base stats:** each hero has their own, the knob for balancing heroes (wizard ATT 3 / WIS 3, archer DEX 3 / SPD 3, samurai DEF 3 / VIT 3, shinobi SPD 3 / DEX 2 / ATT 1, onmyoji WIS 3 / VIT 3, gunner ATT 4 / DEF 2, lancer ATT 2 / DEF 2 / VIT 2).
+  - **Relics:** every relic also grants points in the stat that fits it (+2 common and uncommon, +3 rare, +4 legendary), shown on its description.
+  - **Enchants:** every enchant stack grants +2 of its stat (Flame and Venom and Blast ATT, Frost WIS, Storm DEX, Leech VIT, Gale SPD).
+  - **Rings** keep the stats they roll.
+- **Loot:** bags that used to hold an elixir now hold a relic (60%) or an enchant.
+- **Old saves:** every elixir point already collected is refunded as 25 jade, with a message at the start of the next run.
+- **Display:** the pause screen shows each stat as hero base + bonuses; the guide's stat pages explain the new sources.
+
+### Samurai
+- **Iai Cleave (RMB) is a short dash with a cut:**
+  - The samurai darts about 40px along the aim, and is untouchable for the dash.
+  - Every foe on the way, and just ahead of the blade, is cut once (same damage and stun as before, about the same reach).
+  - On a full charge, it also cuts the enemy shots the dash passes through.
+  - Uses the lunge motion, and the blade cut is drawn along the whole dash when it ends.
+- **Description updated** on character select and in the tooltip.
+
 ## 0.7.3: ability animations, ultimates, strikes, revives and a gentler start
 
 ### A gentler start

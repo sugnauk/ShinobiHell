@@ -7,7 +7,7 @@ SPELLS.m.push({n:'KATANA COMBO',g:'/',c:'#e8eef6',d:'3-HIT SLASH COMBO. 3RD HIT 
  {n:'QUICK ARROW',g:'>',c:'#e8dcb0',d:'FAST, LONG-RANGE ARROWS',dm:.85,db:'b'},
  {n:'KUNAI',g:'K',c:'#d0d8e0',d:'TWIN KUNAI, VERY FAST',dm:.6,db:'b',dx:' X 2'},
  {n:'PAPER TALISMAN',g:'T',c:'#f0e8d0',d:'HOMING TALISMANS',dm:.95,db:'b'});
-SPELLS.h.push({n:'IAI CLEAVE',g:'-',c:'#fff',cd:1,d:'LUNGING LINE SLASH. BIG STUN',dm:2.6,db:'b',x:'FULL CHARGE: +50%, DEFLECTS SHOTS'},
+SPELLS.h.push({n:'IAI CLEAVE',g:'-',c:'#fff',cd:1,d:'SHORT DASH THAT CUTS THROUGH FOES. BIG STUN',dm:2.6,db:'b',x:'FULL CHARGE: +50%, DEFLECTS SHOTS'},
  {n:'CHARGED SHOT',g:'!',c:'#ffe080',cd:.9,d:'ARROW THAT PIERCES EVERYTHING',dm:2.4,db:'b',x:'FULL CHARGE: +50%, CUTS SHOTS'},
  {n:'SHURIKEN FAN',g:'*',c:'#c8c8d0',cd:.8,d:'FAN OF 5 SHURIKEN',dm:.75,db:'b',dx:' X 5',x:'FULL CHARGE: 7 SHURIKEN'},
  {n:'SPIRIT FOX',g:'F',c:'#ff9a40',cd:1.4,d:'HOMING FOX, PIERCES 3',dm:1.9,db:'b',x:'FULL CHARGE: TWO FOXES'});
@@ -96,9 +96,7 @@ function classCast(k){const p=P,v=p.lo[k],a=p.aim,em=EMP(k),A=S.atk,bp=BP()*(p.m
   case 40:{const cont=R.time-(p.lastSw||-9)<.75;p.combo=cont?((p.combo||0)+1)%3:0;p.lastSw=R.time;const fin=p.combo===2,rr=(fin?40:32)*(1.12+S.rangeM*.5);
    coneHit(p.x,p.y,a,rr,fin?2.6:1.7,e=>hurtE(e,A*(fin?2.5:1.25)*bp*em,fin?24:12,{slash:true,kb:fin?Math.atan2(e.y-p.y,e.x-p.x):undefined}));
    fx.push({k:'slash',x:p.x,y:p.y,a:a+(p.combo===1?.3:-.3),arc:fin?2.6:1.7,r:rr,t:.14,dur:.14,col:fin?'#ffe080':'#e8eef6'});sfx('slash');if(fin)shake=Math.max(shake,2);p.atkCd=(fin?.42:.24)/S.aspd;break;}
-  case 41:{let n=0;for(let s=0;s<=30;s+=2){const tx=p.x+Math.cos(a)*s,ty=p.y+Math.sin(a)*s;if(blocked(tx,ty,4))break;n=s;}const x0=p.x,y0=p.y;p.x+=Math.cos(a)*n;p.y+=Math.sin(a)*n;
-   lineHit(x0,y0,a,90,14,e=>hurtE(e,A*2.6*bp*em,45,{slash:true,kb:a}));if(p.hFull)for(const q of projs)if(q.from==='e'&&!q.peril){const dx=q.x-x0,dy=q.y-y0,al=dx*Math.cos(a)+dy*Math.sin(a);if(al>0&&al<95&&Math.abs(-dx*Math.sin(a)+dy*Math.cos(a))<16){q.dead=true;spark(q.x,q.y,'#fff',3,40);}}
-   fx.push({k:'line',x:x0,y:y0,a,len:95,t:.18,dur:.18,col:p.hFull?'#ffe080':'#fff'});sfx('slash');impact(p.x,p.y,'#fff',3);break;}
+  case 41:{const D=.2;p.dx=Math.cos(a);p.dy=Math.sin(a);p.dash=D;p.iv=Math.max(p.iv,D+.05);p.guard=false;p.iai={a,x0:p.x,y0:p.y,lx:p.x,ly:p.y,t:D,dm:A*2.6*bp*em,full:!!p.hFull,hit:new Set()};sfx('dash');break;}
   case 42:{zones.push({k:'whirl',x:p.x,y:p.y,r:46*AZ(),t:.62,tk:0,dm:A*1.4*qm*em,n:0});sfx('dash');break;}
   case 43:{p.guardSt=1.2;fxRing(p.x,p.y,18,'#e0b040',.3);sfx('block');break;}
   case 44:{const r=85*AZ();impact(p.x,p.y,'#f84',6,true);fxRing(p.x,p.y,r,'#f84',.45);sfx('boss');p.haste=4;p.rage=5;txtFx(p.x,p.y,'WAR CRY','#f84');

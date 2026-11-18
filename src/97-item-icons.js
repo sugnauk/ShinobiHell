@@ -4,6 +4,7 @@
 // Every gear icon gets light from the top-left and shadow on the bottom-right, a quality aura, and a corner pip for an ability.
 // palette letters: m material (tier), M its shadow, g quality / legendary accent, w glint, s/S steel, h grip, y gold, r red, p paper, k black
 Object.assign(WICON,{
+ 'HAND WRAPS':['............','............','.....wpp....','....ppppp...','...ppppMp...','...pMpMpp...','....ppppp...','....MMpM....','....pppp....','.....pp.....','............','............'],
  TANEGASHIMA:['............','..........ss','.........sSk','........sSk.','.......sSk..','......yyk...','.....hhy....','....hhh.....','...hhgh.....','..hhh..r....','.hhh....r...','hh..........'],
  YARI:['..........ww','.........wsS','........wsS.','.......yS...','......mg....','.....m......','....m.......','...m........','..m.........','.m..........','m...........','............'],
  KATANA:['...........w','..........ws','.........wsS','........wsS.','.......wsS..','......wsS...','....yyS.....','....yy......','...hgh......','..hgh.......','.hgh........','h...........']});

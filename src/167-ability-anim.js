@@ -17,10 +17,12 @@
 //  ROAR     rears up and shakes (War Cry)
 // Holding RMB to charge a heavy also shows: the hero crouches and trembles, and flashes when the charge is full.
 const AB_ANIM={
+ 'PALM STRIKES':['thrust',.18,.65],'DRIVING SHOVE':['thrust',.3,1],
+ 'SHOULDER RUSH':['lunge',.3],'IRON BELLY':['roar',.42],'STOMP':['slam',.38],'RING OUT':['slam',.5],
  // LMB (only the melee and special ones get a pose; ranged basics keep the quick shot)
  'ODACHI CLEAVE':['slam',.42],'YARI THRUST':['thrust',.22],'NAGINATA SWEEP':['spin',.3,.5],'KUSARIGAMA':['throw',.25],'SUZU PULSE':['cast',.3],
  // RMB heavies
- 'SPIRIT BLADE':['spin',.3,.5],'VOID ORB':['cast',.3],'FROST LANCE':['throw',.24],'MOONLIT CRESCENT':['spin',.34,.6],'IAI CLEAVE':['thrust',.3,1.4],
+ 'SPIRIT BLADE':['spin',.3,.5],'VOID ORB':['cast',.3],'FROST LANCE':['throw',.24],'MOONLIT CRESCENT':['spin',.34,.6],'IAI CLEAVE':['lunge',.24],
  'CHARGED SHOT':['recoil',.22,.6],'SHURIKEN FAN':['throw',.24],'SPIRIT FOX':['cast',.3],'HEAVY SLUG':['recoil',.34,1.2],'SPIRAL LUNGE':['lunge',.5],
  // Q
  'CHAIN LIGHTNING':['cast',.32],'FLAME WAVE':['thrust',.3,.6],'KITSUNE STEP':['blink',.3],'HEAVENLY JUDGMENT':['bigcast',.5],'WHIRLWIND':['spin',.62,3],

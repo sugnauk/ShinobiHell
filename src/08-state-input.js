@@ -8,7 +8,7 @@ const keys={},mouse={x:W/2,y:H/2,down:false,rdown:false};
 
 function calcStats(){
  const u=meta.up,inv=R.inv,G=gearStats(),n=id=>(inv[id]||0)+(G.fx[id]||0);
- const cu=R.curse||0,ms=meta.stats,st=k=>(ms[k]||0)+(G.st[k]||0),cz=R.cz||{},bl=R.bless||{};
+ const cu=R.curse||0,ms=(typeof heroRunStats==='function'?heroRunStats():{}),st=k=>(ms[k]||0)+(G.st[k]||0),cz=R.cz||{},bl=R.bless||{};
  return {pierce:n('pierce'),frost:n('frost'),shock:n('shock'),qpow:n('qpow'),epow:n('epow'),ecd:n('ecd'),vamp:n('vamp'),echo:n('echo'),phoenix:n('phoenix'),flare:n('flare'),storm:n('storm'),
   st:{att:st('att'),def:st('def'),spd:st('spd'),dex:st('dex'),vit:st('vit'),wis:st('wis')},def:st('def')+G.def,
   atk:(14+u.atk*2+n('atk')*3+st('att')+G.atk+(bl.atk||0))*(1+.4*n('glass'))*(1+.3*cu)*(1+.1*(cz.hunted||0)),aspd:1+n('aspd')*.12+st('dex')*.02+.25*(cz.frenzy||0),rangeM:.12*n('range'),maxhp:Math.max(20,Math.round((100+u.vit*12+n('hp')*20+st('vit')*5+G.hp+(bl.hp||0))*Math.pow(.75,n('glass'))*Math.pow(.8,cz.glass||0))),maxpos:100+u.pos*10+n('pos')*15,spd:78*(1+n('spd')*.08+st('spd')*.01),wardDur:2.2+.3*n('parry'),cdr:Math.pow(.9,n('emb'))*(1-.04*u.emb)*Math.max(.5,1-.01*st('wis'))*Math.pow(.85,cz.frenzy||0)*Math.pow(.92,bl.cdr||0),crit:.05+n('crit')*.08+.15*(cz.glass||0),kills:n('blood')*3,burn:n('fire'),poison:n('poison'),dashCd:Math.max(.4,.9*Math.pow(.85,n('shadow')))*Math.pow(1.4,cz.frenzy||0),dashIv:.22+.03*n('shadow'),wave:n('wave'),gourdMax:3+n('gourd'),dr:Math.pow(.92,n('iron')),dodge:n('ghost')*.06,magnet:30+n('magnet')*14,sen:(1+u.sen*.1+n('magnet')*.15)*(1+.6*(cz.greed||0)),thorn:n('thorn'),dbHeal:n('hunger')*.15,mikiri:n('mikiri')};

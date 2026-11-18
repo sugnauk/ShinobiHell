@@ -504,7 +504,16 @@ function drawHUD(){
  syncLMB();
  // Bottom centre: player health and posture. Gold and revives sit in the left corner.
  {const y=H-16,w=116,x=Math.round((W-w)/2);
-  bar(x,y,w,8,P.hp/S.maxhp,'#c73445','#351420');ctxt('HP '+Math.ceil(P.hp)+' / '+S.maxhp,y+2,'#fff');
+  bar(x,y,w,8,P.hp/S.maxhp,'#c73445','#351420');
+  if(P.ironBellyUntil>R.time){
+   const shieldWidth=Math.max(0,Math.min(w,Math.round(w*P.ironBellyShield/S.maxhp)));
+   if(shieldWidth>0){
+    const shieldX=Math.min(w-shieldWidth,Math.round(w*P.hp/S.maxhp));
+    ctx.fillStyle='#8cf';ctx.fillRect(x+shieldX,y+6,shieldWidth,2);
+   }
+   if(P.ironBellyPower>0)ctxt('IRON BELLY +'+Math.round(P.ironBellyPower*100)+'% DMG',y-9,'#ffd090');
+  }
+  ctxt('HP '+Math.ceil(P.hp)+' / '+S.maxhp,y+2,'#fff');
   bar(x,y+10,w,3,P.pos/S.maxpos,P.stag>0?'#f84':'#fd4','#3a3010');
   hudCoin(7,y);txt(String(R.sen),16,y+1,'#fc4');hudRevive(7,y+8);txt('X'+P.rez,16,y+9,P.rez>0?'#bfe8ff':'#777');}
  // HP potions live in the ability bar: C is effectively your heal ability
