@@ -48,7 +48,7 @@ function legPart(L,x,y,spd){const c=L.c,r=Math.random,a=r()*TAU,s=(spd||30)*(.4+
 const LEGP=[];let legLast=0;
 function drawLegP(){const dt=Math.min(.05,Math.max(0,time-legLast));legLast=time;
  for(let i=LEGP.length-1;i>=0;i--){const q=LEGP[i];q.t-=dt;if(q.t<=0){LEGP.splice(i,1);continue;}q.x+=q.vx*dt;q.y+=q.vy*dt;q.vx*=.96;q.vy*=.96;
-  const X=sx(q.x,q.y),Y=sy(q.x,q.y)-8,a=Math.min(1,q.t/q.t0*1.5);ctx.globalAlpha=a;ctx.fillStyle=q.col;
+  const X=sx(q.x,q.y),Y=sy(q.x,q.y)-8,a=Math.min(1,q.t/q.t0*1.5)*.6;ctx.globalAlpha=a; // drawn faint so they never read as bulletsctx.fillStyle=q.col;
   if(q.st==='stars'||q.st==='sparks'||q.st==='coins'){const tw=Math.floor(time*12+q.x)%2;ctx.fillRect(X-1,Y,3,1);ctx.fillRect(X,Y-1,1,3);if(tw){ctx.fillStyle='#fff';ctx.fillRect(X,Y,1,1);}}
   else ctx.fillRect(X,Y,2,2);}ctx.globalAlpha=1;}
 {const _dpo=drawPortal;drawPortal=function(){drawLegP();return _dpo.apply(this,arguments);};}

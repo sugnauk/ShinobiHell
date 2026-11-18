@@ -5,6 +5,18 @@
 ### Fixes
 - **Ronin Seven crash:** a member dying while its dash-aim telegraph was still up could crash the game. The telegraph now stops following a fallen member.
 
+### Effects that never hide a bullet
+- **Ultimates:**
+  - There is no full-screen flash. A brief glow at the screen edges, in the ultimate's colour, replaces it.
+  - There is no ray burst, and one ring replaces three.
+  - Every spark burst is cut to a handful, including the blasts an ultimate calls down.
+  - The lead-in and dragon motes are thinned out.
+  - Particles on screen during an ultimate are roughly halved for every hero (the lancer's drop from 81 to 21 at peak).
+- **Legendary items:**
+  - Legendary weapons and armour keep their colours and character, but shed about a third as many motes.
+  - The motes are drawn fainter, so they never read as enemy bullets.
+  - At most 70 motes are on screen at once; in testing a legendary staff peaked at 241 before.
+
 ### Straight-line strikes
 - **Drawn as what they are:** every line attack used to draw the same thin line. Damage and hitboxes are unchanged:
 

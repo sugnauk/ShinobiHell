@@ -35,7 +35,7 @@ const ultName=()=>P&&SPELLS.e[P.lo.e]?SPELLS.e[P.lo.e].n:'';
  if(P.dying>0||P.hp<=0){ULT=null;return;}
  P.x=U.x;P.y=U.y;P.iv=Math.max(P.iv,.05);
  // energy rushing in
- if(Math.random()<.7){const a=Math.random()*TAU,r=rnd(26,44);particles.push({x:P.x+Math.cos(a)*r,y:P.y+Math.sin(a)*r,vx:-Math.cos(a)*r*2.6,vy:-Math.sin(a)*r*2.6,t:.35,col:Math.random()<.5?D.col:'#fff'});}
+ if(Math.random()<.18){const a=Math.random()*TAU,r=rnd(26,44);particles.push({x:P.x+Math.cos(a)*r,y:P.y+Math.sin(a)*r,vx:-Math.cos(a)*r*2.6,vy:-Math.sin(a)*r*2.6,t:.35,col:Math.random()<.5?D.col:'#fff'});}
  if(k>=1){ULT=null;const x0=P.x,y0=P.y;ULTGO=true;try{castUlt();}finally{ULTGO=false;}
   if(ABPOSE&&ABPOSE.k==='dragondash'){ABPOSE.from={x:x0,y:y0};ABPOSE.to={x:P.x,y:P.y};}
   if(D.shove){const a=P.aim+Math.PI;for(let i=0;i<D.shove;i++){const nx=P.x+Math.cos(a),ny=P.y+Math.sin(a);if(blocked(nx,ny,4))break;P.x=nx;P.y=ny;}for(let i=0;i<12;i++)particles.push({x:P.x+rnd(-6,6),y:P.y+rnd(-2,2),vx:Math.cos(a)*rnd(20,60),vy:rnd(-20,0),t:.5,col:'#a89880'});}

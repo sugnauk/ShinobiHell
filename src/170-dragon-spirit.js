@@ -36,12 +36,12 @@ function drawDragon(D){const k=(time-D.t0)/DRG.dur;if(k>1.35)return false;
  for(const x of [8,10,12,14])R(x,0,1,2,BONE);
  R(6,1+gape,10,4,INK);R(7,1+gape,8,2,JAW);for(const x of [9,11,13])R(x,gape,1,2,BONE);
  // cold fire breathing out of the jaws
- if(Math.random()<.9){const mx=h.wx+Math.cos(D.a)*10,my=h.wy+Math.sin(D.a)*10;particles.push({x:mx,y:my,vx:Math.cos(D.a)*rnd(40,80)+rnd(-10,10),vy:Math.sin(D.a)*rnd(40,80)+rnd(-10,10),t:.3,col:Math.random()<.5?'#6cf':'#e8f8ff'});}
+ if(Math.random()<.3){const mx=h.wx+Math.cos(D.a)*10,my=h.wy+Math.sin(D.a)*10;particles.push({x:mx,y:my,vx:Math.cos(D.a)*rnd(40,80)+rnd(-10,10),vy:Math.sin(D.a)*rnd(40,80)+rnd(-10,10),t:.3,col:Math.random()<.5?'#6cf':'#e8f8ff'});}
  // whiskers flowing out from the jaws, red at the tips
  ctx.lineWidth=1;for(const s2 of [-1,1]){const sx0=X+fx*24,sy0=Y+(s2<0?-8:6);ctx.strokeStyle=DRG.lite;ctx.beginPath();ctx.moveTo(sx0,sy0);
   const ex=X+fx*(2+Math.sin(ph)*3),ey=Y+s2*24+Math.sin(ph+1)*3;ctx.quadraticCurveTo(X+fx*20,Y+s2*20,ex,ey);ctx.stroke();ctx.fillStyle='#ff4050';ctx.fillRect(Math.round(ex)-1,Math.round(ey)-1,2,2);}
  // a few motes shed from the body
- if(k<1&&Math.random()<.7)particles.push({x:h.wx,y:h.wy,vx:rnd(-12,12),vy:rnd(-20,-6),t:.45,col:Math.random()<.5?DRG.col:DRG.lite});
+ if(k<1&&Math.random()<.2)particles.push({x:h.wx,y:h.wy,vx:rnd(-12,12),vy:rnd(-20,-6),t:.45,col:Math.random()<.5?DRG.col:DRG.lite});
  ctx.globalAlpha=1;return true;}
 // drawn after the sprites and before the bullets
 {const _dp=drawPortal;drawPortal=function(){_dp.apply(this,arguments);for(let i=DRAGONS.length-1;i>=0;i--)if(!drawDragon(DRAGONS[i]))DRAGONS.splice(i,1);};}
