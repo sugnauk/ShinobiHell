@@ -20,6 +20,7 @@
   3. THE STRAW OGRE: a giant dummy with a health bar slams red circles at you. RMB and all four abilities unlock with near-instant cooldowns.
   4. JACKPOT: the ogre bursts into a treasure bag and gold, and the portal opens beside you.
 - **Taught later instead:** potions, bags, shops, shrines, curse altars, stuns, elites, guardians and their invulnerable events are now one-time tips when you first meet them. Curse altars and guardian events are new tips.
+- **Tips only on the first stage:** one-time tips now only appear on a run's first stage (the prologue, or stage I), and are never shown or used up elsewhere. While a new player still has tips to see, that stage always holds a trader, a shrine, a curse altar and an elite, so it teaches everything.
 - **Tips pause the game:** when a one-time tip appears, the fight freezes and a compact card sits at the top of the screen. Play resumes when you do what it suggests: C to drink, dash to get away, an ability, G for a bag. The press also does the action, except at shops, shrines and curse altars, where G only closes the tip and never buys, prays or accepts a curse. ENTER always works as "got it".
 - **No damage in training:** bullets and blows still hit you, with the flash and sound, but take no health. A "HIT" marker shows where a number would.
 
