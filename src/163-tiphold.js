@@ -14,9 +14,11 @@ const TIPACT={
  elite:{k:['q','w','f','e'],mouse:1,say:'ATTACK TO FIGHT IT'},
  stun:{k:['q','w','f','e'],mouse:1,say:'ATTACK NOW'},
  bag:{k:['use','pack'],digits:1,say:'PRESS {use} TO TAKE IT ALL'},
- shop:{k:['use','up','down','left','right'],say:'PRESS {use} TO BUY, OR WALK ON'},
- shrine:{k:['use','up','down','left','right'],say:'PRESS {use} TO PRAY, OR WALK ON'},
- curse:{k:['use','up','down','left','right'],say:'PRESS {use} TO ACCEPT, OR WALK ON'}};
+ shop:{k:['use','up','down','left','right'],hold:['use'],say:'PRESS {use} OR MOVE TO CONTINUE'},
+ shrine:{k:['use','up','down','left','right'],hold:['use'],say:'PRESS {use} OR MOVE TO CONTINUE'},
+ curse:{k:['use','up','down','left','right'],hold:['use'],say:'PRESS {use} OR MOVE TO CONTINUE'}};
+// hold: keys that only close the tip - they are not passed on, so closing the shop tip never buys anything, and closing
+// the curse tip never accepts the curse
 let TIPHOLD=null;const TIPQ=[];
 const tipNow=()=>performance.now()/1000;
 const tipSay=s=>s.replace(/\{(\w+)\}/g,(_,k)=>keyName(KB[k]));
@@ -30,7 +32,7 @@ function tipRelease(){TIPHOLD=null;mouse.down=false;if(TIPQ.length){TIPHOLD=TIPQ
   if(c==='Escape')return _ok.apply(this,arguments);
   if(tipNow()-TH.t0<.35)return; // a key already held down when the tip appeared doesn't skip it by accident
   const ok=c==='Enter'||TH.A.k.some(k=>KB[k]===c)||(TH.A.digits&&/^Digit[1-6]$/.test(c));if(!ok)return;
-  tipRelease();if(c==='Enter')return;}
+  tipRelease();if(c==='Enter'||(TH.A.hold&&TH.A.hold.some(k=>KB[k]===c)))return;}
  return _ok.apply(this,arguments);};}
 // the card: at the top of the screen, out of the fight's way, with the action blinking
 {const _rp=renderPlay;renderPlay=function(){_rp.apply(this,arguments);const TH=TIPHOLD;if(!TH||mode!=='play'||paused)return;const k=tipNow()-TH.t0;
