@@ -12,7 +12,7 @@ const ARMOUR_FLOOR=.5,GUARD_BULLET=.04,GUARD_BLOW=.08;
  const rawS=raw*(1+.25*(R.curse||0))*DF().dmg*(stag?1.4:1)*(o.peril?1.5:1);let floor=rawS*ARMOUR_FLOOR;
  const src=o.src,guard=src&&(src.boss||(src.bossOwned&&src.bossOwned.boss)||(boss&&src.room===boss.room&&!boss.dead&&boss.awake));
  if(guard&&!(PRO_ON))floor=Math.max(floor,S.maxhp*(o.bullet?GUARD_BULLET:GUARD_BLOW)*DF().dmg);
- floor-=shield0-(P.ironBellyShield||0);
+ floor=floor*classDamageTaken()-(shield0-(P.ironBellyShield||0));
  if(lost<floor){const extra=floor-lost;P.hp-=extra;
   for(let i=texts.length-1;i>=nt;i--)if(/^\d+$/.test(texts[i].s)){texts[i].s=String(Math.round(floor));break;}
   if(P.hp<=0&&!P.dying){P.deathCause=P.deathCause||(o.bullet?'ENEMY PROJECTILE':o.peril?'ARENA HAZARD':'ENEMY ATTACK');die();if(!P.dying)P.deathCause=null;}}

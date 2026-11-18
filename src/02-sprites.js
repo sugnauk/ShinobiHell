@@ -44,7 +44,8 @@ const WIZEVO=[{n:'APPRENTICE',hat:'pilgrim',beard:0,orb:1,C:{hat:'#253955',hatL:
  {n:'ELDER',hat:'pointed',beard:2,orb:1,C:{hat:'#3a1a5a',hatL:'#5a3a8a',robe:'#4a2a7a',robeS:'#30184e'}},
  {n:'MASTER WIZARD',hat:'pointed',beard:2,orb:1,C:{}}];
 function buildWiz(stage,back=false){return buildHero({...WIZEVO[stage],detail:'wizard'},stage>=9,back);}
-function drawSumoFrame(R,frame,back,crest){
+function drawSumoFrame(R,frame,back,stage){
+ const crest=stage>=6,final=stage>=9;
  const walk=frame>=2&&frame<=5;
  const bob=walk&&frame%2===1?1:0;
  const y=12+bob;
@@ -67,7 +68,45 @@ function drawSumoFrame(R,frame,back,crest){
  R(9+lean,5+bob,2,1,'hatL');
  if(back)R(8+lean,11+bob,4,1,'hatL');
  else{R(11+lean,10+bob,1,1,'o');R(10+lean,12+bob,2,1,'boot');}
+ if(crest){
+  const plate=final?'#a22d34':'#384f75',gold='#efbc65';
+  for(const x of [3,13]){R(x,y-1,4,3,plate);R(x+1,y-2,3,1,gold);R(x,y+1,4,1,gold);}
+  R(6,y+7,8,2,plate);R(7,y+8,6,1,gold);
+ }
+ if(final){
+  R(3,y+5,14,2,'band');for(let i=5;i<16;i+=3)R(i,y+5,1,2,'#b89e6d');
+  if(!back){R(8,y+7,1,3,'band');R(11,y+7,1,3,'band');}
+  R(7+lean,7+bob,6,2,'#a22d34');
+  R(6+lean,5+bob,1,3,'#ffe5a3');R(13+lean,5+bob,1,3,'#ffe5a3');
+  R(9+lean,4+bob,2,3,'#efbc65');
+ }
 }
+function drawRosterDetail(R,kind,final,bob,back){
+ const y=13+bob;
+ if(kind==='marionettist'){
+  R(5,y,1,7,'hatL');R(14,y,1,7,'hatL');
+  R(3,y+3,2,2,'band');R(15,y+3,2,2,'band');
+ }else if(kind==='tengu'){
+  for(const [x,sign] of [[5,-1],[14,1]])for(let i=0;i<4;i++)R(x+i*sign,y+i,2,1,i%2?'trim':'hatL');
+  if(!back)R(12,11+bob,3,1,'hatL');
+ }else if(kind==='kagura'){
+  R(4,y+1,3,3,'hatL');R(3,y,3,2,'trim');
+  R(14,y+2,3,2,'hatL');R(16,y,3,2,'trim');
+ }else if(kind==='bloodoracle'){
+  R(5,y+2,2,6,'hatL');R(12,y+1,2,7,'band');
+  R(9,y+2,2,2,'orbL');
+ }else if(kind==='bellwarden'){
+  R(13,y+2,5,5,'staff');R(14,y+2,3,2,'trim');
+  R(12,y+6,7,1,'hatL');R(15,y+7,1,1,'band');
+ }
+ if(final){
+  R(6,6+bob,1,3,'trim');R(13,6+bob,1,3,'trim');
+  R(4,y,3,3,'band');R(13,y,3,3,'band');
+  R(4,y+1,2,1,'trim');R(14,y+1,2,1,'trim');
+  R(5,y+5,2,4,'band');R(13,y+5,2,4,'band');
+ }
+}
+
 // generic hero sheet: robe body + a hat style + a weapon. Used by every character class and evolution stage.
 // back=true draws the same pose seen from behind (walking away from the camera): no face, back of the head/hood
 function buildHero(EV,star,back){const stage=star?9:0;
@@ -79,7 +118,7 @@ function buildHero(EV,star,back){const stage=star?9:0;
   let cz=HPOSE[CK][f0],f=f0;if(typeof cz==='number'){f=cz;cz=null;}
   const fr=mk(FW,FH,g=>{
    const R=(x,y,w,h,c)=>{g.fillStyle=C[c]||c;g.fillRect(x,y,w,h);};
-   if(EV.wpn==='palms'){drawSumoFrame(R,f0,back,EV.crest);return;}
+   if(EV.wpn==='palms'){drawSumoFrame(R,f0,back,EV.sumoStage);return;}
    const walk=f>=2&&f<=5,bob=cz?(cz.crouch?1:0):(f===1||f===3||f===5)?1:0,lean=cz?(cz.lean||0):f===11?2:0,up=!cz&&(f===8||f===9||f===10);
    // staff placement per pose
    let sx=15,sy=5,horiz=false;if(f===6){sx=4;sy=7;}if(f===7){sx=17;sy=5;}if(up){sx=15;sy=1;}if(f===10){sx=10;sy=0;}if(f===11)horiz=true;
@@ -191,6 +230,7 @@ function buildHero(EV,star,back){const stage=star?9:0;
    else{R(5+hx,9+hy,11,1,'hat');R(6+hx,8+hy,9,1,'hat');R(7+hx,7+hy,7,1,'band');
    R(7+hx,5+hy,6,2,'hat');R(8+hx,3+hy,4,2,'hat');R(9+hx+Math.round(tx/3),2+hy,3,1,'hat');R(10+hx+Math.round(tx/2),1+hy,2,1,'hat');R(12+hx+tx,0+hy,2,1,'hatL');
    R(8+hx,5+hy,1,2,'hatL');R(9+hx,3+hy,1,2,'hatL');if(stage>=9)R(11+hx,5+hy,1,1,'band');}
+   if(EV.rosterDetail||EV.rosterFinal||star)drawRosterDetail(R,EV.rosterDetail,EV.rosterFinal||star,bob,back);
   });
   // 1px dark outline around everything
   const d=fr.getContext('2d').getImageData(0,0,FW,FH),o=mk(FW,FH,()=>{}),og=o.getContext('2d');og.fillStyle=C.o;

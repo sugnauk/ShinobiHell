@@ -145,6 +145,7 @@ function updRoomDone(dt){
   if(!r.visited){if(inRoom(r,P.x,P.y,0)){r.visited=true;r.hadFoes=enemies.some(e=>!e.dead&&e.room===r);}else continue;}
   if(!roomComplete(r))continue;
   r.done=true;revealRoom(r);
+  if(r.hadFoes&&!R.training&&!R.test&&!R.rush)R.masteryRooms=(R.masteryRooms||0)+1;
   if(r.hadFoes||r.ev||props.some(p=>p.room===r&&p.used&&p.k!=='doorpost'&&p.k!=='entrancePlaque'))txtFx(P.x,P.y-14,'ROOM COMPLETE','#7fe08a');}}
 function updRoomEvents(dt){
  updRoomDone(dt);

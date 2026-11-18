@@ -142,7 +142,7 @@ selConfirm=function(){if(selLock)return;if(isLocked(selIdx)){sfx('block');return
   txt('LOCKED',px,y,'#e0c070',2);y+=18;for(const l of wrapTxt('A NEW WARRIOR JOINS AFTER EVERY RUN, WIN OR LOSE. TRAINING DOES NOT COUNT.',Math.floor(pw/4.6))){txt(l,px,y,'#aaa');y+=8;}
   y+=6;txt('UNLOCKS IN '+n+' MORE RUN'+(n>1?'S':''),px,y,'#ddd');segBar(px,y+10,done/need,'#e0c070',Math.min(10,need));}
  else{
-  for(const l of wrapTxt(I.lore+' '+C.d,Math.floor(pw/4.6)).slice(0,3)){txt(l,px,y,'#ddd');y+=8;}y+=3;
+  for(const l of wrapTxt(I.lore+(I.lore===C.d?'':' '+C.d),Math.floor(pw/4.6)).slice(0,3)){txt(l,px,y,'#ddd');y+=8;}y+=3;
   mmSect('STATS',px,y);y+=9;
   const ST=[['HEALTH',Math.round(100*C.hp)+' HP',(C.hp-.7)/.7],['SPEED',Math.round(100*C.spd)+'%',(C.spd-.85)/.35],['DASH',(C.dash<=1?'FAST':'SLOW')+' '+Math.round(100/C.dash)+'%',(1.3-C.dash)/.7],['DEFENCE','+'+(C.def||0),((C.def||0)+.5)/4],['POWER',Math.round(100*(C.pw||1))+'%',((C.pw||1)-.8)/.5]];
   ST.forEach(([n,v,f])=>{txt(n,px,y,'#999');segBar(px+44,y+1,f,C.col);txt(v,px+pw-txtW(v),y,'#ddd');y+=8;});y+=4;

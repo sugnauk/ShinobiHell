@@ -61,7 +61,7 @@ const NEWCAST={
   const em=EMP(k),A=S.atk,bp=BP()*(k==='h'&&p.hFull?1.5:1),ap=AP(),qm=(1+.3*S.qpow)*ap,ep=(1+.25*S.epow)*(1+.06*RK())*ap;
   const mik=p.mik;
   if(k==='m'||k==='h')p.mik=0;
-  fn({p,a:p.aim,A,bp,em,ap,qm,ep,mik});setCd(k);};}
+  if(fn({p,a:p.aim,A,bp,em,ap,qm,ep,mik})!==false)setCd(k);};}
 // ---------- their zones ----------
 Object.assign(CZ,{
  siege:(z)=>{

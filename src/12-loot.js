@@ -419,8 +419,10 @@ function los(x0,y0,x1,y1){const d=Math.hypot(x1-x0,y1-y0),n=Math.ceil(d/5);for(l
 function coneHit(x,y,a,range,arc,fn){for(const e of enemies){if(e.dead||e.air||!los(x,y,e.x,e.y))continue;const d=Math.hypot(e.x-x,e.y-y);if(d>range+e.r)continue;if(d>e.r+4&&Math.abs(angDiff(Math.atan2(e.y-y,e.x-x),a))>arc/2)continue;fn(e);}}
 function shockwave(x,y,r,dmg){fxRing(x,y,r,'#fff',.25);for(const e of enemies){if(e.dead||e.air)continue;if(los(x,y,e.x,e.y)&&Math.hypot(e.x-x,e.y-y)<r+e.r)hurtE(e,dmg,20,{kb:Math.atan2(e.y-y,e.x-x)});}}
 
+const classDamageTaken=()=>CLS().k==='sumo'&&P.evo>=9?.78:(CLS().incomingDamage??1);
+
 function hitPlayer(raw,sx,sy,o){
- o=o||{};const p=P;raw*=(1+.25*(R.curse||0))*DF().dmg;
+ o=o||{};const p=P;raw*=(1+.25*(R.curse||0))*DF().dmg*classDamageTaken();
  if(p.iv>0||p.dash>0){if(p.dash>0&&R.training)trainEv('dodge');return 'dodge';}
  // bullets never grant mercy frames, so several can land at once; melee/contact/hazards share a short cooldown
  if(!o.bullet&&p.hurtIv>0)return 'dodge';

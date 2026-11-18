@@ -122,7 +122,7 @@ function killE(e){
  if(e.dead)return;
  // arena props (banners, egg sacs...) just break: no loot, no kill count
  if(e.prop){e.dead=true;spark(e.x,e.y,e.propCol||'#c8a060',14,70);sfx('break');if(e.onBreak)e.onBreak(e);return;}
- e.dead=true;R.kills++;R.lastKill={x:e.x,y:e.y};G('e',e.boss?'boss'+e.di:e.type);
+ e.dead=true;R.kills++;if(e.boss&&!R.training&&!R.test&&!R.rush)R.masteryBosses=(R.masteryBosses||0)+1;R.lastKill={x:e.x,y:e.y};G('e',e.boss?'boss'+e.di:e.type);
  // kill punch: a burst of speed-lines; elites and bosses also get a brief slow-motion beat
  fx.push({k:'burst',x:e.x,y:e.y,t:.2,dur:.2,r:e.boss?60:e.elite?40:22,n:e.boss?18:e.elite?14:9,a0:Math.random(),col:e.boss?'#ffd040':e.elite?'#f84':'#fff'});
  if(e.elite||e.boss){slowT=Math.max(slowT,e.boss?.6:.25);hitstop=Math.max(hitstop,.06);}
