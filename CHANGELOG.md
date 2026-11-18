@@ -5,6 +5,13 @@
 ### Fixes
 - **Ronin Seven crash:** a member dying while its dash-aim telegraph was still up could crash the game. The telegraph now stops following a fallen member.
 
+### Coming back from the dead
+- **Revive sequence:** a revive still happens on its own, but it is now an event.
+  - The world freezes and darkens for about a second and a half.
+  - Your hero falls, their spirit rises out of the body, and a pillar of golden light comes down and draws it back.
+  - They rise to their feet in a burst of light, with a REVIVED banner and how many revives are left.
+  - Then the world moves again, with the usual push-back and cleared bullets.
+
 ### Interactables come alive
 - **No more markers:** the pillar of light, ground ring and bobbing icon over shrines, springs, chests, gongs and prisoner cages are gone.
 - **Their own particles instead:** like the blood shrine, each now shows itself with gentle particles in its own colour, and goes quiet once used:
