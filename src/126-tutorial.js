@@ -87,7 +87,7 @@ drawTraining=function(){const T=R.training;if(!T)return;const L=LESSONS[T.i];if(
  if(L.t==='THE ROAD AHEAD'&&T.stars){const s='TRIALS COMPLETE IN '+Math.floor((T.total||0)/60)+':'+String(Math.floor((T.total||0)%60)).padStart(2,'0');txt(s,Math.round(W/2-txtW(s)/2),y+h+6,'#ffe060');
   for(let i=0;i<3;i++){const on=i<T.stars,cx=W/2-14+i*14,cy=y+h+20;ctx.fillStyle=on?'#ffd040':'#3a3044';ctx.fillRect(cx-1,cy-4,3,9);ctx.fillRect(cx-4,cy-1,9,3);ctx.fillRect(cx-2,cy-2,5,5);}
   if(T.paid){const r='+50 JADE FOR THE TEMPLE';txt(r,Math.round(W/2-txtW(r)/2),y+h+30,'#80ff90');}}
- txt('N: SKIP THE TRIALS',4,H-8,'#666');};
+ txt('N: SKIP THE TRIALS',4,H-30,'#666');};
 // in Master Kaito's trials nothing hurts: bullets (and blows) still hit you, with the flash and the sound so you learn
 // what a hit feels like, but your health and posture are left as they were and no damage number appears
 {const _hp=hitPlayer;hitPlayer=function(){if(!(R&&R.training&&P))return _hp.apply(this,arguments);const hp=P.hp,pos=P.pos,stag=P.stag,nt=texts.length;

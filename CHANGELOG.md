@@ -14,7 +14,13 @@
   - Frenzy: Itohime turns much faster.
 
 ### Tutorial
-- **No damage in training:** bullets and blows in Master Kaito's trials still hit you, with the flash and sound, but take no health. A "HIT" marker shows where a number would.
+- **About a minute of action:** the ten-trial tutorial is cut to four quick beats, one new key at a time, with Master Kaito shouting from the side:
+  1. AMBUSH! Straw bandits rush in from both sides: walk, aim and LMB.
+  2. ARROW STORM: dash through two volleys. A perfect dodge clears it at once.
+  3. THE STRAW OGRE: a giant dummy with a health bar slams red circles at you. RMB and all four abilities unlock with near-instant cooldowns.
+  4. JACKPOT: the ogre bursts into a treasure bag and gold, and the portal opens beside you.
+- **Taught later instead:** potions, bags, shops, shrines, curse altars, stuns, elites, guardians and their invulnerable events are now one-time tips when you first meet them. Curse altars and guardian events are new tips.
+- **No damage in training:** bullets and blows still hit you, with the flash and sound, but take no health. A "HIT" marker shows where a number would.
 
 ### Prologue I: The Burning Village
 - **The stage:** a gentle opening stage before stage I, with fewer and weaker foes. It is on by default, and P on character select switches it off.
