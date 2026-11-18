@@ -17,6 +17,8 @@
 //  ROAR     rears up and shakes (War Cry)
 // Holding RMB to charge a heavy also shows: the hero crouches and trembles, and flashes when the charge is full.
 const AB_ANIM={
+ 'PALM STRIKES':['thrust',.18,.65],'DRIVING SHOVE':['thrust',.3,1],
+ 'SHOULDER RUSH':['lunge',.3],'IRON BELLY':['roar',.42],'STOMP':['slam',.38],'RING OUT':['slam',.5],
  // LMB (only the melee and special ones get a pose; ranged basics keep the quick shot)
  'ODACHI CLEAVE':['slam',.42],'YARI THRUST':['thrust',.22],'NAGINATA SWEEP':['spin',.3,.5],'KUSARIGAMA':['throw',.25],'SUZU PULSE':['cast',.3],
  // RMB heavies

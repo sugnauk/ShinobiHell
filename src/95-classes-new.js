@@ -57,9 +57,11 @@ const NEWCAST={
  95:(c)=>{const {p,a,A,ep,em}=c;p.iv=Math.max(p.iv,.5);zones.push({k:'flurry',x:p.x,y:p.y,r:0,t:1.6,tk:0,a,dm:A*.9*ep*em});sfx('boss');setToast('THOUSAND THRUSTS','#c8e0ff',1.2);},
 };
 {const _cc=classCast;classCast=function(k){const p=P;if(!p)return;const v=p.lo[k],code=v*10+'mhqwfe'.indexOf(k),fn=NEWCAST[code];if(!fn)return _cc(k);
-  if(p.stag>0)return;if(k==='m'&&p.atkCd>0)return;if(k==='h'&&p.ab.h>0)return;if(k==='w'&&p.ab.rmb>0)return;if('qfe'.includes(k)&&p.ab[k]>0)return;if(k==='m'||k==='h')p.mik=0;
+  if(p.stag>0)return;if(k==='m'&&p.atkCd>0)return;if(k==='h'&&p.ab.h>0)return;if(k==='w'&&p.ab.rmb>0)return;if('qfe'.includes(k)&&p.ab[k]>0)return;
   const em=EMP(k),A=S.atk,bp=BP()*(k==='h'&&p.hFull?1.5:1),ap=AP(),qm=(1+.3*S.qpow)*ap,ep=(1+.25*S.epow)*(1+.06*RK())*ap;
-  fn({p,a:p.aim,A,bp,em,ap,qm,ep});setCd(k);};}
+  const mik=p.mik;
+  if(k==='m'||k==='h')p.mik=0;
+  fn({p,a:p.aim,A,bp,em,ap,qm,ep,mik});setCd(k);};}
 // ---------- their zones ----------
 Object.assign(CZ,{
  siege:(z)=>{

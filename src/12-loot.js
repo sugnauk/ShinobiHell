@@ -425,7 +425,13 @@ function hitPlayer(raw,sx,sy,o){
  // bullets never grant mercy frames, so several can land at once; melee/contact/hazards share a short cooldown
  if(!o.bullet&&p.hurtIv>0)return 'dodge';
  if(p.guardSt>0&&!o.peril){p.guardSt=0;p.iv=.3;sfx('deflect');txtFx(p.x,p.y,'COUNTER','#e0b040');fxRing(p.x,p.y,50,'#e0b040',.3);impact(p.x,p.y,'#e0b040',4);for(const e of enemies)if(!e.dead&&!e.air&&Math.hypot(e.x-p.x,e.y-p.y)<50+e.r&&los(p.x,p.y,e.x,e.y))hurtE(e,S.atk*2*AP()*EMP('w'),40,{slash:true,kb:Math.atan2(e.y-p.y,e.x-p.x)});return 'dodge';}
- if(p.shieldHp>0){const ab=Math.min(p.shieldHp,raw);p.shieldHp-=ab;raw-=ab;spark(p.x,p.y,'#8cf',6,50);if(raw<=0){p.iv=Math.max(p.iv,.15);return 'dodge';}}
+ const shieldKeys=p.ironBellyUntil>R.time?['ironBellyShield','shieldHp']:['shieldHp'];
+ for(const key of shieldKeys){
+  if(!(p[key]>0))continue;
+  const absorbed=Math.min(p[key],raw);
+  p[key]-=absorbed;raw-=absorbed;spark(p.x,p.y,'#8cf',6,50);
+  if(raw<=0){p.iv=Math.max(p.iv,.15);return 'dodge';}
+ }
  if(S.dodge&&!o.peril&&Math.random()<S.dodge){txtFx(p.x,p.y,'DODGE','#8cf');return 'dodge';}
  if(p.ward>0&&!o.peril){
   sfx('deflect');hitstop=.07;shake=Math.max(shake,3);R.perfect++;

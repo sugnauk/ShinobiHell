@@ -44,6 +44,30 @@ const WIZEVO=[{n:'APPRENTICE',hat:'pilgrim',beard:0,orb:1,C:{hat:'#253955',hatL:
  {n:'ELDER',hat:'pointed',beard:2,orb:1,C:{hat:'#3a1a5a',hatL:'#5a3a8a',robe:'#4a2a7a',robeS:'#30184e'}},
  {n:'MASTER WIZARD',hat:'pointed',beard:2,orb:1,C:{}}];
 function buildWiz(stage,back=false){return buildHero({...WIZEVO[stage],detail:'wizard'},stage>=9,back);}
+function drawSumoFrame(R,frame,back,crest){
+ const walk=frame>=2&&frame<=5;
+ const bob=walk&&frame%2===1?1:0;
+ const y=12+bob;
+ const lean=frame===11?1:0;
+ const raised=(frame>=8&&frame<=10)||frame===12;
+ // A broad torso and rope belt keep the silhouette distinct at world scale.
+ R(5,y,10,2,'skin');R(4,y+2,12,5,'skin');
+ R(4,y+4,2,3,'boot');R(14,y+4,2,3,'boot');
+ R(5,y+6,10,2,'robe');R(4,y+6,12,1,'band');R(5,y+7,10,1,'trim');
+ R(7,y+8,6,2,'robeS');R(8,y+8,4,1,'robe');
+ if(!back){R(9,y+4,1,1,'boot');R(8,y+7,4,1,'band');if(crest)R(9,y+8,2,2,'trim');}
+ const stride=walk?[0,1,2,1][frame-2]:0;
+ R(5+stride,21,4,2,'skin');R(11+stride,22-(stride%2),4,1,'boot');
+ const striking=frame===7||frame===13;
+ const leftY=raised?10:y+3,rightX=striking||frame===11?16:14,rightY=raised?9:striking?y+1:y+3;
+ R(2,leftY,4,3,'skin');R(2,leftY,2,3,'band');
+ R(rightX,rightY,3,3,'skin');R(rightX+1,rightY,2,3,'band');
+ R(7+lean,8+bob,6,5,back?'hat':'skin');
+ R(7+lean,7+bob,6,2,'hat');R(8+lean,5+bob,4,2,'hat');
+ R(9+lean,5+bob,2,1,'hatL');
+ if(back)R(8+lean,11+bob,4,1,'hatL');
+ else{R(11+lean,10+bob,1,1,'o');R(10+lean,12+bob,2,1,'boot');}
+}
 // generic hero sheet: robe body + a hat style + a weapon. Used by every character class and evolution stage.
 // back=true draws the same pose seen from behind (walking away from the camera): no face, back of the head/hood
 function buildHero(EV,star,back){const stage=star?9:0;
@@ -55,6 +79,7 @@ function buildHero(EV,star,back){const stage=star?9:0;
   let cz=HPOSE[CK][f0],f=f0;if(typeof cz==='number'){f=cz;cz=null;}
   const fr=mk(FW,FH,g=>{
    const R=(x,y,w,h,c)=>{g.fillStyle=C[c]||c;g.fillRect(x,y,w,h);};
+   if(EV.wpn==='palms'){drawSumoFrame(R,f0,back,EV.crest);return;}
    const walk=f>=2&&f<=5,bob=cz?(cz.crouch?1:0):(f===1||f===3||f===5)?1:0,lean=cz?(cz.lean||0):f===11?2:0,up=!cz&&(f===8||f===9||f===10);
    // staff placement per pose
    let sx=15,sy=5,horiz=false;if(f===6){sx=4;sy=7;}if(f===7){sx=17;sy=5;}if(up){sx=15;sy=1;}if(f===10){sx=10;sy=0;}if(f===11)horiz=true;

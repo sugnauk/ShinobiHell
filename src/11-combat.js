@@ -72,11 +72,14 @@ function hurtE(e,dmg,pd,o){
  if(e.elite==='armored')dmg*=.8;
  if((e.boss||e.elite)&&upLv('bossd'))dmg*=1+.08*upLv('bossd'); // SLAYER (skill tree)
  if(e.boss&&BKIT[e.name]&&BKIT[e.name].dmgMod)dmg*=BKIT[e.name].dmgMod(e); // arena effects (war banners, dazzled by lanterns...)
- if(P&&P.rage>0)dmg*=1.3;e.hp-=dmg;
+ if(P&&P.rage>0)dmg*=1.3;
+ const ironPower=R&&P&&P.ironBellyUntil>R.time&&!o.foe?1+P.ironBellyPower:1;
+ const preIronDamage=dmg;
+ dmg*=ironPower;e.hp-=dmg;
  // run stats: damage per source slot (m h q w f e), everything else (relics, procs, reflects) is 'x'
  if(R){R.dmg=R.dmg||{};const sk=src&&'mhqwfe'.includes(src)?src:'x';R.dmg[sk]=(R.dmg[sk]||0)+Math.max(0,dmg);}e.posture+=pd;e.pdelay=1.8;e.flash=.12;wake(e);
  const big=dmg>=S.atk*1.8;
- if(o.kb&&!e.boss){const km=(e.elite==='armored'?.3:1)*(o.kbm||(big?1.6:1));e.kx+=Math.cos(o.kb)*90*km;e.ky+=Math.sin(o.kb)*90*km;}
+ if(o.kb!=null&&!e.boss){const km=(e.elite==='armored'?.3:1)*(o.kbm||(big?1.6:1));e.kx+=Math.cos(o.kb)*90*km;e.ky+=Math.sin(o.kb)*90*km;}
  if(big){e.flash=.18;spark(e.x,e.y,crit?'#ff4':'#fff',8,90);}
  // feel of power without screen shake: the foe recoils from the hit, big hits and crits burst, and hits build a combo
  {const ka=o.kb!=null?o.kb:(P?Math.atan2(e.y-P.y,e.x-P.x):0),kp=Math.min(5,1.5+dmg/Math.max(1,S.atk)*1.2);e.kick={a:ka,p:kp,t:.12};}
@@ -90,12 +93,12 @@ function hurtE(e,dmg,pd,o){
   if(S.frost&&Math.random()<.3+.15*S.frost)applyStatus(e,'chill');
   if(S.shock&&Math.random()<.18*S.shock){applyStatus(e,'shock');let nx=null,nd=70;for(const o2 of enemies){if(o2===e||o2.dead||o2.air||!los(e.x,e.y,o2.x,o2.y))continue;const d=dist(o2,e);if(d<nd){nd=d;nx=o2;}}if(nx){fx.push({k:'bolt',pts:[{x:e.x,y:e.y},{x:nx.x,y:nx.y}],t:.15,dur:.15});hurtE(nx,S.atk*.7,8,{nost:true,chain:true});}}
   if(S.vamp)P.hp=Math.min(S.maxhp,P.hp+dmg*.02*S.vamp);
-  if(crit&&S.flare){fxRing(e.x,e.y,30,'#fd4',.25);for(const o2 of enemies){if(o2===e||o2.dead||o2.air)continue;if(dist(o2,e)<30+o2.r&&los(e.x,e.y,o2.x,o2.y))hurtE(o2,dmg*.5,10,{nost:true,chain:true});}}
+  if(crit&&S.flare){fxRing(e.x,e.y,30,'#fd4',.25);for(const o2 of enemies){if(o2===e||o2.dead||o2.air)continue;if(dist(o2,e)<30+o2.r&&los(e.x,e.y,o2.x,o2.y))hurtE(o2,preIronDamage*.5,10,{nost:true,chain:true});}}
  }
  // ability effects from enchants and scroll add-ons (also on zone/blast ticks, so traps and storms count)
  if(AF){
   if(AF.leech)P.hp=Math.min(S.maxhp,P.hp+dmg*.02*AF.leech);
-  if(AF.blast){fxRing(e.x,e.y,26,'#fa4',.18);for(const o2 of enemies){if(o2===e||o2.dead||o2.air||dist(o2,e)>26+o2.r||!los(e.x,e.y,o2.x,o2.y))continue;hurtE(o2,dmg*.3*AF.blast,4,{nost:true,chain:true});}}
+  if(AF.blast){fxRing(e.x,e.y,26,'#fa4',.18);for(const o2 of enemies){if(o2===e||o2.dead||o2.air||dist(o2,e)>26+o2.r||!los(e.x,e.y,o2.x,o2.y))continue;hurtE(o2,preIronDamage*.3*AF.blast,4,{nost:true,chain:true});}}
   if(AF.gale&&e.hp>0){e.posture+=pd*.5*AF.gale;if(!e.boss&&P){const a=Math.atan2(e.y-P.y,e.x-P.x);e.kx+=Math.cos(a)*70*AF.gale;e.ky+=Math.sin(a)*70*AF.gale;}}
   if(e.hp>0){
    if(AF.burn&&Math.random()<AF.burn)applyStatus(e,'burn');
