@@ -1,5 +1,26 @@
 # Changelog
 
+## Unreleased (next PR)
+
+### Ability descriptions
+- **Rewritten:** all 68 abilities (basic attacks, heavies, Q, E, F and ultimates for every hero, and the rare scroll spells) have new descriptions. Each one says plainly what the ability does, adds a second line when it needs one (full-charge effects, durations, what stuns or freezes), and gives a green **TIP** on how to use it well.
+- **Character select:** shows the description and tip, and the header names the ability type and its cooldown. Ultimates note that kills cut their cooldown.
+- **In-game tooltip** (hover an ability slot): the description, the live damage and cooldown, then the tip. The technical "FORMULA" lines are gone.
+- **Fixed claims:** Spirit Blade and Whirlwind no longer say they cut bullets. Only a full-charge heavy, or the Bullet Cleaver scroll, does that.
+
+### Tips
+- **Moving never closes a tip:** you are usually already moving when one appears.
+- **Reading time:** every tip stays up at least 0.9 seconds.
+- **How each tip closes:**
+  - the stage-start, shop, shrine and curse altar tips close with G or ENTER
+  - guardian tips close with dash
+  - a key already held down also works
+- **Start tip timing:** it shows as the stage loads, and the province map waits until it is closed.
+
+### The Burning Village
+- **Wall tops:** no more black slabs floating above the walls (also in Burning Castle Town).
+- **Furnishings:** the prologue is furnished like a burnt village (rubble, charred beams, braziers, ember light) instead of stage I's bamboo camp.
+
 ## 0.7.2: the prologue, allies, honest damage and daily pacts
 
 ### Bosses

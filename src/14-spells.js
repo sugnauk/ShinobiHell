@@ -11,7 +11,7 @@ const SPELLS={
     {n:'SPIRIT SHARDS',g:'S',c:'#c8f',d:'SHOTGUN BURST. HUGE UP CLOSE'},
     {n:'HOMING WISP',g:'H',c:'#8fc',d:'SLOW WISPS THAT SEEK TARGETS'},
     {n:'KAMI SEEKERS',g:'>',c:'#ffe060',rare:1,d:'3 GOLDEN SEEKERS THAT PIERCE'}],
- h:[{n:'SPIRIT BLADE',g:'/',c:'#c8f',cd:.55,d:'MELEE ARC. BIG STUN, CUTS SHOTS'},
+ h:[{n:'SPIRIT BLADE',g:'/',c:'#c8f',cd:.55,d:'MELEE ARC. BIG STUN'},
     {n:'VOID ORB',g:'0',c:'#a6f',cd:1.1,d:'SLOW ORB THAT PIERCES EVERYTHING'},
     {n:'FROST LANCE',g:'!',c:'#bef',cd:.8,d:'FAST PIERCING LANCE. CHILLS'},
     {n:'MOONLIT CRESCENT',g:'(',c:'#e0f0ff',cd:.7,rare:1,d:'HUGE SLASH + PIERCING CRESCENT WAVE'}],

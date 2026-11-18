@@ -149,8 +149,11 @@ selConfirm=function(){if(selLock)return;if(isLocked(selIdx)){sfx('block');return
   mmSect('ABILITIES',px,y);y+=10;
   const ay=y;SRAB.x=px;SRAB.y=ay;[...SLOTS].forEach((k,i)=>{const s=SPELLS[k][C.kit[k]],x=px+i*22,f=i===selAb;spellBox(x,ay,s,true);if(f){ctx.fillStyle=C.col;ctx.fillRect(x-2,ay-2,17,1);ctx.fillRect(x-2,ay+14,17,1);ctx.fillRect(x-2,ay-2,1,17);ctx.fillRect(x+14,ay-2,1,17);}
    txt(SLOTKEY[k],x+6-Math.round(txtW(SLOTKEY[k])/2),ay+17,f?'#fff':'#666');});
-  y+=27;{const k=SLOTS[selAb],s=SPELLS[k][C.kit[k]];txt(s.n,px,y,s.c);const tag=k==='m'?'BASIC - '+WSIG[C.k]:k==='h'?'HEAVY (HOLD)':k==='e'?'ULTIMATE':'ABILITY';txt(tag,px+pw-txtW(tag),y,'#777');y+=9;
-   for(const l of wrapTxt(s.d||'',Math.floor(pw/4.6)).slice(0,2)){txt(l,px,y,'#bbb');y+=8;}}
+  y+=27;{const k=SLOTS[selAb],s=SPELLS[k][C.kit[k]];txt(s.n,px,y,s.c);const tag=(k==='m'?'BASIC - '+WSIG[C.k]:k==='h'?'HEAVY (HOLD RMB)':k==='e'?'ULTIMATE':'ABILITY')+(s.cd?'  -  '+s.cd+'S COOLDOWN':'');txt(tag,px+pw-txtW(tag),y,'#777');y+=9;
+   // what it does, then a tip on using it (the full text comes from 166-ability-text.js)
+   for(const l of wrapTxt((s.d||'')+(s.more?' '+s.more:''),Math.floor(pw/4.6)).slice(0,2)){txt(l,px,y,'#ddd');y+=8;}
+   if(s.tip)for(const l of wrapTxt('TIP: '+s.tip,Math.floor(pw/4.6)).slice(0,2)){txt(l,px,y,'#80d0a0');y+=8;}
+   if(k==='e'){txt('KILLS CUT ITS COOLDOWN',px,y,'#888');y+=8;}}
   y=Math.max(y+4,Y+Hd-34);mmSect('EVOLUTION',px,y);
   {const r=(meta.cst&&meta.cst[C.k])||{runs:0,wins:0,best:0},rs=r.runs?('RUNS '+r.runs+'  BEST '+(ROMAN[r.best-1]||'-')+'  WINS '+r.wins):'NOT PLAYED YET';txt(rs,px+pw-txtW(rs),y,r.wins?'#fd4':'#777');}
   y+=8;[0,3,6,9].forEach((st,i)=>{const sp2=heroSpr(C.k,st),x=px+i*22;ctx.drawImage(sp2.c,WIZ.idle[Math.floor(time*2.5+i)%2]*sp2.fw,0,sp2.fw,sp2.fh,x-2,y-2,sp2.fw,sp2.fh);if(i<3){ctx.fillStyle='#555';ctx.fillRect(x+18,y+10,3,1);}});
