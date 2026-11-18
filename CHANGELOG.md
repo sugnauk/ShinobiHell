@@ -10,6 +10,9 @@
   - Flee: Tetsuo, Kage and Tamamo back away and fire as they go, and Kage also vanishes across the arena.
   - Frenzy: Itohime turns much faster.
 
+### Tutorial
+- **No damage in training:** bullets and blows in Master Kaito's trials still hit you, with the flash and sound, but take no health. A "HIT" marker shows where a number would.
+
 ### Prologue I: The Burning Village
 - **The stage:** a gentle opening stage before stage I, with fewer and weaker foes. It is on by default, and P on character select switches it off.
 - **The boss:** Goro, the Bandit Captain, a new teaching boss with his own sprite and a second form.
