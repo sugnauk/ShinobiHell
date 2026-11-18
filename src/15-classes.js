@@ -151,7 +151,7 @@ const CZ={
  hawk:(z,dt)=>{z.ang+=dt*3;z.x=P.x+Math.cos(z.ang)*22;z.y=P.y+Math.sin(z.ang)*22;if(z.tk<=0){z.tk=.5;const e=nearestFoe(z.x,z.y,220);if(e)pShot(z.x,z.y,Math.atan2(e.y-z.y,e.x-z.x),200,z.dm,{r:2,col:'#c8a060',home:true,life:1});}},
  calt:(z)=>{for(const e of enemies)if(!e.dead&&!e.air&&Math.hypot(e.x-z.x,e.y-z.y)<z.r+e.r)e.zs=e.boss?.7:.45;if(z.tk<=0){z.tk=.35;for(const e of enemies)if(!e.dead&&!e.air&&Math.hypot(e.x-z.x,e.y-z.y)<z.r+e.r){hurtE(e,z.dm,3,{nost:true});applyStatus(e,'poison');}}},
  smoke:()=>{},
- clone:(z,dt)=>{z.ang+=dt*1.2;z.x=P.x+Math.cos(z.ang)*26;z.y=P.y+Math.sin(z.ang)*26;if(z.tk<=0){z.tk=.25;const e=nearestFoe(z.x,z.y,220);if(e)pShot(z.x,z.y,Math.atan2(e.y-z.y,e.x-z.x),280,z.dm,{r:2,arrow:true,col:'#9a7aff',life:.7});}},
+ clone:(z,dt)=>{z.ang+=dt*1.2;z.x=P.x+Math.cos(z.ang)*26;z.y=P.y+Math.sin(z.ang)*26;if(z.tk<=0){z.tk=.25;const e=nearestFoe(z.x,z.y,220);if(e)for(const offset of z.evolved?[-.12,.12]:[0])pShot(z.x,z.y,angTo(z,e)+offset,280,z.dm,{r:2,arrow:true,col:'#9a7aff',life:.7,src:z.src});}},
  shiki:(z,dt)=>{z.ang+=dt*2.2;z.x=P.x+Math.cos(z.ang)*22;z.y=P.y+Math.sin(z.ang)*22;if(z.tk<=0){z.tk=.45;const e=nearestFoe(z.x,z.y,220);if(e)pShot(z.x,z.y,Math.atan2(e.y-z.y,e.x-z.x),150,z.dm,{r:2,col:'#f0e8d0',home:true,life:1.2});}},
  heal:(z)=>{if(z.tk<=0){z.tk=.25;if(Math.hypot(P.x-z.x,P.y-z.y)<z.r){P.hp=Math.min(S.maxhp,P.hp+z.hp);particles.push({x:P.x+rnd(-4,4),y:P.y,vx:0,vy:-25,t:.5,col:'#6f6'});}for(const e of enemies)if(!e.dead&&!e.air&&Math.hypot(e.x-z.x,e.y-z.y)<z.r+e.r)hurtE(e,z.dm,2,{nost:true});}}};
 const CZD={

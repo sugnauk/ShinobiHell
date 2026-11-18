@@ -7,7 +7,7 @@ function updWorld(dt){
  if(p.hot>0){p.hot-=dt;p.hp=Math.min(S.maxhp,p.hp+p.hotAmt*dt);}
  if(p.haste>0)p.haste-=dt;if(p.guardSt>0)p.guardSt-=dt;if(p.rage>0)p.rage-=dt;if(p.shieldT>0){p.shieldT-=dt;if(p.shieldT<=0)p.shieldHp=0;}
  if(p.storm>0){p.storm-=dt;p.stormT-=dt;if(p.stormT<=0){p.stormT=.12;p.stormA+=.42;const dm=S.atk*.65*(1+.25*S.epow)*AP();for(let i=0;i<6;i++){const a=p.stormA+i*TAU/6;projs.push(mkProj('p',p.x,p.y,a,190,dm,{r:3,pd:6,life:.7,col:'#ff8a30',pierce:1+(abFx('e').pierce||0),main:true,src:'e'}));}sfx('shoot');}}
- for(const z of zones){castSrc=z.src||null;z.t-=dt;z.tk-=dt;const tick=z.tk<=0;if(z.k&&CZ[z.k]){CZ[z.k](z,dt,tick);continue;}
+ for(const z of zones){if(z.t<=0)continue;castSrc=z.src||null;z.t-=dt;z.tk-=dt;const tick=z.tk<=0;if(z.k&&CZ[z.k]){CZ[z.k](z,dt,tick);continue;}
   if(z.k==='grav'){ // pull non-bosses toward the centre, detonate on expiry
    if(tick)z.tk=.3;
    for(const e of enemies){if(e.dead||e.air)continue;const d=Math.hypot(e.x-z.x,e.y-z.y);if(d<z.r+e.r&&los(z.x,z.y,e.x,e.y)){e.zs=z.hole?.3:.5;const pull=e.boss?(z.hole?28:0):(z.hole?130:80);if(pull&&d>4){const a=Math.atan2(z.y-e.y,z.x-e.x);move(e,Math.cos(a)*pull*dt,Math.sin(a)*pull*dt,e.r);}if(tick)hurtE(e,z.dm*.06,z.hole?6:2,{nost:true});}}

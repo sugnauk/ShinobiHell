@@ -101,6 +101,10 @@ selConfirm=function(){if(selLock)return;if(isLocked(selIdx)){sfx('block');return
 {const _uk=upgradesKey;upgradesKey=function(c){if((c==='Escape'||c==='Tab')&&treeFrom==='menu'){mode='menu';selTab=0;sfx('coin');return;}return _uk(c);};}
 {const _ok=onKey;onKey=function(c){if(mode==='select'&&selTab===1&&treeFrom==='menu'&&(c==='Escape')){mode='menu';selTab=0;sfx('coin');return;}return _ok.apply(this,arguments);};}
 // the menus and the select screen use the wide view, like the pause screen
+{const base=viewDims;viewDims=function(wide){
+ const [width,height]=base(wide);
+ return mode==='select'&&selTab===0?[Math.max(width,448),height]:[width,height];
+};}
 {const _sv=setView;setView=function(w){if(mode==='menu'||mode==='select')w=true;return _sv(w);};}
 
 {const _rs=renderSelect;renderSelect=function(){if(selTab===1)return _rs.apply(this,arguments);
@@ -127,12 +131,12 @@ selConfirm=function(){if(selLock)return;if(isLocked(selIdx)){sfx('block');return
  ctx.fillStyle='#1a1220';for(let y=0;y<9;y++){const w=Math.round(36*Math.sqrt(1-((y-4)/4.6)**2));ctx.fillRect(cx-w,fy-4+y,w*2,1);}
  ctx.fillStyle='#2e2438';for(let y=0;y<5;y++){const w=Math.round(32*Math.sqrt(1-((y-2)/2.6)**2));ctx.fillRect(cx-w,fy-4+y,w*2,1);}
  for(let i=0;i<24;i++){const a=i/24*TAU+time*.6;ctx.fillStyle=i%2?col:shade(col,-.4);ctx.fillRect(Math.round(cx+Math.cos(a)*28),Math.round(fy-2+Math.sin(a)*3),1,1);}
- const sp=heroSpr(C.k,lk?0:9),SC=4,slide=Math.round((1-ease)*14),fr=selLock?(WIZ.atk||WIZ.idle)[Math.min((WIZ.atk||[0]).length-1,Math.floor((time-selT)/.1))]:heroPose(selIdx,time);
+ const sp=heroSpr(C.k,lk||keys.KeyV?0:9),SC=4,slide=Math.round((1-ease)*14),fr=selLock?(WIZ.atk||WIZ.idle)[Math.min((WIZ.atk||[0]).length-1,Math.floor((time-selT)/.1))]:heroPose(selIdx,time);
  const dx=Math.round(cx-sp.fw*SC/2)+slide,dy=fy-sp.fh*SC+2;ctx.globalAlpha=ease;
  if(lk){ctx.drawImage(silOf(sp,C.k),fr*sp.fw,0,sp.fw,sp.fh,dx,dy,sp.fw*SC,sp.fh*SC);padlock(cx-3,fy-54,'#e0c070');}
  else{ctx.drawImage(sp.c,fr*sp.fw,0,sp.fw,sp.fh,dx,dy,sp.fw*SC,sp.fh*SC);if(selLock){const fl=clamp(1-(time-selT)/.4,0,1);if(fl>0){ctx.globalAlpha=fl;ctx.drawImage(sp.wc,fr*sp.fw,0,sp.fw,sp.fh,dx,dy,sp.fw*SC,sp.fh*SC);}}}
  ctx.globalAlpha=1;
- {const nm=lk?'? ? ?':C.n,sz=txtW(nm,2)>96?1:2;txt(nm,cx-Math.round(txtW(nm,sz)/2),fy+8,col,sz);txt(I.role,cx-Math.round(txtW(I.role)/2),fy+(sz===2?24:18),lk?'#666':'#bbb');}
+ {const nm=lk?'? ? ?':C.n,sz=txtW(nm,2)>96?1:2;txt(nm,cx-Math.round(txtW(nm,sz)/2),fy+8,col,sz);txt(I.role,cx-Math.round(txtW(I.role)/2),fy+(sz===2?24:18),lk?'#666':'#bbb');if(!lk)txt('HOLD V FOR BASE',cx-29,fy+32,'#888');}
  // the details
  const px=X+110,pw=X+Wd-8-px;let y=Y+8;ctx.globalAlpha=ease;
  {txt('DIFFICULTY',px,y,'#888');for(let i=0;i<3;i++){const on=i<I.diff;ctx.fillStyle=on?(I.diff===1?'#6f6':I.diff===2?'#fd4':'#f64'):'#2a2030';ctx.fillRect(px+46+i*7,y,5,5);}
@@ -142,7 +146,8 @@ selConfirm=function(){if(selLock)return;if(isLocked(selIdx)){sfx('block');return
   txt('LOCKED',px,y,'#e0c070',2);y+=18;for(const l of wrapTxt('A NEW WARRIOR JOINS AFTER EVERY RUN, WIN OR LOSE. TRAINING DOES NOT COUNT.',Math.floor(pw/4.6))){txt(l,px,y,'#aaa');y+=8;}
   y+=6;txt('UNLOCKS IN '+n+' MORE RUN'+(n>1?'S':''),px,y,'#ddd');segBar(px,y+10,done/need,'#e0c070',Math.min(10,need));}
  else{
-  for(const l of wrapTxt(I.lore+(I.lore===C.d?'':' '+C.d),Math.floor(pw/4.6)).slice(0,3)){txt(l,px,y,'#ddd');y+=8;}y+=3;
+  for(const l of wrapTxt(I.lore+(I.lore===C.d?'':' '+C.d),Math.floor(pw/4.6)).slice(0,3)){txt(l,px,y,'#ddd');y+=8;}
+  if(I.limit){txt('TRADE-OFF: '+I.limit,px,y,'#e3af90');y+=8;}y+=3;
   mmSect('STATS',px,y);y+=9;
   const ST=[['HEALTH',Math.round(100*C.hp)+' HP',(C.hp-.7)/.7],['SPEED',Math.round(100*C.spd)+'%',(C.spd-.85)/.35],['DASH',(C.dash<=1?'FAST':'SLOW')+' '+Math.round(100/C.dash)+'%',(1.3-C.dash)/.7],['DEFENCE','+'+(C.def||0),((C.def||0)+.5)/4],['POWER',Math.round(100*(C.pw||1))+'%',((C.pw||1)-.8)/.5]];
   ST.forEach(([n,v,f])=>{txt(n,px,y,'#999');segBar(px+44,y+1,f,C.col);txt(v,px+pw-txtW(v),y,'#ddd');y+=8;});y+=4;

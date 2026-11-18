@@ -66,6 +66,7 @@ function hurtE(e,dmg,pd,o){
  // deathblows need the Mortal Edge item; without it, staggered foes just take +50% damage
  if(e.stag>0&&o.slash&&S.dblow){deathblow(e);return;}if(e.stag>0)dmg*=1.5;
  let crit=false;if(o.slash&&Math.random()<S.crit+(AF?AF.crit:0)){dmg*=2;crit=true;}
+ if(crit&&src==='m'&&!o.chain&&CLS().k==='shinobi')e.shadowMark=R.time+4;
  if(freezeT>0)dmg*=1.4;
  if(S.storm&&e.st&&(e.st.shock>0||e.st.burn>0))dmg*=1+.2*S.storm;
  if(e.st&&e.st.frozen>0&&!o.nost){dmg*=1.5;e.st.frozen=0;txtFx(e.x,e.y,'SHATTER','#cff');spark(e.x,e.y,'#cff',10,80);}

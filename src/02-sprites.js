@@ -44,7 +44,7 @@ const WIZEVO=[{n:'APPRENTICE',hat:'pilgrim',beard:0,orb:1,C:{hat:'#253955',hatL:
  {n:'ELDER',hat:'pointed',beard:2,orb:1,C:{hat:'#3a1a5a',hatL:'#5a3a8a',robe:'#4a2a7a',robeS:'#30184e'}},
  {n:'MASTER WIZARD',hat:'pointed',beard:2,orb:1,C:{}}];
 function buildWiz(stage,back=false){return buildHero({...WIZEVO[stage],detail:'wizard'},stage>=9,back);}
-function drawSumoFrame(R,frame,back,stage){
+function drawSumoFrame(R,frame,back,stage,skin){
  const crest=stage>=6,final=stage>=9;
  const walk=frame>=2&&frame<=5;
  const bob=walk&&frame%2===1?1:0;
@@ -72,6 +72,11 @@ function drawSumoFrame(R,frame,back,stage){
   const plate=final?'#a22d34':'#384f75',gold='#efbc65';
   for(const x of [3,13]){R(x,y-1,4,3,plate);R(x+1,y-2,3,1,gold);R(x,y+1,4,1,gold);}
   R(6,y+7,8,2,plate);R(7,y+8,6,1,gold);
+ }
+ if(skin){
+  R(4,y+6,12,2,'band');
+  R(2,leftY,3,3,'trim');R(rightX,rightY,3,3,'trim');
+  if(skin===2){R(5,y-1,2,5,'robe');R(13,y-1,2,5,'robe');R(8+lean,5+bob,4,1,'trim');}
  }
  if(final){
   R(3,y+5,14,2,'band');for(let i=5;i<16;i+=3)R(i,y+5,1,2,'#b89e6d');
@@ -118,7 +123,7 @@ function buildHero(EV,star,back){const stage=star?9:0;
   let cz=HPOSE[CK][f0],f=f0;if(typeof cz==='number'){f=cz;cz=null;}
   const fr=mk(FW,FH,g=>{
    const R=(x,y,w,h,c)=>{g.fillStyle=C[c]||c;g.fillRect(x,y,w,h);};
-   if(EV.wpn==='palms'){drawSumoFrame(R,f0,back,EV.sumoStage);return;}
+   if(EV.wpn==='palms'){drawSumoFrame(R,f0,back,EV.sumoStage,EV.masterySkin);return;}
    const walk=f>=2&&f<=5,bob=cz?(cz.crouch?1:0):(f===1||f===3||f===5)?1:0,lean=cz?(cz.lean||0):f===11?2:0,up=!cz&&(f===8||f===9||f===10);
    // staff placement per pose
    let sx=15,sy=5,horiz=false;if(f===6){sx=4;sy=7;}if(f===7){sx=17;sy=5;}if(up){sx=15;sy=1;}if(f===10){sx=10;sy=0;}if(f===11)horiz=true;
@@ -231,6 +236,15 @@ function buildHero(EV,star,back){const stage=star?9:0;
    R(7+hx,5+hy,6,2,'hat');R(8+hx,3+hy,4,2,'hat');R(9+hx+Math.round(tx/3),2+hy,3,1,'hat');R(10+hx+Math.round(tx/2),1+hy,2,1,'hat');R(12+hx+tx,0+hy,2,1,'hatL');
    R(8+hx,5+hy,1,2,'hatL');R(9+hx,3+hy,1,2,'hatL');if(stage>=9)R(11+hx,5+hy,1,1,'band');}
    if(EV.rosterDetail||EV.rosterFinal||star)drawRosterDetail(R,EV.rosterDetail,EV.rosterFinal||star,bob,back);
+   if(EV.masterySkin){
+    R(5,13+bob,2,3,'hat');R(12,13+bob,2,3,'hat');
+    R(4,13+bob,3,1,'trim');R(12,13+bob,3,1,'trim');
+    R(9,17+bob,2,4,'trim');R(9,18+bob,2,1,'band');
+    if(EV.masterySkin===2){
+     R(5,7+hy,1,3,'orbL');R(14,7+hy,1,3,'orbL');
+     R(4,15+bob,1,5,'trim');R(15,15+bob,1,5,'trim');
+    }
+   }
   });
   // 1px dark outline around everything
   const d=fr.getContext('2d').getImageData(0,0,FW,FH),o=mk(FW,FH,()=>{}),og=o.getContext('2d');og.fillStyle=C.o;

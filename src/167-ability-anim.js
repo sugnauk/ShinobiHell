@@ -17,6 +17,13 @@
 //  ROAR     rears up and shakes (War Cry)
 // Holding RMB to charge a heavy also shows: the hero crouches and trembles, and flashes when the charge is full.
 const AB_ANIM={
+ 'PUPPET LASH':['throw',.28],'CURSED THREAD':['cast',.3],'THREAD STEP':['blink',.26],'COCOON':['guard',.4],'PUPPET MASTER':['bigcast',.56],
+ 'GALE WING':['throw',.28],'WIND CUTTER':['throw',.24],'TAILWIND':['lunge',.24],'CYCLONE':['cast',.28],'DIVINE TEMPEST':['bigcast',.62],
+ 'DANCING CUT':['spin',.16,.4],'CRIMSON SWEEP':['spin',.28,.75],'CRESCENT FAN':['throw',.34],
+ 'PIROUETTE':['spin',.3,1],'PERFECT RHYTHM':['cast',.32],'THOUSAND PETALS':['spin',1.12,3],
+ 'RED SCRIBE':['cast',.3],'BLOOD SEAL':['cast',.38],'CRIMSON PASSAGE':['blink',.3],'HARVEST':['cast',.45],'FORBIDDEN PROPHECY':['bigcast',.68],
+ 'BELL SWING':['spin',.2,.4],'TEMPLE TOLL':['slam',.32],'RESONANT STRIKE':['slam',.32],'SACRED CHIME':['guard',.42],
+ 'ECHO RELEASE':['thrust',.24,.5],'THOUSAND BELLS':['bigcast',.76],
  'PALM STRIKES':['thrust',.18,.65],'DRIVING SHOVE':['thrust',.3,1],
  'SUMO TOSS':['throw',.32],'IRON BELLY':['roar',.42],'STOMP':['slam',.38],'GRAND SLAM':['slam',.5],
  // LMB (only the melee and special ones get a pose; ranged basics keep the quick shot)

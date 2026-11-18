@@ -35,7 +35,7 @@ Object.assign(SELCARD,{w:41,gap:3,x0:Math.round((320-(CLASSES.length*44-3))/2)})
 const NEWCAST={
  // GUNNER
  160:(c)=>{const {p,a,A,bp,em}=c;pShot(p.x+Math.cos(a)*8,p.y+Math.sin(a)*8,a,360,A*1.7*bp*em,{r:3,col:'#ffd060',pierce:2+S.pierce,life:.85*(1+S.rangeM),pd:18});for(let i=0;i<6;i++)particles.push({x:p.x+Math.cos(a)*10,y:p.y+Math.sin(a)*10,vx:Math.cos(a+rnd(-.5,.5))*rnd(10,40),vy:Math.sin(a+rnd(-.5,.5))*rnd(10,40)-10,t:.5,col:'#a8a8a8'});move(p,-Math.cos(a)*1.5,-Math.sin(a)*1.5,4);p.atkCd=LMBRATE[16]/S.aspd;sfx('shoot');shake=Math.max(shake,1);},
- 81:(c)=>{const {p,a,A,bp,em}=c;pShot(p.x+Math.cos(a)*8,p.y+Math.sin(a)*8,a,330,A*3*bp*em,{r:5,col:p.hFull?'#fff':'#ffd060',pierce:99,cut:p.hFull?1:0,life:.9*(1+S.rangeM),pd:40,st:'big'});move(p,-Math.cos(a)*10,-Math.sin(a)*10,4);impact(p.x,p.y,'#ffd060',4);sfx('break');},
+ 81:(c)=>{const {p,a,A,bp,em}=c;pShot(p.x+Math.cos(a)*8,p.y+Math.sin(a)*8,a,330,A*3*bp*em,{r:5,col:p.hFull?'#fff':'#ffd060',pierce:99,cut:p.hFull?1:0,heatCharge:CLS().k==='gunner'&&heroTransformed(),life:.9*(1+S.rangeM),pd:40,st:'big'});move(p,-Math.cos(a)*10,-Math.sin(a)*10,4);impact(p.x,p.y,'#ffd060',4);sfx('break');},
  82:(c)=>{const {p,a,A,qm,em}=c;for(let i=0;i<11;i++){const o=(i/10-.5)*.9+rnd(-.04,.04);pShot(p.x+Math.cos(a)*6,p.y+Math.sin(a)*6,a+o,rnd(260,320),A*.55*qm*em,{r:2,col:'#c8c8d0',life:.45*(1+S.rangeM)});}impact(p.x,p.y,'#c8c8d0',4);sfx('break');},
  83:(c)=>{const {p,a,A,ap,em}=c;zones.push({k:'gkeg',x:p.x,y:p.y,r:50*AZ(),t:.8,tk:0,dm:A*3*ap*em});const ra=a+Math.PI;p.dx=Math.cos(ra);p.dy=Math.sin(ra);p.dash=.2;p.iv=Math.max(p.iv,.45);sfx('dash');},
  84:(c)=>{const {p,A,ap,em}=c;zones.push({k:'tripod',x:p.x,y:p.y,r:0,t:7,tk:.3,dm:A*.55*ap*em});sfx('tool');},
@@ -71,7 +71,9 @@ Object.assign(CZ,{
   for(const q of projs){
    if(q.dead||q.from!=='e'||q.peril)continue;
    const dx=q.x-z.x,dy=q.y-z.y,d=dx*c+dy*s;
-   if(d>=0&&d<=z.len&&Math.abs(-dx*s+dy*c)<z.r&&los(z.x,z.y,q.x,q.y))q.dead=true;
+   if(d>=0&&d<=z.len&&Math.abs(-dx*s+dy*c)<z.r&&los(z.x,z.y,q.x,q.y)){
+    q.dead=true;if(heroTransformed())gunnerHeat(.5);
+   }
   }
   for(const offset of [-18,-9,0,9,18])fx.push({k:'line',x:z.x-s*offset,y:z.y+c*offset,a:z.a,len:z.len,t:.22,dur:.22,col:offset?'#ff8845':'#fff0bd'});
   for(let i=0;i<=4;i++)spark(z.x+c*z.len*i/4,z.y+s*z.len*i/4,'#ffad5f',5,90);

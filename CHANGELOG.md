@@ -5,6 +5,8 @@
 - Expand the playable roster to thirteen with Marionettist, Tengu, Kagura, Blood Oracle and Bellwarden.
 - Sumo has innate damage reduction, an aimed Toss with collision and landing damage, and a Grand Slam that knocks enemies up and damages them again on landing.
 - Original characters gain combat techniques tied to their existing moves and evolutions. Final forms feature new looks and effects.
+- Show class resources during combat and preview both forms on character select.
+- Pace updates and drawing to a maximum of 60 FPS on high-refresh displays.
 - Character mastery now goes to level 50, carries existing XP and unlocks forward, and adds cosmetic rewards. The Temple Skill Tree remains shared.
 
 ## 0.7.4: Iai Cleave becomes a dash, and stat potions are gone

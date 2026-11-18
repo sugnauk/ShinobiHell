@@ -77,7 +77,7 @@ function stepStyle(q,dt){
 function updProjs(dt){
  for(const q of projs){
   if(q.from==='e'&&freezeT>0)continue;
-  if(q.cut){for(const o of projs)if(o.from==='e'&&!o.peril&&!o.dead&&Math.hypot(o.x-q.x,o.y-q.y)<q.r+o.r+3){o.dead=true;spark(o.x,o.y,q.col,3,40);}}
+  if(q.cut){for(const o of projs)if(o.from==='e'&&!o.peril&&!o.dead&&Math.hypot(o.x-q.x,o.y-q.y)<q.r+o.r+3){o.dead=true;if(q.heatCharge)gunnerHeat(.5);spark(o.x,o.y,q.col,3,40);}}
   if(q.rare&&Math.random()<dt*40)particles.push({x:q.x,y:q.y,vx:rnd(-10,10),vy:rnd(-10,10),t:.25,col:q.col});
   if(q.home){let tg=null,bd=q.rare?150:110;for(const e of enemies){if(e.dead||e.air)continue;const d=dist(e,q);if(d<bd){bd=d;tg=e;}}if(tg){const cur=Math.atan2(q.vy,q.vx),df=clamp(angDiff(angTo(q,tg),cur),-5*dt,5*dt),sp=Math.hypot(q.vx,q.vy);q.vx=Math.cos(cur+df)*sp;q.vy=Math.sin(cur+df)*sp;}}
   if(q.st)stepStyle(q,dt);if(q.dead)continue;

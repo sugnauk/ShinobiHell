@@ -11,9 +11,11 @@ function rosterAim(p,range){
  return {x:p.x+Math.cos(a)*length,y:p.y+Math.sin(a)*length};
 }
 function rosterBurst(x,y,r,damage,posture,col,options){
- for(const e of rosterTargets(x,y,r))hurtE(e,damage,posture,options);
+ const targets=rosterTargets(x,y,r);
+ for(const e of targets)hurtE(e,damage,posture,options);
  fxRing(x,y,r,col,.32);
  spark(x,y,col,6,75);
+ return targets.length;
 }
 function rosterShift(p,a,length){
  const dx=Math.cos(a)*2,dy=Math.sin(a)*2;
@@ -26,7 +28,7 @@ function rosterShift(p,a,length){
 function rosterShots(p,a,count,spread,damage,col,options){
  for(let i=0;i<count;i++){
   const angle=a+(i-(count-1)/2)*spread;
-  pShot(p.x,p.y,angle,260,damage,{col,life:.55,pd:10,...options,...(options?.st==='boom'?{bd:angle}:null)});
+  pShot(p.x,p.y,angle,260,damage,{col,life:.55,pd:10,...options,...(options?.st==='boom'?{bd:angle,bt:0}:null)});
  }
 }
 function rosterClear(x,y,r,limit,col){
@@ -51,7 +53,11 @@ function rosterAdd(spec){
   const [n,cd,d,cast]=kit[i],variants=SPELLS[k],id=variants.length;
   variants.push({n,g:k.toUpperCase(),c:col,cd,d,more:'',tip:''});
   slots[k]=id;
-  NEWCAST[id*10+i]=cast;
+  NEWCAST[id*10+i]=args=>{
+   if(i<2&&args.mik>0)args.bp*=1.6;
+   if(cast(args)===false)return false;
+   sfx(ROSTER_SOUNDS[key][i]);
+  };
   const icon=['sword','shards','arrow','shield','whirl','shout'][i];
   SPRULES.unshift([new RegExp('^'+n+'$'),icon]);
  }
@@ -71,6 +77,13 @@ function rosterAdd(spec){
  ROSTER_INFO[key]={role,diff:2,lore};
 }
 const ROSTER_INFO={};
+const ROSTER_SOUNDS={
+ marionettist:['shoot','slash','tool','dash','block','break'],
+ tengu:['shoot','shoot','slash','dash','tool','boss'],
+ kagura:['slash','slash','tool','dash','rare','boss'],
+ bloodoracle:['shoot','tool','tool','dash','heal','boss'],
+ bellwarden:['slash','break','break','deflect','shoot','boss']
+};
 
 const threadNodes=()=>enemies.filter(e=>!e.dead&&e.threadUntil>R.time);
 function threadBind(p,r){
@@ -124,7 +137,11 @@ rosterAdd({
  kit:[
  ['FEATHER BLADE',0,'THROW A PAIR OF WIND FEATHERS.',({p,a,A,bp,em})=>{rosterShots(p,a,2,.17,A*.68*bp*em,WIND);p.atkCd=.25/S.aspd;}],
  ['GALE WING',1.2,'RELEASE A WIDE FAN OF PIERCING WINDS.',({p,a,A,bp,em})=>rosterShots(p,a,5,.17,A*.73*bp*em,WIND,{pierce:2})],
- ['WIND CUTTER',4,'FIRE A PIERCING BLADE OF COMPRESSED AIR.',({p,a,A,qm,em})=>rosterShots(p,a,heroTransformed()?3:1,.23,A*2.25*qm*em,WIND,{pierce:5,life:.8})],
+ ['WIND CUTTER',4,'FIRE A PIERCING BLADE. WIND CURRENTS EXTEND ITS REACH.',({p,a,A,qm,em})=>{
+  const riding=zones.some(z=>z.k==='rosterCurrent'&&dist(z,p)<z.r);
+  rosterShots(p,a,heroTransformed()?3:1,.23,A*2.25*qm*em,WIND,{pierce:5,life:riding?1.15:.8});
+  if(riding&&enemies.some(e=>!e.dead&&!e.prop&&dist(p,e)<140))heroReward();
+ }],
  ['TAILWIND',6,'DASH AND LEAVE A CURRENT THAT SPEEDS YOU UP.',({p,a})=>{
   const {x,y}=p;rosterShift(p,a,heroTransformed()?87:63);
   zones.push({k:'rosterCurrent',x:(x+p.x)/2,y:(y+p.y)/2,r:39,t:3,tk:0,col:WIND});
@@ -142,10 +159,16 @@ function buildFlow(p){
  p.flow=gap>.95?1:Math.min(5,(p.flow||0)+(gap>=.16?1:0));
  p.lastFlow=R.time;
 }
+function kaguraFlow(p){return R.time-p.lastFlow<=(heroTransformed()?2:1.3)?p.flow||0:0;}
 function kaguraCut(p,a,r,damage,col){
  let hit=false;
  coneHit(p.x,p.y,a,r,2.4,e=>{if(e.iv>0)return;hit=true;hurtE(e,damage,18,{slash:true});});
- if(hit)buildFlow(p);
+ if(hit){
+  buildFlow(p);
+  if(p.flowBoost>R.time&&heroTransformed()){
+   rosterShots(p,a,2,.5,damage*.32,col,{pierce:2});heroReward();
+  }
+ }
  fx.push({k:'slash',x:p.x,y:p.y,a,arc:2.4,r,t:.18,dur:.18,col});
 }
 rosterAdd({
@@ -160,14 +183,14 @@ rosterAdd({
  ['CRIMSON SWEEP',1.2,'A CHARGED FAN FINISHER WITH WIDE REACH.',({p,a,A,bp,em})=>kaguraCut(p,a,50,A*2.1*bp*em,PETAL)],
  ['CRESCENT FAN',4,'THROW FANS THAT CURVE BACK TOWARD YOU.',({p,a,A,qm,em})=>rosterShots(p,a,3,.25,A*1.1*qm*em,PETAL,{st:'boom',bd:a,bs:250,bT:1.15,life:1.25,pierce:3})],
  ['PIROUETTE',6,'DASH THROUGH FOES, CUTTING AS YOU SPIN.',({p,a,A,ap,em})=>{
-  rosterShift(p,a,43);rosterBurst(p.x,p.y,38,A*1.7*ap*em,25,PETAL,{slash:true});buildFlow(p);
+  rosterShift(p,a,43);if(rosterBurst(p.x,p.y,38,A*1.7*ap*em,25,PETAL,{slash:true}))buildFlow(p);
  }],
  ['PERFECT RHYTHM',8,'SPEND FLOW TO EMPOWER A SERIES OF PALM-FAN CUTS.',({p})=>{
-  if(!p.flow||R.time-p.lastFlow>(heroTransformed()?2:1.3))return false;
-  p.flowBoost=R.time+1+p.flow*.52;p.flow=0;fxRing(p.x,p.y,26,PETAL,.38);
+  const flow=kaguraFlow(p);if(!flow)return false;
+  p.flowBoost=R.time+1+flow*.52;p.flow=0;fxRing(p.x,p.y,26,PETAL,.38);
  }],
  ['THOUSAND PETALS',26,'SPIN THROUGH A STORM OF PETALS, THEN FINISH.',({p,A,ep,em})=>{
-  const flow=p.flow||0;p.flow=0;
+  const flow=kaguraFlow(p);p.flow=0;if(flow>=3)heroReward(flow);
   zones.push({k:'rosterBells',x:p.x,y:p.y,r:heroTransformed()?70:56,t:1.12,tk:0,
    dm:A*ep*em*(1.1+flow*.13),col:PETAL,petals:true,follow:true,interval:.28});
  }]]
@@ -182,7 +205,8 @@ function popSeals(p,damage,limit){
  let heal=0;
  for(const e of marked){
   rosterBurst(e.x,e.y,heroTransformed()?29:23,damage,19,BLOOD);
-  if(e.dead){
+  if(e.dead&&!e.prop){
+   heroReward(2);
    heal+=S.maxhp*(heroTransformed()?.045:.035);
    if(heroTransformed())sealTargets(e.x,e.y,42,2);
   }
@@ -231,7 +255,7 @@ rosterAdd({
   zones.push({k:'rosterWard',src:'w',x:p.x,y:p.y,r:heroTransformed()?46:37,t:.85,tk:0,left:heroTransformed()?12:8,col:CHIME,follow:true,echo:true});
  }],
  ['ECHO RELEASE',6,'SPEND ECHO ON PIERCING RESONANCE PROJECTILES.',({p,a,A,ap,em})=>{
-  const count=p.bellEcho||0;if(!count)return false;p.bellEcho=0;
+  const count=p.bellEcho||0;if(!count)return false;p.bellEcho=0;heroReward(count);
   rosterShots(p,a,Math.min(7,count+1),.18,A*(.9+count*.13)*ap*em,CHIME,{pierce:4});
  }],
  ['THOUSAND BELLS',28,'SEND EXPANDING WAVES THAT DISRUPT PROJECTILES.',({p,A,ep,em})=>{
@@ -245,7 +269,7 @@ Object.assign(CZ,{
   if(z.follow){z.x=P.x;z.y=P.y;}
   if(z.left<=0)return;
   const hits=rosterClear(z.x,z.y,z.r,z.left,z.col);z.left-=hits;
-  if(hits&&z.echo){addEcho(hits);heroReward(hits);}
+  if(hits&&z.echo)addEcho(hits);
  },
  rosterWind(z,dt,tick){
   const x=z.x+Math.cos(z.a)*z.speed*dt,y=z.y+Math.sin(z.a)*z.speed*dt;
@@ -284,7 +308,7 @@ Object.assign(CZD,{rosterWard:rosterZoneRing,rosterWind:rosterZoneRing,rosterCur
 {
  const base=hurtE;
  hurtE=function(e,amount,posture,options){
-  const linked=R&&P&&CLS().k==='marionettist'&&e.threadUntil>R.time&&!options?.chain&&!options?.foe&&!e.dead;
+  const linked=R&&P&&e.threadUntil>R.time&&CLS().k==='marionettist'&&!options?.chain&&!options?.foe&&!e.dead;
   const hp=e.hp;
   const result=base.apply(this,arguments);
   if(linked&&hp>e.hp){
@@ -292,12 +316,17 @@ Object.assign(CZD,{rosterWard:rosterZoneRing,rosterWind:rosterZoneRing,rosterCur
    const damage=Math.min(hp-e.hp,hp)*(heroTransformed()?.31:.22);
    for(const target of threadNodes()){
     if(target===e)continue;
+    if(!los(e.x,e.y,target.x,target.y))continue;
     base(target,damage,5,{chain:true,src:null,nost:true});
     fx.push({k:'bolt',pts:[{x:e.x,y:e.y},{x:target.x,y:target.y}],col:MARIONETTE,t:.16,dur:.16});
    }
    if(e.dead&&heroTransformed()){
     const fresh=rosterTargets(e.x,e.y,52).find(target=>!(target.threadUntil>R.time));
-    if(fresh&&threadNodes().length<8)fresh.threadUntil=R.time+4;
+    if(fresh&&threadNodes().length<8){
+     fresh.threadUntil=R.time+4;
+     base(fresh,damage,12,{chain:true,src:null,nost:true});
+     fxRing(e.x,e.y,25,MARIONETTE,.24);
+    }
    }
   }
   return result;

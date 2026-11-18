@@ -71,7 +71,13 @@ CZ.sumoThrow=function(z,dt){
    z.hit.add(e);
    hurtE(e,z.dm*(toss?.55:1),26,{kb:Math.atan2(z.vy,z.vx)});
    if(toss)heroReward();
-   if(toss&&P.evo>=9)fxRing(e.x,e.y,21,SUMO_COLOUR,.26);
+   if(toss&&heroTransformed()){
+    for(const nearby of rosterTargets(e.x,e.y,21)){
+     if(z.hit.has(nearby))continue;
+     z.hit.add(nearby);hurtE(nearby,z.dm*.34,15,{src:'q',kb:angTo(e,nearby)});
+    }
+    fxRing(e.x,e.y,21,SUMO_COLOUR,.26);
+   }
    spark(e.x,e.y,SUMO_COLOUR,5,65);
   }
  }
@@ -153,7 +159,12 @@ const SUMO_CASTS={
    const distance=dist(p,e)-e.r;
    if(sumoCanHit(e)&&sumoCanThrow(e)&&!e.sumoFlight&&distance<range){target=e;range=distance;}
   });
-  if(!target){setToast('NO FOE TO THROW',SUMO_COLOUR,.8);return false;}
+  if(!target){
+   const heavy=sumoTarget(p,a,36,1.95);
+   if(!heavy||sumoCanThrow(heavy)){setToast('NO FOE TO THROW',SUMO_COLOUR,.8);return false;}
+   hurtE(heavy,A*2.2*qm*em,65,{slash:true});
+   impact(heavy.x,heavy.y,SUMO_COLOUR,4);sfx('break');return;
+  }
   sumoLaunch(target,a,218,.46,A*2.2*qm*em,'q');
   sfx('dash');
  },
