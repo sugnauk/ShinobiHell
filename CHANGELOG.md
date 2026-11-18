@@ -1,5 +1,40 @@
 # Changelog
 
+## Unreleased (after 0.7.1)
+
+### Bosses
+- **No skipping phases:** a guardian's health stops at its next phase threshold. Extra damage does nothing: the boss turns invulnerable for a moment and the next phase begins. It can only die after every phase has been played.
+- **Longer survival phases:** every survival phase lasts 50% longer.
+- **Rage:** eight guardians fly into a rage in their last 15% of health, with a red banner and glow and 20% harder hits:
+  - Charge: Akagane, Kusakari, Onikuma and Kurogane charge along a telegraphed red line.
+  - Flee: Tetsuo, Kage and Tamamo back away and fire as they go, and Kage also vanishes across the arena.
+  - Frenzy: Itohime turns much faster.
+
+### Prologue I: The Burning Village
+- **The stage:** a gentle opening stage before stage I, with fewer and weaker foes. It is on by default, and P on character select switches it off.
+- **The boss:** Goro, the Bandit Captain, a new teaching boss with his own sprite and a second form.
+- **Falling here:** Master Kaito pulls you out. You restart the stage with everything you carry, and opened chests, killed foes and used shrines stay as they were.
+
+### Story encounters
+- **Prisoners:** prisoners of the Emperor are caged in fight rooms; the Iron Cellars hold two. Clear the room and free them.
+- **Allies:** freed prisoners sit at the campfire and help for the rest of the run:
+  - Hanzo the Smith: +5 power.
+  - Oyuki the Healer: a full heal at every fire.
+  - Genji the Peddler: shops 25% cheaper.
+  - Aya the Scout: every later stage's map revealed.
+  - Takeda the Ronin: fights at your side.
+
+### Foes and fights
+- **Foe health:** +30% for every stage foe, scaled by body size and speed. Big, slow foes are tougher; small, quick ones are frailer.
+- **Elites:** more of them, with four new elite powers: Giant, Berserk, Splitter and Vampiric.
+- **Ambushes:** they seal a smaller arena with solid palisade walls, so foes can no longer get stuck where you can't reach them.
+- **Blades and bullets:** blades no longer cut bullets. Only the very rare legendary scroll card BULLET CLEAVER grants it, to melee heroes.
+
+### Music and modes
+- **Boss themes:** every guardian has its own melody in the piano score.
+- **Hero mastery:** heroes level I to X from their runs, unlocking starting weapons (Q/E) and colour schemes (Z/C).
+- **Daily challenge:** the same stages, hero and twist for everyone each day, with your best kept.
+
 ## 0.7.1: ShinobiDungeons
 
 ### Name and menus

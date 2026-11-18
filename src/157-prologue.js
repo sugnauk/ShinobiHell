@@ -85,3 +85,16 @@ function gorDraw(p,Q){const K=HUM(p,Q),{R,E,L,seg,trap,arm,leg,face,by}=K,two=AR
 humBoss('GORO, THE BANDIT CAPTAIN',gorDraw,{
  idle0:{},idle1:{b:1},
  atk:{dy:-1,legs:'lunge',near:[[46,28],[54,20],[56,10]],ba:-2.3,bl:28,far:[[26,29],[18,36],[14,44]]}},{sc:1.1});
+// ---------- falling in the prologue is not the end: Kaito pulls you out and you go again ----------
+// You wake at the start of the stage with everything you carry. The stage is as you left it: opened chests stay open,
+// foes you killed stay dead, used shrines stay used. If you fell to Goro, he goes back to his post at full health.
+{const _fr2=finishRun;finishRun=function(win){if(!win&&R&&R.pro&&PRO_ON&&P&&!R.test)return proRespawn();return _fr2.apply(this,arguments);};}
+function proRespawn(){R.proDeaths=(R.proDeaths||0)+1;
+ try{if(typeof AMBX!=='undefined'&&AMBX.r){const r=AMBX.r;ambOpen();if(r.ev)r.ev.state=2;}}catch(_){}
+ if(boss&&!boss.dead){try{bossReset(boss);}catch(_){}boss.hp=boss.maxhp;}
+ for(const e of enemies)if(!e.dead&&!e.boss){e.awake=false;e.act=null;e.tele=0;}
+ projs=projs.filter(q=>q.from!=='e');hz=[];if(typeof BMK!=='undefined')BMK.length=0;
+ const sr=map.startRoom;P.x=(sr.x+sr.w/2)*T;P.y=(sr.y+sr.h/2)*T;P.dying=0;P.hp=S.maxhp;P.iv=2.5;P.stag=0;P.dash=0;P.deathCause=null;
+ R.pots=Math.max(R.pots||0,1);mode='play';flashT=0;
+ fxRing(P.x,P.y,40,'#ffd070',.6);spark(P.x,P.y,'#ffd070',24,90);sfx('heal');
+ setToast('MASTER KAITO PULLS YOU FROM THE FIRE - TRY AGAIN','#ffd070',4);}

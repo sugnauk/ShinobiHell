@@ -37,7 +37,7 @@ const dust=(x,y,n,col)=>{for(let i=0;i<n;i++)particles.push({x:x+rnd(-4,4),y:y+r
 {const _mk=mkEnemy;mkEnemy=function(){const e=_mk.apply(this,arguments);if(e){e._born=time;e._wf=0;}return e;};}
 {const _es=enemyShoot;enemyShoot=function(e){if(e)e._shotT=time;return _es.apply(this,arguments);};}
 {const _de=drawEnemy;drawEnemy=function(e){
- if(e.ghost||e.prop||(e.boss&&e.air&&e.z>60))return _de.apply(this,arguments);
+ if(e.ghost||e.prop||(e.drawFn&&!e.boss)||(e.boss&&e.air&&e.z>60))return _de.apply(this,arguments);
  // how fast it is really moving (smoothed), and whether it just took a hit
  const dt=Math.min(.1,Math.max(0,time-(e._lt??time)));e._lt=time;
  if(e._lx!=null&&dt>0){const v=Math.hypot(e.x-e._lx,e.y-e._ly)/dt;e._spd=(e._spd||0)*.75+Math.min(200,v)*.25;}e._lx=e.x;e._ly=e.y;

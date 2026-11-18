@@ -96,7 +96,7 @@ function updEnemy(e,dt){
   // each new phase opens with a SURVIVAL phase: the boss is invulnerable and stationary at the arena centre,
   // unleashing its whole barrage set plus telegraphed rain for 8s (phase 2) / 10s (phase 3). Just stay alive.
   if(e.phase!==e.lastPh){if(e.lastPh){e.t=Object.assign({},e.t,e.phase===2?{cdMin:.45,cdMax:.95}:{cdMin:.32,cdMax:.7});
-   {const sv=e.phase===2?16:20;e.storm=sv;e.stormMax=sv;e.iv=sv;e.stT=.6;e.rainT=1.2;
+   {const sv=e.phase===2?24:30;e.storm=sv;e.stormMax=sv;e.iv=sv;e.stT=.6;e.rainT=1.2;
     for(const q of projs)if(q.from==='e')q.dead=true;setToast('SURVIVE! '+BT[e.phase-1],bc,3);}}e.lastPh=e.phase;}
   if(e.storm>0){e.storm-=dt;e.stT-=dt;e.rainT-=dt;e.act=null;e.tele=0;e.kx=e.ky=0;e.iv=Math.max(e.iv,.1);tickBarrage(e,dt);
    e.x+=(e.hx-e.x)*Math.min(1,dt*3);e.y+=(e.hy-e.y)*Math.min(1,dt*3);
