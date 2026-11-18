@@ -72,9 +72,29 @@ const ultName=()=>P&&SPELLS.e[P.lo.e]?SPELLS.e[P.lo.e].n:'';
    if(Math.random()<.6)particles.push({x:p.x+rnd(-10,10),y:p.y+rnd(-6,6),vx:rnd(-15,15),vy:rnd(-25,-5),t:.6,col:'#5a5068'});}}
  const r=_dp.apply(this,arguments);
  if(H&&p&&!(p.dying>0)){const X=sx(p.x,p.y),Y=sy(p.x,p.y)+3,D=H.D||ULTSEQ[ultName()]||{col:'#fff'},u=clamp((time-H.t0)/H.dur,0,1);
-  if(H.k==='u_brace'){const a=p.aim,mx=X+Math.cos(a)*10,my=Y-9+Math.sin(a)*4;ctx.globalAlpha=.4+.5*u;disc(Math.round(mx),Math.round(my),2+Math.round(u*3),u>.6&&Math.floor(time*20)%2?'#fff':D.col);ctx.globalAlpha=1;}}
+  if(H.k==='u_brace')drawSiegeGun(X,Y,p.aim,u,0);
+  else if(H.k==='recoil'&&ultName()==='SIEGEBREAKER'&&time-H.t0<H.dur)drawSiegeGun(X,Y,p.aim,1,u);}
  return r;};}
 // while airborne, the shadow stays on the ground (drawn first, under the hero)
 {const _sh=shadow;shadow=function(x,y,r){const H=ABPOSE;if(H&&P&&(H.k==='u_hover'||H.k==='u_leap'||H.k==='fall')){const sc=H.k==='u_leap'||H.k==='fall'?.7:.85;return _sh.call(this,x,y,Math.max(3,Math.round(r*sc)));}return _sh.apply(this,arguments);};}
 // clear on a new stage
 {const _ld=loadDungeon;loadDungeon=function(){ULT=null;return _ld.apply(this,arguments);};}
+
+// SIEGEBREAKER's gun: a massive iron hand-cannon. During the brace it swings off the gunner's back and levels at the
+// aim, trembling as the muzzle glows; when it fires it kicks back with a flash and smoke, then is put away.
+// pull: 0..1 through the brace; after: 0..1 through the follow-through (0 while bracing)
+function drawSiegeGun(X,Y,aim,pull,after){const v=scrVec(Math.cos(aim),Math.sin(aim)),aimA=Math.atan2(v[1],v[0]),left=v[0]<0;
+ const swing=abEase(Math.min(1,pull/.4)),from=left?-Math.PI*.15:-Math.PI*.85,a=aimA+(1-swing)*(left?1.6:-1.6);
+ const kick=after>0?Math.max(0,1-after*3)*6:0,tremble=pull>=1||after>0?0:pull>.45?Math.sin(time*70)*.8:0,alpha=after>.7?1-(after-.7)/.3:1;
+ ctx.save();ctx.globalAlpha*=Math.max(0,alpha);ctx.translate(Math.round(X+(left?-2:2)),Math.round(Y-11+tremble));ctx.rotate(a);if(left)ctx.scale(1,-1);ctx.translate(-kick,0);
+ const sc=.6+.4*swing;ctx.scale(sc,sc);const Rr=(x,y,w,h,c)=>{ctx.fillStyle=c;ctx.fillRect(x,y,w,h);};
+ Rr(-11,-3,12,7,'#14101a');Rr(-10,-2,10,5,'#6a4428');Rr(-10,-2,10,1,'#8a5a34');            // the wooden stock
+ Rr(-1,-5,29,10,'#14101a');Rr(0,-4,27,8,'#3a3a48');Rr(0,-4,27,2,'#6a6a7a');Rr(0,2,27,2,'#26262e'); // the iron barrel
+ for(const bx of [3,11,19])Rr(bx,-5,2,10,'#c8a040');                                         // bronze bands
+ Rr(26,-6,4,12,'#14101a');Rr(27,-5,2,10,'#55556a');Rr(9,-7,3,2,'#14101a');                    // the muzzle ring and sight
+ Rr(-3,4,3,4,'#14101a');Rr(-2,4,1,3,'#3a2416');                                               // the grip
+ // the glow building at the muzzle, the flash when it fires, smoke after
+ if(after===0&&pull>.35){const g=(pull-.35)/.65;ctx.globalAlpha*=.5+.5*g;Rr(28,-2-Math.round(g*2),3,4+Math.round(g*4),Math.floor(time*20)%2?'#fff':'#ffd060');}
+ if(after>0&&after<.25){ctx.globalAlpha=Math.max(0,alpha);Rr(30,-6,10,12,'#fff6c0');Rr(34,-3,8,6,'#ffffff');}
+ ctx.restore();
+ if(after>0&&after<.6&&Math.random()<.5){const wx=P.x+Math.cos(aim)*16,wy=P.y+Math.sin(aim)*16;particles.push({x:wx,y:wy,vx:rnd(-10,10),vy:rnd(-25,-8),t:.6,col:'#8a8494'});}}

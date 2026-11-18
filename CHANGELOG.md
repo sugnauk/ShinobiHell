@@ -13,9 +13,9 @@
 | Dragon Cleave (samurai) | rises into the air, the dash line burning gold, then leans forward into the line, blade drawn back | a streak of afterimages along the path, then a landing slam |
 | Arrow Storm (archer) | leaps high and looses the storm from the top of the leap | drops back down |
 | Shadow Clones (shinobi) | vanishes in smoke as three shadows split away | reappears among them |
-| Siegebreaker (gunner) | braces low while the barrel glows | fires and is shoved back by the blast |
+| Siegebreaker (gunner) | swings a massive banded iron hand-cannon off the back and levels it, trembling while the muzzle glows | fires it with a flash and kick, is shoved back, then puts it away |
 | Thousand Thrusts (lancer) | twirls the spear overhead | the flurry |
-| Dragon Spirit (onmyoji) | kneels inside a circle of runes | rises as the dragon is released |
+| Dragon Spirit (onmyoji) | kneels inside a circle of runes | rises as a spirit dragon's head (antlers, glowing eye, snapping jaws, trailing whiskers) swims along the aim line over the blasts, drawn under the bullets |
 | Dragon Descent, Meteor Rain, Talisman Storm, Stopped Time | float up inside turning runes (a clock face for Stopped Time) | the release |
 
 ### Prologue
