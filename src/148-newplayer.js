@@ -36,7 +36,7 @@ function drawTip(){if(!TIP.cur&&TIP.q.length){TIP.cur=TIP.q.shift();TIP.t=time;s
  if(props.some(p=>p.k==='pedestal'&&!p.sold&&Math.hypot(p.x-P.x,p.y-P.y)<40))tip('shop',['THE TRADER','WALK UP TO AN ITEM AND PRESS '+KN('use')+' TO BUY IT.','GOLD LEFT AT THE END OF A RUN BECOMES JADE FOR THE SKILL TREE']);
  if(props.some(p=>p.k==='altar'&&p.god&&!p.used&&Math.hypot(p.x-P.x,p.y-P.y)<40))tip('shrine',['A SHRINE','PRESS '+KN('use')+' TO MAKE AN OFFERING: TRADE GOLD OR HEALTH FOR A BLESSING']);};}
 {const _cb=checkBreak;checkBreak=function(e){const was=e&&e.stag>0;const r=_cb.apply(this,arguments);if(e&&!was&&e.stag>0)tip('stun',['STUNNED!','A FULL YELLOW BAR STUNS A FOE. STUNNED FOES TAKE +50% DAMAGE: HIT THEM NOW']);return r;};}
-{const _ld=loadDungeon;loadDungeon=function(di){const r=_ld.apply(this,arguments);if(di===0)setTimeout(()=>tip('start',['THE MARCH BEGINS','CLEAR ROOMS, GRAB LOOT, AND FIND THE GUARDIAN (RED ON THE MINIMAP).','K OPENS THE GUIDE AT ANY TIME']),2500);return r;};}
+{const _ld=loadDungeon;loadDungeon=function(di){const r=_ld.apply(this,arguments);if(di===0)setTimeout(()=>tip('start',['THE MARCH BEGINS','CLEAR ROOMS, GRAB LOOT, AND FIND THE GUARDIAN (RED ON THE MINIMAP).','K OPENS THE GUIDE AT ANY TIME']),700);return r;};}
 
 // ---------- 3. bold danger warnings ----------
 function drawBoldDanger(){if(!OPT().bold)return;const pulse=.5+.5*Math.sin(time*14);
