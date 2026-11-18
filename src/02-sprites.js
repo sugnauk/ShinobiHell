@@ -33,7 +33,7 @@ const HPOSE={
   12:{hand:[13,6],ang:-1.9,arm:'up1'},13:{hand:[17,13],ang:-.5,arm:'fwd',fx:'charm'},14:{hand:[15,16],ang:.4,arm:'low'},15:{hand:[14,9],ang:-1.4,arm:'up1',fx:'float'}},
  wiz:{12:6,13:7,14:0,15:9}};
 // evolution stages: 0 apprentice (hood, stick), 1 adept (cap, small orb), 2 mage (pointed hat, short beard), 3 master (the full wizard)
-const WIZEVO=[{n:'APPRENTICE',hat:'pilgrim',beard:0,orb:1,C:{hat:'#253955',hatL:'#507284',band:'#dfa55e',robe:'#456579',robeS:'#25394f',trim:'#e0c48b',orb:'#42d8d2',orbL:'#baffee',boot:'#272a3a'}},
+const WIZEVO=[{n:'APPRENTICE',hat:'hood',beard:0,orb:0,C:{hat:'#5a4028',hatL:'#7a5a3a',band:'#5a4028',robe:'#7a5a3a',robeS:'#5a4028',trim:'#6a4a2e',orb:'#b07a40',orbL:'#c8945a',boot:'#3a2a1e'}},
  {n:'NOVICE',hat:'hood',beard:0,orb:0,C:{hat:'#3e4260',hatL:'#5a5e80',band:'#3e4260',robe:'#5a5e7a',robeS:'#3e4260',trim:'#8a8ea8',orb:'#60c8ff',orbL:'#e0f6ff'}},
  {n:'INITIATE',hat:'cap',beard:0,orb:1,C:{hat:'#1e5a5a',hatL:'#3a8a80',band:'#a0d0c8',robe:'#2e7a70',robeS:'#1e5a5a',trim:'#a0d0c8',orb:'#60f0d0',orbL:'#e0fff6'}},
  {n:'ADEPT',hat:'cap',beard:0,orb:1,C:{hat:'#1e3e70',hatL:'#3a5a9a',band:'#c8c8d0',robe:'#2e5a9a',robeS:'#1e3e70',trim:'#c8c8d0',orb:'#60c8ff',orbL:'#e0f6ff'}},
@@ -43,7 +43,7 @@ const WIZEVO=[{n:'APPRENTICE',hat:'pilgrim',beard:0,orb:1,C:{hat:'#253955',hatL:
  {n:'ARCHMAGE',hat:'pointed',beard:2,orb:1,C:{hat:'#1a2a6a',hatL:'#34489a',robe:'#24348a',robeS:'#16205a',beard:'#a8a8b4',beardS:'#80808c'}},
  {n:'ELDER',hat:'pointed',beard:2,orb:1,C:{hat:'#3a1a5a',hatL:'#5a3a8a',robe:'#4a2a7a',robeS:'#30184e'}},
  {n:'MASTER WIZARD',hat:'pointed',beard:2,orb:1,C:{}}];
-function buildWiz(stage,back=false){return buildHero({...WIZEVO[stage],detail:'wizard',awakened:stage>=5&&stage<9},stage>=9,back);}
+function buildWiz(stage,back=false,masterySkin=0){return buildHero({...WIZEVO[stage],awakened:stage>=5&&stage<9,masterySkin},stage>=9,back);}
 function drawSumoFrame(R,frame,back,stage,skin){
  const crest=stage>=5,final=stage>=9;
  const walk=frame>=2&&frame<=5;
@@ -137,11 +137,7 @@ function buildHero(EV,star,back){const stage=star?9:0;
    if(f===11){R(2,18,3,2,'robe');R(1,20,3,1,'robeS');} // trailing robe while dashing
    // Class-specific clothing survives every evolution and every pose.
    const waist=16+bob,hem=20-(f===11?1:0),detail=EV.detail;
-   if(detail==='wizard'){
-    R(7,13+bob,6,2,'trim');R(8,14+bob,5,1,'band');R(8,16+bob,1,4,'trim');
-    if(back){R(9,16+bob,3,4,'hat');R(10,17+bob,1,2,'orb');}
-    else{R(9,waist,2,1,'robeS');R(11,waist-1,1,3,'band');}
-   }else if(detail==='samurai'){
+   if(detail==='samurai'){
     for(let j=0;j<3;j++){R(6,13+bob+j*2,8,1,'robeS');R(7,13+bob+j*2,6,1,'trim');}
     R(4,13+bob,3,3,'hat');R(4,13+bob,3,1,'hatL');
    }else if(detail==='archer'){
@@ -248,7 +244,7 @@ function buildHero(EV,star,back){const stage=star?9:0;
    else{R(5+hx,9+hy,11,1,'hat');R(6+hx,8+hy,9,1,'hat');R(7+hx,7+hy,7,1,'band');
    R(7+hx,5+hy,6,2,'hat');R(8+hx,3+hy,4,2,'hat');R(9+hx+Math.round(tx/3),2+hy,3,1,'hat');R(10+hx+Math.round(tx/2),1+hy,2,1,'hat');R(12+hx+tx,0+hy,2,1,'hatL');
    R(8+hx,5+hy,1,2,'hatL');R(9+hx,3+hy,1,2,'hatL');if(stage>=9)R(11+hx,5+hy,1,1,'band');}
-   if(EV.rosterDetail||EV.rosterFinal||star)drawRosterDetail(R,EV.rosterDetail,EV.rosterFinal||star,bob,back);
+   if(EV.rosterDetail||EV.rosterFinal)drawRosterDetail(R,EV.rosterDetail,EV.rosterFinal,bob,back);
    if(EV.awakened){
     // Shoulder cords, charm and crest identify the middle form even through mastery palettes.
     R(4,13+bob,3,2,'band');R(13,13+bob,3,2,'band');

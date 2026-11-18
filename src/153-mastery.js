@@ -25,7 +25,8 @@ const masteryLook=k=>{
   if(!look.f||!original?.c)return original;
   const cached=PALC.get(original);
   if(cached?.has(look))return cached.get(look);
-  const source=look.skin?buildHero({...heroEV(cls,st),detail:cls,awakened:st>=5&&st<9,rosterFinal:st>=9,masterySkin:look.skin},cls==='wizard'&&st>=9,back):original;
+  const source=!look.skin?original:cls==='wizard'?buildWiz(st,back,look.skin):
+   buildHero({...heroEV(cls,st),detail:cls,awakened:st>=5&&st<9,rosterFinal:st>=9,masterySkin:look.skin},false,back);
   const c=mk(source.c.width,source.c.height,g=>{
    g.filter=look.f;g.imageSmoothingEnabled=false;g.drawImage(source.c,0,0);
   });

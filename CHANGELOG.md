@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.8.1: Classic Wizard sprite
+
+- Restore the Wizard’s brown hood and wooden staff at the start of a run and the classic robe and pointed hat in the final form.
+
 ## 0.8.0: Character overhaul
 
 - Expand the playable roster to thirteen with Marionettist, Tengu, Kagura, Chimiko and Kanemori.
