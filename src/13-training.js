@@ -1,7 +1,7 @@
 'use strict';
 // HELL OF THE EMPEROR - player actions, training grounds (part of the former game.js; files load in numeric order, see index.html)
 // ---------- player actions ----------
-function tryDash(){const p=P;if(p.dashCd>0||p.dash>0||p.stag>0)return;const [mx,my]=moveVec();const a=mx||my?Math.atan2(my,mx):p.aim;p.dx=Math.cos(a);p.dy=Math.sin(a);p.dash=.16;p.dashCd=S.dashCd;p.iv=Math.max(p.iv,S.dashIv);p.guard=false;sfx('dash');perfectDodge();{const now=R.time;p.dashRow=(p.lastDashT!=null&&now-p.lastDashT<S.dashCd+.7)?(p.dashRow||1)+1:1;p.lastDashT=now;if(p.dashRow>=DASHROW&&!inCombat()&&!frontierNear()){if(!p.oocRun)txtFx(p.x,p.y,'SWIFT!','#8cf');p.oocRun=true;p.sprintK=1;}}if(S.mikiri)p.mik=1.5;spark(p.x,p.y+4,'#aab',5,30);}
+function tryDash(){const p=P;if(p.dashCd>0||p.dash>0||p.stag>0)return;const [mx,my]=moveVec();const a=mx||my?Math.atan2(my,mx):p.aim;p.dx=Math.cos(a);p.dy=Math.sin(a);p.dash=.16;p.dashCd=S.dashCd;p.iv=Math.max(p.iv,S.dashIv);p.guard=false;sfx('dash');perfectDodge();p.dashCd=Math.max(p.dashCd,S.dashIv*2.5);{const now=R.time;p.dashRow=(p.lastDashT!=null&&now-p.lastDashT<S.dashCd+.7)?(p.dashRow||1)+1:1;p.lastDashT=now;if(p.dashRow>=DASHROW&&!inCombat()&&!frontierNear()){if(!p.oocRun)txtFx(p.x,p.y,'SWIFT!','#8cf');p.oocRun=true;p.sprintK=1;}}if(S.mikiri)p.mik=1.5;spark(p.x,p.y+4,'#aab',5,30);}
 // ================= TRAINING GROUNDS: one lesson per ability before the first dungeon =================
 const DUMMYSPR={};
 (()=>{const mkS=(w,h,fn)=>{const fr=mk(w+2,h+2,g=>{const R=(x,y,ww,hh,c)=>{g.fillStyle=c;g.fillRect(x+1,y+1,ww,hh);};fn(R);});const c=outlined(fr);return {c,wc:whiteOf(c),fw:w+2,fh:h+2,frames:1,sc:1,ok:true};};
@@ -30,7 +30,7 @@ const tClear=keep=>{for(const e of enemies)if(!(keep&&e.type===keep))e.dead=true
 const LESSONS=[
  {t:'MOVE AND ATTACK',l:()=>[[kN('up'),kN('left'),kN('down'),kN('right')].join('')+' TO WALK, THE MOUSE TO AIM.','LMB: '+spName('m')+'. DESTROY THE 3 DUMMIES.'],unlock:['m'],go:()=>{tSpawn('dummy',.5,.38);tSpawn('dummy',.56,.5);tSpawn('dummy',.5,.62);},need:3,ev:'kill'},
  {t:'HEAVY ATTACK AND STUN',l:()=>['HOLD RMB TO CHARGE '+spName('h')+', RELEASE TO STRIKE.','EVERY HIT FILLS A FOE\'S YELLOW STUN BAR. A FULL BAR STUNS','THEM: +50% DAMAGE. STUN THE ARMOURED DUMMY.'],unlock:['h'],go:()=>{tClear();tSpawn('dummy',.55,.5,{hp:99999,maxhp:99999,maxPosture:60,r:8});},need:1,ev:'break'},
- {t:'DASH AND PERFECT DODGE',l:()=>[kN('dash')+' DASHES. YOU CANNOT BE HIT WHILE DASHING.','DASH JUST AS A SHOT REACHES YOU FOR A PERFECT DODGE: NEARBY','BULLETS SHATTER, YOUR DASH RECHARGES TWICE AS FAST, YOUR NEXT ATTACK IS','EMPOWERED. DO ONE PERFECT DODGE.'],unlock:['d'],
+ {t:'DASH AND PERFECT DODGE',l:()=>[kN('dash')+' DASHES. YOU CANNOT BE HIT WHILE DASHING.','DASH JUST AS A SHOT REACHES YOU FOR A PERFECT DODGE: NEARBY','BULLETS SHATTER. REFUNDS UP TO 0.15S ON DASH AND 0.2S ON Q, E AND F.','YOUR NEXT ATTACK IS EMPOWERED. DO ONE PERFECT DODGE.'],unlock:['d'],
   go:()=>{tClear();tTurret(.75,{cnt:1,spread:.12,sp:70,dmg:3,pd:2,col:'#fd4'});},need:1,ev:'perfect',
   // keep the turret in range, whatever you do
   tick:(dt,T)=>{const t=enemies.find(e=>e.type==='turret'&&!e.dead);if(t&&Math.hypot(t.x-P.x,t.y-P.y)>170)tTurret(.75,t.tPat);}},

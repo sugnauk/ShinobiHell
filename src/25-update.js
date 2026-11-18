@@ -51,9 +51,9 @@ function inCombat(){if(!P)return false;if(P.combatT>0)return true;if(boss&&boss.
 function perfectDodge(){let hit=false;for(const q of projs){if(q.from!=='e'||q.dead)continue;const dx=P.x-q.x,dy=P.y-q.y,d=Math.hypot(dx,dy);if(d<q.r+16&&(q.vx*dx+q.vy*dy>0||d<q.r+7)){hit=true;break;}}
  if(!hit)return;trainEv('dodge');trainEv('perfect');
  if(upLv('flow')){P.hp=Math.min(S.maxhp,P.hp+S.maxhp*.03*upLv('flow'));txtFx(P.x,P.y-8,'+HP','#50e060');} // PERFECT FORM (skill tree)
- P.dashCd*=.5;P.iv=Math.max(P.iv,.45);P.mik=1.5;R.pdodge=(R.pdodge||0)+1; // a perfect dodge halves the next dash's cooldown, gives a moment of safety and empowers the next attack
+ P.dashCd=Math.max(0,P.dashCd-.15);P.mik=1.5;R.pdodge=(R.pdodge||0)+1; // reward timing without extending invulnerability
  for(const q of projs)if(q.from==='e'&&!q.peril&&Math.hypot(q.x-P.x,q.y-P.y)<30){q.dead=true;spark(q.x,q.y,'#cef',3,40);}
- for(const k of ['q','f','rmb'])if(P.ab[k]>0)P.ab[k]=Math.max(0,P.ab[k]-.6);
+ for(const k of ['q','f','rmb'])if(P.ab[k]>0)P.ab[k]=Math.max(0,P.ab[k]-.2);
  txtFx(P.x,P.y,'PERFECT DODGE','#cef');fxRing(P.x,P.y,30,'#cef',.35);flashT=Math.max(flashT,.08);flashCol='#cef';sfx('deflect');}
 function graze(q){R.grazes=(R.grazes||0)+1;for(const k of ['q','f','e','rmb'])if(P.ab[k]>0)P.ab[k]=Math.max(0,P.ab[k]-.15);if(R.grazes%5===0)R.sen+=1;
  particles.push({x:(q.x+P.x)/2,y:(q.y+P.y)/2,vx:0,vy:-20,t:.3,col:'#fff'});if(grazeCd<=0){grazeCd=.08;sfx('graze');}if(R.grazes%25===0)txtFx(P.x,P.y,'GRAZE X'+R.grazes,'#cef');}
@@ -77,7 +77,7 @@ function stepStyle(q,dt){
 function updProjs(dt){
  for(const q of projs){
   if(q.from==='e'&&freezeT>0)continue;
-  if(q.cut){for(const o of projs)if(o.from==='e'&&!o.peril&&!o.dead&&Math.hypot(o.x-q.x,o.y-q.y)<q.r+o.r+3){o.dead=true;spark(o.x,o.y,q.col,3,40);}}
+  if(q.cut){for(const o of projs)if(o.from==='e'&&!o.peril&&!o.dead&&Math.hypot(o.x-q.x,o.y-q.y)<q.r+o.r+3){o.dead=true;if(q.heatCharge)gunnerHeat(.5);spark(o.x,o.y,q.col,3,40);}}
   if(q.rare&&Math.random()<dt*40)particles.push({x:q.x,y:q.y,vx:rnd(-10,10),vy:rnd(-10,10),t:.25,col:q.col});
   if(q.home){let tg=null,bd=q.rare?150:110;for(const e of enemies){if(e.dead||e.air)continue;const d=dist(e,q);if(d<bd){bd=d;tg=e;}}if(tg){const cur=Math.atan2(q.vy,q.vx),df=clamp(angDiff(angTo(q,tg),cur),-5*dt,5*dt),sp=Math.hypot(q.vx,q.vy);q.vx=Math.cos(cur+df)*sp;q.vy=Math.sin(cur+df)*sp;}}
   if(q.st)stepStyle(q,dt);if(q.dead)continue;
@@ -104,7 +104,7 @@ function updProjs(dt){
 function updPlay(dt){
  R.time+=dt;if(R.training)updTraining(dt);if(P.evoT>0)P.evoT-=dt;updPlayer(dt);updWorld(dt);updRoomEvents(dt);updAmbient(dt);
  if(freezeT<=0)for(const e of enemies){if(e.dead)continue;if(!e.boss&&!(R&&R.training)&&dist(e,P)>300)continue;updEnemy(e,dt);}
- for(let i=0;i<enemies.length;i++){const a=enemies[i];if(a.dead||!a.awake||a.air)continue;for(let j=i+1;j<enemies.length;j++){const b=enemies[j];if(b.dead||!b.awake||b.air)continue;const dx=b.x-a.x,dy=b.y-a.y,d=Math.hypot(dx,dy),m=a.r+b.r;if(d>0&&d<m){const push=(m-d)*.5;if(!a.act){move(a,-dx/d*push,-dy/d*push,a.r);}if(!b.act){move(b,dx/d*push,dy/d*push,b.r);}}}}
+ for(let i=0;i<enemies.length;i++){const a=enemies[i];if(a.dead||!a.awake||a.air||a.sumoFlight)continue;for(let j=i+1;j<enemies.length;j++){const b=enemies[j];if(b.dead||!b.awake||b.air||b.sumoFlight)continue;const dx=b.x-a.x,dy=b.y-a.y,d=Math.hypot(dx,dy),m=a.r+b.r;if(d>0&&d<m){const push=(m-d)*.5;if(!a.act){move(a,-dx/d*push,-dy/d*push,a.r);}if(!b.act){move(b,dx/d*push,dy/d*push,b.r);}}}}
  enemies=enemies.filter(e=>!e.dead);
  updProjs(dt);updPickups(dt);
  if(flashT>0)flashT-=dt;if(P.aegis>0)P.aegis-=dt;

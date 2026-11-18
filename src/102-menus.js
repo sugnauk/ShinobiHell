@@ -48,7 +48,7 @@ function drawPause(){
  {hudCoin(X+Wd-48,Y+7);txt(String(R.sen),X+Wd-39,Y+8,'#fc4');hudRevive(X+Wd-48,Y+17);txt('X'+P.rez,X+Wd-39,Y+18,'#bfe8ff');txt('SCORE '+(R.score||0),X+Wd-txtW('SCORE '+(R.score||0))-6,Y+30,'#fff8c0');}
  // stats
  txt('STATS',X+6,Y+46,'#d02030');
- const SS=[['POWER',Math.round(S.atk)],['MAX HP',S.maxhp],['DEFENCE',S.def],['CRIT',Math.round(S.crit*100)+'%'],['COOLDOWNS','-'+Math.round((1-S.cdr)*100)+'%'],['DODGE',Math.round((S.dodge||0)*100)+'%'],['CAST SPEED',Math.round(S.aspd*100)+'%'],['MOVE SPEED',Math.round(S.spd||0)]];
+ const SS=[['POWER',Math.round(S.atk)],['MAX HP',S.maxhp],['DEFENCE',S.def],['CRIT',Math.round(S.crit*100)+'%'],['COOLDOWNS','-'+Math.round((1-S.cdr)*100)+'%'],['DODGE',Math.round(S.dodge*100)+'%'],['CAST SPEED',Math.round(S.aspd*100)+'%'],['MOVE SPEED',Math.round(S.spd||0)]];
  SS.forEach(([n,v],i)=>{const x=X+6+(i%2)*92,y=Y+55+((i/2)|0)*8;txt(n,x,y,'#888');const s=String(v);txt(s,x+86-txtW(s),y,'#ddd');});
  {let x=X+6;STATS.forEach(s=>{const b=(typeof heroBaseSt==='function'?heroBaseSt()[s.k]:0)||0,r=(S.st[s.k]||0)-b,t=s.n.slice(0,3)+' '+b+(r?'+'+r:'');txt(t,x,Y+89,s.c);x+=txtW(t)+6;});}
  // gear and relics

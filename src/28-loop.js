@@ -1,14 +1,15 @@
 'use strict';
 // HELL OF THE EMPEROR - main loop and debug hook (part of the former game.js; files load in numeric order, see index.html)
 // ---------- loop ----------
-// Update and draw once per display frame with the real time that passed, so motion is smooth at any refresh rate.
-// (A fixed 60 Hz step dropped a frame whenever the browser's frame arrived a fraction early, then doubled up on the next:
-// a skip-and-jump judder most visible with fast projectiles. On 120/144 Hz screens it updated in a 2-3-2 rhythm.)
+// Each display callback can draw at most once, with deadlines paced at 60 Hz. Simulation uses elapsed time.
 // Long stalls are split into steps of at most 1/30 s, and anything past 0.1 s is dropped, so the game never leaps ahead.
 const FRAME_MS=1000/60,MAX_STEP=1000/30,MAX_GAP=100;
-let lastFrame=null,lastDraw=null,RDT=1/60; // RDT: seconds since the last drawn frame, for timers that live in the drawing code
+let nextFrame=null,lastFrame=null,lastDraw=null,RDT=1/60; // RDT: seconds since the last drawn frame, for timers that live in the drawing code
 function loop(now){
  requestAnimationFrame(loop);
+ if(nextFrame===null)nextFrame=now;
+ if(now+.75<nextFrame)return;
+ nextFrame+=Math.max(1,Math.floor((now-nextFrame)/FRAME_MS)+1)*FRAME_MS;
  if(lastFrame===null)lastFrame=now-FRAME_MS;
  let gap=Math.min(MAX_GAP,Math.max(0,now-lastFrame));lastFrame=now;RDT=gap/1000;
  try{
