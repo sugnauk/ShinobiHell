@@ -481,3 +481,52 @@ Object.assign(ABTXT,{
  'ECHO NOTES':['EVERY STORED ECHO BECOMES A NOTE.','NOTES SEEK FOES AND RICOCHET BETWEEN THEM.','STORE ECHO, THEN UNLOAD IT ON A PACK.'],
  "HEAVEN'S BELL":['A COLOSSAL BELL FALLS ON THE CURSOR AND RINGS 3 TIMES.','EACH RING FREEZES EVERY ENEMY SHOT. THE LAST RING FIRES THEM ALL AT THE FOES.','CALL IT DOWN IN THE THICK OF A BULLET STORM.']});
 for(const k of 'mhqwfe')for(const sp of SPELLS[k]){const t=ABTXT[sp.n];if(t&&!sp.kit179){sp.kit179=1;sp.d0=sp.d;sp.d=t[0];sp.more=t[1];sp.tip=t[2];}}
+
+// ======================================== the five heroes' looks ========================================
+// Each gets a clear silhouette of their own, kept through every evolution; the final form adds a crown or halo of
+// their own instead of the samurai helmet they all used to share.
+const HERO_LOOK={
+ marionettist:{hat:'mask',C:{robe:'#5a3478',robeS:'#3a2050',hat:'#2a1838',hatL:'#7a5498',trim:'#dfa6ff',band:'#dfa6ff'}},
+ tengu:{hat:'bare',C:{skin:'#c83828',robe:'#2e5e58',robeS:'#1e3e3a',hat:'#14101a',hatL:'#3a3a40',trim:'#3a6a62',band:'#9cead2'}},
+ kagura:{hat:'bare',C:{robe:'#c02838',robeS:'#7a1424',hat:'#1a1018',hatL:'#3a2430',trim:'#ffd36a',band:'#ff8aab'}},
+ bloodoracle:{hat:'bare',C:{robe:'#8a1424',robeS:'#4a0a14',hat:'#1a1018',hatL:'#3a2430',trim:'#f4eef0',band:'#f65c76'}},
+ bellwarden:{hat:'pilgrim',C:{robe:'#6a4a2a',robeS:'#3e2a16',hat:'#c8a050',hatL:'#e8c878',trim:'#ffda83',band:'#7a2a20'}}};
+{const _ev=heroEV;heroEV=function(cls,stage){const r=_ev.apply(this,arguments);const L=HERO_LOOK[cls];if(!L||!r)return r;
+ return Object.assign({},r,{hat:L.hat,crest:false,C:Object.assign({},r.C,L.C,stage===9?{trim:'#ffe1a0'}:{})});};}
+{const _rd=drawRosterDetail;drawRosterDetail=function(R,kind,final,bob,back){if(!HERO_LOOK[kind])return _rd.apply(this,arguments);const b=bob,O='#14101a';
+ if(kind==='marionettist'){
+  // a white porcelain mask with dark eye holes and a painted blush
+  if(!back){R(8,10+b,5,3,'#f4eef4');R(8,10+b,5,1,'#ffffff');R(9,11+b,1,1,O);R(11,11+b,1,1,O);R(12,12+b,1,1,'#e05080');R(10,12+b,1,1,'#c0b0c0');}
+  // a little marionette doll dancing on two strings at her side
+  const sw=b?1:0;R(1,6+b,4,1,'#a8743a');R(1+sw,7+b,1,6,'#9a80b0');R(3+sw,7+b,1,7,'#9a80b0');
+  R(1+sw,12+b,3,3,O);R(2+sw,13+b,1,1,'#f0e0c8');R(0+sw,15+b,5,4,O);R(1+sw,15+b,3,3,'#dfa6ff');R(1+sw,15+b,3,1,'#f6e6ff');R(1+sw,19+b,1,2,O);R(3+sw,19+b,1,2,O);
+  if(final){R(7,6+b,7,2,O);R(8,6+b,5,1,'#dfa6ff');R(8,5+b,1,1,'#dfa6ff');R(10,4+b,1,2,'#ffe1a0');R(12,5+b,1,1,'#dfa6ff');}}
+ else if(kind==='tengu'){
+  // the tengu's red face and long nose with a fierce gold eye, a wild white mane, and a small black tokin on the brow
+  R(7,8+b,7,2,'#f0f0f0');R(7,10+b,1,5,'#f0f0f0');R(6,11+b,1,3,'#d8d8d8');if(back){R(8,10+b,5,5,'#f0f0f0');R(8,14+b,5,1,'#d8d8d8');}
+  if(!back){R(8,10+b,5,4,'#c83828');R(12,11+b,4,2,'#c83828');R(15,11+b,1,1,'#e05040');R(12,12+b,3,1,'#9a2018');R(10,10+b,2,1,'#f0f0f0');R(11,11+b,1,1,'#ffe080');R(8,13+b,3,1,'#9a2018');}
+  R(9,6+b,3,2,O);R(10,5+b,1,1,O);R(10,7+b,1,1,'#3a3a40');
+  // folded black wings behind the shoulders, and the yamabushi's white pom-poms
+  for(const [x,d] of [[3,1],[15,-1]]){R(x,11+b,3,8,O);R(x+(d>0?1:0),12+b,2,6,'#203a3a');R(x+(d>0?1:0),12+b,2,1,'#3a5a5a');}
+  if(!back){R(8,15+b,1,1,'#f0f0f0');R(11,15+b,1,1,'#f0f0f0');R(8,16+b,1,1,'#9cead2');R(11,16+b,1,1,'#9cead2');}
+  if(final){for(const [x,d] of [[0,1],[17,-1]]){R(x,8+b,3,9,O);R(x+(d>0?1:0),9+b,2,7,'#203a3a');R(x+(d>0?1:0),9+b,2,1,'#9cead2');}R(9,5+b,3,1,'#ffe1a0');}}
+ else if(kind==='kagura'){
+  // long black hair, a gold crown with dangling ornaments, a white kosode over red hakama
+  R(7,8+b,6,2,'hat');R(7,10+b,1,7,'hat');R(13,10+b,1,4,'hat');if(back){R(8,10+b,5,8,'hat');R(9,17+b,3,1,'band');}
+  R(7,7+b,6,1,'trim');R(8,6+b,1,1,'trim');R(10,5+b,1,2,'trim');R(12,6+b,1,1,'trim');R(6,8+b,1,3,'trim');R(6,11+b,1,1,'band');R(14,8+b,1,3,'trim');R(14,11+b,1,1,'band');
+  R(7,13+b,7,3,'#f4eef0');R(10,13+b,1,3,'#d8d0d8');R(7,16+b,7,1,'band');
+  if(final){R(7,5+b,1,2,'band');R(13,5+b,1,2,'band');R(9,3+b,3,2,'band');R(10,2+b,1,1,'#ffe0ea');R(8,4+b,1,1,'band');R(12,4+b,1,1,'band');}}
+ else if(kind==='bloodoracle'){
+  // black hair with a red ribbon, a white kosode, and a seal talisman floating at her side
+  R(7,8+b,6,2,'hat');R(7,10+b,1,6,'hat');R(13,10+b,1,3,'hat');if(back){R(8,10+b,5,7,'hat');R(9,11+b,3,1,'band');}R(7,8+b,2,2,'band');
+  R(7,13+b,7,3,'#f4eef0');R(10,13+b,1,3,'#d8c8c8');R(7,16+b,7,1,'#f65c76');
+  if(!back){R(10,13+b,1,1,'#f65c76');R(11,11+b,1,1,'#ff3040');}
+  R(1,9+b,4,6,O);R(2,10+b,2,4,'#f4e8d8');R(2,11+b,2,1,'#c01830');R(2,13+b,2,1,'#c01830');
+  if(final)for(const [x,y] of [[4,3],[9,1],[14,3]]){R(x,y+b,4,5,O);R(x+1,y+1+b,2,3,'#f4e8d8');R(x+1,y+2+b,2,1,'#c01830');}}
+ else if(kind==='bellwarden'){
+  // a bronze temple bell strapped to his back, and prayer beads across the chest
+  R(1,11+b,6,9,O);R(2,12+b,4,7,'#a0702a');R(2,12+b,1,6,'#e0b060');R(5,12+b,1,7,'#5a3a14');R(1,18+b,6,1,'#c09040');R(3,10+b,2,2,O);R(3,10+b,2,1,'#a0702a');
+  if(!back)for(let i=0;i<5;i++)R(7+i,13+b+i,1,1,i%2?'#f4e8c8':'#7a2a20');
+  if(final){R(6,1+b,9,1,'#ffe1a0');R(5,2+b,1,2,'#ffe1a0');R(15,2+b,1,2,'#ffe1a0');R(10,0+b,1,1,'#ffffff');}}};}
+// rebuild any hero sheets made before this file loaded
+if(typeof HEROC!=='undefined')for(const k in HEROC)delete HEROC[k];

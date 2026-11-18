@@ -244,6 +244,7 @@ function buildHero(EV,star,back){const stage=star?9:0;
     if(back){R(8+hx,11+hy,5,1,'hat');R(9+hx,11+hy,3,1,'band');}
     else{R(8+hx,11+hy,5,1,'skin');R(9+hx,11+hy,1,1,'o');R(11+hx,11+hy,1,1,'o');R(9+hx,12+hy,4,1,'band');}R(4+hx-(f===11?3:0),11+hy+(f===11?0:1),3,1,'band');R(3+hx-(f===11?4:0),12+hy+(f===11?0:1),2,1,'band');}
    else if(EV.hat==='eboshi'){R(8+hx,3+hy,5,7,'hat');R(9+hx,1+hy,4,2,'hat');R(8+hx,4+hy,1,5,'hatL');R(7+hx,9+hy,7,1,'band');}
+   else if(EV.hat==='bare'){} // no hat: the hero's own hair and details are drawn over the head
    else if(EV.hat==='cap'){R(6+hx,9+hy,9,1,'hat');R(7+hx,8+hy,7,1,'band');R(7+hx,6+hy,7,2,'hat');R(8+hx,5+hy,5,1,'hat');R(10+hx+Math.round(tx/2),4+hy,3,1,'hatL');R(8+hx,6+hy,1,2,'hatL');}
    else{R(5+hx,9+hy,11,1,'hat');R(6+hx,8+hy,9,1,'hat');R(7+hx,7+hy,7,1,'band');
    R(7+hx,5+hy,6,2,'hat');R(8+hx,3+hy,4,2,'hat');R(9+hx+Math.round(tx/3),2+hy,3,1,'hat');R(10+hx+Math.round(tx/2),1+hy,2,1,'hat');R(12+hx+tx,0+hy,2,1,'hatL');
