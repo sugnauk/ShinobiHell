@@ -2,6 +2,27 @@
 
 ## Unreleased (next PR)
 
+### Ability animations
+- **Every ability acts out its own motion:** the hero's body now plays a motion that matches what each ability does, over several frames, instead of one generic cast or swing. It is built from the hero's sheets (front and back views) and pose transforms:
+
+| Motion | What you see | Used by |
+|---|---|---|
+| Spin | a real turn: front, side, back, side, front, with a ghost trailing it | Whirlwind (3 turns), Wheel Sweep (2), sweeping heavies (half a turn), Talisman Storm |
+| Thrust and lunge | wind back, then lunge forward with afterimages | Yari, Iai Cleave, Flame Wave, Dragon Cleave, Spiral Lunge (which spins at the end on a full charge) |
+| Flurry | rapid alternating thrusts | Thousand Thrusts |
+| Slam | rise, stretch, then crash into a squash with dust | Odachi, Frost Nova, War Banner |
+| Cast and big cast | arms raised and hovering, or the ultimate pose rising and releasing with a ring at the feet | spells and ultimates |
+| Throw | a quick wind-up and release | kunai, shuriken, caltrops |
+| Recoil | the body kicks back with the shot | Tanegashima-style heavies, Heavy Slug, Grapeshot, Siegebreaker |
+| Roll | a full head-over-heels roll | Evade Roll, Powder Roll |
+| Guard | crouched behind a glowing shield arc | Guard Stance, Spirit Ward, Barrier, Deflect |
+| Vanish | fades out in the smoke | Smoke Bomb, Shadow Clones |
+| Blink | pinches to a line and snaps open | Kitsune Step, Shadow Step (which then stabs) |
+| Plant | kneels to set something down | totems, the tripod gun, circles |
+| Roar | rears up and shakes | War Cry |
+
+- **Charging a heavy:** the hero crouches and trembles while you hold RMB, and flashes when the charge is full.
+
 ### Ability descriptions
 - **Rewritten:** all 68 abilities (basic attacks, heavies, Q, E, F and ultimates for every hero, and the rare scroll spells) have new descriptions. Each one says plainly what the ability does, adds a second line when it needs one (full-charge effects, durations, what stuns or freezes), and gives a green **TIP** on how to use it well.
 - **Character select:** shows the description and tip, and the header names the ability type and its cooldown. Ultimates note that kills cut their cooldown.
