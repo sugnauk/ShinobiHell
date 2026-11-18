@@ -2,6 +2,9 @@
 
 ## Unreleased (next PR)
 
+### Fixes
+- **Ronin Seven crash:** a member dying while its dash-aim telegraph was still up could crash the game. The telegraph now stops following a fallen member.
+
 ### Ability animations
 - **Every ability acts out its own motion:** the hero's body now plays a motion that matches what each ability does, over several frames, instead of one generic cast or swing. It is built from the hero's sheets (front and back views) and pose transforms:
 
