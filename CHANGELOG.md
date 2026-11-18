@@ -5,6 +5,15 @@
 ### Fixes
 - **Ronin Seven crash:** a member dying while its dash-aim telegraph was still up could crash the game. The telegraph now stops following a fallen member.
 
+### Interactables come alive
+- **No more markers:** the pillar of light, ground ring and bobbing icon over shrines, springs, chests, gongs and prisoner cages are gone.
+- **Their own particles instead:** like the blood shrine, each now shows itself with gentle particles in its own colour, and goes quiet once used:
+  - Shrines: spirit motes rising, with the odd twinkle.
+  - Springs: bubbles and a cool mist, with sparkles on the water.
+  - Chests: gold glints, or red embers while still sealed.
+  - Gongs: a golden hum of sparks.
+  - Cages: the prisoner's colour drifting up through the bars.
+
 ### Effects that never hide a bullet
 - **Ultimates:**
   - There is no full-screen flash. A brief glow at the screen edges, in the ultimate's colour, replaces it.
