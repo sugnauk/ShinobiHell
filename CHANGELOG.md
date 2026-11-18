@@ -5,6 +5,22 @@
 ### Fixes
 - **Ronin Seven crash:** a member dying while its dash-aim telegraph was still up could crash the game. The telegraph now stops following a fallen member.
 
+### Ultimates with a show
+- **Lead-in and follow-through:** pressing R plays a short lead-in before the ultimate fires. You are invulnerable and rooted for it, energy rushes in, and then the follow-through plays:
+
+| Ultimate | Lead-in | Follow-through |
+|---|---|---|
+| Dragon Cleave (samurai) | rises into the air, the dash line burning gold | a streak of afterimages along the path, then a landing slam |
+| Arrow Storm (archer) | leaps high and looses the storm from the top of the leap | drops back down |
+| Shadow Clones (shinobi) | vanishes in smoke as three shadows split away | reappears among them |
+| Siegebreaker (gunner) | braces low while the barrel glows | fires and is shoved back by the blast |
+| Thousand Thrusts (lancer) | twirls the spear overhead | the flurry |
+| Dragon Spirit (onmyoji) | kneels inside a circle of runes | rises as the dragon is released |
+| Dragon Descent, Meteor Rain, Talisman Storm, Stopped Time | float up inside turning runes (a clock face for Stopped Time) | the release |
+
+### Prologue
+- **First rooms are fights:** the first two rooms along the road are always fights. The trader, shrine and curse altar sit further on.
+
 ### Ability animations
 - **Every ability acts out its own motion:** the hero's body now plays a motion that matches what each ability does, over several frames, instead of one generic cast or swing. It is built from the hero's sheets (front and back views) and pose transforms:
 

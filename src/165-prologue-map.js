@@ -20,4 +20,8 @@ function mapDeadEnds(m){const n=m.rooms.length,adj=m.rooms.map(()=>new Set()),se
  m.offRoad=off;m.dead=dead;return off*10+dead*10+Math.max(0,edges-(n-1))+Math.max(0,6-nr)*4;}
 {const _gm=genMap;genMap=function(di){if(!(typeof PRO_ON!=='undefined'&&PRO_ON))return _gm.apply(this,arguments);
  let best=null,bd=1e9;for(let k=0;k<12;k++){MAPCHAIN=true;let m;try{m=_gm.apply(this,arguments);}finally{MAPCHAIN=false;}let d=99;try{d=mapDeadEnds(m);}catch(_){}if(d<bd){bd=d;best=m;}if(d===0)break;}
- best.score=bd;return best;};}
+ best.score=bd;
+ // the first two rooms along the road are always fights: anything special there swaps with a fight room further on
+ const fight=t=>['combat','elite','ambush','trap'].includes(t),road=best.rooms.filter(r=>r.k==='room'&&r.ord!=null).sort((a,b)=>a.ord-b.ord);
+ for(const r of road.slice(0,2)){if(fight(r.type))continue;const sw=road.slice(2).find(o=>o.type==='combat');if(sw){const t=r.type;r.type='combat';sw.type=t;}else r.type='combat';}
+ return best;};}
