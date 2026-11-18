@@ -15,7 +15,7 @@
 | Shadow Clones (shinobi) | vanishes in smoke as three shadows split away | reappears among them |
 | Siegebreaker (gunner) | swings a massive banded iron hand-cannon off the back and levels it, trembling while the muzzle glows | fires it with a flash and kick, is shoved back, then puts it away |
 | Thousand Thrusts (lancer) | twirls the spear overhead | the flurry |
-| Dragon Spirit (onmyoji) | kneels inside a circle of runes | rises as a spirit dragon's head (antlers, glowing eye, snapping jaws, trailing whiskers) swims along the aim line over the blasts, drawn under the bullets |
+| Dragon Spirit (onmyoji) | kneels inside a circle of runes | rises as a fearsome spirit dragon's head swims along the aim line over the blasts: midnight-blue hide, a spiked mane, swept-back horns, a red eye under a jagged brow, gaping fanged jaws breathing cold fire. It is drawn under the bullets |
 | Dragon Descent, Meteor Rain, Talisman Storm, Stopped Time | float up inside turning runes (a clock face for Stopped Time) | the release |
 
 ### Prologue
