@@ -159,7 +159,7 @@ function paintWall(g,st,faces,tall,v){
   case 'hedge':block(g,faces,tall?12:6,(x,j)=>hash(x*3+v,j*5)<.7?'#3a6a2e':'#4a7a34',(x,k)=>hash(x+v,k)<.6?'#2e5a26':'#264e20',(x,k)=>hash(x+v,k)<.6?'#22441c':'#1c3a18',
    (by)=>{for(let i=0;i<8;i++){const fx=10+((hash(v*5+i,i)*26)|0),fy=by+4+((hash(i,v*3)*14)|0);SP(g,i%3?'#f0a0c0':'#ffffff',fx,fy,1,1);}});break;
   case 'ruin':{const h=tall?16:5;block(g,faces,h,(x,j)=>hash(x+v*3,j)<.2?'#3a2418':'#2a1a12',(x,k,H)=>(x%8===0)?'#1a0e0a':k<H*.5?'#8a7a64':'#5a3e2a',(x,k,H)=>(x%8===0)?'#140a08':k<H*.5?'#6a5a48':'#44301e',
-   (by,fy)=>{if(tall){for(let x=0;x<32;x+=3){const cut=(hash(x>>2,v)*6)|0;SP(g,'#07060a',8+x,by-1,3,cut);}for(let i=0;i<3;i++)sEmber(g,10+((hash(i,v)*28)|0),by+((hash(v,i)*8)|0));}});}break;
+   (by,fy)=>{if(tall){for(let i=0;i<3;i++)sEmber(g,10+((hash(i,v)*28)|0),by+((hash(v,i)*8)|0));}});}break;
   case 'rampart':{const h=tall?18:6;block(g,faces,h,(x,j)=>((x>>2)+(j>>1))%2?'#6a6a72':'#5e5e66',(x,k,H)=>((k%5===0)||((x+(((k/5)|0)%2)*4)%8===0))?'#3a3a42':'#7a7a84',(x,k,H)=>((k%5===0)||((x+(((k/5)|0)%2)*4)%8===0))?'#2a2a30':'#55555e',
    (by,fy)=>{if(tall)for(let x=0;x<32;x+=8){const j=fy(x+2);SP(g,'#7a7a84',8+x,by+j-4,4,4);SP(g,'#9a9aa6',8+x,by+j-4,4,1);}});}break;
   case 'brick':{const h=tall?18:6;block(g,faces,h,(x,j)=>'#24242a',(x,k)=>((k%4===0)||((x+(((k/4)|0)%2)*3)%6===0))?'#1a1a1e':'#3e3a40',(x,k)=>((k%4===0)||((x+(((k/4)|0)%2)*3)%6===0))?'#121216':'#2c2a30',

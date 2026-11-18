@@ -12,7 +12,7 @@ function startRun(start,resume){
  R.sen+=40*upLv('purse');R.pots=Math.min(POTMAX,R.pots+upLv('belt'));for(let i=0;i<upLv('heir');i++){const it=randItem(['rez'],1);R.inv[it.id]=(R.inv[it.id]||0)+1;}
  S=calcStats();P.hp=S.maxhp;P.gourd=S.gourdMax;
  if(resume)return;
- if(start===0&&(!meta.trained||trainNext)){trainNext=false;loadTraining();}else loadDungeon(start);mode='play';paused=false;
+ if(start===0&&trainNext){trainNext=false;loadTraining();}else loadDungeon(start);mode='play';paused=false;
 }
 let trainNext=false;
 function loadDungeon(di){

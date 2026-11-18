@@ -376,7 +376,7 @@ function renderGuide(){
 // ---- codex: every rare spell scroll and rare gear piece you have ever found ----
 let codexOpen=false;
 function drawCodex(){ctx.fillStyle='#06040a';ctx.fillRect(14,6,292,172);ctxt('CODEX',10,'#c9a',2);
- txt('RARE SPELLS',22,30,'#d02030');[...SLOTS].forEach((k,i)=>{const sp=SPELLS[k][3],f=meta.codex.sp[k];txt((SLOTKEY[k]+'   ').slice(0,4)+(f?sp.n:'? ? ?'),22,40+i*8,f?sp.c:'#555');if(f)txt(sp.d.slice(0,34),150,40+i*8,'#999');});
+ txt('RARE SPELLS',22,30,'#d02030');[...SLOTS].forEach((k,i)=>{const sp=SPELLS[k][3],f=meta.codex.sp[k];txt((SLOTKEY[k]+'   ').slice(0,4)+(f?sp.n:'? ? ?'),22,40+i*8,f?sp.c:'#555');if(f)txt((sp.d0||sp.d).slice(0,34),150,40+i*8,'#999');});
  txt('RARE GEAR',22,94,'#d02030');RARE.forEach((r,i)=>{const f=meta.codex.gear[r.n],st=Object.keys(SETS).find(k=>SETS[k].items.includes(r.n));const x=22+(i%2)*142,y=103+((i/2)|0)*10;if(f)ctx.drawImage(itemIcon({t:'gear',slot:r.slot,tier:10,q:4,rare:true,name:r.n}),x,y-3);txt(f?r.n:'? ? ?',x+14,y,f?SETS[st].c:'#555');});
  ctxt('SETS: 2 PIECES = BONUS, 3 = BIG BONUS.  K CLOSE',168,'#888');}
 function codexAdd(kind,key){if(!meta.codex[kind][key]){meta.codex[kind][key]=1;saveMeta();if(P)txtFx(P.x,P.y-10,'NEW CODEX ENTRY','#c9a');}}

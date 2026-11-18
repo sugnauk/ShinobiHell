@@ -11,7 +11,10 @@ let FIRSTLOAD=false,TEACHMAP=false;
 // the first stage's map: every teaching room present (in different fight rooms, never the start or the boss's room)
 {const _gm=genMap;genMap=function(di){const m=_gm.apply(this,arguments);if(!TEACHMAP||!m||!m.rooms)return m;
  // plain fight rooms first; if the stage runs short, a trap, ambush, gong, spring or treasure room gives way
- const pref=['combat','trap','ambush','challenge','rest','treasure'],free=pref.map(t=>m.rooms.filter(r=>r.k==='room'&&r.type===t));
+ // never in the first rooms after the start: those stay fights (in a prologue road, the first two rooms along it)
+ const st=m.rooms.find(r=>r.k==='start'),cd=r=>st?Math.hypot(r.x+r.w/2-st.x-st.w/2,r.y+r.h/2-st.y-st.h/2):0;
+ const early=new Set(m.rooms.filter(r=>r.k==='room').sort((a,b)=>a.ord!=null&&b.ord!=null?a.ord-b.ord:cd(a)-cd(b)).slice(0,2));
+ const pref=['combat','trap','ambush','challenge','rest','treasure'],free=pref.map(t=>m.rooms.filter(r=>r.k==='room'&&r.type===t&&!early.has(r)));
  for(const [id,type] of TEACH_ROOMS){if(meta.tips[id]||m.rooms.some(r=>r.type===type))continue;const L=free.find(l=>l.length);if(!L)continue;const r=L.splice(ri(0,L.length-1),1)[0];r.type=type;r.ev=null;}
  return m;};}
 {const _ld=loadDungeon;loadDungeon=function(di){const first=FIRSTLOAD;FIRSTLOAD=false;TEACHMAP=first&&teachPending()&&!(typeof DAILY==='function'&&DAILY());

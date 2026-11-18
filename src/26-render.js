@@ -728,7 +728,7 @@ function renderHub(){
  const row=(i,y,label,right,col)=>{const sel=hubSel===i;if(sel){ctx.fillStyle='rgba(208,32,48,.35)';ctx.fillRect(16,y-2,288,9);}txt((sel?'> ':'  ')+label,18,y,col||'#ddd');if(right)txt(right,302-txtW(right),y,sel?'#fff':'#888');};
  row(0,44,'BEGIN RUN',ROMAN[0]+'. '+DUN[0].name,'#fff');
  sep(16,53,288);{const C0=CLS();row(1,56,'CHARACTER',C0.n,C0.col);const sp=heroSpr(C0.k,0);ctx.drawImage(sp.c,0,0,20,24,280,63,20,24);ctx.drawImage(heroSpr(C0.k,9).c,0,0,20,24,258,63,20,24);}
- [...SLOTS].forEach((k,i)=>{const sp=SPELLS[k][CLS().kit[k]];txt((SLOTKEY[k]+'   ').slice(0,4),24,66+i*8,'#888');txt(sp.n,44,66+i*8,sp.c);txt(sp.d.slice(0,32),128,66+i*8,'#777');});
+ [...SLOTS].forEach((k,i)=>{const sp=SPELLS[k][CLS().kit[k]];txt((SLOTKEY[k]+'   ').slice(0,4),24,66+i*8,'#888');txt(sp.n,44,66+i*8,sp.c);txt((sp.d0||sp.d).slice(0,32),128,66+i*8,'#777');});
  sep(16,113,288);
  skillHubSummary(row); // the temple skill tree (src/98-skilltree.js)
  const tip=hubSel===0&&meta.asc>0?'ASC '+meta.asc+': FOES +'+meta.asc*15+'% HP, FASTER SHOTS. +'+meta.asc*20+'% GOLD':savedRun()?'C CONTINUE SAVED RUN  O OPTIONS  Y TRAINING':'W/S SELECT  ENTER START  O OPTIONS  Y TRAIN  B BOSS RUSH';

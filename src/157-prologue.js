@@ -24,11 +24,17 @@ PRO.boss.k2=[SL({hits:2,w:.85,w2:.4,dmg:11,wt:3,range:30}),CH({wt:2,dmg:13}),TH(
 // ---------- the swap ----------
 let PRO_ON=false,PROQ=false;const PROSAVE={};
 const PROSLOTS=()=>[['DUN',DUN],['ENV',ENV],['BOSS',BOSS],['BLOOK',BLOOK],['BSTYLE',BSTYLE],['BMODES',BMODES],['BMOTIF',typeof BMOTIF!=='undefined'?BMOTIF:null],['ROMAN',ROMAN],['BOSSSPR',BOSSSPR]];
+// the stage's furnishings, scattered nature, set-piece groups, floor art and colour mood are kept per stage slot too:
+// the prologue takes the burnt town's (ruined houses, rubble, braziers, ember light) instead of stage I's bamboo camp
+const PRODRESS=()=>[['STAGEDECO',typeof STAGEDECO!=='undefined'?STAGEDECO:null],['DECO_GROUPS',typeof DECO_GROUPS!=='undefined'?DECO_GROUPS:null],
+ ['FLOORART',typeof FLOORART!=='undefined'?FLOORART:null],['MOOD',typeof MOOD!=='undefined'?MOOD:null],['STAGE_SCATTER',typeof STAGE_SCATTER!=='undefined'?STAGE_SCATTER:null]];
+const proMood=()=>{if(typeof MOODC!=='undefined')for(const k in MOODC)if(k.startsWith('0:'))delete MOODC[k];};
 function proOn(){if(PRO_ON)return;for(const [k,a] of PROSLOTS())if(a)PROSAVE[k]=a[0];
  const env=Object.assign({},PROSAVE.ENV,ENV[3]||{});
  DUN[0]=Object.assign({},PROSAVE.DUN,DUN[3]?{scn:Object.assign({},DUN[3].scn||{},{short:PRO.dun.story,tale:PRO.dun.tale,seal:(PROSAVE.DUN.scn||{}).seal||'ox'})}:{},PRO.dun);
- ENV[0]=env;BOSS[0]=PRO.boss;BLOOK[0]=PROSAVE.BLOOK;BSTYLE[0]=PRO.style;BMODES[0]=PRO.modes;if(typeof BMOTIF!=='undefined')BMOTIF[0]=PRO.motif;ROMAN[0]='PROLOGUE';BOSSSPR[0]=PROSAVE.PROSPR||null;PRO_ON=true;}
-function proOff(){if(!PRO_ON)return;if(BOSSSPR[0])PROSAVE.PROSPR=BOSSSPR[0];for(const [k,a] of PROSLOTS())if(a&&k in PROSAVE)a[0]=PROSAVE[k];PRO_ON=false;}
+ ENV[0]=env;BOSS[0]=PRO.boss;BLOOK[0]=PROSAVE.BLOOK;BSTYLE[0]=PRO.style;BMODES[0]=PRO.modes;if(typeof BMOTIF!=='undefined')BMOTIF[0]=PRO.motif;ROMAN[0]='PROLOGUE';BOSSSPR[0]=PROSAVE.PROSPR||null;
+ for(const [k,a] of PRODRESS())if(a){PROSAVE['d_'+k]=a[0];a[0]=a[3];}proMood();PRO_ON=true;}
+function proOff(){if(!PRO_ON)return;if(BOSSSPR[0])PROSAVE.PROSPR=BOSSSPR[0];for(const [k,a] of PROSLOTS())if(a&&k in PROSAVE)a[0]=PROSAVE[k];for(const [k,a] of PRODRESS())if(a&&('d_'+k) in PROSAVE)a[0]=PROSAVE['d_'+k];proMood();PRO_ON=false;}
 const proOpt=()=>meta.opt.prologue!==false;
 // a new run from character select starts at the prologue (training, the daily and boss rush don't)
 {const _sc=selConfirm;selConfirm=function(){const lk=selLock;_sc.apply(this,arguments);if(!lk&&selLock&&proOpt())PROQ=true;};}

@@ -11,7 +11,7 @@ SPELLS.h.push({n:'IAI CLEAVE',g:'-',c:'#fff',cd:1,d:'LUNGING LINE SLASH. BIG STU
  {n:'CHARGED SHOT',g:'!',c:'#ffe080',cd:.9,d:'ARROW THAT PIERCES EVERYTHING',dm:2.4,db:'b',x:'FULL CHARGE: +50%, CUTS SHOTS'},
  {n:'SHURIKEN FAN',g:'*',c:'#c8c8d0',cd:.8,d:'FAN OF 5 SHURIKEN',dm:.75,db:'b',dx:' X 5',x:'FULL CHARGE: 7 SHURIKEN'},
  {n:'SPIRIT FOX',g:'F',c:'#ff9a40',cd:1.4,d:'HOMING FOX, PIERCES 3',dm:1.9,db:'b',x:'FULL CHARGE: TWO FOXES'});
-SPELLS.q.push({n:'WHIRLWIND',g:'O',c:'#e8eef6',cd:5,d:'SPIN SLASH: 3 HITS, CUTS SHOTS',dm:1.4,db:'q',dx:' X 3'},
+SPELLS.q.push({n:'WHIRLWIND',g:'O',c:'#e8eef6',cd:5,d:'SPIN SLASH: 3 HITS AROUND YOU',dm:1.4,db:'q',dx:' X 3'},
  {n:'ARROW RAIN',g:'R',c:'#e8dcb0',cd:5,d:'VOLLEY AT CURSOR FOR 1.6S',dm:.35,db:'q',dx:' EVERY 0.15S'},
  {n:'SHADOW STEP',g:'S',c:'#9a7aff',cd:4,d:'BLINK BEHIND A FOE AND STAB',dm:3,db:'q'},
  {n:'SHIKIGAMI',g:'B',c:'#f0e8d0',cd:6,d:'2 PAPER SPIRITS FIGHT FOR 7S',dm:.3,db:'q',dx:' EVERY 0.45S EACH'});

@@ -1,6 +1,115 @@
 # Changelog
 
-## Unreleased (after 0.7.1)
+## 0.7.3: ability animations, ultimates, strikes, revives and a gentler start
+
+### A gentler start
+- **No forced tutorial:** a new player's first run starts straight away.
+  - The first stage teaches as you play, opening with a paused controls card (move, aim, attack, heavy, dash, abilities, potion, interact, pack, guide) and then the one-time tips.
+  - The tutorial is on the main menu, now called **TUTORIAL**, marked NEW until played.
+  - A new player's death screen points to it.
+  - Finishing or skipping the tutorial returns you to the main menu, with NEW RUN selected.
+- **No potion is used for you:** the low-health tip only closes on C or ENTER. Drinking stays your call; the tip just reminds you that C drinks a potion.
+
+### Fixes
+- **Ronin Seven crash:** a member dying while its dash-aim telegraph was still up could crash the game. The telegraph now stops following a fallen member.
+
+### Coming back from the dead
+- **Revive sequence:** a revive still happens on its own, but it is now an event.
+  - The world freezes and darkens for about a second and a half.
+  - Your hero falls, their spirit rises out of the body, and a pillar of golden light comes down and draws it back.
+  - They rise to their feet in a burst of light, with a REVIVED banner and how many revives are left.
+  - Then the world moves again, with the usual push-back and cleared bullets.
+
+### Interactables come alive
+- **No more markers:** the pillar of light, ground ring and bobbing icon over shrines, springs, chests, gongs and prisoner cages are gone.
+- **Their own particles instead:** like the blood shrine, each now shows itself with gentle particles in its own colour, and goes quiet once used:
+  - Shrines: spirit motes rising, with the odd twinkle.
+  - Springs: bubbles and a cool mist, with sparkles on the water.
+  - Chests: gold glints, or red embers while still sealed.
+  - Gongs: a golden hum of sparks.
+  - Cages: the prisoner's colour drifting up through the bars.
+
+### Effects that never hide a bullet
+- **Ultimates:**
+  - There is no full-screen flash. A brief glow at the screen edges, in the ultimate's colour, replaces it.
+  - There is no ray burst, and one ring replaces three.
+  - Every spark burst is cut to a handful, including the blasts an ultimate calls down.
+  - The lead-in and dragon motes are thinned out.
+  - Particles on screen during an ultimate are roughly halved for every hero (the lancer's drop from 81 to 21 at peak).
+- **Legendary items:**
+  - Legendary weapons and armour keep their colours and character, but shed about a third as many motes.
+  - The motes are drawn fainter, so they never read as enemy bullets.
+  - At most 70 motes are on screen at once; in testing a legendary staff peaked at 241 before.
+
+### Straight-line strikes
+- **Drawn as what they are:** every line attack used to draw the same thin line. Damage and hitboxes are unchanged:
+
+| Strike | Abilities | What you see |
+|---|---|---|
+| Spear | Yari Thrust, Spiral Lunge | a spear drives out to the full reach, flashes at the tip, and snaps back |
+| Phantom spears | Thousand Thrusts | spectral spears stab out one after another, while a fan of phantom spears hovers behind the lancer |
+| Blade | Iai Cleave, Dragon Cleave | a thick, tapered cut of light splits apart in the air, shedding sparks |
+| Chain | Kusarigama | chain links lash out with the sickle blade on the end |
+| Beam | Spirit Mirror | a glowing beam thins away from a mirror flash |
+| Blast | Siegebreaker | a cannonball tears down a trail of fire and smoke, with shock rings, instead of five thin lines |
+
+### Ultimates with a show
+- **Lead-in and follow-through:** pressing R plays a short lead-in before the ultimate fires. You are invulnerable and rooted for it, energy rushes in, and then the follow-through plays:
+
+| Ultimate | Lead-in | Follow-through |
+|---|---|---|
+| Dragon Cleave (samurai) | rises into the air, the dash line burning gold, then leans forward into the line, blade drawn back | a streak of afterimages along the path, then a landing slam |
+| Arrow Storm (archer) | leaps high and looses the storm from the top of the leap | drops back down |
+| Shadow Clones (shinobi) | vanishes in smoke as three shadows split away | reappears among them |
+| Siegebreaker (gunner) | swings a massive banded iron hand-cannon off the back and levels it, trembling while the muzzle glows | fires it with a flash and kick, is shoved back, then puts it away |
+| Thousand Thrusts (lancer) | twirls the spear overhead | the flurry |
+| Dragon Spirit (onmyoji) | kneels inside a circle of runes | rises as a fearsome spirit dragon's head swims along the aim line over the blasts: midnight-blue hide, a spiked mane, swept-back horns, a red eye under a jagged brow, gaping fanged jaws breathing cold fire. It is drawn under the bullets |
+| Dragon Descent, Meteor Rain, Talisman Storm, Stopped Time | float up inside turning runes (a clock face for Stopped Time) | the release |
+
+### Prologue
+- **First rooms are fights:** the first two rooms along the road are always fights. The trader, shrine and curse altar sit further on.
+
+### Ability animations
+- **Every ability acts out its own motion:** the hero's body now plays a motion that matches what each ability does, over several frames, instead of one generic cast or swing. It is built from the hero's sheets (front and back views) and pose transforms:
+
+| Motion | What you see | Used by |
+|---|---|---|
+| Spin | a real turn: front, side, back, side, front, with a ghost trailing it | Whirlwind (3 turns), Wheel Sweep (2), sweeping heavies (half a turn), Talisman Storm |
+| Thrust and lunge | wind back, then lunge forward with afterimages | Yari, Iai Cleave, Flame Wave, Dragon Cleave, Spiral Lunge (which spins at the end on a full charge) |
+| Flurry | rapid alternating thrusts | Thousand Thrusts |
+| Slam | rise, stretch, then crash into a squash with dust | Odachi, Frost Nova, War Banner |
+| Cast and big cast | arms raised and hovering, or the ultimate pose rising and releasing with a ring at the feet | spells and ultimates |
+| Throw | a quick wind-up and release | kunai, shuriken, caltrops |
+| Recoil | the body kicks back with the shot | Tanegashima-style heavies, Heavy Slug, Grapeshot, Siegebreaker |
+| Roll | a full head-over-heels roll | Evade Roll, Powder Roll |
+| Guard | crouched behind a glowing shield arc | Guard Stance, Spirit Ward, Barrier, Deflect |
+| Vanish | fades out in the smoke | Smoke Bomb, Shadow Clones |
+| Blink | pinches to a line and snaps open | Kitsune Step, Shadow Step (which then stabs) |
+| Plant | kneels to set something down | totems, the tripod gun, circles |
+| Roar | rears up and shakes | War Cry |
+
+- **Charging a heavy:** the hero crouches and trembles while you hold RMB, and flashes when the charge is full.
+
+### Ability descriptions
+- **Rewritten:** all 68 abilities (basic attacks, heavies, Q, E, F and ultimates for every hero, and the rare scroll spells) have new descriptions. Each one says plainly what the ability does, adds a second line when it needs one (full-charge effects, durations, what stuns or freezes), and gives a green **TIP** on how to use it well.
+- **Character select:** shows the description and tip, and the header names the ability type and its cooldown. Ultimates note that kills cut their cooldown.
+- **In-game tooltip** (hover an ability slot): the description, the live damage and cooldown, then the tip. The technical "FORMULA" lines are gone.
+- **Fixed claims:** Spirit Blade and Whirlwind no longer say they cut bullets. Only a full-charge heavy, or the Bullet Cleaver scroll, does that.
+
+### Tips
+- **Moving never closes a tip:** you are usually already moving when one appears.
+- **Reading time:** every tip stays up at least 0.9 seconds.
+- **How each tip closes:**
+  - the stage-start, shop, shrine and curse altar tips close with G or ENTER
+  - guardian tips close with dash
+  - a key already held down also works
+- **Start tip timing:** it shows as the stage loads, and the province map waits until it is closed.
+
+### The Burning Village
+- **Wall tops:** no more black slabs floating above the walls (also in Burning Castle Town).
+- **Furnishings:** the prologue is furnished like a burnt village (rubble, charred beams, braziers, ember light) instead of stage I's bamboo camp.
+
+## 0.7.2: the prologue, allies, honest damage and daily pacts
 
 ### Bosses
 - **Veteran:** each run a hero wins makes that hero's next runs a little harder and better paid. It is per hero, up to Veteran V. Each level gives foes and guardians +8% health and +5% damage, and you get +10% jade. Your own power is never looked at, so a god run stays a god run. It is not applied to the prologue, training, the daily challenge or boss rush, and character select shows each hero's level.

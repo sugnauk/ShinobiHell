@@ -668,7 +668,7 @@ BKIT['LADY HOTARU']={director:bossDirector,pref:95,gap:.8,halfName:'ROBES ABLAZE
     if(at(A,1*k)){e.tele=0;sfx('break');}return A.t>1.3*k;}},
   // shikigami dash: each spirit's eyes glow, then it dashes at you leaving a short fire trail
   {n:'dash',wt:2,ok:e=>e.lamps.some(l=>l.spirit&&!l.spirit.dead),run(e,A,dt){const k=1/e.spdK,sp=e.lamps.map(l=>l.spirit).filter(m=>m&&!m.dead);
-    if(!A.go){A.go=1;sp.forEach((m,i)=>{m.dash={t:-(.6+i*.25)*k,a:0};mark({k:'l',x:m.x,y:m.y,a:aimAt(m),len:150,w:8,t:(.6+i*.25)*k,lock:.2,col:BC.aim,follow:mm=>{mm.x=m.x;mm.y=m.y;mm.a=m.dash.a=aimAt(m);}});});}
+    if(!A.go){A.go=1;sp.forEach((m,i)=>{m.dash={t:-(.6+i*.25)*k,a:0};mark({k:'l',x:m.x,y:m.y,a:aimAt(m),len:150,w:8,t:(.6+i*.25)*k,lock:.2,col:BC.aim,follow:mm=>{mm.x=m.x;mm.y=m.y;if(m.dash&&!m.dead)mm.a=m.dash.a=aimAt(m);}});});}
     let busy=false;for(const m of sp){if(!m.dash)continue;busy=true;m.dash.t+=dt;if(m.dash.t>0){move(m,Math.cos(m.dash.a)*260*dt,Math.sin(m.dash.a)*260*dt,m.r);if(Math.random()<dt*20)hz.push({x:m.x,y:m.y,r:7,t:1,dps:9*e.dm,col:'#ff6020'});
       if(dist(m,P)<m.r+5&&P.iv<=0&&P.dash<=0)hitPlayer(12*e.dm,m.x,m.y,{src:e});if(m.dash.t>.55)m.dash=null;}}
     return !busy&&A.t>.4;},end(e){for(const l of e.lamps)if(l.spirit)l.spirit.dash=null;}},
