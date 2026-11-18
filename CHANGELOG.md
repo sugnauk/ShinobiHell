@@ -55,7 +55,9 @@ Every move pushes, carries, throws or pins foes instead of hitting a ring around
   - Drive the carried foe into a wall for **Oshidashi**: double damage and a long stun.
   - A boss stops you cold and takes heavy posture damage.
 - **Uwatenage (Q):** grab a foe, swing it round you to club anything it hits, then hurl it skidding through the pack.
-- **Salt Throw (E):** a fan of purifying salt. Each grain erases enemy shots, and the foes it hits are blinded and can't shoot for 2.5s.
+- **Salt Throw (E):** a fan of purifying salt.
+  - It heals you 8% of max HP, plus 1% for every enemy shot it erases (up to 20% a throw).
+  - Each grain erases enemy shots, and the foes it hits are blinded and can't shoot for 2.5s.
 - **Shiko (F):** raise a leg high and stomp.
   - Cracks race through the floor to the 3 nearest foes, and rock spikes launch them into the air.
   - The stomp crushes shots at your feet.
