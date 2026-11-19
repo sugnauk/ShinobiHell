@@ -56,6 +56,8 @@ The full plan and audit are in `ANIMATION_AUDIT.md`.
   - Auto-aim and auto-attack are always on, so there's no aim stick.
   - The buttons stay usable during tips, and the ones a tip asks for pulse.
   - The ability bar along the bottom is hidden on touch; the buttons show the cooldowns.
+  - No cursor on a touchscreen: it is all touch.
+  - Full screen: every tap asks for full screen until the browser grants it, including the older prefixed form, so the address bar goes away on Android and iPad. The page is also a web app (a manifest and Apple's web-app tags), so on iPhone, where Safari never lets a page hide its bars, adding it to the home screen opens it full screen in landscape. A one-time note on the menu tells iPhone players how.
 - **Fixes:**
   - The Siegebreaker cannon showed up on Heavy Slug, Grapeshot, and the Sumo's and Bell Warden's ultimates.
   - Spiral Lunge teleported instead of lunging.

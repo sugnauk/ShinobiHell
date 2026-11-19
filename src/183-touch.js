@@ -98,3 +98,18 @@ function touchDraw(){if(!TOUCH||mode!=='play'||!P)return;const top=paused||invOp
 function touchPortrait(){if(!TOUCH||innerWidth>=innerHeight)return;ctx.fillStyle='rgba(6,4,12,.92)';ctx.fillRect(0,0,W,H);
  const a='TURN YOUR DEVICE',b2='SHINOBIDUNGEONS PLAYS IN LANDSCAPE';txt(a,Math.round(W/2-txtW(a,2)/2),Math.round(H/2-14),'#ffd040',2);txt(b2,Math.round(W/2-txtW(b2)/2),Math.round(H/2+6),'#ddd');}
 {const _r=render;render=function(){const r=_r.apply(this,arguments);if(TOUCH){try{touchDraw();touchPortrait();}catch(_){}}return r;};}
+// ---- all touch: no cursor at all on a touchscreen, and real full screen (no browser bars) ----
+{const _dc=drawCursor;drawCursor=function(){if(TOUCH)return;return _dc.apply(this,arguments);};}
+const isIOS=/iP(hone|od|ad)/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
+const isStandalone=()=>matchMedia('(display-mode: fullscreen)').matches||matchMedia('(display-mode: standalone)').matches||navigator.standalone===true;
+function touchFullscreen(){if(!TOUCH||meta&&meta.opt&&meta.opt.fs===0)return;const d=document,el=d.documentElement;if(d.fullscreenElement||d.webkitFullscreenElement)return;
+ try{if(el.requestFullscreen)el.requestFullscreen({navigationUI:'hide'}).catch(()=>{});else if(el.webkitRequestFullscreen)el.webkitRequestFullscreen();}catch(_){}
+ try{screen.orientation&&screen.orientation.lock&&screen.orientation.lock('landscape').catch(()=>{});}catch(_){}}
+// browsers only allow it from a tap, so every tap asks again until it holds (after you leave full screen, the next tap returns)
+addEventListener('touchend',()=>{touchFullscreen();cv.style.cursor='none';},{passive:true});
+document.addEventListener('webkitfullscreenchange',()=>{const v=VIEWWIDE;W=0;setView(v);fit();});
+// iPhone Safari cannot hide its bars from a web page: once, say how (Add to Home Screen opens it full screen)
+{let told=false;const _r=render;render=function(){const r=_r.apply(this,arguments);if(TOUCH&&isIOS&&!isStandalone()&&!(meta.tips&&meta.tips.iosfs)&&mode==='menu'){
+ const a='FOR FULL SCREEN ON IPHONE:',b='SHARE, THEN ADD TO HOME SCREEN, THEN OPEN IT FROM THERE',w=Math.max(txtW(a),txtW(b))+12,x=Math.round(W/2-w/2),y=H-40;
+ ctx.fillStyle='rgba(8,6,14,.9)';ctx.fillRect(x,y,w,22);ctx.strokeStyle='#ffd040';ctx.strokeRect(x+.5,y+.5,w-1,21);txt(a,x+6,y+4,'#ffd040');txt(b,x+6,y+13,'#ddd');
+ if(!told){told=true;setTimeout(()=>{meta.tips=meta.tips||{};meta.tips.iosfs=1;saveMeta();},12000);}}return r;};}
