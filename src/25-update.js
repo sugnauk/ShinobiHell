@@ -125,7 +125,7 @@ function updPlay(dt){
 }
 // freeze-frames: after one ends, small ones are skipped for 0.6s so a burst of hits or stuns (ults on a pack) can't stutter the game
 // Arrow Storm's slow motion: how long it lasts (game seconds) and how much it slows the world at its deepest
-const ULTSLOW=2.5,ULTSLOWK=.35;
+const ULTSLOW=1.8,ULTSLOWK=.25;
 let hsCool=0,hsOn=false,ultSlow=0,slowT=0,hurtT=0,beatT=0,lowPulse=0,introT=0,introE=null,grazeCd=0;const INTRO=2.6;
 function update(dt){
  time+=dt;musicTick();if(meta.opt.dbg&&mode==='play'&&!paused)updDbg(dt);
