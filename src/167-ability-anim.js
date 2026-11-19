@@ -47,7 +47,8 @@ let ABPOSE=null;
 function abStartPose(k){if(!P)return;const sp=SPELLS[k]&&SPELLS[k][P.lo[k]];const A=sp&&AB_ANIM[sp.n];if(!A)return;
  // a lunge or spin uses the direction you are aiming (screen left or right)
  const ax=scrVec(Math.cos(P.aim||0),Math.sin(P.aim||0))[0];
- ABPOSE={k:A[0],dur:A[1],p:A[2]!=null?A[2]:1,t0:time,dir:ax<0?-1:1,full:k==='h'&&!!P.hFull&&sp.n==='SPIRAL LUNGE'};} // only Spiral Lunge ends a full charge in a spin
+ ABPOSE={k:k==='m'&&A[0]==='spin'?'swing':A[0],dur:A[1], // a basic attack never spins: it swings
+ p:A[2]!=null?A[2]:1,t0:time,dir:ax<0?-1:1,full:k==='h'&&!!P.hFull&&sp.n==='SPIRAL LUNGE'};} // only Spiral Lunge ends a full charge in a spin
 {const _cs=castShow;castShow=function(k){const r=_cs.apply(this,arguments);try{abStartPose(k);}catch(_){}return r;};}
 {const _cb=castBolt;castBolt=function(){const b=P&&P.atkCd;const r=_cb.apply(this,arguments);try{if(P&&P.atkCd!==b)abStartPose('m');}catch(_){}return r;};}
 // ---- the pose at a moment: which sheet view, frame and flip, and how the body is moved, leaned, squashed or turned

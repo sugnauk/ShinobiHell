@@ -4,6 +4,7 @@
 
 - **The samurai no longer spins while attacking:** a fully charged Iai Cleave ended in a full spin, a leftover of the lancer's Spiral Lunge, so a samurai holding RMB spun after nearly every dash. Only Spiral Lunge spins at the end now.
 - **Basic and heavy attacks swing instead of spinning:** Naginata Sweep, Dancing Cut, Bell Swing, Spirit Blade, Moonlit Crescent, Crimson Sweep and Silk Veil used a half-turn spin, so holding the button kept the hero spinning. They now play a swing: a wind-up, a leaning slash toward your aim, and a recovery. Real spins (Whirlwind, Wheel Sweep, Pirouette, Lotus Dance, Uwatenage) are unchanged.
+- **No basic attack can spin:** the pose code turns any spin on a basic (LMB) attack into a swing.
 - **Salt Throw (E) heals Sumo:** 8% of max HP at once, plus 1% for every enemy shot the salt erases, up to 20% a throw. Throwing it into a volley heals the most.
 - **Text:** the ability description and tip on character select and in the tooltip say so.
 
