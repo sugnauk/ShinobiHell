@@ -61,7 +61,7 @@ const BOSSRELIC=[
  {id:'stirrup',name:'BLACK STIRRUP',d:'+15% MOVE SPEED',g:'T',fx:'speed',mo:'dash'}];
 for(const b of BOSSRELIC){ITEMS.push({id:b.id,name:b.name,d:b.d,g:b.g,r:3,bossRelic:1});ITEMBY[b.id]=ITEMS[ITEMS.length-1];FXK[b.id]=b.fx;RELICMO[b.id]=b.mo;}
 // boss relics only come from their boss, never from chests, shops or bags
-{const _ri=randItem;randItem=function(excl,minR){return _ri((excl||[]).concat(BOSSRELIC.map(b=>b.id)),minR);};}
+{const _ri=randItem;randItem=function(excl,minR){return _ri((excl||[]).concat(BOSSRELIC.filter(Boolean).map(b=>b.id)),minR);};}
 {const _cs=calcStats;calcStats=function(){const s=_cs();if(R&&R.inv&&R.inv.stirrup)s.spd*=1.15;return s;};}
 // spirit trails: one per guardian, won by beating it without being hit
 const TRAILS=[['CRIMSON BANNER','#e04030','#ffd040'],['WHITE STALKER','#e8f4ff','#a8d8ff'],['SILK THREAD','#e8e8f0','#c89040'],['LANTERN FIRE','#ff8030','#ffe080'],
