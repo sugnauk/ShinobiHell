@@ -24,19 +24,19 @@ const PRO2={n:2,dress:1,col:'#60b0e0',
 PRO2.boss.pal=basePal('#2a4a6a','#4a3a2a','#60b0e0','#18120e');
 PRO2.boss.k1=[SL({hits:1,w:1,dmg:10,wt:3,range:36,arc:150}),SH({w:.7,cnt:5,spread:.9,sp:48,dmg:9,col:'#80d0f8',wt:2})];
 PRO2.boss.k2=[SL({hits:2,w:.9,w2:.4,dmg:11,wt:3,range:36,arc:160}),SH({w:.65,cnt:7,spread:1.1,sp:50,dmg:9,col:'#80d0f8',wt:2}),SU({cnt:2,types:['bandit'],wt:1})];
-const PRO3={n:3,dress:5,col:'#c06040',
- dun:{name:'THE HILL WATCHTOWER',fl:['#4a3a2a','#524232'],sp:'#3a2a1a',wt:'#120c08',wf:'#5a4430',we:'#c06040',cloth:'#6a3a2a',dark:'#3a2418',acc:'#c06040',
+const PRO3={n:3,dress:5,col:'#4ab0a0',
+ dun:{name:'THE HILL WATCHTOWER',fl:['#4a3a2a','#524232'],sp:'#3a2a1a',wt:'#120c08',wf:'#5a4430',we:'#4ab0a0',cloth:'#1e4a4a',dark:'#3a2418',acc:'#4ab0a0',
   pool:['ashigaru','ashigaru','archer','archer','bandit','shielder'],story:'THE EMPEROR\'S WATCHTOWER GUARDS THE ROAD TO THE BAMBOO',
   tale:'A WOODEN WATCHTOWER ON THE HILL ROAD SIGNALS THE WARBANDS WHENEVER TROUBLE COMES. ITS CAPTAIN, KAGEYAMA, IS SAID NEVER TO MISS.'},
  boss:{name:'KAGEYAMA, THE TOWER CAPTAIN',hp:460,hat:'kasa',pal:null,pref:90,spd:34,r:9},
- style:{c:'#c06040',t:['AIMED VOLLEYS','THE SNIPER\'S LINE','ARROW RAIN'],ph:[
-  [{pat:'aimedring',cnt:10,sp:50,col:'#c06040'},{pat:'stream',cnt:5,sp:80,col:'#e8d0a0',burst:2,gap:.3}],
-  [{pat:'sniper',sp:70,col:'#e8d0a0'},{pat:'aimedring',cnt:12,sp:52,col:'#c06040'},{pat:'stream',cnt:6,sp:84,col:'#e8d0a0',burst:2,gap:.28}],
-  [{pat:'sniper',sp:74,col:'#e8d0a0'},{pat:'aimedring',cnt:14,sp:54,col:'#c06040'},{pat:'rain',cnt:4,rad:18,col:'#c06040',dmg:9,sp:0}]]},
+ style:{c:'#4ab0a0',t:['AIMED VOLLEYS','THE SNIPER\'S LINE','ARROW RAIN'],ph:[
+  [{pat:'aimedring',cnt:10,sp:50,col:'#4ab0a0'},{pat:'stream',cnt:5,sp:80,col:'#e8d0a0',burst:2,gap:.3}],
+  [{pat:'sniper',sp:70,col:'#e8d0a0'},{pat:'aimedring',cnt:12,sp:52,col:'#4ab0a0'},{pat:'stream',cnt:6,sp:84,col:'#e8d0a0',burst:2,gap:.28}],
+  [{pat:'sniper',sp:74,col:'#e8d0a0'},{pat:'aimedring',cnt:14,sp:54,col:'#4ab0a0'},{pat:'rain',cnt:4,rad:18,col:'#4ab0a0',dmg:9,sp:0}]]},
  modes:['circle','circle','dashes'],
  motif:[0,2,3,5,7,null,5,3,2,0,-2,null,0,2,0,null],
  master:'THE TOWER IS DOWN AND THE ROAD IS OPEN. AHEAD, AKAGANE\'S WARBAND HAS CAMPED IN THE BAMBOO. THIS IS WHERE THE MARCH ON THE CASTLE TRULY BEGINS.'};
-PRO3.boss.pal=basePal('#6a2a1e','#3a2a20','#c06040','#18100c');
+PRO3.boss.pal=basePal('#1e4a4a','#1a1a22','#4ab0a0','#16120e');
 PRO3.boss.k1=[SH({w:.75,cnt:3,spread:.3,sp:70,dmg:9,col:'#e8d0a0',arrow:true,wt:3}),SH({w:.85,cnt:1,sp:110,dmg:10,col:'#e8d0a0',arrow:true,reps:3,gap:.25,wt:2})];
 PRO3.boss.k2=[SH({w:.7,cnt:5,spread:.5,sp:72,dmg:9,col:'#e8d0a0',arrow:true,wt:3}),SH({w:.8,cnt:1,sp:120,dmg:10,col:'#e8d0a0',arrow:true,reps:4,gap:.22,wt:2}),SU({cnt:2,types:['ashigaru'],wt:1})];
 PROS.push(PRO2,PRO3);
@@ -84,39 +84,40 @@ function gorDraw2(p,Q){const K=HUM(p,Q),{R,E,L,seg,trap,arm,leg,face,lt,dk,by}=K
 humBoss('GORO, THE BANDIT CAPTAIN',gorDraw2,{idle0:{},idle1:{b:1},
  atk:{dy:-1,legs:'lunge',near:[[47,28],[55,20],[57,10]],ba:-2.3,bl:29,far:[[25,29],[17,36],[13,44]]}},{sc:1.1});
 
-// ---------- KAGEYAMA, THE TOWER CAPTAIN (refined) ----------
-// A samurai archer of the watch: a black lacquered jingasa with a gold crest over a cloth hood, a dark red half-mask,
-// a breastplate of laced red lames, big shoulder plates, skirt plates hanging over armoured thighs, iron shin guards,
-// a katana at the hip, a quiver of white-fletched arrows on his back, and a great yumi gripped below its middle, bound
-// with dark rattan. In the attack frame he draws to the ear. Second form: the helmet gone, a bloodied headband, the
-// mask cracked, a single arrow left.
+// ---------- KAGEYAMA, THE TOWER CAPTAIN ----------
+// The watchtower's archer captain, nothing like the red-armoured warlords: lean, in archery dress - a white kimono with
+// the drawing arm slipped out of its sleeve, a dark teal jacket over it, wide black hakama flaring to the ankles - a
+// straw jingasa with a white band, a tall signal flag on his back bearing the white tower crest, a conch horn at his
+// belt to signal the warbands, a quiver of white-fletched arrows at his hip, and a great yumi bound in rattan and
+// gripped below its middle. Second form: the hat gone, his long hair loose in a tail, the signal flag torn.
 function kagDraw2(p,Q){const K=HUM(p,Q),{R,E,L,seg,trap,arm,leg,face,lt,dk,by}=K,two=ARTHURT,cx=36;
- const AR='#8a2a1e',AR2='#b03a28',ARD='#5a1a12',LC='#e0c070',BK='#22202a',BK2='#3a3a46',IR='#6a6a78',IR2='#9a9aa8',SK='#d8a878',BW='#7a4a20',BW2='#c08a4a',RT='#2a1a10',ST='#ece0c0';
+ const TL='#1e4a4a',TL2='#2e6a66',WH='#ece8de',WH2='#c8c2b4',HK='#1a1a22',HK2='#2e2e3a',SK='#d8a878',SK2='#a87850',ST2='#c8a868',BW='#7a4a20',BW2='#c08a4a',RT='#2a1a10',STR='#ece0c0',FL='#e8e4d8',HR='#16120e';
  const lg=Q.legs||'stand';
- // legs: dark trousers, armoured thighs, iron shin guards, sandals
- const legA=(hx,hy,kx,ky,fx,fy)=>{seg(hx,hy+by,kx,ky,6,BK);seg(kx,ky,fx,fy-2,5,BK);const sx2=Math.round((kx+fx)/2);R(sx2-3,ky+2,6,Math.round((fy-ky)*.6),OUTC);R(sx2-2,ky+3,4,Math.round((fy-ky)*.6)-2,IR);R(sx2-2,ky+3,1,Math.round((fy-ky)*.6)-2,IR2);R(fx-4,fy-1,8,2,OUTC);R(fx-3,fy-1,7,1,'#c8a868');};
- if(lg==='stand'){legA(32,50,29,61,27,73);legA(40,50,43,61,45,73);}else{legA(32,50,25,60,21,72);legA(40,50,46,60,50,73);}
- // the quiver on his back, white fletchings over the shoulder
- R(40,10+by,7,26,OUTC);R(41,11+by,5,24,'#4a2a14');R(41,11+by,5,2,'#8a5a2a');for(let i=0;i<(two?1:4);i++){R(41+i,6+by-(i%2),1,6,'#d8c8a8');R(40+i,4+by-(i%2),3,3,'#f4f4f8');R(41+i,4+by-(i%2),1,3,'#c8c8d0');}
- // the katana hanging at the left hip, behind the skirt plates, its hilt forward
- L(cx-16,56+by,cx-6,47+by,OUTC,4);L(cx-16,56+by,cx-6,47+by,BK2,2);R(cx-7,45+by,3,3,LC);L(cx-5,46+by,cx-1,43+by,OUTC,3);L(cx-5,46+by,cx-1,43+by,'#e8e0d0',1);
- // skirt plates over the thighs
- for(const [x,w] of [[cx-11,7],[cx-3,7],[cx+5,7]]){R(x-1,46+by,w+2,9,OUTC);for(let r=0;r<3;r++){R(x,47+by+r*3,w,2,r%2?AR2:AR);R(x,49+by+r*3,w,1,LC);}}
- // breastplate: laced lames, a dark band at the top, gold lacing
- trap(cx,25+by,46+by,9,10,AR);for(let y=27;y<45;y+=3){R(cx-9,y+by,19,1,ARD);for(let x=-8;x<9;x+=4)R(cx+x,y+1+by,1,2,LC);}R(cx-8,25+by,17,3,BK);R(cx-8,25+by,17,1,BK2);
- // big shoulder plates
- for(const s of [-1,1]){const x=cx+s*12;R(x-5,24+by,11,12,OUTC);for(let r=0;r<4;r++){R(x-4,25+by+r*3,9,2,r%2?AR2:AR);R(x-4,27+by+r*3,9,1,LC);}}
- // arms in armoured sleeves; the great bow, held upright or drawn to the ear
- const draw=!!Q.drawn,far=Q.far||[[25,30],[19,38],[18,46]],near=Q.near||[[47,30],[51,39],[49,46]];
- arm(far,AR,BK,SK,4);arm(near,AR,BK,SK,4);
+ // the signal flag on its pole behind him: a tall white banner with the tower crest (torn in the second form)
+ {const px=44,top=-2+by;R(px-1,top,3,40,OUTC);R(px,top+1,1,38,'#6a4a2a');const fh=two?12:20;R(px+1,top+2,12,fh+2,OUTC);R(px+2,top+3,10,fh,FL);R(px+2,top+3,10,2,TL2);
+  if(two){for(let x=0;x<10;x+=3)R(px+2+x,top+3+fh,2,2+(x%2),FL);}else{R(px+5,top+8,4,9,TL);R(px+4,top+8,6,2,TL);R(px+6,top+6,2,2,TL);R(px+4,top+16,6,1,TL);}}
+ // wide black hakama flaring to the ankles
+ const lgHk=(hx,hy,kx,ky,fx,fy)=>{seg(hx,hy+by,kx,ky,8,HK);seg(kx,ky,fx,fy-3,9,HK);L(kx,ky,fx-2,fy-4,HK2,1);R(fx-6,fy-3,12,2,OUTC);R(fx-5,fy-3,10,1,HK2);R(fx-3,fy-1,6,2,OUTC);R(fx-2,fy-1,5,1,ST2);};
+ if(lg==='stand'){lgHk(32,49,29,60,27,73);lgHk(40,49,43,60,45,73);}else{lgHk(32,49,25,59,20,72);lgHk(40,49,47,59,51,73);}
+ // the quiver at the hip, white fletchings up
+ R(cx-15,38+by,6,16,OUTC);R(cx-14,39+by,4,14,'#5a3a1e');R(cx-14,39+by,4,2,'#8a5a2a');for(let i=0;i<(two?1:3);i++){R(cx-14+i,34+by-(i%2),1,5,'#d8c8a8');R(cx-15+i,32+by-(i%2),3,3,'#f4f4f8');}
+ // torso: a white kimono, the drawing arm bare out of its sleeve, a dark teal jacket over it, a black sash
+ trap(cx,25+by,47+by,8,9,WH);L(cx-3,25+by,cx+2,35+by,WH2,1);L(cx+3,25+by,cx-1,33+by,WH2,1);
+ trap(cx-6,25+by,47+by,3,4,TL);R(cx-9,25+by,2,22,TL2);R(cx+5,26+by,4,20,TL);R(cx+8,26+by,1,20,TL2);
+ R(cx-9,43+by,19,4,OUTC);R(cx-8,44+by,17,2,HK);R(cx-8,44+by,17,1,HK2);
+ // the conch horn hanging at his belt
+ E(cx+7,50+by,4,3,OUTC);E(cx+7,50+by,3,2,'#f0e0d0');R(cx+5,49+by,2,1,'#c89878');R(cx+10,50+by,2,1,'#d8a888');L(cx+4,45+by,cx+6,48+by,'#8a5a2a',1);
+ // arms: the bow arm in its teal sleeve; the drawing arm bare, with an archery glove
+ const draw=!!Q.drawn,far=Q.far||[[27,29],[21,38],[19,46]],near=Q.near||[[45,29],[50,38],[49,46]];
+ arm(far,TL,TL,SK,4);arm(near,SK,SK,'#6a4a2a',4);{const [[a,b]]=near;R(a-2,b+by-1,4,3,lt(SK));}
  {const [x,y]=far[2],top=y+by-34,bot=y+by+20;L(x,top,x-4,y+by-6,OUTC,4);L(x-4,y+by-6,x,bot,OUTC,4);L(x,top,x-4,y+by-6,BW,2);L(x-4,y+by-6,x,bot,BW,2);
   for(const k of [.15,.32,.75,.9]){const yy=Math.round(top+(bot-top)*k);R(x-4+Math.round(Math.abs(.62-k)*3),yy,3,1,RT);}R(x-1,top,1,5,BW2);R(x-2,y+by-1,4,4,RT);
-  const sx2=draw?near[2][0]:x+1,sy2=draw?near[2][1]+by:y+by;L(x,top,sx2,sy2,ST,1);L(sx2,sy2,x,bot,ST,1);
+  const sx2=draw?near[2][0]:x+1,sy2=draw?near[2][1]+by:y+by;L(x,top,sx2,sy2,STR,1);L(sx2,sy2,x,bot,STR,1);
   if(draw){L(x-10,y+by-1,sx2,sy2,'#d8c8a8',1);R(x-12,y+by-2,3,3,'#f4f4f8');R(sx2-1,sy2-1,3,2,'#f4f4f8');}}
- // head: a stern face behind a dark red half-mask; the jingasa with its gold crest (a bloodied headband in the second form)
- const hx=cx,hy=17+by;face(hx,hy,SK,{eye:OUTC,brow:'#2a1a14',mouth:false});R(hx-5,hy+1,11,5,OUTC);R(hx-4,hy+1,9,4,ARD);R(hx-4,hy+1,9,1,AR2);for(const x of [-3,0,3])R(hx+x,hy+3,1,1,BK);
- if(two){R(hx+1,hy+1,1,3,BK);R(hx-6,hy-5,13,2,'#c03020');L(hx-6,hy-4,hx-12,hy+1,'#c03020',1);E(hx,hy-7,6,3,'#1a1410');R(hx+3,hy-2,1,3,'#a02020');}
- else{R(hx-6,hy-6,13,3,'#3a3048');for(let i=0;i<8;i++){const w=4+i*4;R(hx-Math.round(w/2),hy-12+i,w,1,i===0?OUTC:i%2?BK:BK2);}R(hx-17,hy-4,35,2,OUTC);R(hx-16,hy-4,33,1,BK2);E(hx,hy-11,2,2,LC);R(hx,hy-11,1,1,'#fff0c0');}}
+ // head: a calm, narrow face, a thin moustache; a straw jingasa with a white band (long loose hair in the second form)
+ const hx=cx,hy=17+by;face(hx,hy,SK,{eye:OUTC,brow:HR,mouth:'#7a3a2a'});R(hx-3,hy+3,2,1,HR);R(hx+2,hy+3,2,1,HR);
+ if(two){E(hx,hy-6,6,3,HR);L(hx-5,hy-4,hx-9,hy+12,HR,3);L(hx-4,hy-4,hx-7,hy+14,HR,2);R(hx+2,hy-1,2,1,'#ff3030');L(hx+3,hy-4,hx+5,hy+2,'#a02020',1);}
+ else{E(hx,hy-6,6,3,HR);for(let i=0;i<7;i++){const w=4+i*4;R(hx-Math.round(w/2),hy-12+i,w,1,i===0?OUTC:i%2?'#c8a860':'#e0c478');}R(hx-15,hy-5,31,2,OUTC);R(hx-14,hy-5,29,1,'#b89850');R(hx-8,hy-8,17,1,WH);for(let i=-12;i<=12;i+=4)R(hx+i,hy-6,1,1,'#9a7a40');}}
 humBoss('KAGEYAMA, THE TOWER CAPTAIN',kagDraw2,{idle0:{},idle1:{b:1},
  atk:{dy:0,legs:'lunge',drawn:1,far:[[25,30],[15,32],[9,33]],near:[[47,30],[39,29],[43,26]]}},{sc:1.1});
 
