@@ -3,7 +3,7 @@
 ## 0.8.4: Samurai, Gunner and Lancer each get their own look
 
 - **Samurai, Gunner and Lancer look different:** they were the same robed figure in different colours, with the same straw hat and horned helmet. Each now has a silhouette of their own at every stage, and their gear changes as they evolve:
-  - SAMURAI: an armoured torso with great shoulder plates and wide split hakama. Straw hat, then helmet, then the horned crest.
+  - SAMURAI: an armoured torso with great shoulder plates and wide split hakama. He keeps his straw hat through the middle stages (I–VI), with armour shoulders from stage IV; the horned helmet arrives at stage VII.
   - GUNNER: a short open jacket with a bandolier of powder flasks, a smouldering match-cord, narrow legs in white wraps, and an ammunition box on the back. A flat iron war hat, then a steel crested helmet with an upturned brim, and a crimson cape in the final form.
   - LANCER: a slim cuirass over a skirt of armour plates, and greaves. A white headband, then a rounded helmet with a neck guard, and a tall blade crest in the final form. A banner on his back grows taller as he evolves.
 

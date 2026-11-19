@@ -148,7 +148,7 @@ function buildHero(EV,star,back){const stage=star?9:0;
     R(4,21,13,1,'robeS');
     if(f===11){R(1,19,4,2,'robe');}
     // great shoulder plates
-    R(3,12+bob,4,4,'hat');R(3,12+bob,4,1,'hatL');R(3,14+bob,4,1,'trim');R(14,12+bob,3,4,'hat');R(14,12+bob,3,1,'hatL');R(14,14+bob,3,1,'trim');}
+    const AR=C.armour?'armour':'hat',ARL=C.armourL?'armourL':'hatL';R(3,12+bob,4,4,AR);R(3,12+bob,4,1,ARL);R(3,14+bob,4,1,'trim');R(14,12+bob,3,4,AR);R(14,12+bob,3,1,ARL);R(14,14+bob,3,1,'trim');}
    else if(BD==='jacket'){ // gunner: a short open jacket, narrow trousers in white leg wraps
     for(const [i,lx] of LEGX.entries()){R(lx,18,3,4,'robeS');R(lx,19,3,3,'#d8d0bc');R(lx,20,3,1,'#a8a090');}
     for(let y=13;y<=17;y++){const w=y===17?11:9,x0=y===17?5:6;R(x0-lean*(y>16?1:0),y+bob,w,1,'robe');R(x0,y+bob,1,1,'robeS');}
