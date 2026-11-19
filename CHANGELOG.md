@@ -1,7 +1,11 @@
 # Changelog
 
-## 0.8.2: Sumo can heal, primary attacks never spin, a gentler prologue
+## 0.8.2: Sumo can heal, primary attacks never spin, a gentler prologue, line weapons fire projectiles
 
+- **Line weapons fire real projectiles (new: `182-weapon-shots.js`):** Yari Thrust, Kusarigama and Spirit Mirror used to hit everything on a line at once, drawn as a solid spear, chain or beam that shot out and snapped back. Each now fires a projectile that flies out to the same reach and pierces everything on its way, with the same damage and attack speed.
+  - **Yari Thrust:** a spirit spear-tip. Every third thrust still throws three.
+  - **Kusarigama:** a spinning sickle trailing chain links. It still tugs foes back toward you.
+  - **Spirit Mirror:** a fast shard of mirror light.
 - **The prologue is a little gentler:**
   - Minions deal 60% damage (was 70%), and the boss deals 65% (was 75%).
   - Rooms hold fewer minions: after the first two, each extra one has a 50% chance to be left out (was 35%). Ambush waves bring one foe fewer, never below two.
