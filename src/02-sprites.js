@@ -174,6 +174,14 @@ function buildHero(EV,star,back){const stage=star?9:0;
    }else if(detail==='samurai'){
     for(let j=0;j<2;j++){R(7,13+bob+j*2,7,1,'robeS');R(8,13+bob+j*2,5,1,'trim');}
     if(!back){R(9,14+bob,3,2,'band');R(10,14+bob,1,1,'hatL');}
+    const U=EV.samUp||0;
+    // stage IV on: a lacquered breastplate laced in gold
+    if(U>=1&&!back){R(7,13+bob,7,4,'#b02424');R(7,13+bob,7,1,'#e05050');R(13,14+bob,1,3,'#701414');for(let x=7;x<14;x+=2){R(x,14+bob,1,1,'#e0b040');R(x+1,15+bob,1,1,'#e0b040');}}
+    // stage V on: armoured plates over the top of the hakama
+    if(U>=2)for(let k=0;k<3;k++){const x0=4+k*4-lean;R(x0,18,4,3,'#b02424');R(x0,18,4,1,'#e05050');R(x0+3,18,1,3,'#701414');R(x0,20,4,1,'#e0b040');}
+    // stage VI on: a black sleeveless battle coat over the armour, with a gold crest
+    if(U>=3){R(3,13+bob,3,9,'#1e1a24');R(15,13+bob,3,8,'#1e1a24');R(3,13+bob,3,1,'#e0b040');R(15,13+bob,3,1,'#e0b040');R(4,17+bob,1,1,'#e0b040');R(16,17+bob,1,1,'#e0b040');
+     if(back){R(6,13+bob,9,7,'#1e1a24');R(9,15+bob,3,3,'#e0b040');R(10,16+bob,1,1,'#1e1a24');}}
    }else if(detail==='archer'){
     for(let j=0;j<6;j++)R(5+(back?Math.floor(j/2):0),12+bob+j,2,1,'robeS');
     R(5,12+bob,1,4,'trim');R(4,11+bob,2,1,'#cfad76');R(5,10+bob,1,2,'#e4d6a1');
@@ -267,7 +275,7 @@ function buildHero(EV,star,back){const stage=star?9:0;
     R(4+hx,9+hy,13,2,'hat');R(6+hx,7+hy,9,2,'hat');R(8+hx,6+hy,4,1,'hatL');
     R(6+hx,8+hy,7,1,'hatL');R(5+hx,9+hy,10,1,'band');R(7+hx,11+hy,2,3,'hat');R(12+hx,12+hy,2,2,'hat');
    }
-   else if(EV.hat==='kasa'){R(3+hx,9+hy,15,1,'hat');R(5+hx,8+hy,11,1,'hat');R(7+hx,7+hy,7,1,'hatL');R(9+hx,6+hy,3,1,'hatL');R(4+hx,9+hy,2,1,'hatL');}
+   else if(EV.hat==='kasa'){R(3+hx,9+hy,15,1,'hat');R(5+hx,8+hy,11,1,'hat');R(7+hx,7+hy,7,1,'hatL');R(9+hx,6+hy,3,1,'hatL');R(4+hx,9+hy,2,1,'hatL');if(EV.samUp>=1){R(5+hx,8+hy,11,1,'#a02020');R(10+hx,5+hy,1,1,'#e0b040');}if(EV.samUp>=3){R(10+hx,7+hy,1,1,'#e0b040');R(9+hx,8+hy,3,1,'#e0b040');}}
    else if(EV.hat==='jingasa'){ // gunner: a flat lacquered iron war hat with a chin cord
     R(4+hx,9+hy,13,1,'hat');R(6+hx,8+hy,9,1,'hat');R(8+hx,7+hy,5,1,'hatL');R(5+hx,9+hy,11,1,'hatL');R(10+hx,8+hy,1,1,'band');if(!back){R(8+hx,10+hy,1,3,'#3a2a1a');R(12+hx,10+hy,1,3,'#3a2a1a');}}
    else if(EV.hat==='morion'){ // gunner's final form: a steel foreign helmet, a combed crown and an upturned brim
