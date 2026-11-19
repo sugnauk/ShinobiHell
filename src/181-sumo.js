@@ -49,9 +49,11 @@ function sumThrow(p,a,dmg){let e=null,best=1e9;coneHit(p.x,p.y,a,38,2,o=>{const 
   end(z){const e=z.e;e.z=0;e.sumoFlight=false;e.carried=0;if(!e.dead){e.stun=Math.max(e.stun||0,1);e.shoved=R.time;}},
   top(z){if(z.age<swing||!z.landed)return;const e=z.e;if(e.dead)return;const X=HSX(e.x,e.y),Y=HSY(e.x,e.y);ctx.globalAlpha=.5;for(let i=1;i<4;i++)kLine(X-Math.cos(z.ta)*i*5,Y-Math.sin(z.ta)*i*2.5+1,X-Math.cos(z.ta)*(i*5+3),Y-Math.sin(z.ta)*(i*2.5+1.5)+1,1,'#c8b898');ctx.globalAlpha=1;}});}
 // E SALT THROW
-function sumSalt(p,a,dmg){const n=kitFinal()?20:14;
+// it also purifies him: 8% of max HP at once, and 1% more for every enemy shot the salt erases (at most 20% a throw)
+function sumHeal(p,frac,show){const cap=S.maxhp*.2,h=Math.min(S.maxhp*frac,cap-(p.saltHealed||0));if(h<=0)return;p.saltHealed=(p.saltHealed||0)+h;p.hp=Math.min(S.maxhp,p.hp+h);if(show)txtFx(p.x,p.y-12,'+'+Math.round(h),'#50e060');}
+function sumSalt(p,a,dmg){const n=kitFinal()?20:14;p.saltHealed=0;sumHeal(p,.08,true);sfx('heal');
  for(let i=0;i<n;i++){const an=a+rnd(-.55,.55),q=kitShot(p.x,p.y,an,rnd(200,270),dmg,{spr:'salt',col:'#ffffff',r:2,src:'w',life:rnd(.32,.45),pierce:1,erase:2,pd:4});
-  q.tick=q=>{if(q.erase<=0)return;for(const b of projs){if(b.from!=='e'||b.dead||b.peril)continue;if(Math.hypot(b.x-q.x,b.y-q.y)<b.r+4){b.dead=true;q.erase--;if(q.erase<=0)break;}}};
+  q.tick=q=>{if(q.erase<=0)return;for(const b of projs){if(b.from!=='e'||b.dead||b.peril)continue;if(Math.hypot(b.x-q.x,b.y-q.y)<b.r+4){b.dead=true;q.erase--;sumHeal(P,.01,false);if(q.erase<=0)break;}}};
   q.onHit=(q,e)=>{e.blind=Math.max(e.blind||0,2.5);if(!e.saltT||e.saltT<R.time-.5){e.saltT=R.time;txtFx(e.x,e.y-10,'BLINDED','#fff8e0');}};}
  sfx('tool');}
 // F SHIKO
@@ -158,7 +160,7 @@ const SUMODEF=[
  ['m','TSUPPARI',0,'RAPID PALM THRUSTS. EVERY THIRD SHOVES.',({p,a,A,bp,em})=>sumTsuppari(p,a,A,bp,em)],
  ['h','TACHIAI',1.6,'CHARGE AND CARRY A FOE. DRIVE IT INTO A WALL.',({p,a,A,bp,em})=>sumTachiai(p,a,A*2.6*bp*em,p.hFull)],
  ['q','UWATENAGE',5,'SWING A FOE ROUND YOU, THEN HURL IT.',({p,a,A,qm,em})=>sumThrow(p,a,A*2.3*qm*em)],
- ['w','SALT THROW',8,'PURIFYING SALT ERASES SHOTS AND BLINDS FOES.',({p,a,A,ap,em})=>sumSalt(p,a,A*.3*ap*em)],
+ ['w','SALT THROW',8,'PURIFYING SALT: HEALS, ERASES SHOTS, BLINDS FOES.',({p,a,A,ap,em})=>sumSalt(p,a,A*.3*ap*em)],
  ['f','SHIKO',8,'STOMP: CRACKS LAUNCH THE NEAREST FOES.',({p,A,ap,em})=>sumShiko(p,A*2.2*ap*em)],
  ['e',"YOKOZUNA'S RING",28,'A SUMO RING. PUSH FOES OUT OF IT.',({p,A,ep,em})=>sumRing(p,A*4.2*ep*em)]];
 for(const [slot,name,cd,d,fn] of SUMODEF){const id=SUMO_KIT[slot],sp=SPELLS[slot][id];sp.n=name;sp.d=d;if(cd)sp.cd=cd;sp.kit179=0;
@@ -170,7 +172,7 @@ Object.assign(ABTXT,{
  'TSUPPARI':['RAPID OPEN-PALM THRUSTS.','EVERY THIRD IS A DOUBLE PALM THAT SHOVES THE FOE BACK.','KEEP THRUSTING TO DRIVE FOES OUT OF YOUR RING.'],
  'TACHIAI':['CHARGE FORWARD, CARRYING THE FIRST FOE YOU MEET.','FOES IN THE WAY ARE BOWLED ASIDE. DRIVE THE CARRIED FOE INTO A WALL FOR OSHIDASHI: DOUBLE DAMAGE AND A LONG STUN.','A BOSS STOPS YOU COLD AND TAKES HEAVY POSTURE DAMAGE.'],
  'UWATENAGE':['GRAB A FOE, SWING IT ROUND YOU, THEN HURL IT.','THE SWUNG FOE CLUBS ANYTHING IT HITS, THEN SKIDS THROUGH THE PACK.','BOSSES CANNOT BE GRABBED: THEY TAKE A HEAVY SLAP.'],
- 'SALT THROW':['A FAN OF PURIFYING SALT.','EACH GRAIN ERASES ENEMY SHOTS. FOES IT HITS ARE BLINDED AND CANNOT SHOOT FOR 2.5S.','THROW IT INTO A VOLLEY, OR AT THE ARCHERS.'],
+ 'SALT THROW':['A FAN OF PURIFYING SALT THAT HEALS YOU 8%.','EACH GRAIN ERASES ENEMY SHOTS, AND EVERY SHOT ERASED HEALS 1% MORE (UP TO 20%). FOES IT HITS ARE BLINDED AND CANNOT SHOOT FOR 2.5S.','THROW IT INTO A VOLLEY TO HEAL THE MOST.'],
  'SHIKO':['RAISE A LEG HIGH AND STOMP.','CRACKS RACE THROUGH THE FLOOR TO THE 3 NEAREST FOES. ROCK SPIKES LAUNCH THEM INTO THE AIR.','THE STOMP ALSO CRUSHES SHOTS AT YOUR FEET.'],
  "YOKOZUNA'S RING":['A SPIRIT YOKOZUNA STOMPS AND A SUMO RING FORMS ROUND YOU FOR 6S.','FOES INSIDE CANNOT WALK OUT. SHOTS FROM OUTSIDE STOP AT THE ROPE. YOU DEAL +40% INSIDE.','SHOVE, CHARGE OR THROW A FOE OUT OF THE RING: OSHIDASHI!']});
 for(const [slot] of SUMODEF){const sp=SPELLS[slot][SUMO_KIT[slot]],t=ABTXT[sp.n];if(t){sp.d0=sp.d;sp.d=t[0];sp.more=t[1];sp.tip=t[2];}}

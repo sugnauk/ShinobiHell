@@ -120,9 +120,11 @@ function updPlay(dt){
  if(grazeCd>0)grazeCd-=dt;
 }
 // freeze-frames: after one ends, small ones are skipped for 0.6s so a burst of hits or stuns (ults on a pack) can't stutter the game
+// Arrow Storm's slow motion: how long it lasts (game seconds) and how much it slows the world at its deepest
+const ULTSLOW=2.5,ULTSLOWK=.35;
 let hsCool=0,hsOn=false,ultSlow=0,slowT=0,hurtT=0,beatT=0,lowPulse=0,introT=0,introE=null,grazeCd=0;const INTRO=2.6;
 function update(dt){
  time+=dt;musicTick();if(meta.opt.dbg&&mode==='play'&&!paused)updDbg(dt);
- if(mode==='play'){if(P&&P.dying>0){updDeath(dt);return;}if(paused||invOpen)return;if(introT>0){introT-=dt;return;}if(hitstop>0){if(hsCool>0&&!hsOn&&hitstop<.1)hitstop=0;else{hsOn=true;hitstop-=dt;if(hitstop<=0){hsOn=false;hsCool=.6;}return;}}if(hsCool>0)hsCool-=dt;if(slowT>0){slowT-=dt;dt*=.35;}else if(ultSlow>0){const k=Math.min(1,(3.1-ultSlow)/.25,ultSlow/.5);dt*=1-.45*k;ultSlow-=dt;}updPlay(dt);}
+ if(mode==='play'){if(P&&P.dying>0){updDeath(dt);return;}if(paused||invOpen)return;if(introT>0){introT-=dt;return;}if(hitstop>0){if(hsCool>0&&!hsOn&&hitstop<.1)hitstop=0;else{hsOn=true;hitstop-=dt;if(hitstop<=0){hsOn=false;hsCool=.6;}return;}}if(hsCool>0)hsCool-=dt;if(slowT>0){slowT-=dt;dt*=.35;}else if(ultSlow>0){const k=Math.min(1,(ULTSLOW-ultSlow)/.25,ultSlow/.5);dt*=1-ULTSLOWK*k;ultSlow-=dt;}updPlay(dt);}
  else if(mode==='choose'){for(const t of texts){t.t-=dt;}}
 }

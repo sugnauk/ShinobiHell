@@ -1,5 +1,55 @@
 # Changelog
 
+## 0.8.2: Prologues II and III, mobile play, Sumo can heal, primary attacks never spin, line weapons fire projectiles
+
+- **Heroes are earned (new: `185-unlocks.js`):** the SAMURAI and the ARCHER are available from the start. Every other hero joins when you complete a challenge of their own, instead of one new hero per finished run in roster order. Character select shows a locked hero's challenge and your progress, and a banner announces a hero the moment they join.
+  - **Wizard:** finish the prologue (defeat Kageyama), or defeat Akagane in stage I.
+  - **Shinobi:** graze 60 enemy shots in one run.
+  - **Onmyoji:** make offerings at 4 shrines.
+  - **Gunner:** break 40 barrels, crates and powder kegs.
+  - **Lancer:** defeat 3 stage guardians in one run.
+  - **Sumo:** defeat a guardian without drinking a potion on that stage.
+  - **Marionettist:** free 3 prisoners from their cages.
+  - **Tengu:** reach Frostpeak Pass, stage V.
+  - **Kagura:** win 3 challenge rooms.
+  - **Chimiko:** take on 3 curses at curse altars.
+  - **Kanemori:** defeat a guardian without being hit.
+  - **Old saves:** they keep every hero already unlocked. The daily challenge picks its hero from the heroes you own.
+- **Arrow Storm's slow motion is quicker and shorter:**
+  - The world slows to 65% speed (was 55%) for 2.5s of game time (was 3.1s), about 3.6s real time (was 5s).
+  - The 30 arrows land a little faster, over 2.4s (was 2.7s).
+- **Prologues II and III (new: `184-prologues.js`):** the road from the burning village to the bamboo is now three short stages before stage I, each a little harder than the last, and each guardian teaches one thing.
+  - **I. The Burning Village:** Goro, the bandit captain. Big telegraphed swings and charges, and slow fans of shots.
+  - **II. The Flooded Fields:** Kurobe, the river pirate, ships the village's stolen rice downriver. He teaches bullet patterns: water rings off his oar, spray spirals, floating jars that burst. He also calls his river rats in to fight.
+    - A burly, bearded pirate in a sea-blue headscarf and an open indigo happi coat with a white wave hem, tattooed forearms, a rope and clay jars, and a long boat oar. In his second form his hair is wild and wet and he holds a lit fire-jar.
+  - **III. The Hill Watchtower:** Kageyama, the tower captain, a sharp-eyed archer. He teaches aimed shots: volleys straight at you, sniper arrows down a warning line, and an arrow rain. Dash through them.
+    - He wears archery dress, nothing like the red-armoured warlords of the stages: a white kimono with the drawing arm bare, a dark teal jacket, wide black hakama and a straw jingasa. A tall signal flag on his back bears the tower crest, and a conch horn hangs at his belt. His great bow is bound in rattan and gripped below its middle. In his second form his hat is gone, his hair hangs loose and his flag is torn.
+  - **Goro, refined:** a stitched leather vest with a fur collar, a muscled and scarred chest, wrapped forearms, a sake gourd on his rope belt, straw sandals, a cloth-wrapped machete hilt, and long headband tails.
+  - **Flow:** the campfire after each prologue leads on to the next, and after III to stage I. The master's words tie the story together: the village, then the rice on the pirate barge, then the watchtower that signals the warbands, then the bamboo.
+  - **Evolution:** only Kageyama makes you grow, so you still reach stage I one form up, as before.
+  - **Like Prologue I:** fewer and weaker foes, and a fall sends you back to the start of that prologue with everything you carry. A saved run continues in the right prologue.
+- **Play on a phone or tablet (new: `183-touch.js`):** touch controls switch on at your first touch on the screen.
+  - **No cost on PC:** nothing runs, draws or listens beyond a single check. On a touchscreen laptop, moving a real mouse hides the controls again.
+  - **Move:** a floating stick anywhere on the left half, with smooth, any-direction movement.
+  - **Aim and attack:** a floating stick on the right half aims and attacks while held. When you're not aiming, the aim rests on the nearest foe, so abilities fire at it.
+  - **Buttons:** an arc in the bottom-right, above the ability bar: DASH, HEAVY (hold to charge), Q, E, F, R, POTION and USE. Each button dims and counts down its cooldown, and HEAVY fills a ring as it charges.
+  - **Top-right:** PAUSE, BAG and SWAP. They also work while the bag or pause menu is open.
+  - **Menus, the bag, shops and reward cards:** a tap acts as a click. A tap also closes a tip card.
+  - **Phone setup:** the first tap asks for full screen and landscape where the browser allows it, and a notice asks you to turn the device if it's held upright. Phones start one zoom step closer, unless you've picked a zoom yourself. Page zoom and scrolling are blocked.
+- **Line weapons fire real projectiles (new: `182-weapon-shots.js`):** Yari Thrust, Kusarigama and Spirit Mirror used to hit everything on a line at once, drawn as a solid spear, chain or beam that shot out and snapped back. Each now fires a projectile that flies out to the same reach and pierces everything on its way, with the same damage and attack speed.
+  - **Yari Thrust:** a spirit spear-tip. Every third thrust still throws three.
+  - **Kusarigama:** a spinning sickle trailing chain links. It still tugs foes back toward you.
+  - **Spirit Mirror:** a fast shard of mirror light.
+- **The prologue is a little gentler:**
+  - Minions deal 60% damage (was 70%), and the boss deals 65% (was 75%).
+  - Rooms hold fewer minions: after the first two, each extra one has a 50% chance to be left out (was 35%). Ambush waves bring one foe fewer, never below two.
+  - A prologue now averages about 20 minions instead of 22.
+- **Primary attacks never spin:** Naginata Sweep, Dancing Cut and Bell Swing used a half-turn spin on every swing, so holding LMB kept the hero spinning. They now play a swing: a wind-up, a leaning slash toward your aim, and a recovery.
+- **A hard rule:** any spin on a primary (LMB) attack always plays as a swing.
+- **Heavies keep their spins:** a fully charged Iai Cleave still ends in its spin, and so do Spiral Lunge, Spirit Blade, Moonlit Crescent and Silk Veil.
+- **Salt Throw (E) heals Sumo:** 8% of max HP at once, plus 1% for every enemy shot the salt erases, up to 20% a throw. Throwing it into a volley heals the most.
+- **Text:** the ability description and tip on character select and in the tooltip say so.
+
 ## 0.8.1: new kits for Sumo and the five newer heroes, fewer bags, the old archer
 
 ### Five new hero kits (new: `179-hero-kits.js`)

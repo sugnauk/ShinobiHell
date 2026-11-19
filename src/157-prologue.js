@@ -17,7 +17,10 @@ const PRO={
   [{cnt:5,spread:.8,sp:50,col:'#e08040'},{pat:'gapring',cnt:12,gw:.9,sp:44,col:'#ffb060'}]]},
  modes:['chase','chase','dashes'],
  motif:[0,2,4,2,0,null,4,5,4,2,0,null,-1,0,2,null],
- master:'THE VILLAGE IS SAFE. GORO WORE THE EMPEROR\'S COLOURS - SO DO THE WARBANDS IN THE BAMBOO. IF WE WANT IT TO END, WE MARCH ON THE CASTLE.'};
+ master:'THE VILLAGE IS SAFE, BUT ITS RICE IS GONE - SHIPPED DOWNRIVER ON A PIRATE BARGE. GORO WORE THE EMPEROR\'S COLOURS; SO DO THE RIVER PIRATES WHO RUN THE FLOODED FIELDS.'};
+PRO.n=1;PRO.dress=3;PRO.col='#e08040';
+// the prologues, played in order before stage I (II and III are added by 184-prologues.js)
+const PROS=[PRO];let PROCUR=PRO;const PROROMAN=['I','II','III'];
 PRO.boss.pal=basePal('#6a4a2a','#3a3028','#c02020','#18120e');
 PRO.boss.k1=[SL({hits:1,w:1,dmg:10,wt:3,range:30}),CH({wt:2,dmg:12})];
 PRO.boss.k2=[SL({hits:2,w:.85,w2:.4,dmg:11,wt:3,range:30}),CH({wt:2,dmg:13}),TH({dist:50,dmg:12,wt:1})];
@@ -29,32 +32,35 @@ const PROSLOTS=()=>[['DUN',DUN],['ENV',ENV],['BOSS',BOSS],['BLOOK',BLOOK],['BSTY
 const PRODRESS=()=>[['STAGEDECO',typeof STAGEDECO!=='undefined'?STAGEDECO:null],['DECO_GROUPS',typeof DECO_GROUPS!=='undefined'?DECO_GROUPS:null],
  ['FLOORART',typeof FLOORART!=='undefined'?FLOORART:null],['MOOD',typeof MOOD!=='undefined'?MOOD:null],['STAGE_SCATTER',typeof STAGE_SCATTER!=='undefined'?STAGE_SCATTER:null]];
 const proMood=()=>{if(typeof MOODC!=='undefined')for(const k in MOODC)if(k.startsWith('0:'))delete MOODC[k];};
-function proOn(){if(PRO_ON)return;for(const [k,a] of PROSLOTS())if(a)PROSAVE[k]=a[0];
- const env=Object.assign({},PROSAVE.ENV,ENV[3]||{});
- DUN[0]=Object.assign({},PROSAVE.DUN,DUN[3]?{scn:Object.assign({},DUN[3].scn||{},{short:PRO.dun.story,tale:PRO.dun.tale,seal:(PROSAVE.DUN.scn||{}).seal||'ox'})}:{},PRO.dun);
- ENV[0]=env;BOSS[0]=PRO.boss;BLOOK[0]=PROSAVE.BLOOK;BSTYLE[0]=PRO.style;BMODES[0]=PRO.modes;if(typeof BMOTIF!=='undefined')BMOTIF[0]=PRO.motif;ROMAN[0]='PROLOGUE';BOSSSPR[0]=PROSAVE.PROSPR||null;
- for(const [k,a] of PRODRESS())if(a){PROSAVE['d_'+k]=a[0];a[0]=a[3];}proMood();PRO_ON=true;}
-function proOff(){if(!PRO_ON)return;if(BOSSSPR[0])PROSAVE.PROSPR=BOSSSPR[0];for(const [k,a] of PROSLOTS())if(a&&k in PROSAVE)a[0]=PROSAVE[k];for(const [k,a] of PRODRESS())if(a&&('d_'+k) in PROSAVE)a[0]=PROSAVE['d_'+k];proMood();PRO_ON=false;}
+function proOn(n){if(PRO_ON)return;const D=PROS[(n||1)-1]||PRO,X=D.dress;PROCUR=D;for(const [k,a] of PROSLOTS())if(a)PROSAVE[k]=a[0];
+ const env=Object.assign({},PROSAVE.ENV,ENV[X]||{});
+ DUN[0]=Object.assign({},PROSAVE.DUN,DUN[X]?{scn:Object.assign({},DUN[X].scn||{},{short:D.dun.story,tale:D.dun.tale,seal:(PROSAVE.DUN.scn||{}).seal||'ox'})}:{},D.dun);
+ ENV[0]=env;BOSS[0]=D.boss;BLOOK[0]=PROSAVE.BLOOK;BSTYLE[0]=D.style;BMODES[0]=D.modes;if(typeof BMOTIF!=='undefined')BMOTIF[0]=D.motif;ROMAN[0]='PROLOGUE '+PROROMAN[D.n-1];BOSSSPR[0]=PROSAVE['PROSPR'+D.n]||null;
+ for(const [k,a] of PRODRESS())if(a){PROSAVE['d_'+k]=a[0];a[0]=a[X];}proMood();PRO_ON=true;}
+function proOff(){if(!PRO_ON)return;if(BOSSSPR[0])PROSAVE['PROSPR'+PROCUR.n]=BOSSSPR[0];for(const [k,a] of PROSLOTS())if(a&&k in PROSAVE)a[0]=PROSAVE[k];for(const [k,a] of PRODRESS())if(a&&('d_'+k) in PROSAVE)a[0]=PROSAVE['d_'+k];proMood();PRO_ON=false;}
 const proOpt=()=>meta.opt.prologue!==false;
 // a new run from character select starts at the prologue (training, the daily and boss rush don't)
 {const _sc=selConfirm;selConfirm=function(){const lk=selLock;_sc.apply(this,arguments);if(!lk&&selLock&&proOpt())PROQ=true;};}
-{const _sr=startRun;startRun=function(di){const go=PROQ&&!di&&!trainNext;PROQ=false;proOff();if(go)proOn();const r=_sr.apply(this,arguments);if(go&&R){R.pro=1;setToast('PROLOGUE - THE BURNING VILLAGE','#e08040',4);}return r;};}
-{const _cr=continueRun;continueRun=function(){const s=savedRun();if(s&&s.R&&s.R.pro)PROQ=true;const r=_cr.apply(this,arguments);PROQ=false;return r;};}
-// the campfire after Goro leads on to stage I
-{const _om=openMaster;openMaster=function(){if(!(R&&R.pro))return _om.apply(this,arguments);proOff();const r=_om.apply(this,arguments);if(CS){CS.next=0;CS.line=PRO.master;CS.pro=1;}return r;};}
-{const _ld=loadDungeon;loadDungeon=function(di){if(R&&R.pro&&!PRO_ON){R.pro=0;R.proDone=1;}return _ld.apply(this,arguments);};}
-{const _rm=renderMaster;renderMaster=function(){_rm.apply(this,arguments);if(!CS||!CS.pro)return;ctx.fillStyle='#100d18';ctx.fillRect(0,4,W*.6,10);txt('PROLOGUE. '+PRO.dun.name,11,6,'#d5b48f');};}
+const proToast=()=>setToast('PROLOGUE '+PROROMAN[PROCUR.n-1]+' - '+PROCUR.dun.name,PROCUR.col,4);
+{const _sr=startRun;startRun=function(di){const go=PROQ&&!di&&!trainNext,n=typeof PROQ==='number'?PROQ:1;PROQ=false;proOff();if(go)proOn(n);const r=_sr.apply(this,arguments);if(go&&R){R.pro=n;proToast();}return r;};}
+{const _cr=continueRun;continueRun=function(){const s=savedRun();if(s&&s.R&&s.R.pro)PROQ=s.R.pro|0||1;const r=_cr.apply(this,arguments);PROQ=false;return r;};}
+// the campfire after each prologue's boss leads on to the next prologue, and after the last one to stage I
+{const _om=openMaster;openMaster=function(){if(!(R&&R.pro))return _om.apply(this,arguments);proOff();const r=_om.apply(this,arguments);if(CS){CS.next=0;CS.line=PROCUR.master;CS.pro=R.pro;}if(R.pro<PROS.length)R.proNext=R.pro+1;return r;};}
+{const _ld=loadDungeon;loadDungeon=function(di){if(R&&R.pro&&!PRO_ON){if(R.proNext&&!di){const n=R.proNext;R.proNext=0;proOn(n);R.pro=n;const r=_ld.apply(this,arguments);proToast();return r;}R.pro=0;R.proNext=0;R.proDone=1;}return _ld.apply(this,arguments);};}
+// only the last prologue's guardian makes you grow, so you still reach stage I one form up
+{const _ob=onBossDead;onBossDead=function(e){const r=_ob.apply(this,arguments);if(R&&R.pro&&R.pro<PROS.length)R.evoPending=false;return r;};}
+{const _rm=renderMaster;renderMaster=function(){_rm.apply(this,arguments);if(!CS||!CS.pro)return;ctx.fillStyle='#100d18';ctx.fillRect(0,4,W*.6,10);txt('PROLOGUE '+PROROMAN[(CS.pro||1)-1]+'. '+PROS[(CS.pro||1)-1].dun.name,11,6,'#d5b48f');};}
 // winning or leaving puts the tables back (a death in the prologue keeps them until you leave the death screen, so it
 // says where you fell)
 {const _fr=finishRun;finishRun=function(win){const pro=R&&R.pro;const r=_fr.apply(this,arguments);if(pro&&deadInfo)deadInfo.pro=1;if(!pro||win)proOff();return r;};}
 {const _rmn=renderMenu;renderMenu=function(){if(PRO_ON)proOff();return _rmn.apply(this,arguments);};}
 {const _rsl=renderSelect;renderSelect=function(){if(PRO_ON)proOff();return _rsl.apply(this,arguments);};}
 // ---------- a gentler stage: fewer, weaker foes; no extra elites ----------
-{const _mk=mkEnemy;mkEnemy=function(){const e=_mk.apply(this,arguments);if(e&&PRO_ON&&!e.boss){e.hp*=.55;e.maxhp*=.55;e.dm*=.7;e.maxPosture*=.7;}return e;};}
+{const _mk=mkEnemy;mkEnemy=function(){const e=_mk.apply(this,arguments);if(e&&PRO_ON&&!e.boss){e.hp*=.55;e.maxhp*=.55;e.dm*=.6;e.maxPosture*=.7;}return e;};}
 {const _pr=populateRoom;populateRoom=function(r){const n0=enemies.length;const o=_pr.apply(this,arguments);if(PRO_ON){const mine=enemies.slice(n0);let keep=0;
-  enemies.length=n0;for(const e of mine){if(e.elite&&r.type!=='elite')continue;if(keep>=2&&Math.random()<.35)continue;keep++;enemies.push(e);}}return o;};}
+  enemies.length=n0;for(const e of mine){if(e.elite&&r.type!=='elite')continue;if(keep>=2&&Math.random()<.5)continue;keep++;enemies.push(e);}}return o;};}
 {const _bb=bossBarrage;bossBarrage=function(e){if(e&&e.boss&&PRO_ON&&Math.random()<.5)return;return _bb.apply(this,arguments);};}
-{const _mb=mkBoss;mkBoss=function(di){const b=_mb.apply(this,arguments);if(b&&PRO_ON){b.dm*=.75;b.dm0*=.75;b.maxPosture*=.7;b.pro=1;}return b;};}
+{const _mb=mkBoss;mkBoss=function(di){const b=_mb.apply(this,arguments);if(b&&PRO_ON){b.dm*=.65;b.dm0*=.65;b.maxPosture*=.7;b.pro=1;}return b;};}
 // ---------- character select: P switches the prologue on or off ----------
 {const _sk=selectKey;selectKey=function(c){if(c==='KeyP'&&!selLock){meta.opt.prologue=!proOpt();saveMeta();sfx('coin');return;}return _sk.apply(this,arguments);};}
 {const _rs=renderSelect;renderSelect=function(){_rs.apply(this,arguments);const s='P: PROLOGUE '+(proOpt()?'ON':'OFF');txt(s,SR.X+2,srY(CLASSES.length)+26,proOpt()?'#e08040':'#777');};}
@@ -104,3 +110,5 @@ function proRespawn(){R.proDeaths=(R.proDeaths||0)+1;
  R.pots=Math.max(R.pots||0,1);mode='play';flashT=0;
  fxRing(P.x,P.y,40,'#ffd070',.6);spark(P.x,P.y,'#ffd070',24,90);sfx('heal');
  setToast('MASTER KAITO PULLS YOU FROM THE FIRE - TRY AGAIN','#ffd070',4);}
+// ambush waves in the prologue bring one foe fewer (never below two)
+{const _rs=roomSpawn;roomSpawn=function(r,n){if(PRO_ON)n=Math.max(2,n-1);return _rs.call(this,r,n);};}

@@ -19,15 +19,15 @@
 const AB_ANIM={
  'PUPPET LASH':['throw',.28],'CURSED THREAD':['cast',.3],'THREAD STEP':['blink',.26],'COCOON':['guard',.4],'PUPPET MASTER':['bigcast',.56],
  'GALE WING':['throw',.28],'WIND CUTTER':['throw',.24],'TAILWIND':['lunge',.24],'CYCLONE':['cast',.28],'DIVINE TEMPEST':['bigcast',.62],
- 'DANCING CUT':['spin',.16,.4],'CRIMSON SWEEP':['spin',.28,.75],'CRESCENT FAN':['throw',.34],
+ 'DANCING CUT':['swing',.16],'CRIMSON SWEEP':['spin',.28,.75],'CRESCENT FAN':['throw',.34],
  'PIROUETTE':['spin',.3,1],'PERFECT RHYTHM':['cast',.32],'THOUSAND PETALS':['spin',1.12,3],
  'RED SCRIBE':['cast',.3],'BLOOD SEAL':['cast',.38],'CRIMSON PASSAGE':['blink',.3],'HARVEST':['cast',.45],'FORBIDDEN PROPHECY':['bigcast',.68],
- 'BELL SWING':['spin',.2,.4],'TEMPLE TOLL':['slam',.32],'RESONANT STRIKE':['slam',.32],'SACRED CHIME':['guard',.42],
+ 'BELL SWING':['swing',.2],'TEMPLE TOLL':['slam',.32],'RESONANT STRIKE':['slam',.32],'SACRED CHIME':['guard',.42],
  'ECHO RELEASE':['thrust',.24,.5],'THOUSAND BELLS':['bigcast',.76],
  'PALM STRIKES':['thrust',.18,.65],'DRIVING SHOVE':['thrust',.3,1],
  'SUMO TOSS':['throw',.32],'IRON BELLY':['roar',.42],'STOMP':['slam',.38],'GRAND SLAM':['slam',.5],
  // LMB (only the melee and special ones get a pose; ranged basics keep the quick shot)
- 'ODACHI CLEAVE':['slam',.42],'YARI THRUST':['thrust',.22],'NAGINATA SWEEP':['spin',.3,.5],'KUSARIGAMA':['throw',.25],'SUZU PULSE':['cast',.3],
+ 'ODACHI CLEAVE':['slam',.42],'YARI THRUST':['thrust',.22],'NAGINATA SWEEP':['swing',.3],'KUSARIGAMA':['throw',.25],'SUZU PULSE':['cast',.3],
  // RMB heavies
  'SPIRIT BLADE':['spin',.3,.5],'VOID ORB':['cast',.3],'FROST LANCE':['throw',.24],'MOONLIT CRESCENT':['spin',.34,.6],'IAI CLEAVE':['lunge',.24],
  'CHARGED SHOT':['recoil',.22,.6],'SHURIKEN FAN':['throw',.24],'SPIRIT FOX':['cast',.3],'HEAVY SLUG':['recoil',.34,1.2],'SPIRAL LUNGE':['lunge',.5],
@@ -47,7 +47,8 @@ let ABPOSE=null;
 function abStartPose(k){if(!P)return;const sp=SPELLS[k]&&SPELLS[k][P.lo[k]];const A=sp&&AB_ANIM[sp.n];if(!A)return;
  // a lunge or spin uses the direction you are aiming (screen left or right)
  const ax=scrVec(Math.cos(P.aim||0),Math.sin(P.aim||0))[0];
- ABPOSE={k:A[0],dur:A[1],p:A[2]!=null?A[2]:1,t0:time,dir:ax<0?-1:1,full:k==='h'&&!!P.hFull};}
+ ABPOSE={k:k==='m'&&A[0]==='spin'?'swing':A[0],dur:A[1], // a basic attack never spins: it swings
+ p:A[2]!=null?A[2]:1,t0:time,dir:ax<0?-1:1,full:k==='h'&&!!P.hFull};} // a full-charge heavy (Iai Cleave, Spiral Lunge) ends in a spin
 {const _cs=castShow;castShow=function(k){const r=_cs.apply(this,arguments);try{abStartPose(k);}catch(_){}return r;};}
 {const _cb=castBolt;castBolt=function(){const b=P&&P.atkCd;const r=_cb.apply(this,arguments);try{if(P&&P.atkCd!==b)abStartPose('m');}catch(_){}return r;};}
 // ---- the pose at a moment: which sheet view, frame and flip, and how the body is moved, leaned, squashed or turned
@@ -56,6 +57,8 @@ function abPoseAt(H,dirFlip){const u=clamp((time-H.t0)/H.dur,0,1),d=H.dir,o={u,b
  switch(H.k){
   case 'spin':{const th=u*H.p*TAU,c=Math.cos(th),s=Math.sin(th);o.sx=Math.max(.28,Math.abs(c));o.back=c<0;o.flip=(s*d<0)?!(d<0):(d<0); // the turn: front, side, back, side, front
    o.frame=13;o.dy=-Math.round(Math.sin(u*Math.PI)*2);o.ghost={th:th-.7};break;}
+  // a weapon swing: wind up, a leaning slash in the aim direction, recover. Repeated attacks use it, so they never spin
+  case 'swing':{const k2=u<.25?abEase(u/.25):1-abEase((u-.45)/.55);o.frame=u<.25?12:u<.6?13:14;o.skew=(u<.25?-.14*k2:.24*Math.max(0,k2))*d;o.dx=Math.round((u<.25?-1.5*k2:2*Math.max(0,k2))*d);o.trail=u>.25&&u<.6;break;}
   case 'thrust':{if(u<.3){o.frame=12;o.skew=-.18*d;o.dx=-2*d*abEase(u/.3);}else{const k2=abEase((u-.3)/.25);o.frame=u<.7?13:14;o.skew=.28*d*(1-abEase((u-.55)/.45));o.dx=(-2+(6*H.p)*k2)*d*(1-abEase((u-.7)/.3));o.trail=u<.75;}break;}
   case 'lunge':{o.frame=u<.2?12:u<.75?13:14;o.skew=(u<.2?-.15:.3)*d;o.dx=(u<.2?-2:4)*d;o.trail=u>.2&&u<.8;if(H.full&&u>.7){const th=(u-.7)/.3*TAU;o.sx=Math.max(.28,Math.abs(Math.cos(th)));o.back=Math.cos(th)<0;}break;}
   case 'flurry':{const n=Math.floor(u*H.dur/.07);o.frame=n%2?13:14;o.skew=.22*d;o.dx=(n%2?3:1)*d;o.dy=n%3===0?-1:0;o.trail=true;break;}
