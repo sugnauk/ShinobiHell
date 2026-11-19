@@ -23,6 +23,17 @@
   - **Shikigami:** no backdrop behind the paper spirits.
   - **Barrier:** no star under it, just a plain ring.
   - **Healing Circle:** a soft green circle with motes rising inside it.
+- **Lancer:**
+  - **RMB SKY PIERCER** (was Spiral Lunge, a dash like the samurai's): he steps in and drives one very long thrust. Everything on the line is hit and shoved back down it. A full charge reaches a third further, pins foes for a moment and breaks shots along the line.
+  - **Q POLE VAULT** (was Wheel Sweep, a spin like the samurai's): he plants the spear and vaults to the cursor, untouchable in the air. He comes down spear-first, throwing nearby foes out and breaking shots near the landing.
+  - **Deflect:** the spin is much clearer: a longer spear spun faster, with a blur disc, trailing ghosts and speed lines.
+  - **War Banner:** shows the area it covers.
+  - **Thousand Thrusts:** the waiting phantom spears stand in two stacks either side of him instead of on top of him.
+- **Gunner:**
+  - **Tripod Gun:** shows its firing range.
+  - **Powder Roll:** the keg shows its blast area.
+  - **Siegebreaker:** the gun is now a bronze o-zutsu with a dragon-head muzzle on a red lacquered stock. Its jaws glow as it charges and breathe fire when it fires.
+  - **Thunder Totem** (Wizard): shows its reach as well.
 
 ## 0.8.5: Every ability performed by the body or a summoned thing; the star sigil is gone; ability fixes
 
