@@ -243,8 +243,8 @@ function kagLotus(p,dmg,bloomDm){const cap=kitFinal()?10:8;let tg=[];let from=p;
  while(tg.length<cap&&pool.length){pool.sort((a,b)=>dist(a,from)-dist(b,from));from=pool.shift();tg.push(from);}
  const boss=tg.find(e=>e.boss);while(tg.length&&tg.length<5){tg.push(boss||tg[tg.length%Math.max(1,tg.length)]);}
  if(!tg.length)return false;HK.lotus=[];
- kitZone({src:'e',t:tg.length*.12+.55,tg,i:0,nx:0,lx:p.x,ly:p.y,step(z,dt){P.iv=Math.max(P.iv,.15);z.nx-=dt;
-   if(z.i<z.tg.length&&z.nx<=0){z.nx=.12;const e=z.tg[z.i++];if(e.dead)return;const an=angTo(P,e),tx=e.x+Math.cos(an)*(e.r+8),ty=e.y+Math.sin(an)*(e.r+8);
+ kitZone({src:'e',t:tg.length*.18+.55,tg,i:0,nx:0,lx:p.x,ly:p.y,step(z,dt){P.iv=Math.max(P.iv,.15);z.nx-=dt;
+   if(z.i<z.tg.length&&z.nx<=0){z.nx=.18;const e=z.tg[z.i++];if(e.dead)return;const an=angTo(P,e),tx=e.x+Math.cos(an)*(e.r+8),ty=e.y+Math.sin(an)*(e.r+8);
     const lx=P.x,ly=P.y;if(!blocked(tx,ty,4)){P.x=tx;P.y=ty;}P.face=Math.cos(an+Math.PI)>=0?1:-1;P.aim=an+Math.PI;
     hurtE(e,dmg,26,{slash:true,src:'e'});sfx('slash');topFx({dur:.25,x0:lx,y0:ly,x1:P.x,y1:P.y,draw(o,k){ctx.globalAlpha=(1-k)*.8;kLine(HSX(o.x0,o.y0),HSY(o.x0,o.y0)-10,HSX(o.x1,o.y1),HSY(o.x1,o.y1)-10,2,PET2);ctx.globalAlpha=(1-k)*.5;kLine(HSX(o.x0,o.y0),HSY(o.x0,o.y0)-9,HSX(o.x1,o.y1),HSY(o.x1,o.y1)-9,4,PET);}});
     if(!HK.lotus.find(l=>l.e===e))HK.lotus.push(topFx({dur:9,e,draw:kagLotusDraw,open:0}));}
