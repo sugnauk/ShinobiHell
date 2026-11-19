@@ -1,5 +1,29 @@
 # Changelog
 
+## 0.8.6: Feedback pass on the Wizard, Archer, Samurai, Shinobi and Onmyoji kits
+
+- **Wizard:**
+  - **Spirit Ward:** a gyroscope of three tilted rune rings turning round him. They flash, and a ripple spreads, when a shot is thrown back.
+  - **Frost Nova:** the staff stabs the floor and frost crawls out in branching lines to the blast's edge, then shatters into shards. Every foe it caught is crusted in ice while the chill lasts.
+  - **Dragon Descent:** a sigil of turning rings opens in the sky over the target, a thread of light drops from it, and a pillar of golden fire slams down the full width of the blast, leaving a scorched ring.
+- **Archer:**
+  - **Arrow Rain:** its coloured area is back, with dust and splinters where the arrows land.
+  - **Evade Roll:** a low skid backwards instead of a somersault.
+  - **Hawk:** seen from above and always facing where it flies, so it no longer flips (it looked two-headed).
+  - **Arrow Storm:** matches Arrow Rain: tinted patches, dust and standing arrows, with no white pillars or generic bursts.
+  - **Slow motion:** shorter (1.8s, was 2.5s) and lighter.
+- **Samurai:**
+  - **Guard Stance:** chudan no kamae, crouched with the full blade held out at the foe and a gleam running along it.
+  - **War Cry:** the original roar and rings are back, together with the dust rings and a smaller 喝 in samurai red.
+  - **Dragon Cleave:** he rises coiled like a charged heavy (crouched, trembling, flashing when ready) before the dash.
+- **Shinobi:**
+  - **Smoke Bomb:** the original smoke is back.
+  - **Blinks:** every blink takes a breath: Shadow Step, Kitsune Step and Blood Mirror pinch into shadow for 0.14s before they land, and Lotus Dance pauses 0.18s between blinks (was 0.12s).
+- **Onmyoji:**
+  - **Shikigami:** no backdrop behind the paper spirits.
+  - **Barrier:** no star under it, just a plain ring.
+  - **Healing Circle:** a soft green circle with motes rising inside it.
+
 ## 0.8.5: Every ability performed by the body or a summoned thing; the star sigil is gone; ability fixes
 
 The full plan and audit are in `ANIMATION_AUDIT.md`.
