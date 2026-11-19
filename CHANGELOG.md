@@ -1,5 +1,56 @@
 # Changelog
 
+## 0.8.3: Beyond the throne: stages XIII and XIV, the endless Abyss, a bullet-pattern library and a fair attack director
+
+- **The campaign goes on (new: `188-lategame.js`):** beating the Emperor still wins the run, and a run that has beaten him always ends as a victory. At his portal, and at every portal after it, **G** goes deeper and **L** leaves in triumph. The victory screen shows how far beyond the throne you got.
+- **Tiers:** stages I–XII are unchanged. **XIII** is Tier 3 (advanced), **XIV** is Tier 4 (the endgame), and **the Abyss** beyond is Tier 5 and up, endless. Each Abyss depth remixes a late stage with a deeper director tier and one to three guardian modifiers, announced when the guardian wakes:
+  - **SWIFT:** its patterns come faster.
+  - **ECHOING:** every pattern repeats, mirrored, a moment later.
+  - **SHROUDED:** the arena closes in from time to time.
+  - **TWINNED:** a shade on the far side of the arena casts a second layer.
+  - **RELENTLESS:** shorter pauses between attacks.
+  - **STAR-WARDED:** three orbiting wards absorb hits until each is struck down.
+
+  Depth adds a little health and damage. The patterns provide the difficulty.
+- **Bullet-pattern library (new: `186-danmaku2.js`):** reusable generators with adjustable parameters:
+  - Spirals: multi-arm, interlocking, reversing, swaying, breathing.
+  - Rings and aimed rings with rotating gaps.
+  - Aimed fire: direct, predictive, successive and fan volleys, and snares.
+  - Crossing fire: diagonal, walls with gaps, and the four directions.
+  - Moving bullets: curving, accelerating, turning, splitting, shedding, orbiting.
+  - Arena control: lasers, rotating lasers, walls, corridors, a closing boundary and sequences.
+
+  Lasers flash a warning that widens to the beam's width before they fire. Turning, bursting and released bullets flash just before they change. Bullets are pooled, and player shots only check foes in nearby grid cells.
+- **Layered attack director and fairness check (new: `187-director.js`):**
+  - **Layering:** the director stacks compatible patterns. Every pattern has tags and a complexity cost; a layer joins only if its tags fit with what is already running and the total stays within the tier's budget. It never repeats a pattern family twice running.
+  - **Tier scaling:** higher tiers get narrower gaps, faster rotation, interlocking and reversing spirals, predictive aim and more layers, rather than simply more bullets.
+  - **Fairness:** before any new bullets appear, the next 1.6 seconds are simulated around you, including bullets, lasers and hazard circles. A flood fill checks that you can still walk, without dashing, to safety at every step and can't slip through a line of bullets. If not, one opening is cut into the new batch; if that fails, or you are already boxed in, the batch is dropped.
+- **Stage XIII: THE STARFALL OBSERVATORY (new: `189-observatory.js`):**
+  - **The stage:** an astrologers' tower above the clouds. Indigo walls with gold bands and inlaid stars, a gold star-map floor with a zodiac ring, and new armillary spheres, telescopes, star charts, candelabra, celestial globes and star desks.
+  - **Six new foes, each with its own sprite and a warning before it attacks:**
+    - WEAVER: slow star spirals.
+    - SEER: a sniper whose red sight-line aims where you are going.
+    - ORBITER: circles you and fires from the side.
+    - SPLITTER: orbs that burst into rings.
+    - WARDEN: marching curtains of shards with one gap.
+    - HERALD: links nearby allies and fires them all on one beat.
+  - **Guardian: HOSHIYOMI, THE STAR READER.** His signatures are CONSTELLATIONS (star nodes joined by lines of light, which then burst) and THE ORRERY (orbiting shells of stars released one at a time).
+  - **His four phases:** establishment, escalation, advanced (he blinks between stars) and the climax. Survival phases: THE TURNING HEAVENS, then THE FALLING HEAVENS (falling meteors, a rotating pentagram of light, a galaxy spiral and a last orrery).
+  - **Second form:** the hood falls and the stars turn red.
+  - **Relic:** ORRERY CHARM, three wards that each block one shot and re-form after 8s.
+  - **Cosmetic:** the STARFALL trail.
+- **Stage XIV: THE ECLIPSE SHRINE (new: `190-eclipse.js`):**
+  - **The stage:** a black-lake shrine. Black lacquered walls with silver bands and vermilion posts, a slate floor inlaid with moon phases, and new mirror stands, moon lanterns, sacred rocks, pampas grass, offering tables and black torii. The six late foes return in their Tier 4 forms.
+  - **Guardian: GETSUREI, THE ECLIPSE PRIESTESS.** Her signatures are THE TIDE (crescents that wash in, stop and pull back out with a moved gap) and ECLIPSE (a black moon that drifts after you with a corona of rotating beams).
+  - **Her four phases** end in TOTAL ECLIPSE (a long rotating corona round the arena's heart, tides from every side and a final shattering burst). Survival phase: THE TIDE OF NIGHT.
+  - **Second form:** the mirror cracks and the corona turns red.
+  - **Relic:** ECLIPSE MIRROR, where a perfect dodge returns the nearest shot as a moon-bolt, at most once per second.
+  - **Cosmetic:** the ECLIPSE trail.
+- **Late trials:** ABOVE THE THRONE, THE MIRROR BROKEN, THE ABYSS GAZES BACK (depth V), BOTTOMLESS (depth X) and DANCER IN THE DARK (no-hit a late guardian).
+- **Fixes:**
+  - The relic draft skips stages that have no guardian relic.
+  - A late stage's scenery is now based on its base stage's.
+
 ## 0.8.2: Prologues II and III, mobile play, Sumo can heal, primary attacks never spin, line weapons fire projectiles
 
 - **Heroes are earned (new: `185-unlocks.js`):** the SAMURAI and the ARCHER are available from the start. Every other hero joins when you complete a challenge of their own, instead of one new hero per finished run in roster order. Character select shows a locked hero's challenge and your progress, and a banner announces a hero the moment they join.

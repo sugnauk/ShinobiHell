@@ -96,11 +96,15 @@ function updProjs(dt){
     if(res==='perfect'&&(P.wardRef=(P.wardRef||0)+1)>6){q.dead=true;}else if(res==='perfect'){q.from='p';const o=q.own;const a=o&&!o.dead?angTo(q,o):Math.atan2(-q.vy,-q.vx);const sp=Math.hypot(q.vx,q.vy)*1.5;q.vx=Math.cos(a)*sp;q.vy=Math.sin(a)*sp;q.dmg=q.dmg*.6+S.atk*.8;q.pd=30;q.pierce=0;q.hit=new Set();q.life=2;q.col='#fff';}
     else if(res!=='dodge')q.dead=true;}
   }else{
-   for(const e of enemies){if(e.dead||e.air||q.hit.has(e))continue;if(dist(q,e)<q.r+e.r||(e.boss&&typeof bossBodyHit==='function'&&bossBodyHit(q,e))){q.hit.add(e);let dm=q.dmg,pd=q.pd;if(e.shield&&e.stag<=0&&Math.abs(angDiff(angTo(e,q),e.fa||0))<1.1){dm*=.15;pd*=1.5;spark(q.x,q.y,'#aaf',4,50);}hurtE(e,dm,pd,{slash:!!q.main,kb:Math.atan2(q.vy,q.vx),el:q.el,src:q.src||null});if(--q.pierce<0){q.dead=true;break;}}}
+   for(const e of projFoes(q)){if(e.dead||e.air||q.hit.has(e))continue;if(dist(q,e)<q.r+e.r||(e.boss&&typeof bossBodyHit==='function'&&bossBodyHit(q,e))){q.hit.add(e);let dm=q.dmg,pd=q.pd;if(e.shield&&e.stag<=0&&Math.abs(angDiff(angTo(e,q),e.fa||0))<1.1){dm*=.15;pd*=1.5;spark(q.x,q.y,'#aaf',4,50);}hurtE(e,dm,pd,{slash:!!q.main,kb:Math.atan2(q.vy,q.vx),el:q.el,src:q.src||null});if(--q.pierce<0){q.dead=true;break;}}}
   }
  }
- projs=projs.filter(q=>!q.dead);
+ // compact in place (no new array every frame); pooled bullets go back to the pool for reuse
+ {let j=0;for(let i=0;i<projs.length;i++){const q=projs[i];if(!q.dead)projs[j++]=q;else if(q.bhp&&BHPOOL.length<4000)BHPOOL.push(q);}projs.length=j;}
 }
+// the foes a player shot can reach (186-danmaku2.js answers from a spatial grid); the bullet pool
+function projFoes(q){return enemies;}
+const BHPOOL=[];
 function updPlay(dt){
  R.time+=dt;if(R.training)updTraining(dt);if(P.evoT>0)P.evoT-=dt;updPlayer(dt);updWorld(dt);updRoomEvents(dt);updAmbient(dt);
  if(freezeT<=0)for(const e of enemies){if(e.dead)continue;if(!e.boss&&!(R&&R.training)&&dist(e,P)>300)continue;updEnemy(e,dt);}
