@@ -1,7 +1,15 @@
 # Changelog
 
-## 0.8.2: Sumo can heal, primary attacks never spin, a gentler prologue, line weapons fire projectiles
+## 0.8.2: mobile play, Sumo can heal, primary attacks never spin, a gentler prologue, line weapons fire projectiles
 
+- **Play on a phone or tablet (new: `183-touch.js`):** touch controls switch on at your first touch on the screen.
+  - **No cost on PC:** nothing runs, draws or listens beyond a single check. On a touchscreen laptop, moving a real mouse hides the controls again.
+  - **Move:** a floating stick anywhere on the left half, with smooth, any-direction movement.
+  - **Aim and attack:** a floating stick on the right half aims and attacks while held. When you're not aiming, the aim rests on the nearest foe, so abilities fire at it.
+  - **Buttons:** an arc in the bottom-right, above the ability bar: DASH, HEAVY (hold to charge), Q, E, F, R, POTION and USE. Each button dims and counts down its cooldown, and HEAVY fills a ring as it charges.
+  - **Top-right:** PAUSE, BAG and SWAP. They also work while the bag or pause menu is open.
+  - **Menus, the bag, shops and reward cards:** a tap acts as a click. A tap also closes a tip card.
+  - **Phone setup:** the first tap asks for full screen and landscape where the browser allows it, and a notice asks you to turn the device if it's held upright. Phones start one zoom step closer, unless you've picked a zoom yourself. Page zoom and scrolling are blocked.
 - **Line weapons fire real projectiles (new: `182-weapon-shots.js`):** Yari Thrust, Kusarigama and Spirit Mirror used to hit everything on a line at once, drawn as a solid spear, chain or beam that shot out and snapped back. Each now fires a projectile that flies out to the same reach and pierces everything on its way, with the same damage and attack speed.
   - **Yari Thrust:** a spirit spear-tip. Every third thrust still throws three.
   - **Kusarigama:** a spinning sickle trailing chain links. It still tugs foes back toward you.
