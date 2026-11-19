@@ -1,5 +1,135 @@
 # Changelog
 
+## 0.8.5: Every ability performed by the body or a summoned thing; the star sigil is gone; ability fixes
+
+The full plan and audit are in `ANIMATION_AUDIT.md`.
+
+- **The white star sigil is gone:** the spinning star that appeared under every hero on E and R has been removed. Only ultimates flash the screen now.
+- **Samurai:**
+  - **Iai Cleave:** he resheathes, and everything he cut flashes at once.
+  - **Guard Stance:** a high guard; a hit sets off a full-circle counter cut drawn at its real reach.
+  - **War Cry:** a kiai with a big 喝 (KATSU) glyph and dust rings that run out to the stun's edge.
+- **Onmyoji:**
+  - **Spirit Fox:** a running fox spirit.
+  - **Shikigami:** paper servants that unfold and throw origami cranes.
+  - **Barrier:** five talismans pin a star and a dome rises; it cracks as the shield is spent.
+  - **Healing Circle:** a gohei wand planted at the centre, with paper wards standing on the heal radius.
+- **Wizard:**
+  - **Void Orb:** a black hole.
+  - **Chain Lightning:** a forked, flickering bolt.
+  - **Spirit Ward:** orbiting rune tablets.
+  - **Frost Nova:** a ring of ice spikes.
+  - **Dragon Descent:** a golden dragon's claw falling from the sky.
+- **Archer:**
+  - **Charged Shot:** a long arrow with a wind wake.
+  - **Arrow Rain:** one arrow shot up, then arrows falling and staying stuck in the ground.
+  - **Evade Roll:** the snare is a rope noose.
+  - **Hawk:** a real hawk that swoops, circles and screeches.
+  - **Arrow Storm:** you see the arrows falling.
+- **Shinobi:**
+  - **Shuriken Fan:** spinning stars.
+  - **Caltrops:** bounce out from the hand.
+  - **Smoke Bomb:** billowing smoke.
+  - **Shadow Clones:** the clones throw in pose.
+- **Gunner:**
+  - **Heavy Slug:** muzzle fire and a smoking iron slug.
+  - **Grapeshot:** a cone of fire.
+  - **Powder Roll:** the keg explodes with flying staves.
+  - **Tripod Gun:** assembled leg by leg, then it aims and kicks on every shot.
+- **Lancer:**
+  - **Spiral Lunge:** a real lunge.
+  - **Wheel Sweep:** the whole spear sweeps round him.
+  - **Deflect:** a propeller spin.
+  - **War Banner:** a rippling banner with stakes on its edge.
+- **Kagura, Bell Warden, Sumo, Tengu, Chimiko, Marionettist:** their own body motion for the abilities that used shared poses, and their own wind-ups for Heaven's Bell and Yokozuna's Ring.
+- **Guardian echoes (new: `201-echoes.js`):** a guardian you have beaten can return in later dungeons as a mini-boss waiting in a side room.
+  - It's drawn as its little boss rush portrait, with its second form at half health.
+  - It fights with a shadow of its old fight: its own bullet patterns and its own way of moving.
+  - Its health and damage are set by the stage you're on.
+  - It drops a royal bag of that stage's loot.
+  - At most one per dungeon, in about 3 runs out of 5. Never in its own stage, the prologues, training or the boss rush.
+- **Use your abilities:** a tip early in the first fight says to use your abilities the moment they are ready, and every ability tooltip ends with the same advice.
+- **Boss rush menu lag:** hovering the boss rush entry rebuilt every guardian's full sheet on every frame. Each sheet is now built once.
+- **Title screen:** a new logo, drawn from the game's pixel font: a solid crimson DUNGEONS with a heavy outline and drop shadow, and a light sheen that sweeps across it. A gold SHINOBI sits between rules, a katana lies under the title, and a red 忍 seal is stamped beside it. Below it is one line that changes on every visit (22 jabs at the bosses and the game) and the prompt. That's all: no blurb, tips or key hints.
+- **Touch controls:**
+  - The buttons are bigger and spread over the whole right side: DASH, then an arc of RMB/Q/E/F, then R, POT and USE.
+  - Auto-aim and auto-attack are always on, so there's no aim stick.
+  - The buttons stay usable during tips, and the ones a tip asks for pulse.
+  - The ability bar along the bottom is hidden on touch; the buttons show the cooldowns.
+  - No cursor on a touchscreen: it is all touch.
+  - Full screen: every tap asks for full screen until the browser grants it, including the older prefixed form, so the address bar goes away on Android and iPad. The page is also a web app (a manifest and Apple's web-app tags), so on iPhone, where Safari never lets a page hide its bars, adding it to the home screen opens it full screen in landscape. A one-time note on the menu tells iPhone players how.
+- **Fixes:**
+  - The Siegebreaker cannon showed up on Heavy Slug, Grapeshot, and the Sumo's and Bell Warden's ultimates.
+  - Spiral Lunge teleported instead of lunging.
+  - Wheel Sweep used the Samurai's arcs.
+  - Uwatenage whiffed at arm's length.
+  - Harvest and Echo Notes failed silently.
+- **Balance:**
+  - Shadow Step with no target is a short blink toward the cursor at half cooldown.
+  - Thousand Thrusts deals 0.75× ATK per thrust instead of 0.9×.
+  - Arrow Rain's damage starts as the arrows land.
+
+## 0.8.4: Samurai, Gunner and Lancer each get their own look; a higher Dragon Cleave lift
+
+- **Samurai, Gunner and Lancer look different:** they were the same robed figure in different colours, with the same straw hat and horned helmet. Each now has a silhouette of their own at every stage, and their gear changes as they evolve:
+  - SAMURAI: an armoured torso with great shoulder plates and wide split hakama. He keeps his straw hat through the middle stages, and each one adds something you can see: at IV the hat gains a red band and gold knob and he wears a red lacquered breastplate laced in gold; at V, armour plates over his hakama; at VI, a black sleeveless battle coat and a gold crest on the hat. The horned helmet arrives at VII, and the coat stays.
+  - GUNNER: a short open jacket with a bandolier of powder flasks, a smouldering match-cord, narrow legs in white wraps, and an ammunition box on the back. A flat iron war hat, then a steel crested helmet with an upturned brim, and a crimson cape in the final form.
+  - LANCER: a slim cuirass over a skirt of armour plates, and greaves. A white headband, then a rounded helmet with a neck guard, and a tall blade crest in the final form. A banner on his back grows taller as he evolves.
+
+  The shoulder cords and shoulder blocks that every hero's middle and final forms used to share no longer appear on these three.
+- **DRAGON CLEAVE lift:** the samurai's ultimate now raises him more than twice as high (22 px instead of 10), and he rises in his dash stance, leaning into the line he is about to cut, instead of with his arms raised.
+
+## 0.8.3: Beyond the throne: stages XIII and XIV, the endless Abyss, a bullet-pattern library and a fair attack director
+
+- **The campaign goes on (new: `188-lategame.js`):** beating the Emperor still wins the run, and a run that has beaten him always ends as a victory. At his portal, and at every portal after it, **G** goes deeper and **L** leaves in triumph. The victory screen shows how far beyond the throne you got.
+- **Tiers:** stages I–XII are unchanged. **XIII** is Tier 3 (advanced), **XIV** is Tier 4 (the endgame), and **the Abyss** beyond is Tier 5 and up, endless. Each Abyss depth remixes a late stage with a deeper director tier and one to three guardian modifiers, announced when the guardian wakes:
+  - **SWIFT:** its patterns come faster.
+  - **ECHOING:** every pattern repeats, mirrored, a moment later.
+  - **SHROUDED:** the arena closes in from time to time.
+  - **TWINNED:** a shade on the far side of the arena casts a second layer.
+  - **RELENTLESS:** shorter pauses between attacks.
+  - **STAR-WARDED:** three orbiting wards absorb hits until each is struck down.
+
+  Depth adds a little health and damage. The patterns provide the difficulty.
+- **Bullet-pattern library (new: `186-danmaku2.js`):** reusable generators with adjustable parameters:
+  - Spirals: multi-arm, interlocking, reversing, swaying, breathing.
+  - Rings and aimed rings with rotating gaps.
+  - Aimed fire: direct, predictive, successive and fan volleys, and snares.
+  - Crossing fire: diagonal, walls with gaps, and the four directions.
+  - Moving bullets: curving, accelerating, turning, splitting, shedding, orbiting.
+  - Arena control: lasers, rotating lasers, walls, corridors, a closing boundary and sequences.
+
+  Lasers flash a warning that widens to the beam's width before they fire. Turning, bursting and released bullets flash just before they change. Bullets are pooled, and player shots only check foes in nearby grid cells.
+- **Layered attack director and fairness check (new: `187-director.js`):**
+  - **Layering:** the director stacks compatible patterns. Every pattern has tags and a complexity cost; a layer joins only if its tags fit with what is already running and the total stays within the tier's budget. It never repeats a pattern family twice running.
+  - **Tier scaling:** higher tiers get narrower gaps, faster rotation, interlocking and reversing spirals, predictive aim and more layers, rather than simply more bullets.
+  - **Fairness:** before any new bullets appear, the next 1.6 seconds are simulated around you, including bullets, lasers and hazard circles. A flood fill checks that you can still walk, without dashing, to safety at every step and can't slip through a line of bullets. If not, one opening is cut into the new batch; if that fails, or you are already boxed in, the batch is dropped.
+- **Stage XIII: THE STARFALL OBSERVATORY (new: `189-observatory.js`):**
+  - **The stage:** an astrologers' tower above the clouds. Indigo walls with gold bands and inlaid stars, a gold star-map floor with a zodiac ring, and new armillary spheres, telescopes, star charts, candelabra, celestial globes and star desks.
+  - **Six new foes, each with its own sprite and a warning before it attacks:**
+    - WEAVER: slow star spirals.
+    - SEER: a sniper whose red sight-line aims where you are going.
+    - ORBITER: circles you and fires from the side.
+    - SPLITTER: orbs that burst into rings.
+    - WARDEN: marching curtains of shards with one gap.
+    - HERALD: links nearby allies and fires them all on one beat.
+  - **Guardian: HOSHIYOMI, THE STAR READER.** His signatures are CONSTELLATIONS (star nodes joined by lines of light, which then burst) and THE ORRERY (orbiting shells of stars released one at a time).
+  - **His four phases:** establishment, escalation, advanced (he blinks between stars) and the climax. Survival phases: THE TURNING HEAVENS, then THE FALLING HEAVENS (falling meteors, a rotating pentagram of light, a galaxy spiral and a last orrery).
+  - **Second form:** the hood falls and the stars turn red.
+  - **Relic:** ORRERY CHARM, three wards that each block one shot and re-form after 8s.
+  - **Cosmetic:** the STARFALL trail.
+- **Stage XIV: THE ECLIPSE SHRINE (new: `190-eclipse.js`):**
+  - **The stage:** a black-lake shrine. Black lacquered walls with silver bands and vermilion posts, a slate floor inlaid with moon phases, and new mirror stands, moon lanterns, sacred rocks, pampas grass, offering tables and black torii. The six late foes return in their Tier 4 forms.
+  - **Guardian: GETSUREI, THE ECLIPSE PRIESTESS.** Her signatures are THE TIDE (crescents that wash in, stop and pull back out with a moved gap) and ECLIPSE (a black moon that drifts after you with a corona of rotating beams).
+  - **Her four phases** end in TOTAL ECLIPSE (a long rotating corona round the arena's heart, tides from every side and a final shattering burst). Survival phase: THE TIDE OF NIGHT.
+  - **Second form:** the mirror cracks and the corona turns red.
+  - **Relic:** ECLIPSE MIRROR, where a perfect dodge returns the nearest shot as a moon-bolt, at most once per second.
+  - **Cosmetic:** the ECLIPSE trail.
+- **Late trials:** ABOVE THE THRONE, THE MIRROR BROKEN, THE ABYSS GAZES BACK (depth V), BOTTOMLESS (depth X) and DANCER IN THE DARK (no-hit a late guardian).
+- **Fixes:**
+  - The relic draft skips stages that have no guardian relic.
+  - A late stage's scenery is now based on its base stage's.
+
 ## 0.8.2: Prologues II and III, mobile play, Sumo can heal, primary attacks never spin, line weapons fire projectiles
 
 - **Heroes are earned (new: `185-unlocks.js`):** the SAMURAI and the ARCHER are available from the start. Every other hero joins when you complete a challenge of their own, instead of one new hero per finished run in roster order. Character select shows a locked hero's challenge and your progress, and a banner announces a hero the moment they join.

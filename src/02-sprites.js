@@ -131,10 +131,40 @@ function buildHero(EV,star,back){const stage=star?9:0;
    if(walk){const o=[[6,13],[7,12],[8,11],[7,12]][f-2];R(o[0],22,3,2,'boot');R(o[1]-1,22,3,2,'boot');}
    else if(f===11){R(4,21,3,2,'boot');R(9,22,3,2,'boot');}
    else{R(7,22,3,2,'boot');R(11,22,3,2,'boot');}
-   // robe: a flared cone with gold hem
+   // legs follow the boots (used by the bodies that show legs instead of a robe)
+   const LEGX=walk?[[6,12],[7,11],[8,10],[7,11]][f-2]:f===11?[4,9]:[7,11];
+   const BD=EV.body||'robe';
+   // a sashimono banner on the lancer's back, drawn first so the body hides the foot of its pole
+   if(EV.banner){const bx=(back?10:4)+lean,top=EV.banner>=2?0:4;R(bx,top+bob,1,16-top,'#3a2a1a');R(bx-(back?1:3),top+1+bob,back?3:3,EV.banner>=2?8:5,'band');R(bx-(back?1:3),top+1+bob,back?3:3,1,'hatL');
+    if(EV.banner>=2){R(bx-2,top+4+bob,1,2,'trim');R(bx-3,top+9+bob,3,1,'band');}}
+   if(BD==='robe'){ // robe: a flared cone with gold hem
    for(let y=13;y<=21;y++){const hw=Math.round(3+(y-13)*.45),x0=10-hw-lean*(y>17?1:0);R(x0,y+bob*(y<18?1:0),hw*2+(lean&&y>17?1:0),1,'robe');R(x0,y+bob*(y<18?1:0),1,1,'robeS');}
    R(6,21,9,1,'trim');if(!back){R(10,14+bob,1,7,'robeS');R(8,13+bob,5,1,'trim');}else{R(8,13+bob,5,1,'robeS');R(7,16+bob,7,1,'robeS');}
-   if(f===11){R(2,18,3,2,'robe');R(1,20,3,1,'robeS');} // trailing robe while dashing
+   if(f===11){R(2,18,3,2,'robe');R(1,20,3,1,'robeS');}} // trailing robe while dashing
+   else if(BD==='hakama'){ // samurai: an armoured torso over wide split hakama
+    for(let y=13;y<=16;y++){R(6,y+bob,9,1,'robe');R(6,y+bob,1,1,'robeS');}
+    R(6,17+bob,9,1,'band');R(9,17+bob,2,1,'trim');
+    for(let y=18;y<=21;y++){const k=(y-18)>>1,l=lean*(y>19?1:0);R(5-k-l,y,5+k,1,'robe');R(11-l,y,5+k,1,'robe');R(10-l,y,1,1,'robeS');R(7-l,y,1,1,'robeS');R(13-l,y,1,1,'robeS');}
+    R(4,21,13,1,'robeS');
+    if(f===11){R(1,19,4,2,'robe');}
+    // great shoulder plates
+    const AR=C.armour?'armour':'hat',ARL=C.armourL?'armourL':'hatL';R(3,12+bob,4,4,AR);R(3,12+bob,4,1,ARL);R(3,14+bob,4,1,'trim');R(14,12+bob,3,4,AR);R(14,12+bob,3,1,ARL);R(14,14+bob,3,1,'trim');}
+   else if(BD==='jacket'){ // gunner: a short open jacket, narrow trousers in white leg wraps
+    for(const [i,lx] of LEGX.entries()){R(lx,18,3,4,'robeS');R(lx,19,3,3,'#d8d0bc');R(lx,20,3,1,'#a8a090');}
+    for(let y=13;y<=17;y++){const w=y===17?11:9,x0=y===17?5:6;R(x0-lean*(y>16?1:0),y+bob,w,1,'robe');R(x0,y+bob,1,1,'robeS');}
+    if(!back){R(10,14+bob,1,4,'robeS');R(8,13+bob,5,1,'trim');}else{R(7,15+bob,7,1,'robeS');}
+    R(5,17+bob,11,1,'trim');
+    if(f===11){R(2,15,3,2,'robe');}
+    // the slow match smoulders at the hip
+    R(14,17+bob,1,3,'#6a4a2a');R(15,16+bob,1,1,(f&1)?'#ffd060':'#ff6020');
+    if(EV.cape){R(4,12+bob,13,2,'#5a1820');R(4,12+bob,13,1,'#8a2a30');R(4,14+bob,2,6,'#5a1820');R(15,14+bob,2,5,'#5a1820');R(9,12+bob,3,1,'band');}}
+   else if(BD==='kusazuri'){ // lancer: a slim cuirass, a skirt of armour plates, greaves
+    for(const lx of LEGX){R(lx,20,3,2,'robeS');R(lx,20,3,1,'hatL');}
+    for(let y=13;y<=16;y++){R(7,y+bob,7,1,'robe');R(7,y+bob,1,1,'robeS');}
+    R(7,13+bob,7,1,'hatL');R(7,16+bob,7,1,'band');
+    for(let k=0;k<3;k++){const x0=6+k*3-lean*(k===0?1:0);R(x0,17+bob,3,3,'hat');R(x0,19+bob,3,1,'trim');R(x0+2,17+bob,1,2,'robeS');}
+    if(f===11){R(2,17,3,2,'hat');}
+    R(6,12+bob,2,3,'hat');R(13,12+bob,2,3,'hat');}
    // Class-specific clothing survives every evolution and every pose.
    const waist=16+bob,hem=20-(f===11?1:0),detail=EV.detail;
    if(detail==='wizard'){
@@ -142,8 +172,16 @@ function buildHero(EV,star,back){const stage=star?9:0;
     if(back){R(9,16+bob,3,4,'hat');R(10,17+bob,1,2,'orb');}
     else{R(9,waist,2,1,'robeS');R(11,waist-1,1,3,'band');}
    }else if(detail==='samurai'){
-    for(let j=0;j<3;j++){R(6,13+bob+j*2,8,1,'robeS');R(7,13+bob+j*2,6,1,'trim');}
-    R(4,13+bob,3,3,'hat');R(4,13+bob,3,1,'hatL');
+    for(let j=0;j<2;j++){R(7,13+bob+j*2,7,1,'robeS');R(8,13+bob+j*2,5,1,'trim');}
+    if(!back){R(9,14+bob,3,2,'band');R(10,14+bob,1,1,'hatL');}
+    const U=EV.samUp||0;
+    // stage IV on: a lacquered breastplate laced in gold
+    if(U>=1&&!back){R(7,13+bob,7,4,'#b02424');R(7,13+bob,7,1,'#e05050');R(13,14+bob,1,3,'#701414');for(let x=7;x<14;x+=2){R(x,14+bob,1,1,'#e0b040');R(x+1,15+bob,1,1,'#e0b040');}}
+    // stage V on: armoured plates over the top of the hakama
+    if(U>=2)for(let k=0;k<3;k++){const x0=4+k*4-lean;R(x0,18,4,3,'#b02424');R(x0,18,4,1,'#e05050');R(x0+3,18,1,3,'#701414');R(x0,20,4,1,'#e0b040');}
+    // stage VI on: a black sleeveless battle coat over the armour, with a gold crest
+    if(U>=3){R(3,13+bob,3,9,'#1e1a24');R(15,13+bob,3,8,'#1e1a24');R(3,13+bob,3,1,'#e0b040');R(15,13+bob,3,1,'#e0b040');R(4,17+bob,1,1,'#e0b040');R(16,17+bob,1,1,'#e0b040');
+     if(back){R(6,13+bob,9,7,'#1e1a24');R(9,15+bob,3,3,'#e0b040');R(10,16+bob,1,1,'#1e1a24');}}
    }else if(detail==='archer'){
     for(let j=0;j<6;j++)R(5+(back?Math.floor(j/2):0),12+bob+j,2,1,'robeS');
     R(5,12+bob,1,4,'trim');R(4,11+bob,2,1,'#cfad76');R(5,10+bob,1,2,'#e4d6a1');
@@ -155,12 +193,11 @@ function buildHero(EV,star,back){const stage=star?9:0;
     R(7,14+bob,2,6,'#f1e5d2');R(11,14+bob,2,6,'#f1e5d2');
     R(7,waist,6,1,'trim');R(9,18+bob,3,2,'robeS');R(10,18+bob,1,1,'#f1e5d2');
    }else if(detail==='gunner'){
-    R(5,13+bob,4,2,'hat');R(5,13+bob,4,1,'hatL');
-    for(let j=0;j<5;j++)R(7+j,13+bob+j,1,1,'#a86b44');
-    R(6,waist+1,3,3,'#68412e');R(6,waist+1,3,1,'#db985d');R(12,hem-1,3,1,'hat');
+    // a bandolier of little powder flasks across the chest, an ammunition box on the back
+    if(!back){for(let j=0;j<5;j++){R(6+j*2,13+bob+j,1,1,'#3a2a1a');R(7+j*2,13+bob+j,1,2,j%2?'#c8a060':'#e0c080');}}
+    else{R(7,13+bob,7,4,'#5a3a22');R(7,13+bob,7,1,'#8a5a32');R(10,14+bob,1,2,'trim');}
    }else if(detail==='lancer'){
-    R(5,13+bob,3,3,'hat');R(5,13+bob,2,1,'hatL');R(7,waist,6,1,'trim');
-    R(9,18+bob,3,3,'band');R(9,18+bob,3,1,'hatL');
+    if(!back){R(9,14+bob,3,1,'trim');R(10,15+bob,1,1,'trim');}
    }
    // staff
    const WP=EV.wpn||'staff';
@@ -238,7 +275,17 @@ function buildHero(EV,star,back){const stage=star?9:0;
     R(4+hx,9+hy,13,2,'hat');R(6+hx,7+hy,9,2,'hat');R(8+hx,6+hy,4,1,'hatL');
     R(6+hx,8+hy,7,1,'hatL');R(5+hx,9+hy,10,1,'band');R(7+hx,11+hy,2,3,'hat');R(12+hx,12+hy,2,2,'hat');
    }
-   else if(EV.hat==='kasa'){R(3+hx,9+hy,15,1,'hat');R(5+hx,8+hy,11,1,'hat');R(7+hx,7+hy,7,1,'hatL');R(9+hx,6+hy,3,1,'hatL');R(4+hx,9+hy,2,1,'hatL');}
+   else if(EV.hat==='kasa'){R(3+hx,9+hy,15,1,'hat');R(5+hx,8+hy,11,1,'hat');R(7+hx,7+hy,7,1,'hatL');R(9+hx,6+hy,3,1,'hatL');R(4+hx,9+hy,2,1,'hatL');if(EV.samUp>=1){R(5+hx,8+hy,11,1,'#a02020');R(10+hx,5+hy,1,1,'#e0b040');}if(EV.samUp>=3){R(10+hx,7+hy,1,1,'#e0b040');R(9+hx,8+hy,3,1,'#e0b040');}}
+   else if(EV.hat==='jingasa'){ // gunner: a flat lacquered iron war hat with a chin cord
+    R(4+hx,9+hy,13,1,'hat');R(6+hx,8+hy,9,1,'hat');R(8+hx,7+hy,5,1,'hatL');R(5+hx,9+hy,11,1,'hatL');R(10+hx,8+hy,1,1,'band');if(!back){R(8+hx,10+hy,1,3,'#3a2a1a');R(12+hx,10+hy,1,3,'#3a2a1a');}}
+   else if(EV.hat==='morion'){ // gunner's final form: a steel foreign helmet, a combed crown and an upturned brim
+    R(7+hx,6+hy,7,3,'hat');R(7+hx,6+hy,2,2,'hatL');R(9+hx,3+hy,3,3,'hat');R(10+hx,3+hy,1,3,'hatL');R(7+hx,8+hy,7,1,'band');
+    R(4+hx,9+hy,13,1,'hat');R(3+hx,8+hy,2,1,'hat');R(16+hx,8+hy,2,1,'hat');R(5+hx,9+hy,11,1,'hatL');if(EV.crest)R(10+hx,2+hy,1,1,'#c03030');}
+   else if(EV.hat==='hachimaki'){ // lancer: tied-back hair and a white headband with trailing tails
+    R(8+hx,8+hy,5,2,'#2a2228');R(12+hx,9+hy,2,2,'#2a2228');R(7+hx,9+hy,7,1,'#f0eee8');R(5+hx-(f===11?2:0),10+hy,2,1,'#f0eee8');R(4+hx-(f===11?3:0),11+hy,2,1,'#d8d6d0');if(EV.crest)R(10+hx,9+hy,1,1,'band');}
+   else if(EV.hat==='zunari'){ // lancer: a rounded iron helmet with a flared neck guard; a tall blade crest in the final form
+    R(7+hx,7+hy,7,3,'hat');R(8+hx,6+hy,5,1,'hat');R(8+hx,6+hy,3,1,'hatL');R(5+hx,10+hy,3,3,'hat');R(13+hx,10+hy,2,3,'hat');R(5+hx,10+hy,3,1,'hatL');R(7+hx,9+hy,7,1,'band');
+    if(EV.crest){R(10+hx,0+hy,1,6,'band');R(9+hx,0+hy,3,2,'band');R(10+hx,0+hy,1,1,'trim');R(9+hx,5+hy,3,1,'trim');}}
    else if(EV.hat==='kabuto'){R(6+hx,7+hy,9,3,'hat');R(5+hx,9+hy,2,4,'hat');R(14+hx,9+hy,1,4,'hat');R(7+hx,6+hy,7,1,'hatL');R(7+hx,9+hy,7,1,'band');if(EV.crest){R(8+hx,3+hy,1,4,'band');R(12+hx,3+hy,1,4,'band');R(9+hx,5+hy,3,1,'band');}}
    else if(EV.hat==='mask'){R(7+hx,8+hy,7,3,'hat');R(6+hx,9+hy,2,6,'hat');R(13+hx,9+hy,1,5,'hat');R(8+hx,12+hy,5,2,'hat');R(8+hx,8+hy,4,1,'hatL');
     if(back){R(8+hx,11+hy,5,1,'hat');R(9+hx,11+hy,3,1,'band');}
@@ -249,8 +296,8 @@ function buildHero(EV,star,back){const stage=star?9:0;
    else{R(5+hx,9+hy,11,1,'hat');R(6+hx,8+hy,9,1,'hat');R(7+hx,7+hy,7,1,'band');
    R(7+hx,5+hy,6,2,'hat');R(8+hx,3+hy,4,2,'hat');R(9+hx+Math.round(tx/3),2+hy,3,1,'hat');R(10+hx+Math.round(tx/2),1+hy,2,1,'hat');R(12+hx+tx,0+hy,2,1,'hatL');
    R(8+hx,5+hy,1,2,'hatL');R(9+hx,3+hy,1,2,'hatL');if(stage>=9)R(11+hx,5+hy,1,1,'band');}
-   if(EV.rosterDetail||EV.rosterFinal||star)drawRosterDetail(R,EV.rosterDetail,EV.rosterFinal||star,bob,back);
-   if(EV.awakened){
+   if(!EV.ownForms&&(EV.rosterDetail||EV.rosterFinal||star))drawRosterDetail(R,EV.rosterDetail,EV.rosterFinal||star,bob,back);
+   if(EV.awakened&&!EV.ownForms){
     // Shoulder cords, charm and crest identify the middle form even through mastery palettes.
     R(4,13+bob,3,2,'band');R(13,13+bob,3,2,'band');
     R(5,13+bob,1,5,'orbL');R(14,13+bob,1,5,'orbL');

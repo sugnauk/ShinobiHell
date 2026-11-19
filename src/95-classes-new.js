@@ -24,8 +24,8 @@ CLASSES.push({k:'gunner',n:'GUNNER',col:'#ffb060',d:'MATCHLOCK: SLOW, PIERCING S
 EVONAMES.gunner=['RECRUIT','LOADER','MUSKETEER','SHARP GUN','GUN CAPTAIN','TEPPO','FIRE LANCE','THUNDER GUN','CANNONEER','GUN SAINT'];
 EVONAMES.lancer=['SPEAR BOY','PIKEMAN','YARI-ASHIGARU','LANCER','SPEAR CAPTAIN','HATAMOTO','SPIRAL SPEAR','HEAVEN PIERCER','DRAGON LANCE','SPEAR SAINT'];
 {const _he=heroEV;heroEV=function(cls,st){const t=st/9,n=(EVONAMES[cls]||[])[st];
-  if(cls==='gunner')return {n,hat:st<2?'teppo':st<5?'kasa':'kabuto',crest:st>=7,beard:st>=8?1:0,wpn:'gun',C:{hat:st<2?'#3b4557':st<5?'#8a6a40':mixC('#3a3a44','#6a4a20',t),hatL:st<2?'#798795':st<5?'#a8885a':'#c0a040',band:st>=4?'#ffb060':'#c77d54',robe:mixC('#5f4a48','#3a3a48',t),robeS:mixC('#3a2a1a','#22222c',t),trim:st>=3?'#ffb060':'#3a2a1a',beard:'#3a3a3a',beardS:'#2a2a2a'}};
-  if(cls==='lancer')return {n,hat:st<3?'kasa':'kabuto',crest:st>=5,beard:st>=8?1:0,wpn:'spear',C:{hat:st<3?'#7a8a9a':mixC('#3a4a5a','#203a6a',t),hatL:st<3?'#9aaaba':'#c8e0ff',band:st>=4?'#80c0ff':'#4a5a6a',robe:mixC('#5a6a7a','#20406a',t),robeS:mixC('#3a4a5a','#10203a',t),trim:st>=4?'#c8e0ff':'#2a3a4a',beard:'#3a3a3a',beardS:'#2a2a2a'}};
+  if(cls==='gunner')return {n,ownForms:1,body:'jacket',cape:st>=9,hat:st<7?'jingasa':'morion',crest:st>=8,beard:st>=8?1:0,wpn:'gun',C:{hat:st<7?mixC('#2e2a34','#3a2a2a',t):'#7a808c',hatL:st<7?'#5a5262':'#d0d4de',band:st>=4?'#d8a840':'#c77d54',robe:mixC('#5f4a48','#3a3a48',t),robeS:mixC('#3a2a1a','#22222c',t),trim:st>=3?'#ffb060':'#3a2a1a',beard:'#3a3a3a',beardS:'#2a2a2a'}};
+  if(cls==='lancer')return {n,ownForms:1,body:'kusazuri',banner:st<2?0:st<5?1:2,hat:st<3?'hachimaki':'zunari',crest:st>=6,beard:st>=8?1:0,wpn:'spear',C:{hat:st<3?'#7a8a9a':mixC('#3a4a5a','#203a6a',t),hatL:st<3?'#9aaaba':'#c8e0ff',band:st>=4?'#80c0ff':'#4a5a6a',robe:mixC('#5a6a7a','#20406a',t),robeS:mixC('#3a4a5a','#10203a',t),trim:st>=4?'#c8e0ff':'#2a3a4a',beard:'#3a3a3a',beardS:'#2a2a2a'}};
   return _he(cls,st);};}
 // the lancer fights at blade range: MELEE() in 94-melee.js includes it, so blades cut bullets for it too
 // seven characters: narrower cards so they all fit on the select screen
