@@ -1,7 +1,16 @@
 # Changelog
 
-## 0.8.2: mobile play, Sumo can heal, primary attacks never spin, a gentler prologue, line weapons fire projectiles
+## 0.8.2: Prologues II and III, mobile play, Sumo can heal, primary attacks never spin, line weapons fire projectiles
 
+- **Prologues II and III (new: `184-prologues.js`):** the road from the burning village to the bamboo is now three short stages before stage I, each a little harder than the last, and each guardian teaches one thing.
+  - **I. The Burning Village:** Goro, the bandit captain. Big telegraphed swings and charges, and slow fans of shots.
+  - **II. The Flooded Fields:** Zenigata, the Emperor's tax collector, guards the village's stolen rice. He teaches bullet patterns: rings of coins, coin spirals and bursting coin bags. He also pays bandit guards to fight for him.
+    - He has a tall lacquered cap, an abacus and a string of coins. In his second form the cap is knocked off and his ledger burns.
+  - **III. The Hill Watchtower:** Kageyama, the tower captain, a sharp-eyed archer. He teaches aimed shots: volleys straight at you, sniper arrows down a warning line, and an arrow rain. Dash through them.
+    - He wears dark red lamellar armour and a conical helmet, carries a quiver, and draws a great bow. In his second form he wears a bloodied headband.
+  - **Flow:** the campfire after each prologue leads on to the next, and after III to stage I. The master's words tie the story together: the village, then the stolen rice, then the watchtower that signals the warbands, then the bamboo.
+  - **Evolution:** only Kageyama makes you grow, so you still reach stage I one form up, as before.
+  - **Like Prologue I:** fewer and weaker foes, and a fall sends you back to the start of that prologue with everything you carry. A saved run continues in the right prologue.
 - **Play on a phone or tablet (new: `183-touch.js`):** touch controls switch on at your first touch on the screen.
   - **No cost on PC:** nothing runs, draws or listens beyond a single check. On a touchscreen laptop, moving a real mouse hides the controls again.
   - **Move:** a floating stick anywhere on the left half, with smooth, any-direction movement.
