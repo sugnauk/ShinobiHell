@@ -2,10 +2,13 @@
 // SHINOBIDUNGEONS - the WIZARD kit performed (see ANIMATION_AUDIT.md; core in 191). Amber runes and void violet.
 //  RMB VOID ORB       a staff thrust that pushes out a small black hole: a dark core inside a turning violet disc
 //  Q   CHAIN LIGHTNING the staff jolts forward and a forked bolt crackles from foe to foe, flickering as it holds
-//  E   SPIRIT WARD    four rune tablets orbit him like a turning shield; a tablet flares when it throws a shot back
-//  F   FROST NOVA     the staff slams down and a ring of ice spikes bursts out to the blast's edge, then shatters
-//  R   DRAGON DESCENT a rune circle opens on the target and a golden dragon's claw falls out of the sky onto it
-Object.assign(ABTUNE,{void:{push:.26},zap:{pose:.26,hold:.25,flick:.04},ward:{plates:4,rad:15,spin:2.4},nova:{front:.15,hold:.3,shatter:.15,spikes:22},descent:{fall:.9}});
+//  E   SPIRIT WARD    a gyroscope of three tilted rune rings turns round him; every shot thrown back flashes the rings
+//                     and sends a ripple out from where it struck
+//  F   FROST NOVA     the staff stabs the floor and frost crawls out in branching lines to the blast's edge, then
+//                     shatters into shards; every foe it caught is crusted in ice while the chill lasts
+//  R   DRAGON DESCENT a sigil of turning rings opens in the sky over the target, a thread of light drops from it, and
+//                     a pillar of golden fire slams down the full width of the blast, leaving a scorched ring
+Object.assign(ABTUNE,{void:{push:.26},zap:{pose:.26,hold:.25,flick:.04},ward:{rings:3,rad:15,spin:2.2,flash:.18},nova:{crawl:.16,hold:.35,fade:.25,arms:8,crust:1.2},descent:{sky:70,pillar:.28,scorch:1.6}});
 for(const n of ['VOID ORB','CHAIN LIGHTNING','SPIRIT WARD','FROST NOVA'])ABX_OWN.add(n);
 Object.assign(AB_ANIM,{'VOID ORB':['voidpush',ABTUNE.void.push],'CHAIN LIGHTNING':['zap',ABTUNE.zap.pose],'SPIRIT WARD':['wardplant',.4]});
 const isWiz=()=>P&&CLS().k==='wizard';
@@ -38,30 +41,55 @@ function abxBolt(pts,o){const Z=ABTUNE.zap;topFx({dur:Z.hold+.12,pts,seed:0,draw
   // a white burst where it strikes each foe
   for(let i=1;i<pts.length;i++){const X=sx(pts[i].x,pts[i].y),Y=sy(pts[i].x,pts[i].y)-8;ctx.globalAlpha=fade;ctx.fillStyle='#ffffff';ctx.fillRect(X-1,Y-1,3,3);ctx.fillStyle='#9fd8ff';ctx.fillRect(X-3,Y,1,1);ctx.fillRect(X+3,Y,1,1);ctx.fillRect(X,Y-3,1,1);ctx.fillRect(X,Y+3,1,1);}}});}
 {const _cq=castChain;castChain=function(){const n0=fx.length;const r=_cq.apply(this,arguments);if(isWiz()&&P.lo.q===0){for(let i=fx.length-1;i>=n0;i--)if(fx[i].k==='bolt'){abxBolt(fx[i].pts);fx.splice(i,1);}}return r;};}
-// ---- E SPIRIT WARD: four rune tablets orbiting as a shield (replaces the plain bubble) ----
+// ---- E SPIRIT WARD: a gyroscope of rune rings (replaces the plain bubble) ----
+const RUNES=[[1,0,1,0,1,0,1,1,1],[1,1,1,0,1,0,0,1,0],[1,0,0,1,1,1,0,0,1],[0,1,0,1,1,1,0,1,0],[1,1,0,0,1,0,0,1,1],[1,0,1,1,0,1,1,1,1]];
+function wardRings(front){const p=P,W2=ABTUNE.ward,X=sx(p.x,p.y),Y=sy(p.x,p.y)-11,fl=p.wardRefT&&time-p.wardRefT<W2.flash;
+ for(let j=0;j<W2.rings;j++){const tilt=.55+j*.55,yaw=time*(j%2?-1:1)*(.6+.3*j),col=fl?'#ffffff':j===1?'#c8a0ff':'#ffd060';
+  for(let i=0;i<24;i++){const a=i/24*TAU+time*W2.spin*(j===1?-1:1),x3=Math.cos(a)*W2.rad,y3=Math.sin(a)*W2.rad*Math.cos(tilt),z3=Math.sin(a)*W2.rad*Math.sin(tilt);
+   const rx=x3*Math.cos(yaw)-z3*Math.sin(yaw),rz=x3*Math.sin(yaw)+z3*Math.cos(yaw);if((rz>0)!==front)continue;
+   const gx=Math.round(X+rx),gy=Math.round(Y+y3*.8+rz*.25);ctx.globalAlpha=front?.95:.35;ctx.fillStyle=col;
+   // every fourth point carries a rune; the rest are the faint line of the ring
+   if(i%4===0){const R2=RUNES[(i/4+j*2)%RUNES.length];for(let k=0;k<9;k++)if(R2[k])ctx.fillRect(gx-1+k%3,gy-1+((k/3)|0),1,1);}else{ctx.globalAlpha*=.6;ctx.fillRect(gx,gy,1,1);}}}
+ if(front&&p.wardRip&&time-p.wardRip.t<.3){const k=(time-p.wardRip.t)/.3;ctx.globalAlpha=1-k;ctx.strokeStyle='#ffd060';ctx.beginPath();ctx.ellipse(X+Math.cos(p.wardRip.a)*W2.rad,Y+Math.sin(p.wardRip.a)*W2.rad*.5,2+k*9,1+k*5,0,0,TAU);ctx.stroke();}
+ ctx.globalAlpha=1;}
 {const _dp=drawPlayer;drawPlayer=function(){const p=P;if(!p||!(p.ward>0)||!isWiz())return _dp.apply(this,arguments);
- const w=p.ward;const draw=(front)=>{const W=ABTUNE.ward,X=sx(p.x,p.y),Y=sy(p.x,p.y)-11;for(let i=0;i<W.plates;i++){const a=time*W.spin+i/W.plates*TAU,s=Math.sin(a);if((s>0)!==front)continue;
-   const px=Math.round(X+Math.cos(a)*W.rad),py=Math.round(Y+s*W.rad*.45),flare=p.wardRefT&&time-p.wardRefT<.15&&i===(p.wardRefI||0),wid=Math.max(1,Math.round(4*Math.abs(Math.cos(a))+1));
-   ctx.globalAlpha=front?1:.6;ctx.fillStyle='#14101a';ctx.fillRect(px-wid,py-5,wid*2+1,10);ctx.fillStyle=flare?'#ffffff':'#8cf';ctx.fillRect(px-wid+1,py-4,wid*2-1,8);if(wid>2){ctx.fillStyle=flare?'#8cf':'#ffe080';ctx.fillRect(px-1,py-3,3,1);ctx.fillRect(px,py-2,1,4);ctx.fillRect(px-1,py+1,3,1);}}ctx.globalAlpha=1;};
- draw(false);p.ward=0;try{_dp.apply(this,arguments);}finally{p.ward=w;}draw(true);};}
-// a tablet flares when the ward throws a shot back
-{const _hp=hitPlayer;hitPlayer=function(raw,x,y,o){const w=P&&P.ward>0;const r=_hp.apply(this,arguments);if(w&&isWiz()&&r==='dodge'){P.wardRefT=time;P.wardRefI=((P.wardRefI||0)+1)%ABTUNE.ward.plates;}return r;};}
-// ---- F FROST NOVA: ice spikes burst out to the blast radius, hold, then shatter ----
-{const _cf=castF;castF=function(){const n0=fx.length,before=P&&P.ab.f;const r=_cf.apply(this,arguments);
+ const w=p.ward;wardRings(false);p.ward=0;try{_dp.apply(this,arguments);}finally{p.ward=w;}wardRings(true);};}
+{const _hp=hitPlayer;hitPlayer=function(raw,x,y,o){const w=P&&P.ward>0;const r=_hp.apply(this,arguments);if(w&&isWiz()&&r==='dodge'){P.wardRefT=time;P.wardRip={t:time,a:Math.atan2((y||P.y)-P.y,(x||P.x)-P.x)};}return r;};}
+// ---- F FROST NOVA: frost crawls out across the floor, shatters, and crusts the foes it caught ----
+{const _cf=castF;castF=function(){const n0=fx.length,before=P&&P.ab.f,near=isWiz()&&P.lo.f===0?enemies.filter(e=>!e.dead&&!e.air&&Math.hypot(e.x-P.x,e.y-P.y)<66*AZ()+e.r):[];const r=_cf.apply(this,arguments);
  if(isWiz()&&P.lo.f===0&&P.ab.f!==before){for(let i=fx.length-1;i>=n0;i--)if(fx[i].k==='ring')fx.splice(i,1);
-  const N=ABTUNE.nova,R0=66*AZ(),cx=P.x,cy=P.y,sp=[];for(let i=0;i<N.spikes;i++){const a=i/N.spikes*TAU+Math.random()*.2,r=R0*(.35+.65*((i*7)%10)/10);sp.push([a,r,6+Math.random()*6]);}
-  for(let i=0;i<10;i++){const a=i/10*TAU+.3;sp.push([a,R0,9+Math.random()*4]);}
-  topFx({dur:N.front+N.hold+N.shatter,draw(o,k){const t=time-o.t0;for(const [a,r,h0] of sp){const at=N.front*r/R0;if(t<at)continue;const g=Math.min(1,(t-at)/.06),sh=t>N.front+N.hold?1-(t-N.front-N.hold)/N.shatter:1,h=Math.round(h0*g*Math.max(0,sh)),x=cx+Math.cos(a)*r,y=cy+Math.sin(a)*r,X=Math.round(sx(x,y)),Y=Math.round(sy(x,y));
-    if(h<1){if(sh<1&&Math.random()<.05)particles.push({x,y,vx:rnd(-30,30),vy:rnd(-40,-10),t:.3,col:'#e8f8ff'});continue;}
-    ctx.fillStyle='#14101a';ctx.fillRect(X-2,Y-h-1,5,h+1);ctx.fillStyle='#9df';ctx.fillRect(X-1,Y-h,3,h);ctx.fillStyle='#e8f8ff';ctx.fillRect(X-1,Y-h,1,h);ctx.fillStyle='#ffffff';ctx.fillRect(X,Y-h,1,1);}}});}return r;};}
-// ---- R DRAGON DESCENT: a golden dragon's claw falls out of the sky onto the blast ----
+  const N=ABTUNE.nova,R0=66*AZ(),cx=P.x,cy=P.y,arms=[];
+  // dendrites: each arm a jagged line to the edge, with short side branches
+  for(let i=0;i<N.arms;i++){const a0=i/N.arms*TAU+rnd(-.12,.12),pts=[[0,0]];let a=a0;for(let d=6;d<=R0;d+=6){a+=rnd(-.18,.18);a=a0+clamp(angDiff(a,a0),-.25,.25);pts.push([Math.cos(a)*d,Math.sin(a)*d]);}
+   const br=[];for(let k=2;k<pts.length-1;k+=2){const [bx,by]=pts[k],ba=Math.atan2(by,bx)+(k%4?.7:-.7),bl=4+Math.random()*6;br.push([k,bx,by,bx+Math.cos(ba)*bl,by+Math.sin(ba)*bl]);}arms.push({pts,br});}
+  topFx({dur:N.crawl+N.hold+N.fade,draw(o,k){const t=time-o.t0,grow=Math.min(1,t/N.crawl),fade=t>N.crawl+N.hold?1-(t-N.crawl-N.hold)/N.fade:1;
+   for(const [w,c,al] of [[2,'#7ac8f0',.55],[1,'#e8f8ff',1]]){ctx.globalAlpha=al*fade;ctx.strokeStyle=c;ctx.lineWidth=w;
+    for(const A of arms){const n=Math.max(1,Math.round(A.pts.length*grow));ctx.beginPath();for(let i=0;i<n;i++){const [px,py]=A.pts[i];const X=sx(cx+px,cy+py),Y=sy(cx+px,cy+py);i?ctx.lineTo(X,Y):ctx.moveTo(X,Y);}ctx.stroke();
+     for(const [ki,x0,y0,x1,y1] of A.br){if(ki>=n)continue;ctx.beginPath();ctx.moveTo(sx(cx+x0,cy+y0),sy(cx+x0,cy+y0));ctx.lineTo(sx(cx+x1,cy+y1),sy(cx+x1,cy+y1));ctx.stroke();}}}
+   ctx.lineWidth=1;
+   // the edge flashes as the frost reaches it, and shards fly
+   if(t>=N.crawl&&!o.burst){o.burst=1;for(let i=0;i<18;i++){const a=i/18*TAU,x=cx+Math.cos(a)*R0,y=cy+Math.sin(a)*R0;particles.push({x,y,vx:Math.cos(a)*rnd(40,80),vy:Math.sin(a)*rnd(40,80)-10,t:.4,col:i%2?'#e8f8ff':'#9df'});}}
+   if(t>=N.crawl&&t<N.crawl+.18){ctx.globalAlpha=.7*(1-(t-N.crawl)/.18);ctx.strokeStyle='#e8f8ff';ctx.beginPath();for(let i=0;i<=40;i++){const a=i/40*TAU,x=cx+Math.cos(a)*R0,y=cy+Math.sin(a)*R0;i?ctx.lineTo(sx(x,y),sy(x,y)):ctx.moveTo(sx(x,y),sy(x,y));}ctx.stroke();}
+   ctx.globalAlpha=1;}});
+  // an ice crust on every foe it caught, while the chill holds
+  for(const e of near)topFx({dur:N.crust,e,draw(o,k){const e=o.e;if(e.dead){o.dead=1;return;}const X=Math.round(sx(e.x,e.y)),Y=Math.round(sy(e.x,e.y)),h=Math.round(e.r*2+10),w=Math.round(e.r*1.6+6),f=k>.8?1-(k-.8)/.2:1;
+   ctx.globalAlpha=.32*f;ctx.fillStyle='#bfe8ff';ctx.fillRect(X-w/2,Y-h,w,h);ctx.globalAlpha=.85*f;ctx.strokeStyle='#e8f8ff';ctx.strokeRect(X-w/2+.5,Y-h+.5,w-1,h-1);ctx.fillStyle='#ffffff';ctx.fillRect(X-w/2+2,Y-h+2,1,4);ctx.fillRect(X-w/2+2,Y-h+2,3,1);ctx.globalAlpha=1;}});}
+ return r;};}
+// ---- R DRAGON DESCENT: a sigil opens in the sky and a pillar of golden fire comes down through it ----
+{const _df=drawFx;drawFx=function(f){if(f.wizd)return;return _df.apply(this,arguments);};}
 {const _cu=castUlt;castUlt=function(){const n0=fx.length;const r=_cu.apply(this,arguments);
- if(isWiz()&&P.lo.e===0)for(let i=n0;i<fx.length;i++){const f=fx[i];if(f.k!=='ult'||f.wait)continue;const T0=f.dur;
-  topFx({dur:T0+.25,f,draw(o,k){const t=time-o.t0,u=Math.min(1,t/T0),X=sx(f.x,f.y),Yg=sy(f.x,f.y),Y=Yg-Math.round(150*(1-u*u))-6,s=2;
-    if(t>T0){ctx.globalAlpha=1-(t-T0)/.25;}
-    const R=(x,y,w,h,c)=>{ctx.fillStyle=c;ctx.fillRect(Math.round(X+x*s),Math.round(Y+y*s),w*s,h*s);};
-    // scaled wrist and three talons reaching down (gold, dark outline)
-    R(-5,-22,10,14,'#14101a');R(-4,-22,8,13,'#c89020');R(-4,-22,3,13,'#ffd060');for(let yy=-20;yy<-10;yy+=3)R(-3,yy,6,1,'#a07018');
-    for(const [ox,len] of [[-6,7],[0,9],[6,7]]){R(ox-2,-10,4,len,'#14101a');R(ox-1,-10,2,len-1,'#e0b040');R(ox-1,-10+len-2,2,2,'#ffffff');}
-    if(u<1){ctx.globalAlpha=.3;ctx.fillStyle='#ffd060';for(let j=1;j<5;j++)ctx.fillRect(X-1,Y-50-j*12,3,8);}ctx.globalAlpha=1;}});}
+ if(isWiz()&&P.lo.e===0)for(let i=n0;i<fx.length;i++){const f=fx[i];if(f.k!=='ult'||f.wait||f.wizd)continue;f.wizd=1;const T0=f.dur,D=ABTUNE.descent;
+  topFx({dur:T0+D.scorch,f,draw(o,k){const t=time-o.t0,u=Math.min(1,t/T0),X=sx(f.x,f.y),Yg=sy(f.x,f.y),Ys=Yg-D.sky,rr=f.r;
+   // the ground: the blast's exact reach, filling as it comes
+   const ring=(y0,rad,sc,col,al,n,rot)=>{ctx.globalAlpha=al;ctx.fillStyle=col;for(let j=0;j<n;j++){const a=j/n*TAU+rot;ctx.fillRect(Math.round(X+Math.cos(a)*rad),Math.round(y0+Math.sin(a)*rad*sc),2,1);}};
+   if(t<T0){ctx.globalAlpha=.12+.18*u;ctx.fillStyle='#ffb040';ctx.beginPath();ctx.ellipse(X,Yg,rr*1.05*u,rr*.55*u,0,0,TAU);ctx.fill();ring(Yg,rr*1.05,.52,'#ffd060',.8,40,time*.6);
+    // the sky sigil: three counter-turning rings with rune ticks, growing
+    for(let j=0;j<3;j++)ring(Ys,(10+j*9)*Math.min(1,u*1.6),.35,j===1?'#fff0b0':'#ffd060',.9,14+j*8,time*(j%2?-1.4:1.1));
+    // a thread of light, thickening, motes falling down it
+    if(u>.45){const th=Math.round(1+(u-.45)*6);ctx.globalAlpha=.5+.5*u;ctx.fillStyle='#fff0b0';ctx.fillRect(X-(th>>1),Ys,th,Yg-Ys);if(Math.random()<.5)particles.push({x:f.x+rnd(-4,4),y:f.y+rnd(-4,4),vx:0,vy:20,t:.3,col:'#ffd060'});}}
+   else{const t2=t-T0;
+    // the pillar: full width, white-hot core, then gone, leaving a scorched ring that cools
+    if(t2<D.pillar){const k2=t2/D.pillar,w=rr*(1-k2*.4);ctx.globalAlpha=1-k2;ctx.fillStyle='#ff9a30';ctx.fillRect(X-w,Ys-40,w*2,Yg-Ys+40);ctx.fillStyle='#fff0b0';ctx.fillRect(X-w*.55,Ys-40,w*1.1,Yg-Ys+40);ctx.fillStyle='#ffffff';ctx.fillRect(X-w*.2,Ys-40,w*.4,Yg-Ys+40);}
+    const c=Math.max(0,1-t2/D.scorch);ctx.globalAlpha=.45*c;ctx.fillStyle='#1a0e08';ctx.beginPath();ctx.ellipse(X,Yg,rr,rr*.52,0,0,TAU);ctx.fill();ring(Yg,rr,.52,'#ff7a30',.8*c,30,0);}
+   ctx.globalAlpha=1;}});}
  return r;};}

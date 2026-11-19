@@ -180,7 +180,7 @@ function tenFunnel(z){const X=HSX(z.x,z.y),Y=HSY(z.x,z.y),H=z.height,fade=z.t<.3
  ctx.globalAlpha=1;}
 // R HEAVEN'S GALE: a colossal tornado lands on the cursor and drags the room in while giant feathers dive from the
 // sky onto everything caught in it
-function tenGale(p,dmg,tickDm){const v=kitAim(p,150);const z=tenCyclone(v.x,v.y,{r:kitFinal()?58:48,pull:170,t:3.5,follow:false,dm:tickDm,src:'e',big:true,height:96,drift:0});
+function tenGale(p,dmg,tickDm){const v=kitAim(p,150);const z=tenCyclone(v.x,v.y,{r:kitFinal()?58:48,pull:170,t:3,follow:false,dm:tickDm,src:'e',big:true,height:96,drift:0});
  if(kitFinal())for(const s of [-1,1])tenCyclone(v.x+Math.cos(p.aim+s*1.57)*70,v.y+Math.sin(p.aim+s*1.57)*70,{r:24,pull:60,t:2.6,follow:false,dm:tickDm*.6,src:'e',height:44});
  z.fe=0;const st=z.step;z.step=(z,dt,tick)=>{st(z,dt,tick);z.fe-=dt;if(z.fe<=0&&z.age>.3&&z.t>.3){z.fe=.18;const e=kitFoes(z.x,z.y,z.pull).sort(()=>Math.random()-.5)[0];
   const tx=e?e.x+rnd(-4,4):z.x+rnd(-30,30),ty=e?e.y+rnd(-4,4):z.y+rnd(-30,30);topFx({dur:.24,x:tx,y:ty,tg:e,draw:tenDiveFeather,fired:0});}};
@@ -243,8 +243,8 @@ function kagLotus(p,dmg,bloomDm){const cap=kitFinal()?10:8;let tg=[];let from=p;
  while(tg.length<cap&&pool.length){pool.sort((a,b)=>dist(a,from)-dist(b,from));from=pool.shift();tg.push(from);}
  const boss=tg.find(e=>e.boss);while(tg.length&&tg.length<5){tg.push(boss||tg[tg.length%Math.max(1,tg.length)]);}
  if(!tg.length)return false;HK.lotus=[];
- kitZone({src:'e',t:tg.length*.12+.55,tg,i:0,nx:0,lx:p.x,ly:p.y,step(z,dt){P.iv=Math.max(P.iv,.15);z.nx-=dt;
-   if(z.i<z.tg.length&&z.nx<=0){z.nx=.12;const e=z.tg[z.i++];if(e.dead)return;const an=angTo(P,e),tx=e.x+Math.cos(an)*(e.r+8),ty=e.y+Math.sin(an)*(e.r+8);
+ kitZone({src:'e',t:tg.length*.18+.55,tg,i:0,nx:0,lx:p.x,ly:p.y,step(z,dt){P.iv=Math.max(P.iv,.15);z.nx-=dt;
+   if(z.i<z.tg.length&&z.nx<=0){z.nx=.18;const e=z.tg[z.i++];if(e.dead)return;const an=angTo(P,e),tx=e.x+Math.cos(an)*(e.r+8),ty=e.y+Math.sin(an)*(e.r+8);
     const lx=P.x,ly=P.y;if(!blocked(tx,ty,4)){P.x=tx;P.y=ty;}P.face=Math.cos(an+Math.PI)>=0?1:-1;P.aim=an+Math.PI;
     hurtE(e,dmg,26,{slash:true,src:'e'});sfx('slash');topFx({dur:.25,x0:lx,y0:ly,x1:P.x,y1:P.y,draw(o,k){ctx.globalAlpha=(1-k)*.8;kLine(HSX(o.x0,o.y0),HSY(o.x0,o.y0)-10,HSX(o.x1,o.y1),HSY(o.x1,o.y1)-10,2,PET2);ctx.globalAlpha=(1-k)*.5;kLine(HSX(o.x0,o.y0),HSY(o.x0,o.y0)-9,HSX(o.x1,o.y1),HSY(o.x1,o.y1)-9,4,PET);}});
     if(!HK.lotus.find(l=>l.e===e))HK.lotus.push(topFx({dur:9,e,draw:kagLotusDraw,open:0}));}
@@ -408,25 +408,25 @@ function kitTick(dt){if(mode!=='play'||!P)return;marLinks(dt);marDollTick(dt);ch
 const KITDEF=[
  ['marionettist','NEEDLE CAST','SILK NEEDLE',0,'A FAST NEEDLE THAT STITCHES FOES.',({p,a,A,bp,em})=>{marNeedle(p,a,A*1.05*bp*em);p.atkCd=.31/S.aspd;}],
  ['marionettist','PUPPET LASH','REEL IN',1.3,'HOOK A FOE AND YANK IT TO YOU.',({p,a,A,bp,em})=>marReel(p,a,A*2.3*bp*em,p.hFull)],
- ['marionettist','CURSED THREAD','CURSED THREAD',5,'A SPOOL LINKS FOES. HIT ONE, HURT ALL.',({p,a,A,qm,em})=>marSpool(p,a,A*1.3*qm*em)],
+ ['marionettist','CURSED THREAD','CURSED THREAD',5,'A SPOOL LINKS FOES. HIT ONE, HURT ALL.',({p,a,A,qm,em})=>marSpool(p,a,A*1.5*qm*em)],
  ['marionettist','THREAD STEP','SWAP DOLL',8,'LEAVE A DECOY DOLL AND LEAP BACK.',({p,a})=>marDoll(p,a)],
  ['marionettist','COCOON','PUPPET DANCE',10,'LIFT A FOE ON STRINGS AND SWING IT.',({p,A,ap,em})=>marPuppet(p,A*1.6*ap*em)],
  ['marionettist','PUPPET MASTER','GRAND THEATRE',28,'HOIST FOES ON STRINGS, THEN SLAM THEM.',({p,A,ep,em})=>marTheatre(p,A*4.4*ep*em)],
  ['tengu','FEATHER BLADE','FEATHER BLADE',0,'TWO FEATHERS WEAVING AROUND EACH OTHER.',({p,a,A,bp,em})=>{tenFeathers(p,a,A*.68*bp*em);p.atkCd=.25/S.aspd;}],
- ['tengu','GALE WING','GUST',1.2,'A WALL OF WIND: SHOVES FOES, RETURNS SHOTS.',({p,a,A,bp,em})=>tenGust(p,a,A*1.3*bp*em,p.hFull)],
- ['tengu','WIND CUTTER','WIND CUTTER',4.5,'A BLADE THAT RICOCHETS OFF WALLS.',({p,a,A,qm,em})=>tenCutter(p,a,A*1.05*qm*em)],
+ ['tengu','GALE WING','GUST',1.2,'A WALL OF WIND: SHOVES FOES, RETURNS SHOTS.',({p,a,A,bp,em})=>tenGust(p,a,A*1.45*bp*em,p.hFull)],
+ ['tengu','WIND CUTTER','WIND CUTTER',4.5,'A BLADE THAT RICOCHETS OFF WALLS.',({p,a,A,qm,em})=>tenCutter(p,a,A*1.4*qm*em)],
  ['tengu','TAILWIND','UPDRAFT',6,'LEAP ON THE WIND, UNTOUCHABLE.',({p,A,ap,em})=>tenUpdraft(p,A*1.4*ap*em)],
- ['tengu','CYCLONE','CYCLONE',9,'A TORNADO THAT SWALLOWS FOES AND SHOTS.',({p,a,A,ap,em})=>{tenCyclone(p.x+Math.cos(a)*24,p.y+Math.sin(a)*24,{dm:A*.26*ap*em,t:kitFinal()?3.6:3});}],
+ ['tengu','CYCLONE','CYCLONE',9,'A TORNADO THAT SWALLOWS FOES AND SHOTS.',({p,a,A,ap,em})=>{tenCyclone(p.x+Math.cos(a)*24,p.y+Math.sin(a)*24,{dm:A*.3*ap*em,t:kitFinal()?3.6:3});}],
  ['tengu','DIVINE TEMPEST',"HEAVEN'S GALE",27,'A COLOSSAL TORNADO AND DIVING FEATHERS.',({p,A,ep,em})=>tenGale(p,A*1.1*ep*em,A*.4*ep*em)],
  ['kagura','DANCING CUT','DANCING CUT',0,'ALTERNATING FAN CUTS BUILD FLOW.',({p,a,A,bp,em})=>{const b=p.flowBoost>R.time;kagCut(p,a,A*bp*em*(b?1.45:1.2),b?44:36);p.atkCd=.29/S.aspd;}],
- ['kagura','CRIMSON SWEEP','SILK VEIL',1.3,'A RIBBON THAT THROWS SHOTS BACK.',({p,a,A,bp,em})=>kagVeil(p,a,A*1.5*bp*em,p.hFull)],
- ['kagura','CRESCENT FAN','FAN WALTZ',5,'FANS DANCE A FIGURE EIGHT AT THE CURSOR.',({p,A,qm,em})=>kagWaltz(p,A*.62*qm*em)],
+ ['kagura','CRIMSON SWEEP','SILK VEIL',1.3,'A RIBBON THAT THROWS SHOTS BACK.',({p,a,A,bp,em})=>kagVeil(p,a,A*1.75*bp*em,p.hFull)],
+ ['kagura','CRESCENT FAN','FAN WALTZ',5,'FANS DANCE A FIGURE EIGHT AT THE CURSOR.',({p,A,qm,em})=>kagWaltz(p,A*.74*qm*em)],
  ['kagura','PIROUETTE','PIROUETTE',6,'A SPINNING DASH. PASSED FOES BLOOM.',({p,a,A,ap,em})=>kagPirouette(p,a,A*2.1*ap*em)],
  ['kagura','PERFECT RHYTHM','RHYTHM',12,'HIT ON THE KBEAT FOR CRITS AND FLOW.',({p})=>kagRhythm(p)],
  ['kagura','THOUSAND PETALS','LOTUS DANCE',27,'BLINK FROM FOE TO FOE. LOTUSES BLOOM.',({p,A,ep,em})=>kagLotus(p,A*1.6*ep*em,A*2.6*ep*em)],
  ['bloodoracle','SCARLET INK','SCARLET INK',0,'INK DARTS. 3 HITS SEAL A FOE.',({p,a,A,bp,em})=>{chiInk(p,a,A*1.15*bp*em);p.atkCd=.32/S.aspd;}],
- ['bloodoracle','RED SCRIBE','BLOOD BRUSH',1.3,'PAINT A STROKE THAT ERUPTS.',({p,A,bp,em})=>{chiBrush(p,A*2.4*bp*em,p.hFull);}],
- ['bloodoracle','BLOOD SEAL','BLOOD SEAL',4,'6% HP: A SEAL THAT SPREADS TO 5 FOES.',({p,a,A,qm,em})=>chiSealShot(p,a,A*1.3*qm*em)],
+ ['bloodoracle','RED SCRIBE','BLOOD BRUSH',1.3,'PAINT A STROKE THAT ERUPTS.',({p,A,bp,em})=>{chiBrush(p,A*2.7*bp*em,p.hFull);}],
+ ['bloodoracle','BLOOD SEAL','BLOOD SEAL',4,'6% HP: A SEAL THAT SPREADS TO 5 FOES.',({p,a,A,qm,em})=>chiSealShot(p,a,A*1.8*qm*em)],
  ['bloodoracle','CRIMSON PASSAGE','BLOOD MIRROR',7,'SWAP PLACES WITH A FOE.',({p,a})=>chiMirror(p,a)],
  ['bloodoracle','HARVEST','HARVEST',6,'TEAR BLOOD ORBS FROM SEALED FOES.',({p,A,ap,em})=>chiHarvest(p,A*2*ap*em)],
  ['bloodoracle','FORBIDDEN PROPHECY','CRIMSON MOON',28,'A BLOOD MOON AND A KANJI THAT ERUPTS.',({p,A,ep,em})=>chiMoon(p,A*2.6*ep*em)],
@@ -461,7 +461,7 @@ Object.assign(ABTXT,{
  'WIND CUTTER':['A SPINNING BLADE THAT RICOCHETS OFF WALLS UP TO 3 TIMES.','EVERY BOUNCE MAKES IT FASTER AND STRONGER, AND IT CAN HIT AGAIN.','THROW IT INTO A CORRIDOR OR A CORNER.'],
  'UPDRAFT':['LEAP ON THE WIND TOWARD THE CURSOR.','UNTOUCHABLE IN THE AIR. LANDING BLASTS NEARBY FOES AWAY.','JUMP OVER A PACK, NOT INTO ONE.'],
  'CYCLONE':['A TORNADO DRIFTS AFTER YOUR CURSOR FOR 3S.','IT SUCKS FOES IN AND SPINS THEM, AND CATCHES ENEMY SHOTS, THEN FLINGS THEM OUT AS YOURS.','STEER IT THROUGH THE ENEMY LINE.'],
- "HEAVEN'S GALE":['A COLOSSAL TORNADO DRAGS THE ROOM IN FOR 3.5S.','GIANT FEATHERS DIVE FROM THE SKY ONTO EVERYTHING CAUGHT IN IT.','DROP IT WHERE THE ROOM IS THICKEST.'],
+ "HEAVEN'S GALE":['A COLOSSAL TORNADO DRAGS THE ROOM IN FOR 3S.','GIANT FEATHERS DIVE FROM THE SKY ONTO EVERYTHING CAUGHT IN IT.','DROP IT WHERE THE ROOM IS THICKEST.'],
  'DANCING CUT':['ALTERNATING LEFT AND RIGHT FAN CUTS.','HITS BUILD FLOW.','A STEADY RHYTHM KEEPS FLOW HIGH.'],
  'SILK VEIL':['A RIBBON SWEEPS IN FRONT OF YOU.','ENEMY SHOTS IT TOUCHES FLY BACK AS PETALS AT THE NEAREST FOE. FULL CHARGE: WIDER, LONGER.','TIME IT AS A VOLLEY ARRIVES.'],
  'FAN WALTZ':['TWO FANS FLY TO THE CURSOR AND DANCE A FIGURE EIGHT.','THEY CUT FOR 1.2S, THEN RETURN TO YOUR HANDS.','THROW THEM ON A PACK AND FIGHT ELSEWHERE.'],

@@ -2,11 +2,11 @@
 // SHINOBIDUNGEONS - the SHINOBI kit performed (see ANIMATION_AUDIT.md; core in 191). Violet shadow, smoke grey.
 //  RMB SHURIKEN FAN  a sweeping throw; real four-pointed stars that spin as they fly
 //  Q   SHADOW STEP   (already a real blink and stab) unchanged
-//  E   SMOKE BOMB    a black bomb cracks at his feet and the smoke billows out in rolling puffs
+//  E   SMOKE BOMB    (the original smoke cloud, kept)
 //  F   CALTROPS      a low sweeping toss: the spikes bounce out of his hand and land as little spiked jacks
 //  R   SHADOW CLONES the clones are drawn in his throwing pose when they throw, not as still copies
-Object.assign(ABTUNE,{shuri:{spin:22},calt:{n:12,fly:.3},smoke:{puffs:14,grow:.35},clone:{throw:.18}});
-for(const n of ['SHURIKEN FAN','SMOKE BOMB','CALTROPS'])ABX_OWN.add(n);
+Object.assign(ABTUNE,{shuri:{spin:22},calt:{n:12,fly:.3},clone:{throw:.18}});
+for(const n of ['SHURIKEN FAN','CALTROPS'])ABX_OWN.add(n);
 Object.assign(AB_ANIM,{'SHURIKEN FAN':['fanthrow',.28],'CALTROPS':['scatter',.34]});
 const isNin=()=>P&&CLS().k==='shinobi';
 {const _pa=abPoseAt;abPoseAt=function(H){const u=clamp((time-H.t0)/H.dur,0,1),d=H.dir,o={u,back:false,frame:null,flip:d<0,dx:0,dy:0,sx:1,sy:1,skew:0,rot:0,alpha:1};
@@ -29,14 +29,7 @@ CZD.calt=z=>{const C=ABTUNE.calt;ctx.globalAlpha=.4;for(let i=0;i<20;i++){const 
  for(const J of z.jacks){const u=Math.min(1,Math.max(0,(time-z.born-J.d)/C.fly)),x=z.from.x+(J.x-z.from.x)*u,y=z.from.y+(J.y-z.from.y)*u,h=Math.round(Math.abs(Math.sin(u*Math.PI*1.5))*10*(1-u*.5)),X=Math.round(sx(x,y)),Y=Math.round(sy(x,y))-h;
   // a spiked jack: four points, one always up
   ctx.fillStyle='#14101a';ctx.fillRect(X-2,Y-2,5,3);ctx.fillRect(X,Y-4,1,2);ctx.fillStyle='#a0a8b0';ctx.fillRect(X-1,Y-1,3,1);ctx.fillRect(X+(J.f?1:-1),Y-2,1,1);ctx.fillStyle='#e8eef6';ctx.fillRect(X,Y-3,1,1);}ctx.globalAlpha=1;};
-// ---- E SMOKE BOMB: the bomb cracks and the smoke rolls out ----
-{const _cc=classCast;classCast=function(k){const nz=zones.length;const r=_cc.apply(this,arguments);if(isNin()&&k==='w')for(const z of zones.slice(nz))if(z.k==='smoke'){z.born=time;z.puffs=[];const S2=ABTUNE.smoke;for(let i=0;i<S2.puffs;i++){const a=i/S2.puffs*TAU+rnd(-.3,.3),rr=rnd(.2,.8)*z.r;z.puffs.push({a,rr,s:rnd(.7,1.2),d:rnd(0,.12)});}}return r;};}
-CZD.smoke=z=>{if(!z.puffs){return;}const S2=ABTUNE.smoke,age=time-z.born,fade=Math.min(1,z.t/.6);
- // the bomb's crack at the start
- if(age<.12){const X=sx(z.x,z.y),Y=sy(z.x,z.y);ctx.fillStyle='#14101a';ctx.beginPath();ctx.arc(X,Y-3,3,0,TAU);ctx.fill();ctx.fillStyle='#ffd060';ctx.fillRect(X-1,Y-5,2,2);}
- for(const F of z.puffs){const g=abEase(Math.min(1,Math.max(0,age-F.d)/S2.grow));if(g<=0)continue;const drift=age*3,r0=F.rr*g,x=z.x+Math.cos(F.a)*r0,y=z.y+Math.sin(F.a)*r0,X=sx(x,y),Y=sy(x,y)-6-drift*.5,R0=(8+6*F.s)*g;
-  ctx.globalAlpha=.55*fade;ctx.fillStyle='#6a6474';ctx.beginPath();ctx.arc(X,Y,R0,0,TAU);ctx.fill();ctx.globalAlpha=.5*fade;ctx.fillStyle='#a8a2b4';ctx.beginPath();ctx.arc(X-R0*.25,Y-R0*.3,R0*.6,0,TAU);ctx.fill();}
- ctx.globalAlpha=1;};
+// ---- E SMOKE BOMB: the original smoke (kept: it reads best)
 // ---- R SHADOW CLONES: they throw in the throwing pose ----
 {const _cl=CZ.clone;CZ.clone=function(z,dt){const n0=projs.length;const r=_cl.apply(this,arguments);if(projs.length>n0){z.thrT=time;z.thrA=angTo(z,{x:projs[projs.length-1].x+projs[projs.length-1].vx,y:projs[projs.length-1].y+projs[projs.length-1].vy});}return r;};}
 CZD.clone=z=>{const s=heroSpr(CLS().k,P.evo||0),thr=z.thrT&&time-z.thrT<ABTUNE.clone.throw,fl=thr?scrVec(Math.cos(z.thrA),Math.sin(z.thrA))[0]<0:z.x>P.x;
