@@ -1,7 +1,7 @@
 'use strict';
 // SHINOBIDUNGEONS - ultimates get a show of their own. Pressing R now plays a short lead-in before the ultimate goes
 // off (you are invulnerable through it and rooted in place), then the ultimate fires, then its follow-through:
-//  DRAGON CLEAVE (samurai)     rises into the air, blade raised, wind rushing in and the dash line burning gold, then
+//  DRAGON CLEAVE (samurai)     lifted high into the air in his dash stance, wind rushing in and the dash line burning gold, then
 //                              the dash: a streak of afterimages along the path, and a landing slam
 //  ARROW STORM (archer)        leaps high, looses the storm from the top of the leap, and drops back down
 //  SHADOW CLONES (shinobi)     vanishes in smoke as three shadows split away, then reappears among them
@@ -11,7 +11,7 @@
 //  DRAGON DESCENT, METEOR RAIN, STOPPED TIME, TALISMAN STORM (wizard and the rare scrolls)
 //                              float up inside a circle of turning runes (a clock face for Stopped Time), then release
 const ULTSEQ={
- 'DRAGON CLEAVE':{pre:.38,iv:.75,k:'hover',rise:10,line:1,col:'#ff6040'},
+ 'DRAGON CLEAVE':{pre:.38,iv:.75,k:'hover',rise:22,line:1,dashPose:1,col:'#ff6040'},
  'ARROW STORM':{pre:.3,iv:.7,k:'leap',rise:16,col:'#e8dcb0'},
  'SHADOW CLONES':{pre:.28,iv:.55,k:'smoke',col:'#9a7aff'},
  'SIEGEBREAKER':{pre:.36,iv:.36,k:'brace',col:'#ffd060',shove:10},
@@ -46,7 +46,9 @@ const ultName=()=>P&&SPELLS.e[P.lo.e]?SPELLS.e[P.lo.e].n:'';
  switch(H.k){
   case 'u_hover':{const r=D.rise*abEase(Math.min(1,u/.7));o.frame=10;o.dy=-Math.round(r+Math.sin(time*18)*.8);o.sy=1+.06*u;o.float=r;o.glow=0;
    // a dash ultimate leans forward into its line in the last moments, blade drawn back, before it launches
-   if(D.line&&u>.6){const k2=abEase((u-.6)/.4);o.frame=12;o.skew=.34*d*k2;o.dx=Math.round(2*d*k2);o.sy=1-.06*k2;o.sx=1+.04*k2;o.dy=-Math.round(r*(1-.35*k2));}break;}
+   // the samurai is lifted already in his dash stance, leaning into the line he is about to cut
+   if(D.dashPose){o.frame=11;o.skew=.18*d;o.sy=1;}
+   if(D.line&&u>.6){const k2=abEase((u-.6)/.4);o.frame=D.dashPose?11:12;o.skew=(D.dashPose?.18+.16*k2:.34*k2)*d;o.dx=Math.round(2*d*k2);o.sy=1-.06*k2;o.sx=1+.04*k2;o.dy=-Math.round(r*(1-.35*k2));}break;}
   case 'u_leap':{const r=D.rise*Math.sin(Math.min(1,u)*Math.PI/2);o.frame=u<.4?12:13;o.dy=-Math.round(r);o.sy=u<.15?.82:1.05;o.float=r;break;}
   case 'u_smoke':{o.frame=8;o.alpha=Math.max(.05,1-u*1.4);o.clones=u;break;}
   case 'u_brace':{o.frame=13;o.sy=.84;o.sx=1.08;o.skew=.12*d;o.dx=Math.round(Math.sin(time*70)*u);o.muzzle=u;break;}

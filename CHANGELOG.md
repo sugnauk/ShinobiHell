@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.8.4: Samurai, Gunner and Lancer each get their own look
+## 0.8.4: Samurai, Gunner and Lancer each get their own look; a higher Dragon Cleave lift
 
 - **Samurai, Gunner and Lancer look different:** they were the same robed figure in different colours, with the same straw hat and horned helmet. Each now has a silhouette of their own at every stage, and their gear changes as they evolve:
   - SAMURAI: an armoured torso with great shoulder plates and wide split hakama. He keeps his straw hat through the middle stages (I–VI), with armour shoulders from stage IV; the horned helmet arrives at stage VII.
@@ -8,6 +8,7 @@
   - LANCER: a slim cuirass over a skirt of armour plates, and greaves. A white headband, then a rounded helmet with a neck guard, and a tall blade crest in the final form. A banner on his back grows taller as he evolves.
 
   The shoulder cords and shoulder blocks that every hero's middle and final forms used to share no longer appear on these three.
+- **DRAGON CLEAVE lift:** the samurai's ultimate now raises him more than twice as high (22 px instead of 10), and he rises in his dash stance, leaning into the line he is about to cut, instead of with his arms raised.
 
 ## 0.8.3: Beyond the throne: stages XIII and XIV, the endless Abyss, a bullet-pattern library and a fair attack director
 
