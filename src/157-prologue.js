@@ -50,11 +50,11 @@ const proOpt=()=>meta.opt.prologue!==false;
 {const _rmn=renderMenu;renderMenu=function(){if(PRO_ON)proOff();return _rmn.apply(this,arguments);};}
 {const _rsl=renderSelect;renderSelect=function(){if(PRO_ON)proOff();return _rsl.apply(this,arguments);};}
 // ---------- a gentler stage: fewer, weaker foes; no extra elites ----------
-{const _mk=mkEnemy;mkEnemy=function(){const e=_mk.apply(this,arguments);if(e&&PRO_ON&&!e.boss){e.hp*=.55;e.maxhp*=.55;e.dm*=.7;e.maxPosture*=.7;}return e;};}
+{const _mk=mkEnemy;mkEnemy=function(){const e=_mk.apply(this,arguments);if(e&&PRO_ON&&!e.boss){e.hp*=.55;e.maxhp*=.55;e.dm*=.6;e.maxPosture*=.7;}return e;};}
 {const _pr=populateRoom;populateRoom=function(r){const n0=enemies.length;const o=_pr.apply(this,arguments);if(PRO_ON){const mine=enemies.slice(n0);let keep=0;
-  enemies.length=n0;for(const e of mine){if(e.elite&&r.type!=='elite')continue;if(keep>=2&&Math.random()<.35)continue;keep++;enemies.push(e);}}return o;};}
+  enemies.length=n0;for(const e of mine){if(e.elite&&r.type!=='elite')continue;if(keep>=2&&Math.random()<.5)continue;keep++;enemies.push(e);}}return o;};}
 {const _bb=bossBarrage;bossBarrage=function(e){if(e&&e.boss&&PRO_ON&&Math.random()<.5)return;return _bb.apply(this,arguments);};}
-{const _mb=mkBoss;mkBoss=function(di){const b=_mb.apply(this,arguments);if(b&&PRO_ON){b.dm*=.75;b.dm0*=.75;b.maxPosture*=.7;b.pro=1;}return b;};}
+{const _mb=mkBoss;mkBoss=function(di){const b=_mb.apply(this,arguments);if(b&&PRO_ON){b.dm*=.65;b.dm0*=.65;b.maxPosture*=.7;b.pro=1;}return b;};}
 // ---------- character select: P switches the prologue on or off ----------
 {const _sk=selectKey;selectKey=function(c){if(c==='KeyP'&&!selLock){meta.opt.prologue=!proOpt();saveMeta();sfx('coin');return;}return _sk.apply(this,arguments);};}
 {const _rs=renderSelect;renderSelect=function(){_rs.apply(this,arguments);const s='P: PROLOGUE '+(proOpt()?'ON':'OFF');txt(s,SR.X+2,srY(CLASSES.length)+26,proOpt()?'#e08040':'#777');};}
@@ -104,3 +104,5 @@ function proRespawn(){R.proDeaths=(R.proDeaths||0)+1;
  R.pots=Math.max(R.pots||0,1);mode='play';flashT=0;
  fxRing(P.x,P.y,40,'#ffd070',.6);spark(P.x,P.y,'#ffd070',24,90);sfx('heal');
  setToast('MASTER KAITO PULLS YOU FROM THE FIRE - TRY AGAIN','#ffd070',4);}
+// ambush waves in the prologue bring one foe fewer (never below two)
+{const _rs=roomSpawn;roomSpawn=function(r,n){if(PRO_ON)n=Math.max(2,n-1);return _rs.call(this,r,n);};}

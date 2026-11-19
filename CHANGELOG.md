@@ -1,7 +1,11 @@
 # Changelog
 
-## 0.8.2: Sumo can heal, and primary attacks never spin
+## 0.8.2: Sumo can heal, primary attacks never spin, a gentler prologue
 
+- **The prologue is a little gentler:**
+  - Minions deal 60% damage (was 70%), and the boss deals 65% (was 75%).
+  - Rooms hold fewer minions: after the first two, each extra one has a 50% chance to be left out (was 35%). Ambush waves bring one foe fewer, never below two.
+  - A prologue now averages about 20 minions instead of 22.
 - **Primary attacks never spin:** Naginata Sweep, Dancing Cut and Bell Swing used a half-turn spin on every swing, so holding LMB kept the hero spinning. They now play a swing: a wind-up, a leaning slash toward your aim, and a recovery.
 - **A hard rule:** any spin on a primary (LMB) attack always plays as a swing.
 - **Heavies keep their spins:** a fully charged Iai Cleave still ends in its spin, and so do Spiral Lunge, Spirit Blade, Moonlit Crescent and Silk Veil.
