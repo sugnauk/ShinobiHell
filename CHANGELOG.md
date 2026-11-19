@@ -2,6 +2,9 @@
 
 ## 0.8.2: Prologues II and III, mobile play, Sumo can heal, primary attacks never spin, line weapons fire projectiles
 
+- **Arrow Storm's slow motion is quicker and shorter:**
+  - The world slows to 65% speed (was 55%) for 2.5s of game time (was 3.1s), about 3.6s real time (was 5s).
+  - The 30 arrows land a little faster, over 2.4s (was 2.7s).
 - **Prologues II and III (new: `184-prologues.js`):** the road from the burning village to the bamboo is now three short stages before stage I, each a little harder than the last, and each guardian teaches one thing.
   - **I. The Burning Village:** Goro, the bandit captain. Big telegraphed swings and charges, and slow fans of shots.
   - **II. The Flooded Fields:** Kurobe, the river pirate, ships the village's stolen rice downriver. He teaches bullet patterns: water rings off his oar, spray spirals, floating jars that burst. He also calls his river rats in to fight.

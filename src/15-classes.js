@@ -111,7 +111,7 @@ function classCast(k){const p=P,v=p.lo[k],a=p.aim,em=EMP(k),A=S.atk,bp=BP()*(p.m
   case 52:{const t=clampT(160);zones.push({k:'rain',x:t.x,y:t.y,r:42*AZ(),t:1.6,tk:0,dm:A*.35*qm*em});sfx('shoot');break;}
   case 53:{const ra=a+Math.PI;zones.push({k:'trap',x:p.x,y:p.y,r:16,t:10,tk:0,dm:A*3*ap*em});p.dx=Math.cos(ra);p.dy=Math.sin(ra);p.dash=.2;p.iv=Math.max(p.iv,.4);sfx('dash');break;}
   case 54:{zones.push({k:'hawk',x:p.x,y:p.y,r:0,t:8,tk:.3,dm:A*.5*ap*em,ang:0});sfx('rare');break;}
-  case 55:{const t=clampT(170);sfx('boss');setToast('ARROW STORM','#e8dcb0',1.2);ultSlow=Math.max(ultSlow,3.1);for(let i=0;i<30;i++){const an=Math.random()*TAU,rr=Math.sqrt(Math.random())*70;fx.push({k:'ult',x:t.x+Math.cos(an)*rr,y:t.y+Math.sin(an)*rr,wait:i*.09,t:.35,dur:.35,r:16,col:'#e8dcb0',dm:A*.8*ep*em,met:1,done:false});}break;}
+  case 55:{const t=clampT(170);sfx('boss');setToast('ARROW STORM','#e8dcb0',1.2);ultSlow=Math.max(ultSlow,ULTSLOW);for(let i=0;i<30;i++){const an=Math.random()*TAU,rr=Math.sqrt(Math.random())*70;fx.push({k:'ult',x:t.x+Math.cos(an)*rr,y:t.y+Math.sin(an)*rr,wait:i*.08,t:.35,dur:.35,r:16,col:'#e8dcb0',dm:A*.8*ep*em,met:1,done:false});}break;}
   // ---------- SHINOBI ----------
   case 60:{for(const o of [-.07,.07])pShot(p.x+Math.cos(a)*5,p.y+Math.sin(a)*5,a+o,290,A*.6*bp*em,{r:2,arrow:true,col:'#d0d8e0'});p.atkCd=.2/S.aspd;sfx('shoot');break;}
   case 61:{const n=p.hFull?7:5;for(let i=0;i<n;i++)pShot(p.x,p.y,a+(i/(n-1)-.5)*.9,210,A*.75*bp*em,{r:2,col:'#c8c8d0',pierce:1+S.pierce,cut:p.hFull?1:0});sfx('shoot');break;}
