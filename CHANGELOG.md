@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.8.4: Samurai, Gunner and Lancer each get their own look; a higher Dragon Cleave lift
+
+- **Samurai, Gunner and Lancer look different:** they were the same robed figure in different colours, with the same straw hat and horned helmet. Each now has a silhouette of their own at every stage, and their gear changes as they evolve:
+  - SAMURAI: an armoured torso with great shoulder plates and wide split hakama. He keeps his straw hat through the middle stages, and each one adds something you can see: at IV the hat gains a red band and gold knob and he wears a red lacquered breastplate laced in gold; at V, armour plates over his hakama; at VI, a black sleeveless battle coat and a gold crest on the hat. The horned helmet arrives at VII, and the coat stays.
+  - GUNNER: a short open jacket with a bandolier of powder flasks, a smouldering match-cord, narrow legs in white wraps, and an ammunition box on the back. A flat iron war hat, then a steel crested helmet with an upturned brim, and a crimson cape in the final form.
+  - LANCER: a slim cuirass over a skirt of armour plates, and greaves. A white headband, then a rounded helmet with a neck guard, and a tall blade crest in the final form. A banner on his back grows taller as he evolves.
+
+  The shoulder cords and shoulder blocks that every hero's middle and final forms used to share no longer appear on these three.
+- **DRAGON CLEAVE lift:** the samurai's ultimate now raises him more than twice as high (22 px instead of 10), and he rises in his dash stance, leaning into the line he is about to cut, instead of with his arms raised.
+
 ## 0.8.3: Beyond the throne: stages XIII and XIV, the endless Abyss, a bullet-pattern library and a fair attack director
 
 - **The campaign goes on (new: `188-lategame.js`):** beating the Emperor still wins the run, and a run that has beaten him always ends as a victory. At his portal, and at every portal after it, **G** goes deeper and **L** leaves in triumph. The victory screen shows how far beyond the throne you got.
