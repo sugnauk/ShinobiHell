@@ -57,7 +57,7 @@ const TCMDS=[['1','GOD MODE',()=>{R.god=!R.god;setToast('GOD MODE '+(R.god?'ON':
    if(TEST.panel){const m=/^Digit(\d)$/.exec(c);if(m){const cmd=TCMDS.find(t=>t[0]===m[1]);if(cmd){cmd[2]();sfx('pickup');}return;}}}
   return _ok(c);};}
 {const _r=render;render=function(){if(mode==='testmenu'){setView(false);ctx.imageSmoothingEnabled=false;renderTestMenu();return;}return _r();};}
-{const _rt=renderTitle;renderTitle=function(){_rt();txt('T: TEST MODE',4,H-9,'#666');};}
+// (the title screen now draws its own test-mode hint: see 200-tips-title.js)
 {const _rh=renderHub;renderHub=function(){_rh();txt('T: TEST',W-4-txtW('T: TEST'),4,'#555');};}
 {const _h=drawHUD;drawHUD=function(){_h();if(!R||!R.test)return;txt('TEST'+(R.god?' GOD':''),6,52,'#ffd040');
   const pct=TEST.combatT?Math.round(100*TEST.invT/TEST.combatT)+'%':'--';
