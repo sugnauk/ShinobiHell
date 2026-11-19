@@ -189,43 +189,85 @@ Each ability also lists what gameplay it already has, so the timings line up. Ti
 - **Impact:** none.
 - **Gameplay:** the ring of ofuda sits exactly on the healing radius.
 
-### Remaining roster (design summary; built after review, biggest gaps first)
+### The rest of the roster (built in the second pass)
+Each entry gives the fantasy and what was built. Timings are in `ABTUNE`, and every visual reach equals the gameplay reach.
 
-Order: **Lancer (E/F), Onmyoji-like Wizard, Archer Q/F, Shinobi RMB/F, Gunner RMB/Q/F**, then polish passes on the 179 heroes.
-
-- **Wizard.**
-  - RMB VOID ORB: a pull-back cast, and a violet black-hole orb with an accretion ring that bends nearby particles.
-  - Q CHAIN LIGHTNING: a finger-point recoil; each arc is drawn as a forked bolt that hangs for 80 ms.
-  - E SPIRIT WARD: a rune shield physically planted in front, rotating; bullets bounce off its face.
-  - F FROST NOVA: staff slammed down; ice spikes erupt outward in a ring.
-  - R DRAGON DESCENT: a sky glyph opens over the cursor and a dragon's claw of light strikes down.
-- **Archer.**
-  - Q ARROW RAIN: a skyward shot (bow pointed up), then arrows fall from above at angles, sticking into the ground.
-  - F HAWK: a real hawk (wings, glide/flap cycle) circles and dives on targets with feather darts.
-  - RMB CHARGED SHOT: string-pull trembling; the arrow leaves a wind wake.
-- **Shinobi.**
-  - RMB SHURIKEN FAN: a spinning throw with arm sweep; 4-point spinning stars.
-  - F CALTROPS: a scatter throw; caltrops bounce out from the hand and land as 3D-ish tetrahedra.
-- **Gunner.**
-  - RMB HEAVY SLUG: a shoulder-set brace and a big recoil; the slug is drawn as a ball with a smoke corkscrew.
-  - Q GRAPESHOT: a hip-fire spray, a muzzle cone of fire, pellets as hot shards.
-  - F TRIPOD GUN: he kneels and assembles the tripod leg by leg.
-- **Lancer.**
-  - E DEFLECT: the spear spun in front like a propeller (a rotating haft); reflected bullets fly off its arc.
-  - F WAR BANNER: he raises and drives a tall banner into the ground with a slam; the cloth ripples.
-- **179 heroes and Sumo:** body poses for the abilities that still use generic `cast`/`throw`: Swap Doll, Puppet Dance, Updraft, Cyclone, Harvest, Echo Notes.
-
----
+- **Wizard** (`193-wizard-motion.js`): amber runes and void violet.
+  - **RMB Void Orb:** the staff is drawn back and thrust (260 ms); the orb is a small black hole, a dark core inside a turning violet disc, drawing motes in.
+  - **Q Chain Lightning:** the body jolts with the current (260 ms); the bolt is forked and jagged and re-strikes every 40 ms while it holds (250 ms), with a white burst on each foe.
+  - **E Spirit Ward:** the staff is planted; four rune tablets orbit him as the shield, passing in front of and behind him, and one flares each time a shot is thrown back. This replaces the flat bubble.
+  - **F Frost Nova:** the staff slam (existing); a ring of ice spikes erupts outward to the exact blast radius in 150 ms, holds for 300 ms, then shatters. The screen flash and plain rings are gone.
+  - **R Dragon Descent:** the hover lead-in (existing); a golden dragon's claw falls out of the sky onto the blast over 900 ms and lands as it explodes.
+- **Archer** (`194-archer-motion.js`): bone-white fletching and leaf green.
+  - **RMB Charged Shot:** a long fletched arrow leaving a wake of wind.
+  - **Q Arrow Rain:** she leans back and looses one arrow straight up; the volley falls and the arrows stay stuck in the ground, so you can see where it rained. The damage now starts when the first arrows land, 0.18 s after the cast.
+  - **E Evade Roll:** the roll (existing); the snare is a rope noose on a stake.
+  - **F Hawk:** a real hawk with three-frame wing beats. It swoops down from 70 px up, circles and banks, and spreads its wings as it throws a feather.
+  - **R Arrow Storm:** an arrow is seen falling onto every blast and stays stuck for a moment.
+- **Shinobi** (`195-shinobi-motion.js`): violet shadow and smoke grey.
+  - **RMB Shuriken Fan:** a sweeping throw; spinning four-point stars.
+  - **E Smoke Bomb:** the bomb cracks and 14 puffs billow out and drift.
+  - **F Caltrops:** a low underhand toss; twelve jacks bounce out from the hand and land.
+  - **R Shadow Clones:** the clones are drawn in his throwing pose when they throw.
+  - **Q Shadow Step** was already physical.
+- **Gunner** (`196-gunner-motion.js`): powder smoke, orange fire, brass.
+  - **RMB Heavy Slug:** a fan of fire and a smoke cloud at the muzzle; a hot iron slug trailing a corkscrew of smoke.
+  - **Q Grapeshot:** a cone of fire the width of the spread; pellets as hot shards.
+  - **E Powder Roll:** the keg goes up in a fireball, a smoke ring and flying staves, with no screen flash.
+  - **F Tripod Gun:** set up leg by leg, then the gun drops onto it; it turns to its target, kicks and flashes on every shot.
+  - **R Siegebreaker** was already at standard.
+- **Lancer** (`197-lancer-motion.js`): ice-blue steel and banner red.
+  - **RMB Spiral Lunge:** now a real lunge (it was a teleport): he travels 360 px/s, and each foe is cut as the spearhead reaches it.
+  - **Q Wheel Sweep:** its own move: the full spear sweeps round twice, with the blade trailing. It no longer borrows the Samurai's Whirlwind arcs.
+  - **E Deflect:** the spear spun in front of him like a propeller, throwing a spark per shot turned.
+  - **F War Banner:** a tall banner with rippling cloth, and pennant stakes on the area's edge instead of a red disc.
+- **Kagura, Bell Warden, Sumo, Tengu, Chimiko, Marionettist** (`198-roster-motion.js`): their kits were already built around real objects, so they got body motion for the abilities that used shared poses.
+  - **Kagura Rhythm:** stamps and turns on the beat.
+  - **Bell Warden:**
+    - Iron Bell: an overhead heave before the throw.
+    - Sanctuary: kneels in prayer as the bell drops.
+    - Echo Notes: strikes the bell.
+    - Heaven's Bell: hauls an unseen bell rope twice.
+  - **Sumo:** Yokozuna's Ring opens with a leg-raise and stamp (a dohyo-iri) that sends dust rolling out.
+  - **Tengu:** Updraft is a crouch and spring; Cyclone is a full fan swing.
+  - **Chimiko Harvest:** strains against the threads.
+  - **Marionettist Puppet Dance:** fingers working the strings.
 
 ## Build log
 
 | Character | Status | File |
 |---|---|---|
-| Samurai | built: RMB resheathe, E high-guard stance and full-circle counter, F kiai with the 喝 glyph and dust pressure rings | `191-ability-motion.js` (also holds the shared core) |
-| Onmyoji | built: RMB fox spirit, Q paper hitogata throwing origami cranes, E Seimei-star dome that cracks, F gohei and standing wards | `192-onmyoji-motion.js` |
-| Others | designed (above), not built | waiting for feel review |
+| Samurai | built (first pass) | `191-ability-motion.js` (also holds the shared core) |
+| Onmyoji | built (first pass) | `192-onmyoji-motion.js` |
+| Wizard | built | `193-wizard-motion.js` |
+| Archer | built | `194-archer-motion.js` |
+| Shinobi | built | `195-shinobi-motion.js` |
+| Gunner | built | `196-gunner-motion.js` |
+| Lancer | built | `197-lancer-motion.js` |
+| Kagura, Bell Warden, Sumo, Tengu, Chimiko, Marionettist | body-motion pass | `198-roster-motion.js` |
+| Balance and clarity fixes | built | `199-balance-pass.js` |
+
+### Global changes
+- **Sigil removed:** the white star sigil (the generic `seal` burst under every hero on E and R) is gone for every hero.
+- **No screen flash on basic abilities:** only ultimates flash the screen; shake and hit-stop are kept.
+- **Generic burst muted:** the rings and rays from 147 are muted for every ability that now performs itself.
+
+### Bugs found and fixed
+- **Siege cannon everywhere:** the Gunner's Siegebreaker cannon was drawn on Heavy Slug and Grapeshot, and during the Sumo's and Bell Warden's ultimate lead-ins. It now shows only for Siegebreaker itself.
+- **Spiral Lunge teleported** the lancer instead of lunging.
+- **Wheel Sweep** drew the Samurai's Whirlwind arcs.
+- **Uwatenage** whiffed on a foe at arm's length (38 px grab); the reach is now 54 px.
+- **Harvest and Echo Notes** failed silently with nothing to spend; they now say why.
+
+### Balance and strategy changes
+- **Shadow Step with no foe in reach:** a 70 px shadow blink toward the cursor at half cooldown, instead of doing nothing.
+- **Thousand Thrusts:** each thrust is trimmed from 0.9× to 0.75× ATK. It dealt about 1.5× the next strongest ultimate on a pack: 133× ATK against six foes, versus 91× for Crimson Moon.
+- **Arrow Rain timing:** damage starts when the arrows land, 0.18 s later.
+
+The per-cast damage of every ability (six dummies, evolution 6) is listed in the PR. Nothing else stood out once AoE and single-target roles are accounted for. A 30-second rotation simulation was tried and dropped: positioning noise swamped it.
 
 ### Checks (headless, Playwright)
+- **Ability sweep (all 13 heroes × RMB/Q/E/F/R):** cast against a pack; no errors, no NaN positions, no stuck poses, and no movement ability fired into a wall ends inside it.
 - **Every ability fired at evolution 6 and 9:** each pose ends on its own, with nothing stuck mid-air or mid-pose.
   - Samurai: RMB 0.45 s (lunge + resheathe), Q 0.63, E 1.20 (or as soon as the guard ends), F 0.48, R 0.82.
   - Onmyoji: RMB 0.32, Q 0.43, E 0.47, F 0.52, R 0.93.
