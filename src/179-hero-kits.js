@@ -443,7 +443,7 @@ for(const [hero,old,name,cd,d,fn] of KITDEF){const slot='mhqwfe'[KITDEF.filter(r
 // poses (167) and ultimate lead-ins (168)
 Object.assign(AB_ANIM,{'REEL IN':['throw',.26],'CURSED THREAD':['throw',.26],'SWAP DOLL':['vanish',.3],'PUPPET DANCE':['cast',.4],'GRAND THEATRE':['bigcast',.6],
  'GUST':['throw',.28],'WIND CUTTER':['throw',.24],'UPDRAFT':['cast',.5],'CYCLONE':['cast',.3],"HEAVEN'S GALE":['fall',.4],
- 'DANCING CUT':['swing',.16],'SILK VEIL':['swing',.32],'FAN WALTZ':['throw',.3],'PIROUETTE':['spin',.24,1],'RHYTHM':['roar',.36],'LOTUS DANCE':['spin',1,3],
+ 'DANCING CUT':['swing',.16],'SILK VEIL':['spin',.32,.7],'FAN WALTZ':['throw',.3],'PIROUETTE':['spin',.24,1],'RHYTHM':['roar',.36],'LOTUS DANCE':['spin',1,3],
  'BLOOD BRUSH':['thrust',.28,.8],'BLOOD SEAL':['throw',.3],'BLOOD MIRROR':['blink',.28],'HARVEST':['cast',.45],'CRIMSON MOON':['bigcast',.7],
  'BELL SWING':['swing',.2],'IRON BELL':['throw',.32],'STANDING WAVE':['slam',.32],'SANCTUARY':['guard',.9],'ECHO NOTES':['cast',.3],"HEAVEN'S BELL":['roar',.5]});
 Object.assign(ULTSEQ,{'GRAND THEATRE':{pre:.34,iv:.6,k:'hover',rise:10,runes:1,col:MAR},"HEAVEN'S GALE":{pre:.32,iv:.7,k:'leap',rise:18,col:WND},

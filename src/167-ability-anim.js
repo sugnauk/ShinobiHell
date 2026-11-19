@@ -19,7 +19,7 @@
 const AB_ANIM={
  'PUPPET LASH':['throw',.28],'CURSED THREAD':['cast',.3],'THREAD STEP':['blink',.26],'COCOON':['guard',.4],'PUPPET MASTER':['bigcast',.56],
  'GALE WING':['throw',.28],'WIND CUTTER':['throw',.24],'TAILWIND':['lunge',.24],'CYCLONE':['cast',.28],'DIVINE TEMPEST':['bigcast',.62],
- 'DANCING CUT':['swing',.16],'CRIMSON SWEEP':['swing',.28],'CRESCENT FAN':['throw',.34],
+ 'DANCING CUT':['swing',.16],'CRIMSON SWEEP':['spin',.28,.75],'CRESCENT FAN':['throw',.34],
  'PIROUETTE':['spin',.3,1],'PERFECT RHYTHM':['cast',.32],'THOUSAND PETALS':['spin',1.12,3],
  'RED SCRIBE':['cast',.3],'BLOOD SEAL':['cast',.38],'CRIMSON PASSAGE':['blink',.3],'HARVEST':['cast',.45],'FORBIDDEN PROPHECY':['bigcast',.68],
  'BELL SWING':['swing',.2],'TEMPLE TOLL':['slam',.32],'RESONANT STRIKE':['slam',.32],'SACRED CHIME':['guard',.42],
@@ -29,7 +29,7 @@ const AB_ANIM={
  // LMB (only the melee and special ones get a pose; ranged basics keep the quick shot)
  'ODACHI CLEAVE':['slam',.42],'YARI THRUST':['thrust',.22],'NAGINATA SWEEP':['swing',.3],'KUSARIGAMA':['throw',.25],'SUZU PULSE':['cast',.3],
  // RMB heavies
- 'SPIRIT BLADE':['swing',.3],'VOID ORB':['cast',.3],'FROST LANCE':['throw',.24],'MOONLIT CRESCENT':['swing',.34],'IAI CLEAVE':['lunge',.24],
+ 'SPIRIT BLADE':['spin',.3,.5],'VOID ORB':['cast',.3],'FROST LANCE':['throw',.24],'MOONLIT CRESCENT':['spin',.34,.6],'IAI CLEAVE':['lunge',.24],
  'CHARGED SHOT':['recoil',.22,.6],'SHURIKEN FAN':['throw',.24],'SPIRIT FOX':['cast',.3],'HEAVY SLUG':['recoil',.34,1.2],'SPIRAL LUNGE':['lunge',.5],
  // Q
  'CHAIN LIGHTNING':['cast',.32],'FLAME WAVE':['thrust',.3,.6],'KITSUNE STEP':['blink',.3],'HEAVENLY JUDGMENT':['bigcast',.5],'WHIRLWIND':['spin',.62,3],
@@ -48,7 +48,7 @@ function abStartPose(k){if(!P)return;const sp=SPELLS[k]&&SPELLS[k][P.lo[k]];cons
  // a lunge or spin uses the direction you are aiming (screen left or right)
  const ax=scrVec(Math.cos(P.aim||0),Math.sin(P.aim||0))[0];
  ABPOSE={k:k==='m'&&A[0]==='spin'?'swing':A[0],dur:A[1], // a basic attack never spins: it swings
- p:A[2]!=null?A[2]:1,t0:time,dir:ax<0?-1:1,full:k==='h'&&!!P.hFull&&sp.n==='SPIRAL LUNGE'};} // only Spiral Lunge ends a full charge in a spin
+ p:A[2]!=null?A[2]:1,t0:time,dir:ax<0?-1:1,full:k==='h'&&!!P.hFull};} // a full-charge heavy (Iai Cleave, Spiral Lunge) ends in a spin
 {const _cs=castShow;castShow=function(k){const r=_cs.apply(this,arguments);try{abStartPose(k);}catch(_){}return r;};}
 {const _cb=castBolt;castBolt=function(){const b=P&&P.atkCd;const r=_cb.apply(this,arguments);try{if(P&&P.atkCd!==b)abStartPose('m');}catch(_){}return r;};}
 // ---- the pose at a moment: which sheet view, frame and flip, and how the body is moved, leaned, squashed or turned
