@@ -1,5 +1,74 @@
 # Changelog
 
+## 0.8.5: Every ability performed by the body or a summoned thing; the star sigil is gone; ability fixes
+
+The full plan and audit are in `ANIMATION_AUDIT.md`.
+
+- **The white star sigil is gone:** the spinning star that appeared under every hero on E and R has been removed. Only ultimates flash the screen now.
+- **Samurai:**
+  - **Iai Cleave:** he resheathes, and everything he cut flashes at once.
+  - **Guard Stance:** a high guard; a hit sets off a full-circle counter cut drawn at its real reach.
+  - **War Cry:** a kiai with a big 喝 (KATSU) glyph and dust rings that run out to the stun's edge.
+- **Onmyoji:**
+  - **Spirit Fox:** a running fox spirit.
+  - **Shikigami:** paper servants that unfold and throw origami cranes.
+  - **Barrier:** five talismans pin a star and a dome rises; it cracks as the shield is spent.
+  - **Healing Circle:** a gohei wand planted at the centre, with paper wards standing on the heal radius.
+- **Wizard:**
+  - **Void Orb:** a black hole.
+  - **Chain Lightning:** a forked, flickering bolt.
+  - **Spirit Ward:** orbiting rune tablets.
+  - **Frost Nova:** a ring of ice spikes.
+  - **Dragon Descent:** a golden dragon's claw falling from the sky.
+- **Archer:**
+  - **Charged Shot:** a long arrow with a wind wake.
+  - **Arrow Rain:** one arrow shot up, then arrows falling and staying stuck in the ground.
+  - **Evade Roll:** the snare is a rope noose.
+  - **Hawk:** a real hawk that swoops, circles and screeches.
+  - **Arrow Storm:** you see the arrows falling.
+- **Shinobi:**
+  - **Shuriken Fan:** spinning stars.
+  - **Caltrops:** bounce out from the hand.
+  - **Smoke Bomb:** billowing smoke.
+  - **Shadow Clones:** the clones throw in pose.
+- **Gunner:**
+  - **Heavy Slug:** muzzle fire and a smoking iron slug.
+  - **Grapeshot:** a cone of fire.
+  - **Powder Roll:** the keg explodes with flying staves.
+  - **Tripod Gun:** assembled leg by leg, then it aims and kicks on every shot.
+- **Lancer:**
+  - **Spiral Lunge:** a real lunge.
+  - **Wheel Sweep:** the whole spear sweeps round him.
+  - **Deflect:** a propeller spin.
+  - **War Banner:** a rippling banner with stakes on its edge.
+- **Kagura, Bell Warden, Sumo, Tengu, Chimiko, Marionettist:** their own body motion for the abilities that used shared poses, and their own wind-ups for Heaven's Bell and Yokozuna's Ring.
+- **Guardian echoes (new: `201-echoes.js`):** a guardian you have beaten can return in later dungeons as a mini-boss waiting in a side room.
+  - It's drawn as its little boss rush portrait, with its second form at half health.
+  - It fights with a shadow of its old fight: its own bullet patterns and its own way of moving.
+  - Its health and damage are set by the stage you're on.
+  - It drops a royal bag of that stage's loot.
+  - At most one per dungeon, in about 3 runs out of 5. Never in its own stage, the prologues, training or the boss rush.
+- **Use your abilities:** a tip early in the first fight says to use your abilities the moment they are ready, and every ability tooltip ends with the same advice.
+- **Boss rush menu lag:** hovering the boss rush entry rebuilt every guardian's full sheet on every frame. Each sheet is now built once.
+- **Title screen:** a new logo, drawn from the game's pixel font: a solid crimson DUNGEONS with a heavy outline and drop shadow, and a light sheen that sweeps across it. A gold SHINOBI sits between rules, a katana lies under the title, and a red 忍 seal is stamped beside it. Below it is one line that changes on every visit (22 jabs at the bosses and the game) and the prompt. That's all: no blurb, tips or key hints.
+- **Touch controls:**
+  - The buttons are bigger and spread over the whole right side: DASH, then an arc of RMB/Q/E/F, then R, POT and USE.
+  - Auto-aim and auto-attack are always on, so there's no aim stick.
+  - The buttons stay usable during tips, and the ones a tip asks for pulse.
+  - The ability bar along the bottom is hidden on touch; the buttons show the cooldowns.
+  - No cursor on a touchscreen: it is all touch.
+  - Full screen: every tap asks for full screen until the browser grants it, including the older prefixed form, so the address bar goes away on Android and iPad. The page is also a web app (a manifest and Apple's web-app tags), so on iPhone, where Safari never lets a page hide its bars, adding it to the home screen opens it full screen in landscape. A one-time note on the menu tells iPhone players how.
+- **Fixes:**
+  - The Siegebreaker cannon showed up on Heavy Slug, Grapeshot, and the Sumo's and Bell Warden's ultimates.
+  - Spiral Lunge teleported instead of lunging.
+  - Wheel Sweep used the Samurai's arcs.
+  - Uwatenage whiffed at arm's length.
+  - Harvest and Echo Notes failed silently.
+- **Balance:**
+  - Shadow Step with no target is a short blink toward the cursor at half cooldown.
+  - Thousand Thrusts deals 0.75× ATK per thrust instead of 0.9×.
+  - Arrow Rain's damage starts as the arrows land.
+
 ## 0.8.4: Samurai, Gunner and Lancer each get their own look; a higher Dragon Cleave lift
 
 - **Samurai, Gunner and Lancer look different:** they were the same robed figure in different colours, with the same straw hat and horned helmet. Each now has a silhouette of their own at every stage, and their gear changes as they evolve:
