@@ -42,6 +42,20 @@ The full plan and audit are in `ANIMATION_AUDIT.md`.
   - **Deflect:** a propeller spin.
   - **War Banner:** a rippling banner with stakes on its edge.
 - **Kagura, Bell Warden, Sumo, Tengu, Chimiko, Marionettist:** their own body motion for the abilities that used shared poses, and their own wind-ups for Heaven's Bell and Yokozuna's Ring.
+- **Guardian echoes (new: `201-echoes.js`):** a guardian you have beaten can return in later dungeons as a mini-boss waiting in a side room.
+  - It's drawn as its little boss rush portrait, with its second form at half health.
+  - It fights with a shadow of its old fight: its own bullet patterns and its own way of moving.
+  - Its health and damage are set by the stage you're on.
+  - It drops a royal bag of that stage's loot.
+  - At most one per dungeon, in about 3 runs out of 5. Never in its own stage, the prologues, training or the boss rush.
+- **Use your abilities:** a tip early in the first fight says to use your abilities the moment they are ready, and every ability tooltip ends with the same advice.
+- **Boss rush menu lag:** hovering the boss rush entry rebuilt every guardian's full sheet on every frame. Each sheet is now built once.
+- **Title screen:** the text is rewritten: the heroes, the prologues, the twelve stages and what lies beyond the throne, one clear prompt, and a footer that cycles through tips.
+- **Touch controls:**
+  - The buttons are bigger and spread over the whole right side: DASH, then an arc of RMB/Q/E/F, then R, POT and USE.
+  - Auto-aim and auto-attack are always on, so there's no aim stick.
+  - The buttons stay usable during tips, and the ones a tip asks for pulse.
+  - The ability bar along the bottom is hidden on touch; the buttons show the cooldowns.
 - **Fixes:**
   - The Siegebreaker cannon showed up on Heavy Slug, Grapeshot, and the Sumo's and Bell Warden's ultimates.
   - Spiral Lunge teleported instead of lunging.
