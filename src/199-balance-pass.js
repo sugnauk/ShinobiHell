@@ -7,7 +7,7 @@
 //  - THOUSAND THRUSTS dealt about 1.5x the next strongest ultimate against a pack (133x ATK vs 91x on six foes):
 //    each thrust is trimmed from 0.9x to 0.75x ATK (single target it stays the best melee ultimate)
 //  - ARROW RAIN now starts when its first arrows land (0.18s after the cast), so the damage matches what you see
-const BAL={stepFallback:{dist:70,cd:.5},flurry:.75/.9};
+const BAL={stepFallback:{dist:70,cd:.5},flurry:.65/.9};
 // SHADOW STEP fallback
 {const _cc=classCast;classCast=function(k){const p=P;if(p&&k==='q'&&CLS().k==='shinobi'&&p.lo.q===6&&!(p.ab.q>0)&&!(p.stag>0)){
   const has=enemies.some(e=>!e.dead&&!e.air&&e.type!=='turret'&&dist(e,p)<=170&&los(p.x,p.y,e.x,e.y));

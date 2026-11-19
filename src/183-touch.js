@@ -70,7 +70,10 @@ addEventListener('mousemove',()=>{if(TOUCH&&performance.now()-TOUCHAT>1500){TOUC
  // the same screen-to-world turn the keys use
  return unrot((dx+dy)*.7071,(dy-dx)*.7071);};}
 // aiming and attacking are automatic: the aim rests on the nearest foe, and the basic attack fires while one is in reach
-function touchTarget(){let best=null,bd=180;for(const e of enemies){if(e.dead||e.air||e.prop||e.ghost)continue;const d=Math.hypot(e.x-P.x,e.y-P.y);if(d<bd&&los(P.x,P.y,e.x,e.y)){bd=d;best=e;}}return best;}
+// auto-aim only locks on to foes about two-thirds of the way to the screen edge, so long-range kits do not snipe
+// foes you cannot see coming (it was 180)
+const TOUCHAIM=130;
+function touchTarget(){let best=null,bd=TOUCHAIM;for(const e of enemies){if(e.dead||e.air||e.prop||e.ghost)continue;const d=Math.hypot(e.x-P.x,e.y-P.y);if(d<bd&&los(P.x,P.y,e.x,e.y)){bd=d;best=e;}}return best;}
 {const _u=update;update=function(dt){const r=_u.apply(this,arguments);if(!TOUCH)return r;
  if(touchActive()&&!TIPHOLD){const t=touchTarget();if(t){mouse.x=W/2+sx(t.x,t.y)-sx(P.x,P.y);mouse.y=H/2+6+sy(t.x,t.y)-sy(P.x,P.y);}mouse.down=!!t&&!mouse.rdown;}
  else if(TOUCH&&mode==='play')mouse.down=false;return r;};}
@@ -113,3 +116,8 @@ document.addEventListener('webkitfullscreenchange',()=>{const v=VIEWWIDE;W=0;set
  const a='FOR FULL SCREEN ON IPHONE:',b='SHARE, THEN ADD TO HOME SCREEN, THEN OPEN IT FROM THERE',w=Math.max(txtW(a),txtW(b))+12,x=Math.round(W/2-w/2),y=H-40;
  ctx.fillStyle='rgba(8,6,14,.9)';ctx.fillRect(x,y,w,22);ctx.strokeStyle='#ffd040';ctx.strokeRect(x+.5,y+.5,w-1,21);txt(a,x+6,y+4,'#ffd040');txt(b,x+6,y+13,'#ddd');
  if(!told){told=true;setTimeout(()=>{meta.tips=meta.tips||{};meta.tips.iosfs=1;saveMeta();},12000);}}return r;};}
+// shrine offerings take a tap: each offering row and LEAVE are buttons (the screen used to want the 1-4 keys)
+cv.addEventListener('mousedown',e=>{if(mode!=='event'||!evOpts||e.button!==0)return;const x=mouse.x,y=mouse.y;
+ for(let i=0;i<evOpts.length;i++){const y0=54+i*30;if(x>=24&&x<=296&&y>=y0&&y<=y0+24){pickEvent(i);mouse.down=false;return;}}
+ if(y>=144&&y<=162){pickEvent(3);mouse.down=false;}});
+{const _re=renderEvent;renderEvent=function(){_re.apply(this,arguments);if(!TOUCH)return;ctx.fillStyle='#000';ctx.fillRect(0,36,W,10);ctxt('ONE OFFERING ONLY - TAP ONE, OR TAP LEAVE',40,'#888');};}

@@ -13,7 +13,7 @@
 const SUMC='#f4ae72',SUMW='#fff1c8',STRAW='#d8b868',STRAW2='#8a6a2a';
 const sumoGrab=e=>sumoCanHit(e)&&sumoCanThrow(e)&&!e.sumoFlight;
 // LMB TSUPPARI
-function sumTsuppari(p,a,A,bp,em){p.tsu=(R.time-(p.tsuT??-9)>.9?1:(p.tsu||0)+1)%3;p.tsuT=R.time;const dbl=p.tsu===0,dm=A*1.25*bp*em*(dbl?1.6:1);
+function sumTsuppari(p,a,A,bp,em){p.tsu=(R.time-(p.tsuT??-9)>.9?1:(p.tsu||0)+1)%3;p.tsuT=R.time;const dbl=p.tsu===0,dm=A*1.6*bp*em*(dbl?1.6:1);
  for(const off of dbl?[-5,5]:[0]){const px=p.x-Math.sin(a)*off,py=p.y+Math.cos(a)*off;
   const q=kitShot(px,py,a,250,dm,{spr:'palm',col:SUMC,r:5,src:'m',life:.13*(1+S.rangeM*.4),pierce:dbl?1:0,pd:dbl?28:12,dbl});
   if(dbl)q.onHit=(q,e)=>{if(!e.boss&&e.type!=='turret'){e.kx=Math.cos(a)*260;e.ky=Math.sin(a)*260;e.act=null;e.shoved=R.time;}};}
@@ -77,7 +77,7 @@ function sumCrack(x,y,a,tg,dmg){const pts=[[x,y]];
 const RING={};
 function sumRing(p,dmg){const r=kitFinal()?100:82;RING.z=kitZone({src:'e',t:6.5,x:p.x,y:p.y,r,out:new Set(),inside:new Set(),dm:dmg,
   step(z){if(z.age<.6)return;if(!z.stomped){z.stomped=1;impact(z.x,z.y,SUMC,9);sfx('boss');shake=Math.max(shake,9);
-    for(const e of kitFoes(z.x,z.y,z.r)){hurtE(e,z.dm*.45,60,{src:'e'});if(sumoCanThrow(e)&&!e.sumoFlight){sumoInterrupt(e,.7);e.kx=e.ky=0;e.sumoFlight=true;zones.push({k:'sumoLift',src:'e',e,t:.55,tk:0,duration:.55,dm:z.dm*.15});}}}
+    for(const e of kitFoes(z.x,z.y,z.r)){hurtE(e,z.dm*.8,60,{src:'e'});if(sumoCanThrow(e)&&!e.sumoFlight){sumoInterrupt(e,.7);e.kx=e.ky=0;e.sumoFlight=true;zones.push({k:'sumoLift',src:'e',e,t:.55,tk:0,duration:.55,dm:z.dm*.25});}}}
    for(const e of enemies){if(e.dead||e.boss||e.type==='turret')continue;const d=Math.hypot(e.x-z.x,e.y-z.y);
     if(d<z.r-e.r){z.inside.add(e);continue;}if(!z.inside.has(e)||z.out.has(e))continue;
     const forced=e.carried||e.sumoFlight||(e.shoved>R.time-.6)||Math.hypot(e.kx||0,e.ky||0)>90;
@@ -159,7 +159,7 @@ for(const k in HEROC)if(k.startsWith('sumo'))delete HEROC[k];
 const SUMODEF=[
  ['m','TSUPPARI',0,'RAPID PALM THRUSTS. EVERY THIRD SHOVES.',({p,a,A,bp,em})=>sumTsuppari(p,a,A,bp,em)],
  ['h','TACHIAI',1.6,'CHARGE AND CARRY A FOE. DRIVE IT INTO A WALL.',({p,a,A,bp,em})=>sumTachiai(p,a,A*2.6*bp*em,p.hFull)],
- ['q','UWATENAGE',5,'SWING A FOE ROUND YOU, THEN HURL IT.',({p,a,A,qm,em})=>sumThrow(p,a,A*2.3*qm*em)],
+ ['q','UWATENAGE',5,'SWING A FOE ROUND YOU, THEN HURL IT.',({p,a,A,qm,em})=>sumThrow(p,a,A*3*qm*em)],
  ['w','SALT THROW',8,'PURIFYING SALT: HEALS, ERASES SHOTS, BLINDS FOES.',({p,a,A,ap,em})=>sumSalt(p,a,A*.3*ap*em)],
  ['f','SHIKO',8,'STOMP: CRACKS LAUNCH THE NEAREST FOES.',({p,A,ap,em})=>sumShiko(p,A*2.2*ap*em)],
  ['e',"YOKOZUNA'S RING",28,'A SUMO RING. PUSH FOES OUT OF IT.',({p,A,ep,em})=>sumRing(p,A*4.2*ep*em)]];

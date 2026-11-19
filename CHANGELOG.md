@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.8.7: Mobile fixes and roster balance
+- **Shrines on mobile:** each offering is now a tap target, and so is LEAVE. The screen used to accept only the 1-4 keys, so shrines couldn't be used on touch.
+- **Mobile auto-aim:** it now locks on to foes within 130 instead of 180, so long-range kits no longer hit foes you can't see coming.
+- **Balance.** A bench of every hero's kit showed the added heroes trailing the originals, apart from the Tengu's crowd control:
+  - Tengu: Heaven's Gale lasts 3s (was 3.5s). Gust x1.3 to x1.45, Wind Cutter x1.05 to x1.4, Cyclone ticks .26 to .3.
+  - Kagura: Silk Veil x1.5 to x1.75, Fan Waltz .62 to .74.
+  - Chimiko: Blood Brush x2.4 to x2.7, Blood Seal x1.3 to x1.8.
+  - Marionettist: Cursed Thread x1.3 to x1.5.
+  - Sumo: Tsuppari x1.25 to x1.6, Uwatenage x2.3 to x3. Yokozuna's Ring stomp is 45% to 80% of the ring's power, and its lift is 15% to 25%.
+  - Lancer: Thousand Thrusts .75 to .65 per thrust. It was the strongest ultimate by a wide margin.
+
 ## 0.8.6: Feedback pass on the Wizard, Archer, Samurai, Shinobi and Onmyoji kits
 
 - **Wizard:**
