@@ -46,6 +46,12 @@
   - **Second form:** the mirror cracks and the corona turns red.
   - **Relic:** ECLIPSE MIRROR, where a perfect dodge returns the nearest shot as a moon-bolt, at most once per second.
   - **Cosmetic:** the ECLIPSE trail.
+- **Samurai, Gunner and Lancer look different:** they were the same robed figure in different colours, with the same straw hat and horned helmet. Each now has a silhouette of their own at every stage, and their gear changes as they evolve:
+  - SAMURAI: an armoured torso with great shoulder plates and wide split hakama. Straw hat, then helmet, then the horned crest.
+  - GUNNER: a short open jacket with a bandolier of powder flasks, a smouldering match-cord, narrow legs in white wraps, and an ammunition box on the back. A flat iron war hat, then a steel crested helmet with an upturned brim, and a crimson cape in the final form.
+  - LANCER: a slim cuirass over a skirt of armour plates, and greaves. A white headband, then a rounded helmet with a neck guard, and a tall blade crest in the final form. A banner on his back grows taller as he evolves.
+
+  The shoulder cords and shoulder blocks that every hero's middle and final forms used to share no longer appear on these three.
 - **Late trials:** ABOVE THE THRONE, THE MIRROR BROKEN, THE ABYSS GAZES BACK (depth V), BOTTOMLESS (depth X) and DANCER IN THE DARK (no-hit a late guardian).
 - **Fixes:**
   - The relic draft skips stages that have no guardian relic.
