@@ -11,6 +11,7 @@
 //                      shots from outside stop at the rope, you hit +40% harder inside, and any foe you shove, charge or
 //                      throw OUT of the ring takes massive OSHIDASHI damage
 const SUMC='#f4ae72',SUMW='#fff1c8',STRAW='#d8b868',STRAW2='#8a6a2a';
+const SHIKO_IMPACT=.42,RING_IMPACT=.6;
 const sumoGrab=e=>sumoCanHit(e)&&sumoCanThrow(e)&&!e.sumoFlight;
 // LMB TSUPPARI
 function sumTsuppari(p,a,A,bp,em){p.tsu=(R.time-(p.tsuT??-9)>.9?1:(p.tsu||0)+1)%3;p.tsuT=R.time;const dbl=p.tsu===0,dm=A*1.6*bp*em*(dbl?1.6:1);
@@ -58,7 +59,7 @@ function sumSalt(p,a,dmg){const n=kitFinal()?20:14;p.saltHealed=0;sumHeal(p,.08,
  sfx('tool');}
 // F SHIKO
 function sumShiko(p,dmg){const cracks=kitFinal()?5:3;P.iv=Math.max(P.iv,.15);
- kitZone({src:'f',t:.42,step(){P.shiko=1;},end(){P.shiko=0;impact(P.x,P.y,SUMC,6);sfx('break');shake=Math.max(shake,5);
+ kitZone({src:'f',t:SHIKO_IMPACT,end(){sumStamp(P.x,P.y,22,.26);sfx('break');shake=Math.max(shake,5);
    for(const q of kitBullets(P.x,P.y,22)){q.dead=true;}
    const foes=kitFoes(P.x,P.y,150).sort((a,b)=>dist(a,P)-dist(b,P)).slice(0,cracks);
    for(let i=0;i<cracks;i++){const e=foes[i],an=e?angTo(P,e):P.aim+(i-(cracks-1)/2)*.5;sumCrack(P.x,P.y,an,e,dmg);}}});}
@@ -75,8 +76,8 @@ function sumCrack(x,y,a,tg,dmg){const pts=[[x,y]];
    for(const [ox,hh] of [[-5,.6],[0,1],[5,.75]]){const H=Math.round(h*hh);if(H<1)continue;ctx.fillStyle='#14101a';ctx.fillRect(X+ox-2,Y-H-1,5,H+1);ctx.fillStyle='#8a7a68';ctx.fillRect(X+ox-1,Y-H,3,H);ctx.fillStyle='#c8b8a0';ctx.fillRect(X+ox-1,Y-H,1,Math.max(1,H-2));}}});}
 // R YOKOZUNA'S RING
 const RING={};
-function sumRing(p,dmg){const r=kitFinal()?100:82;RING.z=kitZone({src:'e',t:6.5,x:p.x,y:p.y,r,out:new Set(),inside:new Set(),dm:dmg,
-  step(z){if(z.age<.6)return;if(!z.stomped){z.stomped=1;impact(z.x,z.y,SUMC,9);sfx('boss');shake=Math.max(shake,9);
+function sumRing(p,dmg){const r=kitFinal()?100:82,flip=scrVec(Math.cos(p.aim),Math.sin(p.aim))[0]<0;RING.z=kitZone({src:'e',t:6.5,x:p.x,y:p.y,r,flip,out:new Set(),inside:new Set(),dm:dmg,
+  step(z){if(z.age<RING_IMPACT)return;if(!z.stomped){z.stomped=1;sumStamp(z.x,z.y,z.r,.36);sfx('boss');shake=Math.max(shake,9);
     for(const e of kitFoes(z.x,z.y,z.r)){hurtE(e,z.dm*.8,60,{src:'e'});if(sumoCanThrow(e)&&!e.sumoFlight){sumoInterrupt(e,.7);e.kx=e.ky=0;e.sumoFlight=true;zones.push({k:'sumoLift',src:'e',e,t:.55,tk:0,duration:.55,dm:z.dm*.25});}}}
    for(const e of enemies){if(e.dead||e.boss||e.type==='turret')continue;const d=Math.hypot(e.x-z.x,e.y-z.y);
     if(d<z.r-e.r){z.inside.add(e);continue;}if(!z.inside.has(e)||z.out.has(e))continue;
@@ -86,21 +87,36 @@ function sumRing(p,dmg){const r=kitFinal()?100:82;RING.z=kitZone({src:'e',t:6.5,
    // the rope stops shots fired from outside the ring
    for(const q of projs){if(q.from!=='e'||q.dead||q.peril)continue;const d=Math.hypot(q.x-z.x,q.y-z.y);if(d<z.r&&d>z.r-8&&(q.vx*(q.x-z.x)+q.vy*(q.y-z.y))<0){q.dead=true;spark(q.x,q.y,STRAW,2,30);}}},
   end(){RING.z=null;},
-  ground(z){const k=Math.min(1,z.age/.6),fade=z.t<.4?z.t/.4:1;ctx.globalAlpha=.18*fade;wdisc(z.x,z.y,z.r,'#c8a870');ctx.globalAlpha=fade;
+  ground(z){const k=Math.min(1,z.age/RING_IMPACT),fade=z.t<.4?z.t/.4:1;ctx.globalAlpha=.08*fade;wdisc(z.x,z.y,z.r,'#c8a870');ctx.globalAlpha=fade;
    // the tawara: straw bales laid edge to edge round the ring, appearing round the circle
    const n=Math.round(z.r*.55);for(let i=0;i<n*k;i++){const an=i/n*TAU,x=z.x+Math.cos(an)*z.r,y=z.y+Math.sin(an)*z.r,X=HSX(x,y),Y=HSY(x,y);ctx.fillStyle='#14101a';ctx.fillRect(X-3,Y-3,7,5);ctx.fillStyle=i%2?STRAW:'#c8a858';ctx.fillRect(X-2,Y-2,5,3);ctx.fillStyle=STRAW2;ctx.fillRect(X-2,Y,5,1);}
    // the shikiri-sen: the two white start lines in the middle
-   for(const o of [-8,8]){const x=z.x+o,y=z.y-o*.2;ctx.fillStyle='#ffffff';ctx.fillRect(HSX(x,y)-3,HSY(x,y),6,1);}ctx.globalAlpha=1;},
+   for(const o of [-8,8]){const x=z.x+o,y=z.y-o*.2;ctx.fillStyle='#ffffff';ctx.fillRect(HSX(x,y)-3,HSY(x,y),6,1);}ctx.globalAlpha=1;
+   if(z.age<RING_IMPACT+.36)sumSpirit(z);},
   top(z){const fade=z.t<.4?z.t/.4:Math.min(1,z.age/.5);
    // four great tassels (fusa) in the corners: blue, red, white and black
    [['#3a6ad0',-1,-1],['#d03a3a',1,-1],['#f0f0f0',1,1],['#2a2a30',-1,1]].forEach(([c,a,b])=>{const x=z.x+a*z.r*.78,y=z.y+b*z.r*.78,X=HSX(x,y),Y=HSY(x,y)-30+Math.round(Math.sin(time*2+a)*1);ctx.globalAlpha=fade;
-    ctx.fillStyle='#14101a';ctx.fillRect(X-3,Y-14,7,16);ctx.fillRect(X,Y-26,1,12);ctx.fillStyle=c;ctx.fillRect(X-2,Y-12,5,13);ctx.fillStyle='#ffffff';ctx.globalAlpha=fade*.35;ctx.fillRect(X-2,Y-12,1,13);ctx.globalAlpha=fade;ctx.fillStyle='#e0c060';ctx.fillRect(X-2,Y-14,5,2);});ctx.globalAlpha=1;}});
- // the spirit yokozuna: a towering ghost of the hero performs the stomp behind him
- topFx({dur:1.1,x:p.x,y:p.y,draw(o,k){const s=heroSpr('sumo',9,false),X=HSX(o.x,o.y),Y=HSY(o.x,o.y)-6,fr=k<.35?8:k<.55?9:10,Z=4,dy=k<.55?-Math.round(k*10):0,a=k<.15?k/.15:k>.75?(1-k)/.25:1;
-  ctx.save();ctx.globalAlpha=.38*a;ctx.translate(X,Y+dy);ctx.scale(Z,Z);drawSpr(s,0,0,false,fr,false);ctx.restore();ctx.globalAlpha=1;}});}
+    ctx.fillStyle='#14101a';ctx.fillRect(X-3,Y-14,7,16);ctx.fillRect(X,Y-26,1,12);ctx.fillStyle=c;ctx.fillRect(X-2,Y-12,5,13);ctx.fillStyle='#ffffff';ctx.globalAlpha=fade*.35;ctx.fillRect(X-2,Y-12,1,13);ctx.globalAlpha=fade;ctx.fillStyle='#e0c060';ctx.fillRect(X-2,Y-14,5,2);});ctx.globalAlpha=1;}});}
+// A low, stepped dust front travels out to the stomp's radius, with no generic cast rings.
+function sumStamp(x,y,r,dur){topFx({x,y,r,dur,draw(o,k){const radius=o.r*(.28+.72*abEase(k/.72)),n=Math.max(16,Math.round(o.r*.55));
+ ctx.save();ctx.globalAlpha=1-k;
+ for(let i=0;i<n;i++){const a=i/n*TAU,d=radius-(i%3)*2,wx=o.x+Math.cos(a)*d,wy=o.y+Math.sin(a)*d,X=HSX(wx,wy),Y=HSY(wx,wy);
+  if(solid(wx,wy))continue;
+  KR(X,Y,1,-2,0,i%3+3,2,STRAW2);KR(X,Y,1,-1,-Math.round(Math.sin(k*Math.PI)*(2+i%3)),i%2+2,2,i%3?STRAW:SUMW);}
+ ctx.restore();}});}
+// Cache the tinted sheet. The pixel-bright rim and amber shadows keep the ghost legible over the floor.
+let SUMSPIRIT;
+function sumSpirit(z){if(!SUMSPIRIT){const s=heroSpr('sumo',9,false),c=mk(s.c.width,s.c.height,g=>{g.drawImage(s.c,0,0);g.globalCompositeOperation='source-atop';
+  const light=g.createLinearGradient(0,3,0,24);light.addColorStop(0,'rgba(255,247,200,.86)');light.addColorStop(1,'rgba(235,162,72,.70)');g.fillStyle=light;g.fillRect(0,0,s.c.width,s.c.height);});
+  SUMSPIRIT={...s,c,wc:whiteOf(c)};}
+ const after=z.age-RING_IMPACT,fade=abEase(z.age/.2)*(1-abEase(after/.36)),drop=abEase((after+.09)/.09),stamp=after<0?0:1-abEase(after/.18),
+  frame=z.age<.14?8:after<0?15:10,X=HSX(z.x,z.y),Y=HSY(z.x,z.y)-12-Math.round((1-drop)*4);
+ ctx.save();ctx.translate(X,Y);ctx.scale(3.8+.35*stamp,3.8-.5*stamp);
+ ctx.globalAlpha=.30*fade;for(const [ox,oy] of [[-1,0],[1,0],[0,-1],[0,1]])drawSpr(SUMSPIRIT,ox,oy,true,frame,z.flip);
+ ctx.globalAlpha=.83*fade;drawSpr(SUMSPIRIT,0,0,false,frame,z.flip);ctx.restore();}
 // inside your own ring you hit 40% harder
 {const _h=hurtE;hurtE=function(e,dmg,pd,o){const z=RING.z;if(z&&z.t>0&&P&&kitHero()==='sumo'&&Math.hypot(P.x-z.x,P.y-z.y)<z.r)dmg*=1.4;return _h.call(this,e,dmg,pd,o);};}
-{const _ld=loadDungeon;loadDungeon=function(){RING.z=null;if(P)P.shiko=0;return _ld.apply(this,arguments);};}
+{const _ld=loadDungeon;loadDungeon=function(){RING.z=null;return _ld.apply(this,arguments);};}
 
 // ---------------- projectile looks ----------------
 Object.assign(PSPR,{
@@ -116,9 +132,18 @@ Object.assign(PSPR,{
 // on the fists; a real mawashi with its knot and hanging sagari fringe. Middle forms wear an embroidered kesho-mawashi
 // apron instead of armour plates; the final form is the yokozuna: a thick white braided rope with zigzag paper shide
 // and a ginkgo-leaf topknot.
-drawSumoFrame=function(R,frame,back,stage,skin){
+// Draw the raised leg with a bent knee and a pointed foot, then sample it at the sheet's native resolution.
+const shikoLeg=mk(20,24,g=>{const hi=mk(80,96,h=>{h.scale(4,4);
+ const shape=(col,pts)=>{h.beginPath();h.moveTo(...pts[0]);for(const p of pts.slice(1))h.lineTo(...p);h.closePath();h.fillStyle=col;h.fill();};
+ shape('#e0b080',[[11,18],[14.5,15],[15.5,11.5],[17.5,10],[19,11],[19.5,14.5],[18.1,18],[15,21.5],[11,22.5],[10,21]]);
+ shape('#b06e4a',[[11,20.5],[15,19],[17.5,16.4],[19,11.6],[19.5,14.5],[18.1,18],[15,21.5],[11,22.5]]);
+ shape('#f0c098',[[13.7,16.5],[15.4,13],[17.3,11.2],[17.8,12.4],[16.5,15.1],[15.1,16.5]]);
+ shape('#2a2236',[[16.5,11.3],[16.5,9.5],[18.5,8.5],[19.25,9.1],[19.5,12.3],[18.2,12.8]]);
+ shape('#927369',[[16.7,9.6],[18.5,8.8],[18.9,9.5],[17,10.4]]);});g.imageSmoothingEnabled=false;g.drawImage(hi,0,0,20,24);});
+drawSumoFrame=function(R,frame,back,stage,skin,g){
  const mid=stage>=5&&stage<9,final=stage>=9,walk=frame>=2&&frame<=5,bob=walk&&frame%2===1?1:0,y=12+bob,lean=frame===11?1:0;
- const raised=(frame>=8&&frame<=10)||frame===12,SH='#b06e4a',HI='#f0c098';
+ const shiko=frame===15,raised=(frame>=8&&frame<=10)||frame===12||shiko,SH='#b06e4a',HI='#f0c098';
+ if(shiko)g.drawImage(shikoLeg,0,0);
  // body: the original shape
  R(5,y,10,2,'skin');R(4,y+2,12,5,'skin');
  // belly shading: a darker right side and underside, a highlight on the left of the chest
@@ -131,9 +156,10 @@ drawSumoFrame=function(R,frame,back,stage,skin){
  else{R(8,y+5,4,4,'robe');R(9,y+5,2,1,'band');R(9,y+8,2,2,'robeS');}
  // legs and feet
  const stride=walk?[0,1,2,1][frame-2]:0;
- R(5+stride,21,4,2,'skin');R(5+stride,22,4,1,SH);R(11+stride,21-(stride%2),4,2,'skin');R(11+stride,22-(stride%2),4,1,'boot');R(5+stride,23,4,1,'boot');
+ R(5+stride,21,4,2,'skin');R(5+stride,22,4,1,SH);R(5+stride,23,4,1,'boot');
+ if(!shiko){R(11+stride,21-(stride%2),4,2,'skin');R(11+stride,22-(stride%2),4,1,'boot');}
  // arms: fists at the sides, raised for the stomp and ceremony, punched out for the palm strikes
- const striking=frame===7||frame===13,leftY=raised?10:y+3,rightX=striking||frame===11?16:14,rightY=raised?9:striking?y+1:y+3;
+ const striking=frame===7||frame===13,leftY=raised?10:y+3,rightX=shiko?12:striking||frame===11?16:14,rightY=shiko?7:raised?9:striking?y+1:y+3;
  R(2,leftY,4,3,'skin');R(2,leftY,1,3,SH);R(3,leftY,1,1,HI);R(2,leftY+2,2,1,'#c88058');
  R(rightX,rightY,3,3,'skin');R(rightX+2,rightY,1,3,SH);R(rightX,rightY,1,1,HI);R(rightX,rightY+2,3,1,'#c88058');
  if(striking)R(Math.min(19,rightX+3),rightY,1,3,'#fff1c8');
@@ -166,7 +192,7 @@ const SUMODEF=[
 for(const [slot,name,cd,d,fn] of SUMODEF){const id=SUMO_KIT[slot],sp=SPELLS[slot][id];sp.n=name;sp.d=d;if(cd)sp.cd=cd;sp.kit179=0;
  NEWCAST[id*10+SLOTS.indexOf(slot)]=ctx=>{if((slot==='m'||slot==='h')&&ctx.mik>0)ctx.bp*=1.6;return fn(ctx);};
  SPRULES.unshift([new RegExp('^'+name+'$'),['dash','dash','dash','shield','whirl','shout'][SLOTS.indexOf(slot)]]);}
-Object.assign(AB_ANIM,{'TSUPPARI':['thrust',.16,.5],'TACHIAI':['lunge',.3],'UWATENAGE':['spin',.42,1.25],'SALT THROW':['throw',.28],'SHIKO':['slam',.42],"YOKOZUNA'S RING":['roar',.6]});
+Object.assign(AB_ANIM,{'TSUPPARI':['thrust',.16,.5],'TACHIAI':['lunge',.3],'UWATENAGE':['spin',.42,1.25],'SALT THROW':['throw',.28],'SHIKO':['shiko',SHIKO_IMPACT+.16],"YOKOZUNA'S RING":['shiko_ring',RING_IMPACT+.18]});
 Object.assign(ULTSEQ,{"YOKOZUNA'S RING":{pre:.36,iv:.6,k:'brace',col:SUMC}});
 Object.assign(ABTXT,{
  'TSUPPARI':['RAPID OPEN-PALM THRUSTS.','EVERY THIRD IS A DOUBLE PALM THAT SHOVES THE FOE BACK.','KEEP THRUSTING TO DRIVE FOES OUT OF YOUR RING.'],

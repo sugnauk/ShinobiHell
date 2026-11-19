@@ -46,10 +46,10 @@ function drawJuice(){for(let i=JUICE.length-1;i>=0;i--){const j=JUICE[i],k=(time
 {const _dp=drawPortal;drawPortal=function(){drawJuice();return _dp.apply(this,arguments);};}
 
 // ---------- every cast: detect it by the cooldown starting, then the show ----------
-function castShow(k){const p=P,col=(SPELLS[k]&&SPELLS[k][p.lo[k]]&&SPELLS[k][p.lo[k]].c)||'#fff',a=p.aim||0,hx=p.x+Math.cos(a)*8,hy=p.y+Math.sin(a)*8;
+function castShow(k){const p=P,sp=SPELLS[k]?.[p.lo[k]],col=sp?.c||'#fff',a=p.aim||0,hx=p.x+Math.cos(a)*8,hy=p.y+Math.sin(a)*8;
  if(k==='q'){juice({k:'ring',x:hx,y:hy,r0:2,r:18,dur:.25,col,white:1});juice({k:'rays',x:hx,y:hy,n:8,len:22,dur:.18,col:'#fff'});spark(hx,hy,col,12,90);shake=Math.max(shake,3);snd('zap');}
  else if(k==='w'){juice({k:'seal',x:p.x,y:p.y,r:24,dur:.7,col});juice({k:'ring',x:p.x,y:p.y,r0:6,r:32,dur:.35,col,thick:1});snd('ward');}
- else if(k==='f'){juice({k:'ring',x:p.x,y:p.y,r0:4,r:56,dur:.35,col,thick:1,white:1,h:0});juice({k:'ring',x:p.x,y:p.y,r0:4,r:78,dur:.5,col,delay:.08,h:0});
+ else if(k==='f'&&sp?.n!=='SHIKO'){juice({k:'ring',x:p.x,y:p.y,r0:4,r:56,dur:.35,col,thick:1,white:1,h:0});juice({k:'ring',x:p.x,y:p.y,r0:4,r:78,dur:.5,col,delay:.08,h:0});
   for(let i=0;i<18;i++){const an=i/18*TAU;particles.push({x:p.x+Math.cos(an)*10,y:p.y+Math.sin(an)*10,vx:Math.cos(an)*90,vy:Math.sin(an)*90,t:.35,col:i%2?'#c8c0b8':col});}shake=Math.max(shake,4);snd('nova');}
  else if(k==='e'){flashT=Math.max(flashT,.22);flashCol=col;juice({k:'rays',x:p.x,y:p.y,n:16,len:90,dur:.5,col:'#fff',in:10});juice({k:'seal',x:p.x,y:p.y,r:40,dur:.9,col});
   for(let i=0;i<3;i++)juice({k:'ring',x:p.x,y:p.y,r0:6,r:60+i*40,dur:.6,col,thick:1,white:!i,delay:i*.12,h:0});spark(p.x,p.y,col,40,180);spark(p.x,p.y,'#fff',20,120);

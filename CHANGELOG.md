@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.8.8: Tornado counterplay and roster animation polish
+
+- **Tengu:** Cyclone throws foes out after a 1-second hold. The main Heaven's Gale funnel holds for 1.4 seconds. Both share a 1.5-second reprieve from pull and stun, including the final form's side funnels. Tornado damage and Cyclone's shot returns still work during the reprieve. Gale feathers strike their marked landing spot on the simulation timer, up to four hits per foe.
+- **Sumo:** Shiko now has a raised-leg wind-up and a dust shockwave timed to the stomp. Yokozuna's Ring summons a pale-gold spirit that performs the same stomp over a clearer straw boundary.
+- **Marionettist and Chimiko:** Grand Theatre starts with descending puppet strings. Crimson Moon starts with blood-red ink spreading under the caster.
+- **Mobile:** Basic auto-fire follows the equipped weapon's reach, up to 130 px. Tapped abilities can still aim at a visible foe up to 130 px away.
+
 ## 0.8.7: Mobile fixes and roster balance
 - **Shrines on mobile:** each offering is now a tap target, and so is LEAVE. The screen used to accept only the 1-4 keys, so shrines couldn't be used on touch.
 - **Mobile auto-aim:** it now locks on to foes within 130 instead of 180, so long-range kits no longer hit foes you can't see coming.
