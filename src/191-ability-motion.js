@@ -69,3 +69,13 @@ function abxKatsu(X,Y,sc,alpha){ctx.globalAlpha=alpha;for(const [col,off] of [['
 const ABTUNE_HELD=new Set(['stance','kiai','summon','sealhand','plantstaff','flick','sheathe']);
 {const _u=update;update=function(dt){_u.apply(this,arguments);const H=ABPOSE;if(!P||!H)return;
  if(H.k==='stance'&&!(P.guardSt>0))ABPOSE=null;else if(ABTUNE_HELD.has(H.k)&&P.dash>0&&!P.iai)ABPOSE=null;};}
+// ---- global clean-up for every hero ----
+// the white star sigil (the generic 'seal' burst under the hero on every E and R) is gone: each ability now shows
+// its own thing, the generic burst is no longer needed
+{const _j=juice;juice=function(o){if(o&&o.k==='seal')return;return _j.apply(this,arguments);};}
+// basic abilities stay subtle: only an ultimate may flash the whole screen (shake and hit-stop are kept)
+for(const nm of ['castHeavy','castChain','castWard','castF']){const f=globalThis[nm];if(typeof f!=='function')continue;
+ globalThis[nm]=function(){const f0=flashT;const r=f.apply(this,arguments);if(flashT>f0)flashT=f0;return r;};}
+{const _cc=classCast;classCast=function(k){const f0=flashT;const r=_cc.apply(this,arguments);if(k!=='e'&&flashT>f0)flashT=f0;return r;};}
+// the siege cannon belongs to the gunner's SIEGEBREAKER alone (other heroes' 'brace' lead-ins used to draw it too)
+{const _sg=drawSiegeGun;drawSiegeGun=function(){if(ultName()!=='SIEGEBREAKER')return;return _sg.apply(this,arguments);};}
