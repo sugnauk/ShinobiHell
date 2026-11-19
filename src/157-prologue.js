@@ -17,7 +17,7 @@ const PRO={
   [{cnt:5,spread:.8,sp:50,col:'#e08040'},{pat:'gapring',cnt:12,gw:.9,sp:44,col:'#ffb060'}]]},
  modes:['chase','chase','dashes'],
  motif:[0,2,4,2,0,null,4,5,4,2,0,null,-1,0,2,null],
- master:'THE VILLAGE IS SAFE, BUT ITS RICE IS GONE. GORO WORE THE EMPEROR\'S COLOURS AND SO DOES THE MAN WHO TOOK IT: ZENIGATA, THE TAX COLLECTOR, WAITING IN THE FLOODED FIELDS.'};
+ master:'THE VILLAGE IS SAFE, BUT ITS RICE IS GONE - SHIPPED DOWNRIVER ON A PIRATE BARGE. GORO WORE THE EMPEROR\'S COLOURS; SO DO THE RIVER PIRATES WHO RUN THE FLOODED FIELDS.'};
 PRO.n=1;PRO.dress=3;PRO.col='#e08040';
 // the prologues, played in order before stage I (II and III are added by 184-prologues.js)
 const PROS=[PRO];let PROCUR=PRO;const PROROMAN=['I','II','III'];

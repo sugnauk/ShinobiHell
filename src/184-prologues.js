@@ -2,28 +2,28 @@
 // SHINOBIDUNGEONS - PROLOGUES II and III. The road from the burning village to the bamboo, three short stages before
 // stage I, each a little harder than the last and each guardian teaching one thing:
 //  I    THE BURNING VILLAGE   Goro, the bandit captain      big telegraphed swings and charges, slow fans
-//  II   THE FLOODED FIELDS    Zenigata, the tax collector   bullet patterns: rings of coins, spirals, bursting bags,
-//                                                           and bandit guards he pays to fight for him
+//  II   THE FLOODED FIELDS    Kurobe, the river pirate      bullet patterns: water rings off his oar, spray spirals,
+//                                                           floating jars that burst, and his river rats
 //  III  THE HILL WATCHTOWER   Kageyama, the tower captain   aimed shots: volleys at you, sniper arrows on a warning
 //                                                           line, an arrow rain; dash through them
 // The campfire after each leads on to the next, and after III to stage I. Only Kageyama makes you grow, so you reach
 // stage I one form up, as before. Like the first, II and III are gentler than the stages (fewer, weaker foes), and a
 // fall in them sends you back to the start of that prologue with everything you carry.
-const PRO2={n:2,dress:1,col:'#e0c050',
- dun:{name:'THE FLOODED FIELDS',fl:['#3a4a2a','#42523a'],sp:'#2a3a1e',wt:'#0a120a',wf:'#4a5a34',we:'#c0b050',cloth:'#5a5a2a',dark:'#2a321a',acc:'#e0c050',
-  pool:['bandit','bandit','frog','toad','archer','crab'],story:'THE TAX COLLECTOR COUNTS THE STOLEN RICE IN THE FLOODED FIELDS',
-  tale:'THE EMPEROR\'S TAX TOOK THE VILLAGE\'S RICE. ZENIGATA, HIS COLLECTOR, GUARDS THE STOLEN HARVEST IN THE FLOODED PADDIES WITH BANDITS HE PAYS IN SILVER.'},
- boss:{name:'ZENIGATA, THE TAX COLLECTOR',hp:380,hat:'kasa',pal:null,pref:40,spd:30,r:9},
- style:{c:'#e0c050',t:['COUNTING COINS','PAID GUARDS','THE LEDGER BURNS'],ph:[
-  [{pat:'gapring',cnt:12,gw:1.1,sp:42,col:'#e0c050'},{pat:'flower',cnt:10,sp:40,col:'#e0c050'}],
-  [{pat:'spiral',arms:3,spin:.26,sp:44,col:'#e0c050',burst:8,gap:.12},{pat:'gapring',cnt:14,gw:1,sp:44,col:'#fff0a0'},{pat:'mines',cnt:3,col:'#e0c050',st:'mine',fuse:1.5}],
-  [{pat:'spiral',arms:4,spin:.28,sp:46,col:'#e0c050',burst:10,gap:.11},{pat:'flower',cnt:14,sp:46,col:'#fff0a0'},{pat:'mines',cnt:4,col:'#e0c050',st:'mine',fuse:1.4}]]},
+const PRO2={n:2,dress:1,col:'#60b0e0',
+ dun:{name:'THE FLOODED FIELDS',fl:['#3a4a2a','#42523a'],sp:'#2a3a1e',wt:'#0a120a',wf:'#4a5a34',we:'#60b0e0',cloth:'#2a4a6a',dark:'#2a321a',acc:'#60b0e0',
+  pool:['bandit','bandit','frog','toad','archer','crab'],story:'RIVER PIRATES HAUL THE STOLEN RICE THROUGH THE FLOODED FIELDS',
+  tale:'THE VILLAGE\'S RICE WENT DOWNRIVER ON A PIRATE BARGE. KUROBE AND HIS RIVER RATS RUN THE FLOODED PADDIES FOR THE EMPEROR\'S TAX MEN, AND KEEP A SHARE FOR THEMSELVES.'},
+ boss:{name:'KUROBE, THE RIVER PIRATE',hp:380,hat:'kasa',pal:null,pref:40,spd:32,r:10},
+ style:{c:'#60b0e0',t:['THE OAR','RIVER RATS','FIRE ON THE WATER'],ph:[
+  [{pat:'gapring',cnt:12,gw:1.1,sp:42,col:'#80d0f8'},{pat:'flower',cnt:10,sp:40,col:'#60b0e0'}],
+  [{pat:'spiral',arms:3,spin:.26,sp:44,col:'#80d0f8',burst:8,gap:.12},{pat:'gapring',cnt:14,gw:1,sp:44,col:'#c8f0ff'},{pat:'mines',cnt:3,col:'#c08850',st:'mine',fuse:1.5}],
+  [{pat:'spiral',arms:4,spin:.28,sp:46,col:'#80d0f8',burst:10,gap:.11},{pat:'flower',cnt:14,sp:46,col:'#c8f0ff'},{pat:'mines',cnt:4,col:'#ff8040',st:'mine',fuse:1.4}]]},
  modes:['chase','chase','dashes'],
  motif:[0,4,2,4,7,null,4,2,0,2,4,null,2,0,-1,null],
- master:'THE RICE GOES HOME. ZENIGATA\'S LEDGER NAMES THE WATCHTOWER ON THE HILL ROAD - THE EMPEROR\'S EYES, SIGNALLING THE WARBANDS. IT MUST FALL BEFORE WE CAN PASS.'};
-PRO2.boss.pal=basePal('#2a2430','#5a5a64','#e0c050','#18141c');
-PRO2.boss.k1=[SH({w:.7,cnt:5,spread:.9,sp:48,dmg:9,col:'#e0c050',wt:3}),SL({hits:1,w:1,dmg:9,wt:1,range:28})];
-PRO2.boss.k2=[SH({w:.65,cnt:7,spread:1.1,sp:50,dmg:9,col:'#e0c050',wt:3}),SU({cnt:2,types:['bandit'],wt:1}),SL({hits:2,w:.9,w2:.4,dmg:10,wt:1,range:28})];
+ master:'THE RICE GOES HOME ON KUROBE\'S OWN BARGE. HIS CHARTS MARK THE WATCHTOWER ON THE HILL ROAD - THE EMPEROR\'S EYES, SIGNALLING THE WARBANDS. IT MUST FALL BEFORE WE CAN PASS.'};
+PRO2.boss.pal=basePal('#2a4a6a','#4a3a2a','#60b0e0','#18120e');
+PRO2.boss.k1=[SL({hits:1,w:1,dmg:10,wt:3,range:36,arc:150}),SH({w:.7,cnt:5,spread:.9,sp:48,dmg:9,col:'#80d0f8',wt:2})];
+PRO2.boss.k2=[SL({hits:2,w:.9,w2:.4,dmg:11,wt:3,range:36,arc:160}),SH({w:.65,cnt:7,spread:1.1,sp:50,dmg:9,col:'#80d0f8',wt:2}),SU({cnt:2,types:['bandit'],wt:1})];
 const PRO3={n:3,dress:5,col:'#c06040',
  dun:{name:'THE HILL WATCHTOWER',fl:['#4a3a2a','#524232'],sp:'#3a2a1a',wt:'#120c08',wf:'#5a4430',we:'#c06040',cloth:'#6a3a2a',dark:'#3a2418',acc:'#c06040',
   pool:['ashigaru','ashigaru','archer','archer','bandit','shielder'],story:'THE EMPEROR\'S WATCHTOWER GUARDS THE ROAD TO THE BAMBOO',
@@ -41,51 +41,120 @@ PRO3.boss.k1=[SH({w:.75,cnt:3,spread:.3,sp:70,dmg:9,col:'#e8d0a0',arrow:true,wt:
 PRO3.boss.k2=[SH({w:.7,cnt:5,spread:.5,sp:72,dmg:9,col:'#e8d0a0',arrow:true,wt:3}),SH({w:.8,cnt:1,sp:120,dmg:10,col:'#e8d0a0',arrow:true,reps:4,gap:.22,wt:2}),SU({cnt:2,types:['ashigaru'],wt:1})];
 PROS.push(PRO2,PRO3);
 
-// ---------- ZENIGATA, THE TAX COLLECTOR ----------
-// A portly official in a black haori over a grey kimono, a tall black lacquered cap, a thin moustache, a big wooden
-// abacus in one hand and a string of square-holed coins in the other. Second form: the cap knocked off, the ledger
-// burning in his fist.
-function zenDraw(p,Q){const K=HUM(p,Q),{R,E,L,trap,arm,leg,face,by}=K,two=ARTHURT,cx=36;
- const HA='#22202a',HA2='#3a3644',KI='#6a6a74',KI2='#8a8a94',SK='#e0b890',SK2='#b88a64',GD='#e0c050',WD='#7a5030',WD2='#a87040';
+// ======================= the guardians =======================
+// (Goro's first drawing lives in 157-prologue.js; this one replaces it)
+// ---------- GORO, THE BANDIT CAPTAIN (refined) ----------
+// Broad, scarred and loud: a stitched leather vest with a fur collar over a bare, scarred chest, wrapped forearms,
+// baggy trousers with straw-bound shins and sandals, a red sash and a sake gourd on a rope belt, a notched machete with
+// a cloth-wrapped hilt. Red headband with long tails, an eyepatch, a stubbled jaw, a topknot. Second form: the
+// headband gone, his hair loose and wild, a fresh cut across the eye, the vest torn.
+function gorDraw2(p,Q){const K=HUM(p,Q),{R,E,L,seg,trap,arm,leg,face,lt,dk,by}=K,two=ARTHURT,cx=36;
+ const VS='#6a4428',VS2='#8a5c34',FUR='#b8a080',PN='#4a3c2c',PN2='#5c4c38',SH='#b03020',SK='#d89a68',SK2='#a86e44',SKL='#f0c090',HB='#c82020',HR='#1a120e',ST='#b0b0bc',ST2='#ececf4',STR='#c8a868';
  const lg=Q.legs||'stand';
- if(lg==='stand'){leg(32,52,30,62,29,73,KI,KI2,'#1a1418',6);leg(40,52,42,62,43,73,KI,KI2,'#1a1418',6);}else{leg(32,52,26,61,23,72,KI,KI2,'#1a1418',6);leg(40,52,46,61,50,73,KI,KI2,'#1a1418',6);}
- // a round belly under a grey kimono, the black haori open over it, a gold-trimmed sash
- trap(cx,27+by,53+by,12,15,HA);E(cx,40+by,10,11,OUTC);E(cx,40+by,9,10,KI);E(cx-3,37+by,4,5,KI2);R(cx-10,44+by,21,3,GD);R(cx-10,44+by,21,1,'#fff0a0');
- for(const s of [-1,1])L(cx+s*9,28+by,cx+s*12,52+by,HA2,1);R(cx-1,28+by,3,4,'#e8e8f0');
- // arms: the abacus in the far hand, the coin string in the near hand
- const far=Q.far||[[25,30],[20,40],[22,47]],near=Q.near||[[47,30],[52,39],[51,47]];
- arm(far,HA,HA,SK,5);arm(near,HA,HA,SK,5);
- {const [x,y]=far[2];R(x-8,y+by-6,16,11,OUTC);R(x-7,y+by-5,14,9,WD);R(x-7,y+by-5,14,1,WD2);for(let i=0;i<3;i++)R(x-7,y+by-3+i*3,14,1,'#3a2414');for(let c=0;c<5;c++)for(let r=0;r<3;r++)R(x-6+c*3,y+by-4+r*3,2,2,(c+r)%2?'#c8a868':'#f0d898');}
- {const [x,y]=near[2];if(two){E(x,y+by-6,4,6,'#ff8030');E(x,y+by-7,2,4,'#ffe080');R(x-3,y+by-1,6,4,'#f0e8d0');}
-  else for(let i=0;i<6;i++){const cy=y+by+3+i*3;R(x-2,cy-1,5,4,OUTC);R(x-1,cy,3,2,GD);R(x,cy,1,1,OUTC);}}
- // head: a heavy face, small eyes, a thin moustache; a tall lacquered cap (knocked off in the second form)
- const hx=cx,hy=17+by;face(hx,hy,SK,{eye:OUTC,brow:'#2a2024',mouth:'#7a3a2a'});R(hx-4,hy+3,3,1,'#2a2024');R(hx+2,hy+3,3,1,'#2a2024');R(hx-5,hy+4,1,1,'#2a2024');R(hx+5,hy+4,1,1,'#2a2024');E(hx-5,hy+2,1,1,SK2);
- if(two){R(hx-6,hy-7,13,2,'#2a2024');R(hx-3,hy-9,7,2,'#2a2024');R(hx+2,hy-1,2,1,'#ff3030');}
- else{R(hx-5,hy-16,11,11,OUTC);R(hx-4,hy-15,9,10,HA);R(hx-4,hy-15,2,10,HA2);R(hx-6,hy-6,13,2,OUTC);R(hx-5,hy-6,11,1,GD);R(hx-1,hy-13,3,3,GD);}}
-humBoss('ZENIGATA, THE TAX COLLECTOR',zenDraw,{idle0:{},idle1:{b:1},
- atk:{dy:-1,legs:'lunge',near:[[47,29],[55,20],[58,11]],far:[[25,30],[18,37],[16,45]]}},{sc:1.1});
-// ---------- KAGEYAMA, THE TOWER CAPTAIN ----------
-// A lean archer captain in dark red lamellar armour and a flat conical jingasa helmet, a full quiver on his back and
-// a great yumi bow taller than he is; in the attack frame he draws it to the ear. Second form: the helmet gone, a
-// bloodied headband, the last arrows in his quiver.
-function kagDraw(p,Q){const K=HUM(p,Q),{R,E,L,trap,arm,leg,face,by}=K,two=ARTHURT,cx=36;
- const AR='#7a2a1e',AR2='#a03a28',LC='#d8c090',PN='#2a2a30',PN2='#3a3a44',SK='#d8a878',BW='#8a5a2a',BW2='#c08a4a',ST='#e8d0a0';
+ // legs: baggy trousers flaring at the knee, straw wraps on the shins, straw sandals
+ const legW=(hx,hy,kx,ky,fx,fy)=>{seg(hx,hy+by,kx,ky,8,PN);seg(kx,ky,fx,fy-2,6,PN2);L(kx-2,ky-6,kx+1,ky+2,dk(PN),1);for(let y=ky+3;y<fy-3;y+=2){const t=(y-ky)/(fy-ky);R(Math.round(kx+(fx-kx)*t)-3,y,7,1,y%4?STR:'#a8885a');}R(fx-5,fy-1,10,2,OUTC);R(fx-4,fy-1,9,1,STR);};
+ if(lg==='stand'){legW(31,50,27,61,25,73);legW(41,50,46,61,48,73);}else{legW(31,50,22,59,17,71);legW(41,50,50,60,55,73);}
+ // torso: a broad bare chest, pecs and belly shaded, a long scar
+ trap(cx,25+by,48+by,12,10,SK);E(cx-4,30+by,4,3,SKL);E(cx+4,30+by,4,3,lt(SK));L(cx-8,33+by,cx,34+by,SK2,1);L(cx,34+by,cx+8,33+by,SK2,1);L(cx,35+by,cx,45+by,SK2,1);
+ for(const y of [38,42])L(cx-3,y+by,cx+3,y+by,SK2,1);L(cx-7,28+by,cx+5,42+by,'#c87060',1);
+ // the vest: open, stitched edges, a fur collar; torn in the second form
+ for(const s of [-1,1]){const x0=cx+s*7;trap(x0+s*2,25+by,47+by,4,5,VS);for(let y=27;y<46;y+=3)R(x0+s*(1),y+by,1,1,VS2);}
+ if(two){R(cx+9,36+by,4,6,SK);L(cx+9,36+by,cx+12,41+by,OUTC,1);}
+ E(cx-8,25+by,5,3,FUR);E(cx+8,25+by,5,3,FUR);for(let i=-11;i<=11;i+=2)R(cx+i,24+by+(Math.abs(i)%3),1,2,'#e0d0b0');
+ // sash and rope belt with the sake gourd
+ R(cx-12,45+by,25,5,OUTC);R(cx-11,46+by,23,3,SH);R(cx-11,46+by,23,1,'#e04838');R(cx+6,49+by,4,8,OUTC);R(cx+7,49+by,2,7,SH);R(cx+9,50+by,2,5,'#801a10');
+ L(cx-12,49+by,cx+12,49+by,STR,1);E(cx-9,53+by,3,4,OUTC);E(cx-9,53+by,2,3,'#c89048');R(cx-9,48+by,1,2,'#6a4428');
+ // arms: thick, muscled, wrapped forearms, leather bracers
+ const far=Q.far||[[25,29],[19,38],[21,47]],near=Q.near||[[47,29],[53,37],[53,46]];
+ arm(far,SK,SK,SK2,6);arm(near,SK,SK,SK2,6);
+ for(const A of [far,near]){const [[a,b],[c,d],[e,f]]=A;R(a-2,b+by-2,3,2,lt(SK));for(const t of [.45,.65]){R(Math.round(c+(e-c)*t)-3,Math.round(d+(f-d)*t)+by-1,6,2,t<.5?'#e8e0d0':'#5a3a22');}}
+ // the machete: broad, notched, a cloth-wrapped hilt with a trailing tail
+ {const [x,y]=near[2],a=Q.ba!=null?Q.ba:-1.05,len=Q.bl||27,ca=Math.cos(a),sa=Math.sin(a);
+  L(x-ca*7,y+by-sa*7,x,y+by,OUTC,5);L(x-ca*7,y+by-sa*7,x,y+by,'#e8e0d0',3);for(let k=1;k<6;k+=2)R(Math.round(x-ca*k),Math.round(y+by-sa*k),1,1,'#a89880');L(x-ca*7,y+by-sa*7,x-ca*10+3,y+by-sa*10+4,'#e8e0d0',1);
+  L(x,y+by,x+ca*len,y+by+sa*len,OUTC,8);L(x,y+by,x+ca*len,y+by+sa*len,ST,6);L(x-sa*2,y+by+ca*2,x+ca*len-sa*2,y+by+sa*len+ca*2,dk(ST),1);L(x+sa*2,y+by-ca*2,x+ca*(len-2)+sa*2,y+by+sa*(len-2)-ca*2,ST2,1);
+  for(const k of [.4,.62,.8])R(Math.round(x+ca*len*k+sa*3),Math.round(y+by+sa*len*k-ca*3),2,2,OUTC);R(x-2,y+by-2,5,5,'#3a2414');}
+ // head: a heavy jaw with stubble, an eyepatch; topknot and headband with flowing tails (wild hair in the second form)
+ const hx=cx,hy=16+by;
+ if(two){for(let i=-8;i<=8;i+=2)L(hx+i,hy-7,hx+i*1.4,hy+4+Math.abs(i)%4,HR,2);}
+ face(hx,hy,SK,{eye:OUTC,brow:HR,mouth:'#6a2a1a'});R(hx-5,hy+3,11,4,'#4a3428');for(let x=-4;x<6;x+=2)R(hx+x,hy+4,1,1,'#2a1a14');R(hx-1,hy+4,3,1,'#7a2a1a');
+ R(hx+1,hy-2,5,3,OUTC);R(hx+2,hy-1,3,1,'#2a2420');L(hx-6,hy-3,hx+6,hy-2,OUTC,1);
+ if(two){R(hx-3,hy-1,2,1,'#ff3030');L(hx-6,hy-5,hx-1,hy+3,'#c03020',1);E(hx,hy-7,7,3,HR);}
+ else{E(hx,hy-7,6,3,HR);R(hx-1,hy-13,3,6,HR);E(hx,hy-14,3,2,HR);R(hx,hy-14,1,1,'#4a3a30');
+  R(hx-7,hy-5,15,3,OUTC);R(hx-6,hy-5,13,2,HB);R(hx-6,hy-5,13,1,'#f05050');const fl=Math.sin((p.f||0)*1.7+1)*2;L(hx-7,hy-4,hx-14,hy-1+fl,OUTC,3);L(hx-7,hy-4,hx-14,hy-1+fl,HB,1);L(hx-7,hy-3,hx-12,hy+4+fl,OUTC,3);L(hx-7,hy-3,hx-12,hy+4+fl,HB,1);}}
+humBoss('GORO, THE BANDIT CAPTAIN',gorDraw2,{idle0:{},idle1:{b:1},
+ atk:{dy:-1,legs:'lunge',near:[[47,28],[55,20],[57,10]],ba:-2.3,bl:29,far:[[25,29],[17,36],[13,44]]}},{sc:1.1});
+
+// ---------- KAGEYAMA, THE TOWER CAPTAIN (refined) ----------
+// A samurai archer of the watch: a black lacquered jingasa with a gold crest over a cloth hood, a dark red half-mask,
+// a breastplate of laced red lames, big shoulder plates, skirt plates hanging over armoured thighs, iron shin guards,
+// a katana at the hip, a quiver of white-fletched arrows on his back, and a great yumi gripped below its middle, bound
+// with dark rattan. In the attack frame he draws to the ear. Second form: the helmet gone, a bloodied headband, the
+// mask cracked, a single arrow left.
+function kagDraw2(p,Q){const K=HUM(p,Q),{R,E,L,seg,trap,arm,leg,face,lt,dk,by}=K,two=ARTHURT,cx=36;
+ const AR='#8a2a1e',AR2='#b03a28',ARD='#5a1a12',LC='#e0c070',BK='#22202a',BK2='#3a3a46',IR='#6a6a78',IR2='#9a9aa8',SK='#d8a878',BW='#7a4a20',BW2='#c08a4a',RT='#2a1a10',ST='#ece0c0';
  const lg=Q.legs||'stand';
- if(lg==='stand'){leg(32,50,29,61,27,73,PN,PN2,'#14100c',5);leg(40,50,43,61,45,73,PN,PN2,'#14100c',5);}else{leg(32,50,25,60,21,72,PN,PN2,'#14100c',5);leg(40,50,45,60,49,73,PN,PN2,'#14100c',5);}
- // the quiver on his back, arrows standing out over the shoulder
- R(39,14+by,6,22,OUTC);R(40,15+by,4,20,'#5a3a1e');for(let i=0;i<(two?2:4);i++){R(40+i,9+by-i,1,7,'#d8c8a8');R(39+i,8+by-i,3,2,'#e8e8f0');}
- // lamellar armour: rows of laced plates over a dark under-robe, shoulder guards
- trap(cx,26+by,50+by,9,11,AR);for(let y=28;y<49;y+=3){R(cx-9,y+by,19,1,AR2);for(let x=-8;x<9;x+=3)R(cx+x,y+1+by,1,1,LC);}
- for(const s of [-1,1]){R(cx+s*10-3,26+by,7,6,OUTC);R(cx+s*10-2,27+by,5,4,AR2);R(cx+s*10-2,30+by,5,1,LC);}
- // arms and the great bow: held upright, or drawn to the ear when he looses
- const draw=!!Q.drawn,far=Q.far||[[26,30],[20,38],[19,46]],near=Q.near||[[46,30],[50,39],[48,46]];
- arm(far,AR,PN,SK,4);arm(near,AR,PN,SK,4);
- {const [x,y]=far[2],top=y+by-30,bot=y+by+24;L(x,top,x-3,y+by,OUTC,4);L(x-3,y+by,x,bot,OUTC,4);L(x,top,x-3,y+by,BW,2);L(x-3,y+by,x,bot,BW,2);R(x-1,top,1,4,BW2);
-  const sx=draw?near[2][0]:x+1,sy=draw?near[2][1]+by:y+by;L(x,top,sx,sy,ST,1);L(sx,sy,x,bot,ST,1);
-  if(draw){L(x-8,y+by-1,sx,sy,'#d8c8a8',1);R(x-10,y+by-2,3,3,'#e8e8f0');}}
- // head: a stern face; the flat jingasa helmet (a headband in the second form)
- const hx=cx,hy=17+by;face(hx,hy,SK,{eye:OUTC,brow:'#2a1a14',mouth:'#6a2a1a'});R(hx-3,hy+3,7,2,'#3a2a20');
- if(two){R(hx-6,hy-5,13,2,'#c03020');L(hx-6,hy-4,hx-11,hy+1,'#c03020',1);E(hx,hy-6,6,3,'#1a1410');R(hx+2,hy+1,1,3,'#a02020');}
- else{for(let i=0;i<7;i++)R(hx-3-i*2,hy-7+i,7+i*4,1,i===0?OUTC:i%2?'#3a3a40':'#4a4a52');R(hx-16,hy,33,1,OUTC);R(hx-1,hy-9,3,2,'#c0a050');R(hx-1,hy-6,3,1,'#c0a050');}}
-humBoss('KAGEYAMA, THE TOWER CAPTAIN',kagDraw,{idle0:{},idle1:{b:1},
- atk:{dy:0,legs:'lunge',drawn:1,far:[[26,30],[16,32],[10,33]],near:[[46,30],[38,30],[42,27]]}},{sc:1.1});
+ // legs: dark trousers, armoured thighs, iron shin guards, sandals
+ const legA=(hx,hy,kx,ky,fx,fy)=>{seg(hx,hy+by,kx,ky,6,BK);seg(kx,ky,fx,fy-2,5,BK);const sx2=Math.round((kx+fx)/2);R(sx2-3,ky+2,6,Math.round((fy-ky)*.6),OUTC);R(sx2-2,ky+3,4,Math.round((fy-ky)*.6)-2,IR);R(sx2-2,ky+3,1,Math.round((fy-ky)*.6)-2,IR2);R(fx-4,fy-1,8,2,OUTC);R(fx-3,fy-1,7,1,'#c8a868');};
+ if(lg==='stand'){legA(32,50,29,61,27,73);legA(40,50,43,61,45,73);}else{legA(32,50,25,60,21,72);legA(40,50,46,60,50,73);}
+ // the quiver on his back, white fletchings over the shoulder
+ R(40,10+by,7,26,OUTC);R(41,11+by,5,24,'#4a2a14');R(41,11+by,5,2,'#8a5a2a');for(let i=0;i<(two?1:4);i++){R(41+i,6+by-(i%2),1,6,'#d8c8a8');R(40+i,4+by-(i%2),3,3,'#f4f4f8');R(41+i,4+by-(i%2),1,3,'#c8c8d0');}
+ // the katana hanging at the left hip, behind the skirt plates, its hilt forward
+ L(cx-16,56+by,cx-6,47+by,OUTC,4);L(cx-16,56+by,cx-6,47+by,BK2,2);R(cx-7,45+by,3,3,LC);L(cx-5,46+by,cx-1,43+by,OUTC,3);L(cx-5,46+by,cx-1,43+by,'#e8e0d0',1);
+ // skirt plates over the thighs
+ for(const [x,w] of [[cx-11,7],[cx-3,7],[cx+5,7]]){R(x-1,46+by,w+2,9,OUTC);for(let r=0;r<3;r++){R(x,47+by+r*3,w,2,r%2?AR2:AR);R(x,49+by+r*3,w,1,LC);}}
+ // breastplate: laced lames, a dark band at the top, gold lacing
+ trap(cx,25+by,46+by,9,10,AR);for(let y=27;y<45;y+=3){R(cx-9,y+by,19,1,ARD);for(let x=-8;x<9;x+=4)R(cx+x,y+1+by,1,2,LC);}R(cx-8,25+by,17,3,BK);R(cx-8,25+by,17,1,BK2);
+ // big shoulder plates
+ for(const s of [-1,1]){const x=cx+s*12;R(x-5,24+by,11,12,OUTC);for(let r=0;r<4;r++){R(x-4,25+by+r*3,9,2,r%2?AR2:AR);R(x-4,27+by+r*3,9,1,LC);}}
+ // arms in armoured sleeves; the great bow, held upright or drawn to the ear
+ const draw=!!Q.drawn,far=Q.far||[[25,30],[19,38],[18,46]],near=Q.near||[[47,30],[51,39],[49,46]];
+ arm(far,AR,BK,SK,4);arm(near,AR,BK,SK,4);
+ {const [x,y]=far[2],top=y+by-34,bot=y+by+20;L(x,top,x-4,y+by-6,OUTC,4);L(x-4,y+by-6,x,bot,OUTC,4);L(x,top,x-4,y+by-6,BW,2);L(x-4,y+by-6,x,bot,BW,2);
+  for(const k of [.15,.32,.75,.9]){const yy=Math.round(top+(bot-top)*k);R(x-4+Math.round(Math.abs(.62-k)*3),yy,3,1,RT);}R(x-1,top,1,5,BW2);R(x-2,y+by-1,4,4,RT);
+  const sx2=draw?near[2][0]:x+1,sy2=draw?near[2][1]+by:y+by;L(x,top,sx2,sy2,ST,1);L(sx2,sy2,x,bot,ST,1);
+  if(draw){L(x-10,y+by-1,sx2,sy2,'#d8c8a8',1);R(x-12,y+by-2,3,3,'#f4f4f8');R(sx2-1,sy2-1,3,2,'#f4f4f8');}}
+ // head: a stern face behind a dark red half-mask; the jingasa with its gold crest (a bloodied headband in the second form)
+ const hx=cx,hy=17+by;face(hx,hy,SK,{eye:OUTC,brow:'#2a1a14',mouth:false});R(hx-5,hy+1,11,5,OUTC);R(hx-4,hy+1,9,4,ARD);R(hx-4,hy+1,9,1,AR2);for(const x of [-3,0,3])R(hx+x,hy+3,1,1,BK);
+ if(two){R(hx+1,hy+1,1,3,BK);R(hx-6,hy-5,13,2,'#c03020');L(hx-6,hy-4,hx-12,hy+1,'#c03020',1);E(hx,hy-7,6,3,'#1a1410');R(hx+3,hy-2,1,3,'#a02020');}
+ else{R(hx-6,hy-6,13,3,'#3a3048');for(let i=0;i<8;i++){const w=4+i*4;R(hx-Math.round(w/2),hy-12+i,w,1,i===0?OUTC:i%2?BK:BK2);}R(hx-17,hy-4,35,2,OUTC);R(hx-16,hy-4,33,1,BK2);E(hx,hy-11,2,2,LC);R(hx,hy-11,1,1,'#fff0c0');}}
+humBoss('KAGEYAMA, THE TOWER CAPTAIN',kagDraw2,{idle0:{},idle1:{b:1},
+ atk:{dy:0,legs:'lunge',drawn:1,far:[[25,30],[15,32],[9,33]],near:[[47,30],[39,29],[43,26]]}},{sc:1.1});
+
+// ---------- KUROBE, THE RIVER PIRATE (Prologue II) ----------
+// A burly river pirate: a sea-blue headscarf knotted at the side, a bushy black beard, a short indigo happi coat with a
+// white wave pattern at the hem worn open over a broad chest, tattooed forearms (blue waves), a rope coiled over one
+// shoulder, clay jars on his belt, short trousers and bound shins. He fights with a long boat oar. Second form: the
+// headscarf gone, his hair wild and wet, a red eye, the oar swapped for a lit fire-jar in his free hand.
+function kurDraw(p,Q){const K=HUM(p,Q),{R,E,L,seg,trap,arm,leg,face,lt,dk,by}=K,two=ARTHURT,cx=36;
+ const IN='#24406a',IN2='#33598c',WV='#e8f0f8',SK='#c88a5a',SK2='#9a6440',SKL='#e0a878',TT='#2a5a9a',HS='#3a8ac8',HS2='#5aaee8',BE='#16100c',PN='#5a4a3a',PN2='#6e5c48',RP='#c8a868',CL='#a86a3a',WD='#8a5a2a',WD2='#b8844a';
+ const lg=Q.legs||'stand';
+ // legs: short trousers, bare bound shins, straw sandals
+ const legP=(hx,hy,kx,ky,fx,fy)=>{seg(hx,hy+by,kx,ky,8,PN);seg(kx,ky,fx,fy-2,5,SK);for(let y=ky+2;y<fy-3;y+=2){const t=(y-ky)/(fy-ky);R(Math.round(kx+(fx-kx)*t)-3,y,6,1,'#e8e0d0');}R(fx-5,fy-1,10,2,OUTC);R(fx-4,fy-1,9,1,RP);};
+ if(lg==='stand'){legP(31,50,28,61,26,73);legP(41,50,45,61,47,73);}else{legP(31,50,23,59,18,71);legP(41,50,49,60,54,73);}
+ // the oar behind him (first form): a long shaft with a broad blade, held across the body
+ const far=Q.far||[[24,29],[18,38],[20,47]],near=Q.near||[[48,29],[54,38],[53,46]];
+ if(!two){const [x,y]=near[2],a=Q.oa!=null?Q.oa:-1.25,ca=Math.cos(a),sa=Math.sin(a),l1=34,l0=16;
+  L(x-ca*l0,y+by-sa*l0,x+ca*l1,y+by+sa*l1,OUTC,4);L(x-ca*l0,y+by-sa*l0,x+ca*l1,y+by+sa*l1,WD,2);
+  const bx=x+ca*l1,byy=y+by+sa*l1;for(let k=0;k<12;k++){const px=bx+ca*k,py=byy+sa*k;E(Math.round(px),Math.round(py),3,2,OUTC);}for(let k=0;k<12;k++){const px=bx+ca*k,py=byy+sa*k;E(Math.round(px),Math.round(py),2,1,k<3?WD2:WD);}}
+ // torso: a broad chest under the open happi coat, a wave pattern at the hem
+ trap(cx,25+by,48+by,12,11,SK);E(cx-4,30+by,4,3,SKL);E(cx+4,30+by,4,3,lt(SK));L(cx-7,33+by,cx+7,33+by,SK2,1);L(cx,34+by,cx,45+by,SK2,1);for(let y=27;y<34;y+=2)R(cx-1+(y%3),y+by,1,1,'#3a2a20');
+ for(const s of [-1,1]){const x0=cx+s*8;trap(x0+s*2,25+by,48+by,4,6,IN);R(x0+s*2-1,25+by,2,23,IN2);}
+ for(let x=-14;x<=14;x+=4){E(cx+x,47+by,2,1,WV);R(cx+x-1,46+by,1,1,IN);}
+ // the rope over the shoulder, the belt with clay jars
+ for(let i=0;i<12;i++){const t=i/11;R(Math.round(cx-10+t*20)-1,Math.round(24+t*20)+by,3,2,i%2?RP:'#a8884a');}
+ R(cx-12,46+by,25,3,OUTC);R(cx-11,46+by,23,2,'#5a3a22');
+ for(const [x,c] of [[cx-9,CL],[cx+8,two?'#ff8040':CL]]){E(x,52+by,3,4,OUTC);E(x,52+by,2,3,c);R(x-1,47+by,3,2,'#e8e0d0');}
+ // arms: thick, with blue wave tattoos on the forearms
+ arm(far,SK,SK,SK2,6);arm(near,SK,SK,SK2,6);
+ for(const A of [far,near]){const [[a,b],[c,d],[e,f]]=A;R(a-2,b+by-2,3,2,lt(SK));for(const t of [.3,.55,.8]){const x=Math.round(c+(e-c)*t),y=Math.round(d+(f-d)*t)+by;R(x-2,y,2,1,TT);R(x,y+1,2,1,TT);}}
+ // second form: a lit fire-jar held up in the free hand
+ if(two){const [x,y]=near[2];E(x,y+by-2,4,4,OUTC);E(x,y+by-2,3,3,CL);R(x-1,y+by-7,3,3,'#e8e0d0');E(x,y+by-10,3,4,'#ff7030');E(x,y+by-11,1,2,'#ffe080');}
+ // head: a broad face, a bushy beard, a knotted sea-blue headscarf (wild wet hair in the second form)
+ const hx=cx,hy=16+by;
+ if(two){for(let i=-8;i<=8;i+=2)L(hx+i,hy-7,hx+i*1.3,hy+3+Math.abs(i)%3,BE,2);}
+ face(hx,hy,SK,{eye:OUTC,brow:BE,mouth:false});
+ E(hx,hy+5,7,5,OUTC);E(hx,hy+5,6,4,BE);for(let x=-5;x<6;x+=2)R(hx+x,hy+8,1,1,'#3a2a20');R(hx-2,hy+3,5,1,'#7a3a2a');R(hx-6,hy+1,3,2,BE);R(hx+4,hy+1,3,2,BE);
+ if(two){R(hx-3,hy-1,2,1,'#ff3030');E(hx,hy-7,7,3,BE);}
+ else{E(hx,hy-6,8,4,OUTC);E(hx,hy-6,7,3,HS);R(hx-6,hy-8,6,2,HS2);for(let x=-5;x<6;x+=3)R(hx+x,hy-5,1,1,'#e8f0f8');R(hx+6,hy-5,4,3,OUTC);R(hx+7,hy-4,2,1,HS);L(hx+8,hy-3,hx+12,hy+2,HS,1);L(hx+8,hy-3,hx+10,hy+4,HS2,1);}}
+humBoss('KUROBE, THE RIVER PIRATE',kurDraw,{idle0:{},idle1:{b:1},
+ atk:{dy:-1,legs:'lunge',near:[[48,28],[56,22],[60,14]],oa:-2.6,far:[[24,29],[16,35],[13,43]]}},{sc:1.1});

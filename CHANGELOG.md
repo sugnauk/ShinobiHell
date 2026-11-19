@@ -4,11 +4,12 @@
 
 - **Prologues II and III (new: `184-prologues.js`):** the road from the burning village to the bamboo is now three short stages before stage I, each a little harder than the last, and each guardian teaches one thing.
   - **I. The Burning Village:** Goro, the bandit captain. Big telegraphed swings and charges, and slow fans of shots.
-  - **II. The Flooded Fields:** Zenigata, the Emperor's tax collector, guards the village's stolen rice. He teaches bullet patterns: rings of coins, coin spirals and bursting coin bags. He also pays bandit guards to fight for him.
-    - He has a tall lacquered cap, an abacus and a string of coins. In his second form the cap is knocked off and his ledger burns.
+  - **II. The Flooded Fields:** Kurobe, the river pirate, ships the village's stolen rice downriver. He teaches bullet patterns: water rings off his oar, spray spirals, floating jars that burst. He also calls his river rats in to fight.
+    - A burly, bearded pirate in a sea-blue headscarf and an open indigo happi coat with a white wave hem, tattooed forearms, a rope and clay jars, and a long boat oar. In his second form his hair is wild and wet and he holds a lit fire-jar.
   - **III. The Hill Watchtower:** Kageyama, the tower captain, a sharp-eyed archer. He teaches aimed shots: volleys straight at you, sniper arrows down a warning line, and an arrow rain. Dash through them.
-    - He wears dark red lamellar armour and a conical helmet, carries a quiver, and draws a great bow. In his second form he wears a bloodied headband.
-  - **Flow:** the campfire after each prologue leads on to the next, and after III to stage I. The master's words tie the story together: the village, then the stolen rice, then the watchtower that signals the warbands, then the bamboo.
+    - He wears samurai archer armour: a lacquered jingasa helmet with a gold crest, a dark red half-mask, laced plates, big shoulder plates, skirt plates and iron shin guards. He carries a katana and a quiver, and his great bow is bound in rattan and gripped below its middle. In his second form he wears a bloodied headband.
+  - **Goro, refined:** a stitched leather vest with a fur collar, a muscled and scarred chest, wrapped forearms, a sake gourd on his rope belt, straw sandals, a cloth-wrapped machete hilt, and long headband tails.
+  - **Flow:** the campfire after each prologue leads on to the next, and after III to stage I. The master's words tie the story together: the village, then the rice on the pirate barge, then the watchtower that signals the warbands, then the bamboo.
   - **Evolution:** only Kageyama makes you grow, so you still reach stage I one form up, as before.
   - **Like Prologue I:** fewer and weaker foes, and a fall sends you back to the start of that prologue with everything you carry. A saved run continues in the right prologue.
 - **Play on a phone or tablet (new: `183-touch.js`):** touch controls switch on at your first touch on the screen.
