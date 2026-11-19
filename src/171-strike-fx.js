@@ -57,8 +57,9 @@ function drawSpear(S,ux,uy,len,col,ghost){const nx=-uy,ny=ux,tx=S.x+ux*len,ty=S.
    for(let i=1;i<=4;i++){const d=L*i/5;if(d>L*p)break;const rr=4+(p*L-d)*.12;ctx.globalAlpha=Math.max(0,.6-(p*L-d)/L)*(1-k);ctx.strokeStyle='#ffd090';ctx.beginPath();ctx.ellipse(S.x+ux*d,S.y+uy*d,rr*.5,rr,Math.atan2(uy,ux),0,TAU);ctx.stroke();}
    if(k<.55){ctx.globalAlpha=1;ctx.fillStyle='#14101a';ctx.beginPath();ctx.arc(hx,hy,4,0,TAU);ctx.fill();ctx.fillStyle='#5a5466';ctx.fillRect(Math.round(hx)-2,Math.round(hy)-2,2,2);ctx.fillStyle='#ffb050';ctx.fillRect(Math.round(hx-ux*5)-1,Math.round(hy-uy*5)-1,3,3);}break;}}
  ctx.restore();};}
-// the fan of phantom spears hovering behind the lancer through Thousand Thrusts
+// the phantom spears waiting either side of the lancer through Thousand Thrusts
 {const _dp=drawPortal;drawPortal=function(){_dp.apply(this,arguments);if(!P)return;const z=zones.find(q=>q.k==='flurry'&&q.t>0);if(!z)return;
  const a=P.aim,v=scrVec(Math.cos(a),Math.sin(a)),ua=Math.atan2(v[1],v[0]),ux=Math.cos(ua),uy=Math.sin(ua),X=sx(P.x,P.y),Y=sy(P.x,P.y)-10;
- for(let i=0;i<5;i++){const o=(i-2)*.38,ba=ua+Math.PI+o,bx=X+Math.cos(ba)*12,by=Y+Math.sin(ba)*7-Math.abs(i-2)*2,len=26+Math.sin(time*20+i*1.7)*3;
+ // stacked in two columns, one either side of him, all pointing along the aim
+ for(let i=0;i<6;i++){const sd=i<3?-1:1,j=i%3,bx=X+sd*16-ux*4,by=Y-8+j*6,len=24+Math.sin(time*20+i*1.7)*3;
   ctx.globalAlpha=.55+.25*Math.sin(time*16+i);drawSpear({x:bx-ux*6,y:by-uy*6},ux,uy,len,'#c8e0ff',true);}ctx.globalAlpha=1;};}

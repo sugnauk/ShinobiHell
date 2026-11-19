@@ -1,5 +1,40 @@
 # Changelog
 
+## 0.8.6: Feedback pass on the Wizard, Archer, Samurai, Shinobi and Onmyoji kits
+
+- **Wizard:**
+  - **Spirit Ward:** a gyroscope of three tilted rune rings turning round him. They flash, and a ripple spreads, when a shot is thrown back.
+  - **Frost Nova:** the staff stabs the floor and frost crawls out in branching lines to the blast's edge, then shatters into shards. Every foe it caught is crusted in ice while the chill lasts.
+  - **Dragon Descent:** a sigil of turning rings opens in the sky over the target, a thread of light drops from it, and a pillar of golden fire slams down the full width of the blast, leaving a scorched ring.
+- **Archer:**
+  - **Arrow Rain:** its coloured area is back, with dust and splinters where the arrows land.
+  - **Evade Roll:** a low skid backwards instead of a somersault.
+  - **Hawk:** seen from above and always facing where it flies, so it no longer flips (it looked two-headed).
+  - **Arrow Storm:** matches Arrow Rain: tinted patches, dust and standing arrows, with no white pillars or generic bursts.
+  - **Slow motion:** shorter (1.8s, was 2.5s) and lighter.
+- **Samurai:**
+  - **Guard Stance:** chudan no kamae, crouched with the full blade held out at the foe and a gleam running along it.
+  - **War Cry:** the original roar and rings are back, together with the dust rings and a smaller 喝 in samurai red.
+  - **Dragon Cleave:** he rises coiled like a charged heavy (crouched, trembling, flashing when ready) before the dash.
+- **Shinobi:**
+  - **Smoke Bomb:** the original smoke is back.
+  - **Blinks:** every blink takes a breath: Shadow Step, Kitsune Step and Blood Mirror pinch into shadow for 0.14s before they land, and Lotus Dance pauses 0.18s between blinks (was 0.12s).
+- **Onmyoji:**
+  - **Shikigami:** no backdrop behind the paper spirits.
+  - **Barrier:** no star under it, just a plain ring.
+  - **Healing Circle:** a soft green circle with motes rising inside it.
+- **Lancer:**
+  - **RMB SKY PIERCER** (was Spiral Lunge, a dash like the samurai's): he steps in and drives one very long thrust. Everything on the line is hit and shoved back down it. A full charge reaches a third further, pins foes for a moment and breaks shots along the line.
+  - **Q POLE VAULT** (was Wheel Sweep, a spin like the samurai's): he plants the spear and vaults to the cursor, untouchable in the air. He comes down spear-first, throwing nearby foes out and breaking shots near the landing.
+  - **Deflect:** the spin is much clearer: a longer spear spun faster, with a blur disc, trailing ghosts and speed lines.
+  - **War Banner:** shows the area it covers.
+  - **Thousand Thrusts:** the waiting phantom spears stand in two stacks either side of him instead of on top of him.
+- **Gunner:**
+  - **Tripod Gun:** shows its firing range.
+  - **Powder Roll:** the keg shows its blast area.
+  - **Siegebreaker:** the gun is now a bronze o-zutsu with a dragon-head muzzle on a red lacquered stock. Its jaws glow as it charges and breathe fire when it fires.
+  - **Thunder Totem** (Wizard): shows its reach as well.
+
 ## 0.8.5: Every ability performed by the body or a summoned thing; the star sigil is gone; ability fixes
 
 The full plan and audit are in `ANIMATION_AUDIT.md`.
