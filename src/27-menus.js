@@ -66,7 +66,9 @@ function upgradesKey(c){
  else if(c==='Escape'||c==='Tab'){if(treeFrom==='hub'){mode='hub';selTab=0;}else selTab=0;sfx('coin');}}
 function openTree(from){openSelect(from);selTab=1;treeFrom=from;}
 function selCardAt(x,y){const c=SELCARD;for(let i=0;i<CLASSES.length;i++){const cx=c.x0+i*(c.w+c.gap);if(x>=cx&&x<cx+c.w&&y>=c.y-3&&y<c.y+c.h)return i;}return -1;}
-const isLocked=i=>i>=(meta.unlocked||2);
+// whether hero i is locked (185-unlocks.js replaces this with per-hero unlock challenges)
+function heroLocked(i){return i>=(meta.unlocked||2);}
+const isLocked=i=>heroLocked(i);
 const runsToUnlock=i=>i-(meta.unlocked||2)+1;
 // dark silhouette of a sprite sheet, for characters you have not unlocked yet
 const SILC={};

@@ -142,9 +142,9 @@ selConfirm=function(){if(selLock)return;if(isLocked(selIdx)){sfx('block');return
  {txt('DIFFICULTY',px,y,'#888');for(let i=0;i<3;i++){const on=i<I.diff;ctx.fillStyle=on?(I.diff===1?'#6f6':I.diff===2?'#fd4':'#f64'):'#2a2030';ctx.fillRect(px+46+i*7,y,5,5);}
   const s=['','EASY','MEDIUM','HARD'][I.diff];txt(s,px+70,y,I.diff===1?'#6f6':I.diff===2?'#fd4':'#f64');}
  y+=12;
- if(lk){const n=runsToUnlock(selIdx),need=Math.max(1,selIdx-1),done=Math.max(0,need-n);
-  txt('LOCKED',px,y,'#e0c070',2);y+=18;for(const l of wrapTxt('A NEW WARRIOR JOINS AFTER EVERY RUN, WIN OR LOSE. TRAINING DOES NOT COUNT.',Math.floor(pw/4.6))){txt(l,px,y,'#aaa');y+=8;}
-  y+=6;txt('UNLOCKS IN '+n+' MORE RUN'+(n>1?'S':''),px,y,'#ddd');segBar(px,y+10,done/need,'#e0c070',Math.min(10,need));}
+ if(lk){const U=typeof heroLockInfo==='function'?heroLockInfo(selIdx):null;
+  txt('LOCKED',px,y,'#e0c070',2);y+=18;txt(U?U.title:'',px,y,'#e0c070');y+=10;for(const l of wrapTxt(U?U.d:'',Math.floor(pw/4.6))){txt(l,px,y,'#ddd');y+=8;}
+  if(U&&U.need>1){y+=4;const s2=Math.min(U.cur,U.need)+' / '+U.need+(U.run?'  (IN ONE RUN)':'');txt(s2,px,y,'#aaa');segBar(px,y+10,Math.min(1,U.cur/U.need),'#e0c070',Math.min(10,U.need));}}
  else{
   for(const l of wrapTxt(I.lore+(I.lore===C.d?'':' '+C.d),Math.floor(pw/4.6)).slice(0,3)){txt(l,px,y,'#ddd');y+=8;}
   if(I.limit){txt('TRADE-OFF: '+I.limit,px,y,'#e3af90');y+=8;}y+=3;

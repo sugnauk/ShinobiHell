@@ -2,6 +2,19 @@
 
 ## 0.8.2: Prologues II and III, mobile play, Sumo can heal, primary attacks never spin, line weapons fire projectiles
 
+- **Heroes are earned (new: `185-unlocks.js`):** the SAMURAI and the ARCHER are available from the start. Every other hero joins when you complete a challenge of their own, instead of one new hero per finished run in roster order. Character select shows a locked hero's challenge and your progress, and a banner announces a hero the moment they join.
+  - **Wizard:** finish the prologue (defeat Kageyama), or defeat Akagane in stage I.
+  - **Shinobi:** graze 60 enemy shots in one run.
+  - **Onmyoji:** make offerings at 4 shrines.
+  - **Gunner:** break 40 barrels, crates and powder kegs.
+  - **Lancer:** defeat 3 stage guardians in one run.
+  - **Sumo:** defeat a guardian without drinking a potion on that stage.
+  - **Marionettist:** free 3 prisoners from their cages.
+  - **Tengu:** reach Frostpeak Pass, stage V.
+  - **Kagura:** win 3 challenge rooms.
+  - **Chimiko:** take on 3 curses at curse altars.
+  - **Kanemori:** defeat a guardian without being hit.
+  - **Old saves:** they keep every hero already unlocked. The daily challenge picks its hero from the heroes you own.
 - **Arrow Storm's slow motion is quicker and shorter:**
   - The world slows to 65% speed (was 55%) for 2.5s of game time (was 3.1s), about 3.6s real time (was 5s).
   - The 30 arrows land a little faster, over 2.4s (was 2.7s).
