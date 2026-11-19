@@ -50,7 +50,7 @@ The full plan and audit are in `ANIMATION_AUDIT.md`.
   - At most one per dungeon, in about 3 runs out of 5. Never in its own stage, the prologues, training or the boss rush.
 - **Use your abilities:** a tip early in the first fight says to use your abilities the moment they are ready, and every ability tooltip ends with the same advice.
 - **Boss rush menu lag:** hovering the boss rush entry rebuilt every guardian's full sheet on every frame. Each sheet is now built once.
-- **Title screen:** the text is rewritten: the heroes, the prologues, the twelve stages and what lies beyond the throne, one clear prompt, and a footer that cycles through tips.
+- **Title screen:** a new logo, drawn from the game's pixel font: a solid crimson DUNGEONS with a heavy outline and drop shadow, and a light sheen that sweeps across it. A gold SHINOBI sits between rules, a katana lies under the title, and a red 忍 seal is stamped beside it. Below it is one line that changes on every visit (22 jabs at the bosses and the game) and the prompt. That's all: no blurb, tips or key hints.
 - **Touch controls:**
   - The buttons are bigger and spread over the whole right side: DASH, then an arc of RMB/Q/E/F, then R, POT and USE.
   - Auto-aim and auto-attack are always on, so there's no aim stick.

@@ -16,19 +16,52 @@ TIPACT.abil2=TIPACT.abil;
 const BSHEETC={};
 {const _bs=bossSheet;bossSheet=function(i){const b=BOSS[i];if(!b)return _bs.apply(this,arguments);const key=i+'|'+b.name+'|'+(ARTHURT?1:0)+'|'+(typeof PRO_ON!=='undefined'&&PRO_ON?1:0);
  return BSHEETC[key]||(BSHEETC[key]=_bs.apply(this,arguments));};}
-// ---- the title screen ----
-const TITLE_TIPS=['USE YOUR ABILITIES THE MOMENT THEY ARE READY','DASH THROUGH BULLETS: YOU CANNOT BE HIT WHILE DASHING',
- 'FILL A FOE\'S STUN BAR, THEN PUNISH THE STUN','GUARDIANS YOU HAVE BEATEN RETURN AS ECHOES IN LATER DUNGEONS',
- 'GRAZE BULLETS FOR SCORE: CLOSE IS GOOD, TOUCHING IS NOT','K OPENS THE GUIDE: EVERY FOE, RELIC AND GUARDIAN YOU HAVE MET',
- 'EVERY HERO HAS A CHALLENGE THAT UNLOCKS THE NEXT','BEAT THE EMPEROR, THEN DESCEND - IF YOU DARE'];
+// ---- the title screen: the logo, one line that changes every visit, and the prompt ----
+const TITLE_LINES=['AKAGANE STILL BLAMES THE BAMBOO.','THE EMPEROR\'S TAXES ARE THE REAL FINAL BOSS.','THE RONIN SEVEN WERE EIGHT. DON\'T ASK.',
+ 'TETSUO HAS TO RELOAD. YOU DON\'T.','HOSHIYOMI SAW YOU COMING. HE LOST ANYWAY.','NOW WITH MORE BULLETS THAN STRICTLY NECESSARY.',
+ 'DASHING THROUGH BULLETS IS NOT A CRIME. YET.','YOUR ABILITIES ARE NOT DECORATIONS. USE THEM.','TAMAMO SAYS THIS SCREEN IS AN ILLUSION.',
+ 'THE ABYSS HAS NO FLOOR. WE CHECKED.','KAGE IS BEHIND YOU. NO, THE OTHER BEHIND.','THE ABBOT RINGS. THE BULLETS ANSWER.',
+ 'SUMO DOES NOT DODGE. SUMO IS DODGED.','ONIKUMA\'S CHAINS ARE LONGER THAN THIS SENTENCE.','NO SHINOBI WERE HARMED. MANY WERE RESPAWNED.',
+ 'GETSUREI KEEPS THE SUN IN A MIRROR. RUDE.','THE MOTH QUEEN WOULD LIKE HER LANTERN BACK.','THE GUARDIANS YOU BEAT REMEMBER YOU.',
+ 'TWELVE STAGES TO THE THRONE. THEN IT GETS WEIRD.','ITOHIME WOVE THIS LINE. STEP AROUND IT.','KUROGANE\'S HORSE HAS SEEN THINGS.',
+ 'THE EMPEROR HAS A THRONE. YOU HAVE A DASH.'];
+let titleLine=Math.floor(Math.random()*TITLE_LINES.length),titleWas=null;
+// the logo, drawn once from the game's own pixel font with a proper treatment
+function logoGlyphs(s,sc,gap){const cols=[];for(const ch of s){const g=FONT[ch];if(!g){cols.push(null);continue;}cols.push(g);}let w=0;for(const g of cols)w+=(g?g[0].length:3)*sc+gap;return {cols,w:w-gap};}
+function logoText(g,s,x0,y0,sc,gap,fill,ol,sh){const {cols}=logoGlyphs(s,sc,gap);const blocks=[];let x=x0;for(const gl of cols){if(gl){for(let r=0;r<5;r++)for(let q=0;q<gl[0].length;q++)if(gl[r][q]==='#')blocks.push([x+q*sc,y0+r*sc,r]);x+=gl[0].length*sc+gap;}else x+=3*sc+gap;}
+ // drop shadow, then a thick outline, then the fill with a highlight and a shaded edge per block
+ g.fillStyle=sh;for(const [bx,by] of blocks)g.fillRect(bx+3,by+4,sc,sc);g.fillStyle=ol;for(const [bx,by] of blocks)g.fillRect(bx-2,by-2,sc+4,sc+4);
+ const has=new Set(blocks.map(([bx,by])=>bx+','+by)),at=(x,y)=>has.has(x+','+y);
+ for(const [bx,by,r] of blocks){g.fillStyle=fill[r];g.fillRect(bx,by,sc,sc);}
+ // light only on the top edges of each letter, shade only on its right and bottom edges, so letters read as solid shapes
+ for(const [bx,by] of blocks){if(!at(bx,by-sc)){g.fillStyle=fill[5];g.fillRect(bx,by,sc,Math.max(1,sc>>2));}if(!at(bx+sc,by)){g.fillStyle=fill[6];g.fillRect(bx+sc-Math.max(1,sc>>2),by,Math.max(1,sc>>2),sc);}if(!at(bx,by+sc)){g.fillStyle=fill[6];g.fillRect(bx,by+sc-Math.max(1,sc>>2),sc,Math.max(1,sc>>2));}}return blocks;}
+const LOGO=(()=>{const W2=300,H2=74,c=mk(W2,H2,()=>{}),g=c.getContext('2d');
+ const big=logoGlyphs('DUNGEONS',6,6),bx=Math.round((W2-big.w)/2),by=22;
+ const blocks=logoText(g,'DUNGEONS',bx,by,6,6,['#ff7a5a','#ff4a3a','#e02838','#b81a2c','#8a1020','#ffc0a0','#5a0a18'],'#0a0610','#2a0a20');
+ const sm=logoGlyphs('SHINOBI',2,4),sx2=Math.round((W2-sm.w)/2);logoText(g,'SHINOBI',sx2,6,2,4,['#fff0b0','#ffe080','#e0b040','#c89020','#a07018','#ffffff','#6a4a10'],'#0a0610','#1a0a14');
+ // gold rules with diamond ends either side of SHINOBI
+ for(const s of [-1,1]){const x1=s<0?sx2-8:sx2+sm.w+8,x2=s<0?x1-46:x1+46;g.fillStyle='#e0b040';g.fillRect(Math.min(x1,x2),10,Math.abs(x2-x1),1);g.fillRect(x2-1,9,3,3);g.fillStyle='#fff0b0';g.fillRect(x2,10,1,1);}
+ // the katana underneath: wrapped grip, gold guard, a long blade with its edge line
+ const ky=by+36,kx0=bx-10,kx1=bx+big.w+14;g.fillStyle='#0a0610';g.fillRect(kx0-1,ky-2,kx1-kx0+3,6);
+ for(let x=kx0;x<kx0+34;x++){g.fillStyle=(x>>1)%2?'#3a2a4a':'#1a1424';g.fillRect(x,ky-1,1,4);if((x-kx0)%4===0){g.fillStyle='#c8b8e0';g.fillRect(x,ky,1,2);}}
+ g.fillStyle='#e0b040';g.fillRect(kx0+34,ky-3,4,8);g.fillStyle='#fff0b0';g.fillRect(kx0+34,ky-3,1,8);
+ for(let x=kx0+38;x<kx1;x++){const t=(x-kx0-38)/(kx1-kx0-38),h=x>kx1-8?Math.max(1,Math.round((kx1-x)/3)):3;g.fillStyle='#b8c0d0';g.fillRect(x,ky-1,1,h);g.fillStyle='#ffffff';g.fillRect(x,ky-1,1,1);if(h>2){g.fillStyle='#6a7080';g.fillRect(x,ky+1,1,1);}}
+ // a red seal stamp with the kanji for shinobi
+ const KAN=['..xxxxxx..','.....x.x..','..x..x.x..','...x.x.x..','....x..x..','...x..xx..','..........','.x.xx.x.x.','x..x..x..x','x...xx...x'],stx=bx+big.w+6,sty=by-14;
+ g.fillStyle='#0a0610';g.fillRect(stx-1,sty-1,16,16);g.fillStyle='#c02030';g.fillRect(stx,sty,14,14);g.fillStyle='#e04050';g.fillRect(stx,sty,14,1);
+ g.fillStyle='#fff0e0';for(let r=0;r<10;r++)for(let q=0;q<10;q++)if(KAN[r][q]==='x')g.fillRect(stx+2+q,sty+2+r,1,1);
+ return {c,w:W2,h:H2,blocks,bx,by,sc:6};})();
+// the sheen sweeping across the big letters every few seconds
+const LOGOSH=mk(LOGO.w,LOGO.h,()=>{});
+function drawLogo(x,y){ctx.drawImage(LOGO.c,x,y);const k=(time%4.5)/1.1;if(k>1)return;const g=LOGOSH.getContext('2d');g.clearRect(0,0,LOGO.w,LOGO.h);
+ g.fillStyle='#ffffff';for(const [bx,by] of LOGO.blocks)g.fillRect(bx,by,LOGO.sc,LOGO.sc);g.globalCompositeOperation='source-in';const sx0=-40+k*(LOGO.w+80);
+ const gr=g.createLinearGradient(sx0-14,0,sx0+14,0);gr.addColorStop(0,'rgba(255,255,255,0)');gr.addColorStop(.5,'rgba(255,255,255,.75)');gr.addColorStop(1,'rgba(255,255,255,0)');g.fillStyle=gr;g.fillRect(0,0,LOGO.w,LOGO.h);g.globalCompositeOperation='source-over';
+ ctx.drawImage(LOGOSH,x,y);}
 renderTitle=function(){
- bg();ctxt('SHINOBI',6,'#e0b040',2);
- {const fl=Math.floor(time*8)%9===0;ctxt('DUNGEONS',19,fl?'#ff6040':'#e02838',5);}
- ctx.fillStyle='#e0b040';ctx.fillRect(Math.round(W/2-100),48,200,1);ctx.fillStyle='#a02030';ctx.fillRect(Math.round(W/2-70),50,140,1);
- ctxt(CLASSES.length+' HEROES. THREE PROLOGUES. TWELVE STAGES TO THE EMPEROR\'S THRONE.',55,'#ddd');
- ctxt('BEYOND IT: STARFALL, ECLIPSE, AND AN ABYSS WITH NO FLOOR.',64,'#a898c8');
- if(Math.floor(time*2)%2===0)ctxt('- PRESS ENTER OR CLICK TO BEGIN -',76,'#fff');
- {const s=savedRun();if(s){ctxt('C  CONTINUE YOUR RUN: '+ROMAN[s.R.di]+'. '+DUN[s.R.di].name,87,'#8cf');ctxt('O  OPTIONS',96,'#999');}else ctxt('O  OPTIONS',87,'#999');}
- const t=TITLE_TIPS[Math.floor(time/4)%TITLE_TIPS.length];ctxt('TIP: '+t,H-9,'#c8a0ff');
- txt('V'+GAME_VERSION,W-4-txtW('V'+GAME_VERSION),H-9,'#666');
- txt('T: TEST',4,H-9,'#3a3446');};
+ if(titleWas!=='title'){titleLine=(titleLine+1+Math.floor(Math.random()*(TITLE_LINES.length-1)))%TITLE_LINES.length;}titleWas='title';
+ bg();const lx=Math.round((W-LOGO.w)/2);drawLogo(lx,2);
+ ctxt(TITLE_LINES[titleLine],LOGO.h+6,'#b8a8d0');
+ if(Math.floor(time*2)%2===0)ctxt(typeof TOUCH!=='undefined'&&TOUCH?'- TAP TO BEGIN -':'- PRESS ENTER -',LOGO.h+20,'#fff');
+ txt('V'+GAME_VERSION,W-4-txtW('V'+GAME_VERSION),H-9,'#4a4458');};
+// a new line next time the title shows
+{const _r=render;render=function(){if(mode!=='title')titleWas=mode;return _r.apply(this,arguments);};}
