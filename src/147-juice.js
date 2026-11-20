@@ -51,7 +51,7 @@ function castShow(k){const p=P,sp=SPELLS[k]?.[p.lo[k]],col=sp?.c||'#fff',a=p.aim
  else if(k==='w'){juice({k:'seal',x:p.x,y:p.y,r:24,dur:.7,col});juice({k:'ring',x:p.x,y:p.y,r0:6,r:32,dur:.35,col,thick:1});snd('ward');}
  else if(k==='f'&&sp?.n!=='SHIKO'){juice({k:'ring',x:p.x,y:p.y,r0:4,r:56,dur:.35,col,thick:1,white:1,h:0});juice({k:'ring',x:p.x,y:p.y,r0:4,r:78,dur:.5,col,delay:.08,h:0});
   for(let i=0;i<18;i++){const an=i/18*TAU;particles.push({x:p.x+Math.cos(an)*10,y:p.y+Math.sin(an)*10,vx:Math.cos(an)*90,vy:Math.sin(an)*90,t:.35,col:i%2?'#c8c0b8':col});}shake=Math.max(shake,4);snd('nova');}
- else if(k==='e'){flashT=Math.max(flashT,.22);flashCol=col;juice({k:'rays',x:p.x,y:p.y,n:16,len:90,dur:.5,col:'#fff',in:10});juice({k:'seal',x:p.x,y:p.y,r:40,dur:.9,col});
+ else if(k==='e'&&sp?.n!=='SHADOW CLONES'&&sp?.n!=='SIEGEBREAKER'){flashT=Math.max(flashT,.22);flashCol=col;juice({k:'rays',x:p.x,y:p.y,n:16,len:90,dur:.5,col:'#fff',in:10});juice({k:'seal',x:p.x,y:p.y,r:40,dur:.9,col});
   for(let i=0;i<3;i++)juice({k:'ring',x:p.x,y:p.y,r0:6,r:60+i*40,dur:.6,col,thick:1,white:!i,delay:i*.12,h:0});spark(p.x,p.y,col,40,180);spark(p.x,p.y,'#fff',20,120);
   shake=Math.max(shake,10);hitstop=Math.max(hitstop,.05);snd('ult');}
  else if(k==='h'){juice({k:'rays',x:hx,y:hy,n:7,len:46,dur:.22,col,cone:.9,a0:Math.atan2(Math.sin(a)*.6,Math.cos(a))});juice({k:'ring',x:hx,y:hy,r0:2,r:22,dur:.22,col:'#fff'});shake=Math.max(shake,4);snd('heavy');}}

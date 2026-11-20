@@ -8,6 +8,10 @@
 - **Mobile:** Basic auto-fire follows the equipped weapon's reach, up to 130 px. Tapped abilities can still aim at a visible foe up to 130 px away.
 - **Wizard:** Frost Nova sends a low wave of solid ice facets out from the caster, then breaks into shards.
 - **Archer:** The hawk banks into a smoother swoop and glides between wingbeats. Arrow Storm uses faint green landing patches without the bright rings.
+- **Samurai:** War Cry drops its floating label. Guard Stance now raises the sword, tracks the aim and snaps from a brace into the countercut.
+- **Shinobi:** Caltrops last 7 seconds. A thrown capsule hits the ground and releases Smoke Bomb's cloud. Shadow Clones split and fade smoothly without the gold flash.
+- **Onmyoji:** Barrier displays only the ring and cracking dome.
+- **Gunner:** Matchlock and repeater shots push foes a little harder, with Heavy Slug retaining the strongest push. The tripod targets within 160 px. Siegebreaker uses a short hand cannon and a single travelling blast.
 
 ## 0.8.7: Mobile fixes and roster balance
 - **Shrines on mobile:** each offering is now a tap target, and so is LEAVE. The screen used to accept only the 1-4 keys, so shrines couldn't be used on touch.

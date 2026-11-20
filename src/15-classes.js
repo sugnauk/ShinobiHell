@@ -3,6 +3,7 @@
 // ================= CHARACTER CLASSES =================
 // spells for the four new classes live at SPELLS[slot][4..7]; the wizard uses variant 0 of every slot
 // dm = damage multiplier of POWER, db = which scaling it uses (b basic, a ability, q Q-power, e ultimate)
+const CALTROPS_DURATION=7;
 SPELLS.m.push({n:'KATANA COMBO',g:'/',c:'#e8eef6',d:'3-HIT SLASH COMBO. 3RD HIT CLEAVES',dm:1.25,db:'b',x:'3RD HIT: X2 DAMAGE, WIDER, KNOCKBACK'},
  {n:'QUICK ARROW',g:'>',c:'#e8dcb0',d:'FAST, LONG-RANGE ARROWS',dm:.85,db:'b'},
  {n:'KUNAI',g:'K',c:'#d0d8e0',d:'TWIN KUNAI, VERY FAST',dm:.6,db:'b',dx:' X 2'},
@@ -21,7 +22,7 @@ SPELLS.w.push({n:'GUARD STANCE',g:'G',c:'#e0b040',cd:6,d:'BLOCK 1.2S. COUNTER-SL
  {n:'BARRIER',g:'=',c:'#8cf',cd:12,d:'SHIELD ABSORBS 30% MAX HP FOR 6S'});
 SPELLS.f.push({n:'WAR CRY',g:'!',c:'#f84',cd:12,d:'STUN FOES, +30% DAMAGE, HASTE 4S',x:'BOSSES TAKE STUN INSTEAD'},
  {n:'HAWK',g:'V',c:'#c8a060',cd:14,d:'HAWK FIRES HOMING FEATHERS 8S',dm:.5,db:'a',dx:' EVERY 0.5S'},
- {n:'CALTROPS',g:'X',c:'#8f4',cd:8,d:'SPIKES: SLOW, POISON, DAMAGE 5S',dm:.2,db:'a',dx:' EVERY 0.35S'},
+ {n:'CALTROPS',g:'X',c:'#8f4',cd:8,d:'SPIKES: SLOW, POISON, DAMAGE '+CALTROPS_DURATION+'S',dm:.2,db:'a',dx:' EVERY 0.35S'},
  {n:'HEALING CIRCLE',g:'+',c:'#6f6',cd:15,d:'HEAL 5%/S INSIDE FOR 5S. HURTS FOES',dm:.25,db:'a'});
 SPELLS.e.push({n:'DRAGON CLEAVE',g:'D',c:'#f44',cd:30,d:'DASH THROUGH FOES, THEN EXPLODE',dm:6,db:'e'},
  {n:'ARROW STORM',g:'#',c:'#e8dcb0',cd:34,d:'30 ARROWS RAIN ON THE CURSOR',dm:.8,db:'e',dx:' X 30'},
@@ -100,7 +101,7 @@ function classCast(k){const p=P,v=p.lo[k],a=p.aim,em=EMP(k),A=S.atk,bp=BP()*(p.m
   case 41:{const D=.2;p.dx=Math.cos(a);p.dy=Math.sin(a);p.dash=D;p.iv=Math.max(p.iv,D+.05);p.guard=false;p.iai={a,x0:p.x,y0:p.y,lx:p.x,ly:p.y,t:D,dm:A*2.6*bp*em,full:!!p.hFull,hit:new Set()};sfx('dash');break;}
   case 42:{zones.push({k:'whirl',x:p.x,y:p.y,r:46*AZ(),t:.62,tk:0,dm:A*1.4*qm*em,n:0});sfx('dash');break;}
   case 43:{p.guardSt=1.2;fxRing(p.x,p.y,18,'#e0b040',.3);sfx('block');break;}
-  case 44:{const r=85*AZ();impact(p.x,p.y,'#f84',6,true);fxRing(p.x,p.y,r,'#f84',.45);sfx('boss');p.haste=4;p.rage=5;txtFx(p.x,p.y,'WAR CRY','#f84');
+  case 44:{const r=85*AZ();impact(p.x,p.y,'#f84',6,true);fxRing(p.x,p.y,r,'#f84',.45);sfx('boss');p.haste=4;p.rage=5;
    for(const e of enemies){if(e.dead||e.air||!los(p.x,p.y,e.x,e.y)||Math.hypot(e.x-p.x,e.y-p.y)>r+e.r)continue;if(e.boss){e.posture+=60*em;checkBreak(e);}else{e.act=null;e.tele=0;e.stun=Math.max(e.stun||0,1.2*em);}}break;}
   case 45:{let n=0;for(let s=0;s<=130;s+=3){const tx=p.x+Math.cos(a)*s,ty=p.y+Math.sin(a)*s;if(blocked(tx,ty,4))break;n=s;}const x0=p.x,y0=p.y;p.x+=Math.cos(a)*n;p.y+=Math.sin(a)*n;p.iv=Math.max(p.iv,.6);
    lineHit(x0,y0,a,n,22,e=>hurtE(e,A*6*ep*em,80,{slash:true}));fx.push({k:'line',x:x0,y:y0,a,len:n,t:.35,dur:.35,col:'#f44'});
@@ -118,9 +119,9 @@ function classCast(k){const p=P,v=p.lo[k],a=p.aim,em=EMP(k),A=S.atk,bp=BP()*(p.m
   case 62:{let tg=null,bd=1e9;for(const e of enemies){if(e.dead||e.air||e.type==='turret'||dist(e,p)>170||!los(p.x,p.y,e.x,e.y))continue;const d=dist(e,mw);if(d<bd){bd=d;tg=e;}}if(!tg){txtFx(p.x,p.y,'NO TARGET','#aaa');return;}
    const ba=Math.atan2(tg.y-p.y,tg.x-p.x);spark(p.x,p.y,'#9a7aff',14,80);let nx=tg.x+Math.cos(ba)*(tg.r+8),ny=tg.y+Math.sin(ba)*(tg.r+8);if(blocked(nx,ny,4)){nx=tg.x-Math.cos(ba)*(tg.r+8);ny=tg.y-Math.sin(ba)*(tg.r+8);}if(!blocked(nx,ny,4)){p.x=nx;p.y=ny;}
    p.iv=Math.max(p.iv,.4);hurtE(tg,A*3*qm*em,40,{slash:true});spark(tg.x,tg.y,'#fff',10,90);impact(tg.x,tg.y,'#9a7aff',4);sfx('dash');break;}
-  case 63:{p.iv=Math.max(p.iv,1.2);zones.push({k:'smoke',x:p.x,y:p.y,r:60,t:3,tk:0});for(const e of enemies)if(!e.dead&&Math.hypot(e.x-p.x,e.y-p.y)<100){e.blind=3*em;e.act=null;e.tele=0;}sfx('dash');for(let i=0;i<40;i++){const an=Math.random()*TAU,s=rnd(20,80);particles.push({x:p.x,y:p.y,vx:Math.cos(an)*s,vy:Math.sin(an)*s,t:rnd(.6,1.2),col:pick(['#aab','#889','#ccd'])});}break;}
-  case 64:{zones.push({k:'calt',x:p.x,y:p.y,r:36*AZ(),t:5,tk:0,dm:A*.2*ap*em});sfx('tool');break;}
-  case 65:{for(let i=0;i<3;i++)zones.push({k:'clone',x:p.x,y:p.y,r:0,t:6,tk:i*.08,dm:A*.3*ep*em,ang:i*TAU/3});sfx('boss');spark(p.x,p.y,'#9a7aff',30,120);break;}
+  case 63:{p.iv=Math.max(p.iv,1.2);zones.push({k:'smoke',x:p.x,y:p.y,r:60,t:3,tk:0,bombA:a,age:0,top:drawSmokeCapsule});for(const e of enemies)if(!e.dead&&Math.hypot(e.x-p.x,e.y-p.y)<100){e.blind=3*em;e.act=null;e.tele=0;}sfx('dash');break;}
+  case 64:{zones.push({k:'calt',x:p.x,y:p.y,r:36*AZ(),t:CALTROPS_DURATION,tk:0,dm:A*.2*ap*em});sfx('tool');break;}
+  case 65:{for(let i=0;i<3;i++)zones.push({k:'clone',x:p.x,y:p.y,r:0,t:6,tk:i*.08,dm:A*.3*ep*em,ang:i*TAU/3,fromUlt:true});sfx('boss');spark(p.x,p.y,'#9a7aff',30,120);break;}
   // ---------- ONMYOJI ----------
   case 70:{pShot(p.x+Math.cos(a)*5,p.y+Math.sin(a)*5,a,170,A*.95*bp*em,{r:3,col:'#f0e8d0',home:true,life:1.1*(1+S.rangeM)});p.atkCd=.3/S.aspd;sfx('shoot');break;}
   case 71:{const n=p.hFull?2:1;for(let i=0;i<n;i++)pShot(p.x,p.y,a+(n>1?(i?.3:-.3):0),130,A*1.9*bp*em,{r:4,col:'#ff9a40',home:true,pierce:3+S.pierce,life:1.6,pd:16});sfx('tool');break;}
@@ -134,7 +135,7 @@ function classCast(k){const p=P,v=p.lo[k],a=p.aim,em=EMP(k),A=S.atk,bp=BP()*(p.m
   case 90:{const rr=40*(1.12+S.rangeM*.5);coneHit(p.x,p.y,a,rr,2,e=>hurtE(e,A*3*bp*em,40,{slash:true,kb:Math.atan2(e.y-p.y,e.x-p.x)}));
    fx.push({k:'slash',x:p.x,y:p.y,a,arc:2,r:rr,t:.2,dur:.2,col:'#ffe080'});fx.push({k:'slash',x:p.x,y:p.y,a,arc:1.7,r:rr-8,t:.16,dur:.16,col:'#fff'});sfx('slash');shake=Math.max(shake,3);hitstop=Math.max(hitstop,.03);p.atkCd=LMBRATE[9]/S.aspd;break;}
   case 100:{for(let i=-1;i<=1;i++)pShot(p.x+Math.cos(a)*6,p.y+Math.sin(a)*6,a+i*.18,280,A*.6*bp*em,{r:2,arrow:true,col:'#e8dcb0',life:.6*(1+S.rangeM)});p.atkCd=LMBRATE[10]/S.aspd;sfx('shoot');break;}
-  case 110:{pShot(p.x+Math.cos(a)*6,p.y+Math.sin(a)*6,a+rnd(-.06,.06),320,A*.45*bp*em,{r:2,arrow:true,col:'#d8c8a0',life:.55*(1+S.rangeM)});p.atkCd=LMBRATE[11]/S.aspd;sfx('shoot');break;}
+  case 110:{pShot(p.x+Math.cos(a)*6,p.y+Math.sin(a)*6,a+rnd(-.06,.06),320,A*.45*bp*em,{r:2,arrow:true,col:'#d8c8a0',life:.55*(1+S.rangeM),kbm:CLS().k==='gunner'?1.22:undefined});p.atkCd=LMBRATE[11]/S.aspd;sfx('shoot');break;}
   case 120:{pShot(p.x+Math.cos(a)*6,p.y+Math.sin(a)*6,a,230,A*bp*em,{r:3,col:'#c8c8d0',pierce:2+S.pierce,life:.7*(1+S.rangeM)});p.atkCd=LMBRATE[12]/S.aspd;sfx('shoot');break;}
   case 130:{const len=62*(1.12+S.rangeM*.5);lineHit(p.x,p.y,a,len,8,e=>{hurtE(e,A*1.3*bp*em,14,{slash:true});if(!e.boss&&!e.dead){e.kx-=Math.cos(a)*70;e.ky-=Math.sin(a)*70;}});
    fx.push({k:'line',x:p.x,y:p.y,a,len,t:.14,dur:.14,col:'#a0a8b0'});sfx('slash');p.atkCd=LMBRATE[13]/S.aspd;break;}

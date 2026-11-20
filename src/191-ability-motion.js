@@ -19,17 +19,19 @@ let ABX_MUTE=0;
 {const _cs=castShow;castShow=function(k){const sp=P&&SPELLS[k]&&SPELLS[k][P.lo[k]];const own=sp&&ABX_OWN.has(sp.n);if(own)ABX_MUTE++;try{return _cs.apply(this,arguments);}finally{if(own)ABX_MUTE--;}};}
 // the poses each one plays (kind, duration)
 Object.assign(AB_ANIM,{'GUARD STANCE':['stance',1.2],'WAR CRY':['roar',.55]});
-// screen point of a pixel in the hero's frame (x,y in the 20x24 frame), honouring the flip
-const abxPx=(X,feetY,fx,fy,flip)=>({x:flip?X+10-fx:X-10+fx,y:feetY-24+fy});
-const abxHeroFlip=()=>ABPOSE?ABPOSE.dir<0:(P.face<0);
 {const _pa=abPoseAt;abPoseAt=function(H){const u=clamp((time-H.t0)/H.dur,0,1),d=H.dir,o={u,back:false,frame:null,flip:d<0,dx:0,dy:0,sx:1,sy:1,skew:0,rot:0,alpha:1};
  switch(H.k){
   // SAMURAI: the resheathe after Iai Cleave: hand back on the hilt, a small settle
   case 'sheathe':{o.frame=15;const k2=Math.sin(u*Math.PI);o.sy=1-.06*k2;o.skew=-.06*d*(1-u);break;}
-  // GUARD STANCE: blade raised high in a low, still crouch; the counter replaces it with the draw cut
-  // chudan no kamae: knees bent, weight on the back foot, the blade held out at the foe's eyes
-  case 'stance':{const G=ABTUNE.guard,k2=abEase(Math.min(1,(time-H.t0)/.08));o.frame=7;o.sy=1-(1-G.crouch)*k2+.01*Math.sin(time*5);o.sx=1+.06*k2;o.skew=-.1*d*k2;o.dx=-Math.round(k2)*d;break;}
-  case 'counter':{const k2=u<.4?abEase(u/.4):1-abEase((u-.4)/.6);o.frame=u<.55?13:14;o.skew=.3*d*k2;o.dx=Math.round(3*d*k2);o.sy=1-.08*(1-k2);o.trail=u<.6;break;}
+  // Raise the sword, shift onto the back foot, then keep the point trained on the aim.
+  case 'stance':{const G=ABTUNE.guard,t=time-H.t0,raise=abEase(t/.16),settle=abEase((t-.16)/.16),
+   [vx,vy]=scrVec(Math.cos(P.aim),Math.sin(P.aim)),side=vx<0?-1:1,breath=.5+.5*Math.sin(t*9);
+   o.flip=side<0;o.frame=t<.06?12:7;o.sy=1-(1-G.crouch)*raise-.05*(1-settle)*raise+.018*breath;
+   o.sx=1+.06*raise;o.skew=side*(-.2*raise+.12*settle);o.dx=side*Math.round(-2*raise+settle+breath);
+   o.bladeAngle=Math.atan2(vy,vx)+side*(.76*(1-raise)-.22*(1-settle)*raise+.065*breath);break;}
+  case 'counter':{const drive=abEase((u-.12)/.26),brace=1-abEase(u/.13),settle=1-abEase((u-.38)/.62);
+   o.frame=u<.12?7:u<.58?13:14;o.skew=d*(.34*drive*settle-.2*brace);o.dx=Math.round((5*drive*settle-3*brace)*d);
+   o.sy=1-.11*brace-.06*drive*settle;o.trail=u>.14&&u<.55;break;}
   // WAR CRY: inhale (squash), rear up with the blade overhead (stretch), then plant (squash and settle)
   case 'kiai':{const W=ABTUNE.warcry,t=time-H.t0;if(t<W.inhale){const k2=abEase(t/W.inhale);o.frame=12;o.sy=1-.12*k2;o.sx=1+.06*k2;}
    else if(t<W.inhale+W.shout){const k2=abEase((t-W.inhale)/W.shout);o.frame=10;o.sy=.88+.26*k2;o.sx=1.06-.1*k2;o.dy=-Math.round(3*k2);o.dx=Math.round(Math.sin(time*90)*k2);}
@@ -43,16 +45,22 @@ const abxHeroFlip=()=>ABPOSE?ABPOSE.dir<0:(P.face<0);
   if(was.hit.size){hitstop=Math.max(hitstop,ABTUNE.iai.stop);for(const e of cut)e.flash=Math.max(e.flash||0,.14);}}}}
 // GUARD STANCE: hold the chudan guard while the stance lasts; the full blade is drawn out at the foe, a gleam runs along it
 {const _cc=classCast;classCast=function(k){const before=P&&P.guardSt;const r=_cc.apply(this,arguments);
- if(P&&k==='w'&&CLS().k==='samurai'&&P.guardSt>0&&P.guardSt!==before){ABPOSE={k:'stance',dur:P.guardSt,p:1,t0:time,dir:abxHeroFlip()?-1:1};P.abxGuard={t0:time};}return r;};}
-{const _dp=drawPlayer;drawPlayer=function(){const r=_dp.apply(this,arguments);const H=ABPOSE;if(!P||!H||H.k!=='stance'||P.dying>0)return r;
- const O=abPoseAt(H),fl=O.flip,X=sx(P.x,P.y)+(O.dx||0),Fy=sy(P.x,P.y)+3,h=abxPx(X,Fy,16,15+Math.round((1-O.sy)*6),fl),dir=fl?-1:1,len=16,ang=-.18;
- for(let i=0;i<len;i++){const x=Math.round(h.x+dir*Math.cos(ang)*i),y=Math.round(h.y+Math.sin(ang)*i);ctx.fillStyle='#14101a';ctx.fillRect(x,y-1,1,3);ctx.fillStyle=i<3?'#3a2a2a':'#e8eef6';ctx.fillRect(x,y,1,1);if(i>=3){ctx.fillStyle='#a8b0c0';ctx.fillRect(x,y+1,1,1);}}
- const gi=3+((time*18)|0)%(len-3),gx=Math.round(h.x+dir*Math.cos(ang)*gi),gy=Math.round(h.y+Math.sin(ang)*gi);ctx.fillStyle='#ffffff';ctx.fillRect(gx,gy-1,1,1);ctx.fillRect(gx-1,gy,3,1);
- ctx.fillStyle='#e0b040';ctx.fillRect(Math.round(h.x+dir*3)-1,h.y-1,2,3);return r;};}
+ if(P&&k==='w'&&CLS().k==='samurai'&&P.guardSt>0&&P.guardSt!==before)ABPOSE={k:'stance',dur:P.guardSt,p:1,t0:time,dir:P.face<0?-1:1};return r;};}
+{const _dp=drawPlayer;drawPlayer=function(){const r=_dp.apply(this,arguments),H=ABPOSE;if(!P||!H||H.k!=='stance'||P.dying>0)return r;
+ const O=abPoseAt(H),dir=O.flip?-1:1,X=sx(P.x,P.y)+O.dx+Math.round(dir*6*O.sx+9*O.skew),
+  Y=sy(P.x,P.y)+3-Math.round(9*O.sy),ang=O.bladeAngle;
+ ctx.save();ctx.translate(X,Y);ctx.rotate(ang);
+ ctx.fillStyle='#14101a';ctx.fillRect(-2,-2,19,4);
+ ctx.fillStyle='#3a2a2a';ctx.fillRect(-2,-1,5,2);
+ ctx.fillStyle='#e0b040';ctx.fillRect(2,-2,2,4);
+ ctx.fillStyle='#e8eef6';ctx.fillRect(4,-1,12,2);ctx.fillRect(16,-1,1,1);
+ ctx.fillStyle='#a8b0c0';ctx.fillRect(4,0,11,1);
+ ctx.fillStyle='#ffffff';ctx.fillRect(4+Math.floor(((time-H.t0)/ABTUNE.guard.gleam)%1*12),-2,2,1);
+ ctx.restore();return r;};}
 // the counter: the first hit taken snaps into a full-circle draw cut, exactly the counter's reach (50)
 {const _hp=hitPlayer;hitPlayer=function(raw,x,y,o){const armed=P&&CLS().k==='samurai'&&P.guardSt>0&&!(o&&o.peril);const r=_hp.apply(this,arguments);
- if(armed&&P.guardSt===0){const G=ABTUNE.guard,a=Math.atan2((y||P.y)-P.y,(x||P.x)-P.x),dir=scrVec(Math.cos(a),Math.sin(a))[0]<0?-1:1;
-  ABPOSE={k:'counter',dur:G.counter+.14,p:1,t0:time,dir};P.abxGuard=null;
+ if(armed&&P.guardSt===0){const G=ABTUNE.guard,a=Math.atan2((y??P.y)-P.y,(x??P.x)-P.x),dir=scrVec(Math.cos(a),Math.sin(a))[0]<0?-1:1;
+  ABPOSE={k:'counter',dur:G.counter+.14,p:1,t0:time,dir};
   topFx({dur:G.ring+.18,x:P.x,y:P.y,a,draw(o,k){const R0=50,k2=Math.min(1,(time-o.t0)/G.ring),fade=k2<1?1:1-(time-o.t0-G.ring)/.18,sweep=k2*TAU;
    ctx.globalAlpha=Math.max(0,fade);for(let i=0;i<48;i++){const t=i/48*TAU;if(t>sweep)break;const aa=o.a+t,px=o.x+Math.cos(aa)*R0,py=o.y+Math.sin(aa)*R0,X=sx(px,py),Y=sy(px,py)-8,lead=sweep-t<.5;
     ctx.fillStyle=lead?'#ffffff':'#e8eef6';ctx.fillRect(Math.round(X)-1,Math.round(Y),lead?3:2,lead?2:1);if(lead){ctx.fillStyle='#ffe080';ctx.fillRect(Math.round(X),Math.round(Y)-1,1,1);}}}});
@@ -70,7 +78,6 @@ function abxKatsu(X,Y,sc,alpha){ctx.globalAlpha=alpha;for(const [col,off] of [['
     ctx.globalAlpha=.75*a;for(let i=0;i<n;i++){const aa=i/n*TAU+lag*9,px=o.x+Math.cos(aa)*r,py=o.y+Math.sin(aa)*r,X=sx(px,py),Y=sy(px,py);ctx.fillStyle=i%2?'#d8ccb0':'#a89878';ctx.fillRect(Math.round(X)-1,Math.round(Y)-1,3,2);ctx.fillRect(Math.round(X),Math.round(Y)-2,1,1);}}
    ctx.globalAlpha=1;}});
   shake=Math.max(shake,W.shake);hitstop=Math.max(hitstop,W.stop);}return r;};}
-{const _ld=loadDungeon;loadDungeon=function(){if(P){P.abxGuard=null;}return _ld.apply(this,arguments);};}
 // held poses end cleanly: the stance ends with the guard, and a dash cancels any of these motions
 const ABTUNE_HELD=new Set(['stance','kiai','summon','sealhand','plantstaff','flick','sheathe']);
 {const _u=update;update=function(dt){_u.apply(this,arguments);const H=ABPOSE;if(!P||!H)return;
@@ -83,5 +90,3 @@ const ABTUNE_HELD=new Set(['stance','kiai','summon','sealhand','plantstaff','fli
 for(const nm of ['castHeavy','castChain','castWard','castF']){const f=globalThis[nm];if(typeof f!=='function')continue;
  globalThis[nm]=function(){const f0=flashT;const r=f.apply(this,arguments);if(flashT>f0)flashT=f0;return r;};}
 {const _cc=classCast;classCast=function(k){const f0=flashT;const r=_cc.apply(this,arguments);if(k!=='e'&&flashT>f0)flashT=f0;return r;};}
-// the siege cannon belongs to the gunner's SIEGEBREAKER alone (other heroes' 'brace' lead-ins used to draw it too)
-{const _sg=drawSiegeGun;drawSiegeGun=function(){if(ultName()!=='SIEGEBREAKER')return;return _sg.apply(this,arguments);};}
