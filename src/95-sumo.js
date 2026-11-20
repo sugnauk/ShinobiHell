@@ -105,11 +105,14 @@ function sumoShock(x,y,r,damage,posture,src){
 CZ.sumoLift=function(z){
  const e=z.e;
  if(e.dead){z.t=0;return;}
- e.z=z.t>0?Math.sin(Math.PI*(1-z.t/z.duration))*31:0;
+ const f=clamp(1-z.t/z.duration,0,1);
+ e.z=z.stomp?(f<.35?1-(1-f/.35)**2:1-((f-.35)/.65)**2)*31:Math.sin(Math.PI*f)*31;
  if(z.t<=0){
   e.sumoFlight=false;
-  if(sumoCanHit(e))hurtE(e,z.dm,23,{src:'e'});
-  fxRing(e.x,e.y,14,SUMO_COLOUR,.24);
+  if(sumoCanHit(e))hurtE(e,z.dm,23,{src:'e',impactCue:!!z.stomp});
+  if(z.stomp){e.kick={a:0,p:0,t:.18,dur:.18,drop:4};sumStamp(e.x,e.y,10,.22);
+   if(!z.stomp.landed){z.stomp.landed=true;snd('sumoStone');}}
+  else fxRing(e.x,e.y,14,SUMO_COLOUR,.24);
  }
 };
 CZD.sumoLift=()=>{};

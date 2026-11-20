@@ -55,10 +55,14 @@ NEWCAST[92]=(c)=>{const {p,A,qm,em}=c,V=ABTUNE.vault,m=mouseWorld(),a=Math.atan2
  zones.push({k:'vault',x:p.x,y:p.y,x0:p.x,y0:p.y,a,n,t:dur,dur,tk:0,dm:A*3*qm*em,src:'q'});sfx('dash');};
 CZ.vault=(z)=>{if(z.landed)return;const V=ABTUNE.vault,t=z.dur-z.t,u=abEase((t-.08)/(V.air-.08));
  P.x=z.x0+Math.cos(z.a)*z.n*u;P.y=z.y0+Math.sin(z.a)*z.n*u;P.iv=Math.max(P.iv,.05);
- if(t<V.air)return;z.landed=true;z.x=P.x;z.y=P.y;const r=V.land*AZ();
- for(const e of enemies)if(!e.dead&&!e.air&&Math.hypot(e.x-P.x,e.y-P.y)<r+e.r&&los(P.x,P.y,e.x,e.y)){hurtE(e,z.dm,40,{slash:true,kb:Math.atan2(e.y-P.y,e.x-P.x),src:'q'});if(!e.dead&&!e.boss){const a=angTo(P,e);e.kx=Math.cos(a)*200;e.ky=Math.sin(a)*200;e.shoved=R.time;}}
+ if(t<V.air)return;z.landed=true;z.x=P.x;z.y=P.y;const r=V.land*AZ();let hit=false;
+ for(const e of enemies)if(!e.dead&&!e.air&&Math.hypot(e.x-P.x,e.y-P.y)<r+e.r&&los(P.x,P.y,e.x,e.y)){
+  const a=angTo(P,e),hp=e.hp;hurtE(e,z.dm,40,{slash:true,kb:a,src:'q',impactCue:true});
+  if(e.hp>=hp&&!e.dead)continue;
+  hit=true;e.kick={a,p:e.boss?5:8,t:.19,dur:.19,drop:e.boss?3:1};
+  if(!e.dead&&!e.boss){e.kx=Math.cos(a)*200;e.ky=Math.sin(a)*200;e.shoved=R.time;}}
  for(const q of kitBullets(P.x,P.y,r*.7)){q.dead=true;spark(q.x,q.y,'#c8e0ff',2,30);}
- impact(P.x,P.y,'#c8e0ff',5);sfx('break');
+ impact(P.x,P.y,'#c8e0ff',5);snd(hit?'spearSteel':'spearStone');
  topFx({dur:.35,x:P.x,y:P.y,r,draw(o,k){ctx.globalAlpha=1-k;const radius=o.r*abEase(k/.64);
   for(let i=0;i<20;i++){const a=i/20*TAU,x=o.x+Math.cos(a)*radius,y=o.y+Math.sin(a)*radius,X=sx(x,y),Y=sy(x,y),h=Math.round(6*Math.sin(k*Math.PI)*(i%3+1)/3);
    KR(X,Y,1,-2,0,4,2,'#695a4c');KR(X,Y,1,-1,-h,3,2,i%2?'#ddd4ba':'#bbdef2');}

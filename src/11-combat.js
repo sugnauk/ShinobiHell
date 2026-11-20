@@ -86,7 +86,7 @@ function hurtE(e,dmg,pd,o){
  {const ka=o.kb!=null?o.kb:(P?Math.atan2(e.y-P.y,e.x-P.x):0),kp=Math.min(5,1.5+dmg/Math.max(1,S.atk)*1.2);e.kick={a:ka,p:kp,t:.12};}
  if(big||crit)fx.push({k:'burst',x:e.x,y:e.y,t:.16,dur:.16,r:crit?26:18,n:crit?10:7,a0:Math.random(),col:crit?'#ff4':'#fff'});
  if(R&&!o.chain){R.combo=(time-(R.comboAt||-9)<2?(R.combo||0):0)+1;R.comboAt=time;R.bestCombo=Math.max(R.bestCombo||0,R.combo);if(R.combo%25===0){txtFx(P.x,P.y-14,R.combo+' HIT COMBO!','#ffd040',2);fx.push({k:'burst',x:P.x,y:P.y,t:.25,dur:.25,r:34,n:14,a0:0,col:'#ffd040'});}}
- txtFx(e.x,e.y,Math.round(dmg),crit?'#ff4':big?'#ffd080':'#fff',big&&dmg>=S.atk*3?2:1);sfx('hit');spark(e.x,e.y,crit?'#ff4':'#fff',4,50);
+ txtFx(e.x,e.y,Math.round(dmg),crit?'#ff4':big?'#ffd080':'#fff',big&&dmg>=S.atk*3?2:1);if(!o.impactCue)sfx('hit');spark(e.x,e.y,crit?'#ff4':'#fff',4,50);
  if(o.slash&&!o.nost){
   if(o.el)applyStatus(e,o.el);
   if(S.burn&&Math.random()<.35+.15*S.burn)applyStatus(e,'burn');
