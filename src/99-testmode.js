@@ -30,7 +30,8 @@ function testMenuKey(c){const r=TROWS[TEST.sel];
 function resetTestInvulnerability(){TEST.combatT=0;TEST.invT=0;}
 function testStart(){resetTestInvulnerability();const keep={cls:meta.cls,trained:meta.trained,ngp:OPT().ngp,unlocked:meta.unlocked,ngU:meta.ngUnlocked};
  meta.cls=TEST.cls;meta.trained=true;meta.ngUnlocked=true;OPT().ngp=TEST.ngp;
- startRun(TEST.stage);R.test=true;R.testCls=TEST.cls;R.god=!!TEST.god;R.ngp=!!TEST.ngp;
+ startRun(TEST.stage,true);R.test=true;R.testCls=TEST.cls;R.god=!!TEST.god;R.ngp=!!TEST.ngp;
+ loadDungeon(TEST.stage);mode='play';paused=false;
  Object.assign(meta,{cls:keep.cls,trained:keep.trained,ngUnlocked:keep.ngU});OPT().ngp=keep.ngp;S=calcStats();
  if(TEST.power){for(let i=0;i<TEST.power;i++){const it=randItem(['rez']);R.inv[it.id]=(R.inv[it.id]||0)+1;}P.evo=Math.min(9,TEST.power);}
  if(TEST.gear){const q=[0,2,3,4][TEST.gear];for(const s of ['wpn','arm','ring']){const g=q===4?mkGear(s,tierFor(TEST.stage,1),true):mkGear(s,tierFor(TEST.stage,1),false,q);if(s==='wpn'&&!g.rare){g.wt=WSIG[CLASSES[TEST.cls].k];g.name=(g.q>=2?QUAL[g.q].n+' ':'')+GEARN.wpn[g.tier]+' '+g.wt;}R.eq[s]=g;}syncLMB();}

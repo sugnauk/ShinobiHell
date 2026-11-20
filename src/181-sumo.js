@@ -68,17 +68,20 @@ function sumSaltArc(x,y,a){topFx({x,y,a,dur:.42,draw(o,k){const fade=1-abEase((k
  ctx.restore();}});}
 // F SHIKO
 function sumShiko(p,dmg){const cracks=kitFinal()?5:3;P.iv=Math.max(P.iv,.15);
- kitZone({src:'f',t:SHIKO_IMPACT,end(){sumStamp(P.x,P.y,22,.32);sfx('break');shake=Math.max(shake,5);
+ kitZone({src:'f',t:SHIKO_IMPACT,end(z){sumStamp(P.x,P.y,22,.32);snd('sumoStomp');shake=Math.max(shake,5);
    for(const q of kitBullets(P.x,P.y,22)){q.dead=true;}
    const foes=kitFoes(P.x,P.y,150).sort((a,b)=>dist(a,P)-dist(b,P)).slice(0,cracks);
-   for(let i=0;i<cracks;i++){const e=foes[i],an=e?angTo(P,e):P.aim+(i-(cracks-1)/2)*.5;sumCrack(P.x,P.y,an,e,dmg);}}});}
-function sumCrack(x,y,a,tg,dmg){const pts=[[x,y]];
+   for(let i=0;i<cracks;i++){const e=foes[i],an=e?angTo(P,e):P.aim+(i-(cracks-1)/2)*.5;sumCrack(P.x,P.y,an,e,dmg,z);}}});}
+function sumCrack(x,y,a,tg,dmg,stomp){const pts=[[x,y]];
  kitZone({src:'f',t:1.2,x,y,a,tg,go:0,step(z,dt){if(z.done)return;const ta=z.tg&&!z.tg.dead?angTo(z,z.tg):z.a;z.a+=clamp(angDiff(ta,z.a),-4*dt,4*dt);const s=220*dt;z.x+=Math.cos(z.a)*s;z.y+=Math.sin(z.a)*s;z.go+=s;
    if(Math.random()<.5||pts.length<2)pts.push([z.x+rnd(-2,2),z.y+rnd(-2,2)]);
    const e=enemies.find(o=>kitFoe(o)&&Math.hypot(o.x-z.x,o.y-z.y)<o.r+5);
    if(e||z.go>150||solid(z.x,z.y)){z.done=1;z.t=Math.min(z.t,.6);z.burst=time;z.bx=z.x;z.by=z.y;
-    if(e){hurtE(e,dmg,40,{src:'f'});if(sumoCanThrow(e)&&!e.sumoFlight){sumoInterrupt(e,.8);e.kx=e.ky=0;e.sumoFlight=true;zones.push({k:'sumoLift',src:'f',e,t:.6,tk:0,duration:.6,dm:dmg*.35});}else if(e.boss){e.posture=(e.posture||0)+30;}}
-    sfx('break');}},
+    if(e){const hp=e.hp;hurtE(e,dmg,40,{src:'f',impactCue:true});
+     if(e.hp<hp&&!e.dead){
+      if(sumoCanThrow(e)&&!e.sumoFlight){sumoInterrupt(e,.8);e.kx=e.ky=0;e.sumoFlight=true;zones.push({k:'sumoLift',src:'f',e,t:.6,tk:0,duration:.6,dm:dmg*.35,stomp});}
+      else if(e.boss){e.posture=(e.posture||0)+30;e.kick={a:z.a,p:4,t:.21,dur:.21,drop:3};}}}
+    if(!stomp.rumble){stomp.rumble=true;snd('sumoStone');}}},
   ground(z){const fade=Math.min(1,z.t/.3);ctx.globalAlpha=fade;for(let i=1;i<pts.length;i++){const a=pts[i-1],b=pts[i];kLine(HSX(a[0],a[1]),HSY(a[0],a[1]),HSX(b[0],b[1]),HSY(b[0],b[1]),4,'#261a24');kLine(HSX(a[0],a[1]),HSY(a[0],a[1])-1,HSX(b[0],b[1]),HSY(b[0],b[1])-1,1,'#c29872');}ctx.globalAlpha=1;},
   top(z){if(!z.burst)return;const k=(time-z.burst)/.49;if(k>1)return;const X=HSX(z.bx,z.by),Y=HSY(z.bx,z.by),
    h=abEase(k/.28)*(1-abEase((k-.48)/.52))*25;

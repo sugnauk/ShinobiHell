@@ -23,12 +23,14 @@ function drawEnemy(e){
   if(e.hp<e.maxhp*.25){ctx.globalAlpha=.25+.15*Math.sin(time*10);wdisc(e.x,e.y,e.r+5,bsty(e).c);ctx.globalAlpha=1;if(Math.random()<.4)particles.push({x:e.x+rnd(-e.r,e.r),y:e.y+rnd(-4,4),vx:0,vy:-30,t:.4,col:bsty(e).c});}
   if(e.air&&e.z>60){const X=sx(e.x,e.y),Y=sy(e.x,e.y);ctx.globalAlpha=.5;wdisc(e.x,e.y,e.r+4,'#000');ctx.globalAlpha=1;if(e.ceil)wcirc(e.x,e.y,e.r+4+Math.sin(time*14)*2,'#ff4040');return;}}
  // recoil: the sprite jerks back along the hit direction for a moment
- let kx=0,ky=0;if(e.kick&&e.kick.t>0){const k=e.kick.t/.12,v=scrVec(Math.cos(e.kick.a),Math.sin(e.kick.a));kx=Math.round(v[0]*e.kick.p*k);ky=Math.round(v[1]*e.kick.p*k);}
+ let kx=0,ky=0,settle=0;if(e.kick&&e.kick.t>0){const k=e.kick.t/(e.kick.dur||.12),v=scrVec(Math.cos(e.kick.a),Math.sin(e.kick.a));kx=Math.round(v[0]*e.kick.p*k);ky=Math.round(v[1]*e.kick.p*k);settle=Math.round((e.kick.drop||0)*k*k);}
  const s=sprOf(e),X=sx(e.x,e.y)+kx,Y=sy(e.x,e.y)+ky+Math.min(6,Math.round(e.r*.6))+2,H0=s.fh*s.sc;let frame=Math.floor(time*4+e.wob);
  shadow(X,Y-2,Math.round(e.r*2+6));
  if(e.elite){ctx.globalAlpha=.7;wcirc(e.x,e.y,e.r+3+Math.sin(time*6),ELMOD[e.elite].c);ctx.globalAlpha=1;}
  const blink=e.tele>0&&Math.floor(time*16)%2===0;
- const flip=(!!s.animal||!!s.bossSpr)&&sx(P.x,P.y)<X;if(s.bossSpr)frame=s.pick?s.pick(e):(e.act||e.storm>0?2:Math.floor(time*2.5)%2);const fy=e.t&&e.t.fly?Math.round(6+Math.sin(time*5+e.wob)*2):0;drawSpr(s,X,Y-e.z-fy,e.flash>0||blink,frame,flip);
+ const flip=(!!s.animal||!!s.bossSpr)&&sx(P.x,P.y)<X;if(s.bossSpr)frame=s.pick?s.pick(e):(e.act||e.storm>0?2:Math.floor(time*2.5)%2);const fy=e.t&&e.t.fly?Math.round(6+Math.sin(time*5+e.wob)*2):0;
+ if(settle){ctx.save();const foot=Y-e.z-fy;ctx.translate(X,foot);ctx.scale(1+settle*.025,1-settle*.045);drawSpr(s,0,0,e.flash>0||blink,frame,flip);ctx.restore();}
+ else drawSpr(s,X,Y-e.z-fy,e.flash>0||blink,frame,flip);
  if(e.mode&&((e.mode.k==='dashes'||e.mode.k==='stampede')&&e.mode.ph===0||e.mode.k==='cavalry'&&e.mode.ph===1)&&e.mode.da!=null){const wide=e.mode.k==='stampede'||e.mode.k==='cavalry';ctx.fillStyle=Math.floor(time*16)%2?'rgba(255,60,60,.9)':'rgba(255,200,80,.9)';
   if(wide)for(const off of [-e.r,e.r])for(let r=8;r<300;r+=4){const x=e.x+Math.cos(e.mode.da)*r-Math.sin(e.mode.da)*off,y=e.y+Math.sin(e.mode.da)*r+Math.cos(e.mode.da)*off;ctx.fillRect(sx(x,y)-1,sy(x,y),2,1);}
   for(let r=8;r<(wide?300:115);r+=3){const x=e.x+Math.cos(e.mode.da)*r,y=e.y+Math.sin(e.mode.da)*r;ctx.fillRect(sx(x,y)-1,sy(x,y),3,1);}}
@@ -556,7 +558,7 @@ function drawHUD(){
  if(P.dashCd>0){ctx.fillStyle='#fff';ctx.fillRect(Math.round(W/2-8),H/2+14,Math.round(16*(1-P.dashCd/S.dashCd)),1);}
  // survival phase: big countdown while the boss is invulnerable
  if(boss&&boss.awake&&!boss.dead&&boss.storm>0){const survival=!!(boss.EV&&boss.EVdef?.survival),c=survival?'#8fe0ff':bsty(boss).c,s=(survival?'SURVIVE  ':'EVENT  ')+Math.ceil(boss.storm);txt(s,Math.round((W-txtW(s,2))/2),32,Math.floor(time*4)%2?c:'#fff',2);
-  bar(Math.round(W/2-60),46,120,3,boss.storm/(boss.stormMax||8),c,'#2a1a2a');ctxt(survival?'BOSS INVULNERABLE - KEEP MOVING':boss.EVdef?.hint||'THE BOSS CANNOT BE HURT - DODGE!',52,survival?c:'#ddd');}
+  bar(Math.round(W/2-60),46,120,3,boss.storm/(boss.stormMax||8),c,'#2a1a2a');ctxt(boss.EV?.hint||(survival?'BOSS INVULNERABLE - KEEP MOVING':boss.EVdef?.hint||'THE BOSS CANNOT BE HURT - DODGE!'),52,survival?c:'#ddd');}
  // minion event: how many of the guard are left before the shield breaks
  if(boss&&boss.awake&&!boss.dead&&boss.ev&&boss.ev.mins.length){const n=boss.ev.mins.filter(m=>!m.dead).length;if(n){const c=bsty(boss).c,s=boss.ev.name;txt(s,Math.round((W-txtW(s,2))/2),boss.storm>0?62:32,c,2);ctxt('SHIELDED - DEFEAT THE GUARD: '+n+' LEFT',boss.storm>0?78:48,Math.floor(time*3)%2?'#fff':'#9cf');}}
  // arena mechanics the player can use

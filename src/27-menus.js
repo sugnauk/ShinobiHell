@@ -502,7 +502,10 @@ const RUNKEY='shinobiDungeonsRun';
 const PKEEP=['hp','rez','evo','lo','emp','gourd','aegis'];
 function saveRun(){if(!R||R.training)return;try{const r=JSON.parse(JSON.stringify(R,(k,v)=>k==='lastKill'||k==='training'||k==='_rc'?undefined:v));const p={};for(const k of PKEEP)p[k]=P[k];
  localStorage.setItem(RUNKEY,JSON.stringify({v:1,cls:meta.cls||0,R:r,P:p,when:Date.now()}));}catch(e){console.warn('save failed',e);}}
-function savedRun(){try{const s=JSON.parse(localStorage.getItem(RUNKEY));return s&&s.v===1&&s.R&&DUN[s.R.di]?s:null;}catch(e){return null;}}
+function savedRun(){try{const s=JSON.parse(localStorage.getItem(RUNKEY));if(s?.v!==1||!Number.isSafeInteger(s.R?.di)||s.R.di<0)return null;
+ // Older Abyss checkpoints used Stage XV's slot. Keep their current depth when Chapter II takes that number.
+ const oldAbyss=CAMPAIGN_END+3;if(!s.R.lateLayout&&s.R.di>=oldAbyss){s.R.di++;if(s.R.start>=oldAbyss)s.R.start++;s.R.lateLayout=1;}
+ if(s.R.di>CAMPAIGN_END)lateEnsure(s.R.di);return DUN[s.R.di]?s:null;}catch(e){return null;}}
 function clearRun(){try{localStorage.removeItem(RUNKEY);}catch(e){}}
 function continueRun(){const s=savedRun();if(!s)return false;meta.cls=s.cls;startRun(s.R.start||0,true);R=Object.assign(R,s.R);S=calcStats();Object.assign(P,s.P);
  syncLMB();Object.assign(P.emp,s.P.emp||{});S=calcStats();R.resumed=true;const hp=P.hp;loadDungeon(R.di);P.hp=Math.min(S.maxhp,hp);mode='play';paused=false;setToast('RUN RESUMED - '+ROMAN[R.di]+'. '+DUN[R.di].name,'#8cf',3);return true;}

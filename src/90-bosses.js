@@ -196,7 +196,7 @@ function survivalPressure(e,E,dt){
  }});
 }
 function runEvent(e,K,dt){const ev=e.EVdef||K.event,E=e.EV;E.t+=dt;e.iv=999;e.storm=Math.max(0,ev.dur-E.t);if(ev.tick)ev.tick(e,dt,E);
- if(ev.survival&&!E.done)survivalPressure(e,E,dt);
+ if(ev.survival&&!ev.ownPressure&&!E.done)survivalPressure(e,E,dt);
  if(!ev.storm&&!ev.quiet&&E.t>.8)bossPressure(e);
  if(!ev.storm&&K.barrage&&!ev.quiet&&!e.ghost&&!e.air){E.bb=(E.bb==null?1.5:E.bb)-dt;if(E.bb<=0){E.bb=(K.barrage.rate||[1])[0]*1.7/BHK();if(eShots()<160){const L=K.barrage.ph1;bossBarrage(e,L[(E.bk=(E.bk||0)+1)%L.length]);}}}
  if(E.t>=ev.dur||(E.done)){if(ev.end)ev.end(e,E);if(ev.survival)clearEnemyShots(true,1);e.EV=null;e.ev=null;e.storm=0;e.iv=.5;e.gapT=1.2;e.air=false;e.z=0;e.alpha=null;sfx('break');fxRing(e.x,e.y,60,'#fff',.4);setToast(ev.name+' ENDS - STRIKE NOW!','#fff',2.2);}}

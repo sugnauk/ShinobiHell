@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.8.9: Chapter II opens at the Gate of Still Water
+
+- Stage XV follows the Eclipse Shrine. Face Sazanami, Ferryman of the Hollow, and earn the Ferryman's Token before continuing into the Abyss.
+- Sazanami uses alternating lantern volleys, marked anchor strikes and two crossings with a marked safe lane.
+- Pole Vault adds outward recoil and a steel strike on contact. Shiko adds a separate footfall, stone break and enemy landing. Grand Theatre holds targets in the air before the strings pluck and pull them down.
+
 ## 0.8.8: Tornado counterplay and roster animation polish
 
 - **Tengu:** Cyclone throws foes out after a 1-second hold. The main Heaven's Gale funnel holds for 1.4 seconds. Both share a 1.5-second reprieve from pull and stun, including the final form's side funnels. Tornado damage and Cyclone's shot returns still work during the reprieve. Gale feathers strike their marked landing spot on the simulation timer, up to four hits per foe.

@@ -113,23 +113,29 @@ const MAR_GRIP=mk(26,27,g=>{const hi=mk(104,108,h=>{h.scale(4,4);
  face('#ca9a73',[[5,4],[14,4],[14,6],[5,6]]);
  for(const [x,y] of [[6,19],[11,21],[16,20],[21,15]]){h.fillStyle=MAR;h.fillRect(x,y,2,1);}
  });g.imageSmoothingEnabled=false;g.drawImage(hi,0,0,26,27);});
+const MAR_HOLD=1.27,MAR_DROP=1.51,MAR_SLAM=1.62;
 function marTheatre(p,dmg){const cap=kitFinal()?14:10,c=kitAim(p,110),foes=kitFoes(p.x,p.y,170).sort((a,b)=>dist(a,c)-dist(b,c)).slice(0,cap);
- for(const e of foes)if(!e.boss&&e.type!=='turret'){sumoInterrupt(e,2.4);e.sumoFlight=true;e.theatre={x:e.x,y:e.y};}
+ const holds=new Map();for(const e of foes)if(sumoCanThrow(e)&&!e.sumoFlight){sumoInterrupt(e,2.4);e.sumoFlight=true;holds.set(e,{x:e.x,y:e.y});}
+ const release=e=>{if(!holds.delete(e))return;e.z=0;e.sumoFlight=false;};
  kitZone({src:'e',t:2.1,x:c.x,y:c.y,foes,step(z,dt){const k=z.age;
-   for(const e of z.foes){if(e.dead)continue;if(e.boss||!e.theatre){e.zs=Math.min(e.zs||1,.15);continue;}e.stun=Math.max(e.stun||0,.2);e.act=null;e.kx=e.ky=0;
-    if(k<.35)e.z=0;else if(k<1.3)e.z=Math.min(34,(k-.35)/.95*34)+Math.sin(k*9+e.x)*2;
-    else if(k<1.6){const f=(k-1.3)/.3,tx=z.x+(e.theatre.x-z.x)*.18*(1-f),ty=z.y+(e.theatre.y-z.y)*.18*(1-f);move(e,(tx-e.x)*Math.min(1,dt*14),(ty-e.y)*Math.min(1,dt*14),e.r);e.z=34-f*8;}
-    else e.z=Math.max(0,e.z-dt*400);}
-   if(k>=1.6&&!z.slam){z.slam=1;impact(z.x,z.y,MAR,9);sfx('break');shake=Math.max(shake,8);const n=z.foes.filter(e=>!e.dead).length;
-    for(const e of z.foes){if(e.dead)continue;hurtE(e,dmg*(1+.12*Math.min(6,n-1)),75,{src:'e'});if(e.theatre){e.z=0;e.sumoFlight=false;e.stun=Math.max(e.stun||0,1.4);}}}},
-  end(z){for(const e of z.foes){e.z=0;e.sumoFlight=false;e.theatre=null;}},
+   const lift=abEase((k-.35)/(MAR_HOLD-.35)),gather=abEase((k-.84)/(MAR_HOLD-.84)),fall=clamp((k-MAR_DROP)/(MAR_SLAM-MAR_DROP),0,1);
+   if(k>=MAR_HOLD&&!z.plucked){z.plucked=1;snd('puppetPluck');}
+   if(!z.slam)for(const e of z.foes){if(e.dead)continue;const hold=holds.get(e);if(!hold){e.zs=Math.min(e.zs||1,.15);continue;}
+    e.stun=Math.max(e.stun||0,.2);e.act=null;e.kx=e.ky=0;e.z=34*lift*(1-fall*fall);
+    const tx=hold.x+(z.x-hold.x)*.82*gather,ty=hold.y+(z.y-hold.y)*.82*gather;
+    move(e,(tx-e.x)*Math.min(1,dt*14),(ty-e.y)*Math.min(1,dt*14),e.r);}
+   if(k>=MAR_SLAM&&!z.slam){z.slam=1;impact(z.x,z.y,MAR,9);snd('puppetSlam');const n=z.foes.filter(e=>!e.dead).length;
+    for(const e of z.foes){if(e.dead)continue;const hp=e.hp;hurtE(e,dmg*(1+.12*Math.min(6,n-1)),75,{src:'e',impactCue:true});
+     if(e.hp<hp&&!e.dead)e.kick={a:0,p:0,t:.24,dur:.24,drop:e.boss?3:5};
+     if(holds.has(e)){release(e);e.stun=Math.max(e.stun||0,1.4);}}}},
+  end(){for(const e of holds.keys())release(e);},
   top(z){const k=z.age,X=HSX(z.x,z.y),Y=HSY(z.x,z.y)-70,a=Math.min(1,k/.3)*(z.t<.3?z.t/.3:1);
-   const jerk=abEase((k-1.28)/.27)*(1-abEase((k-1.62)/.23)),drop=abEase(k/.38),hands=[];
+   const jerk=abEase((k-MAR_HOLD)/(MAR_DROP-MAR_HOLD))*(1-abEase((k-MAR_SLAM)/.23)),drop=abEase(k/.38),hands=[];
    ctx.save();
    for(const side of [-1,1])hands.push({side,x:X+side*(23-6*jerk)+Math.round(Math.sin(k*3+side)*3),y:Y-13-Math.round(11*jerk)});
    for(let i=0;i<z.foes.length;i++){const e=z.foes[i];if(e.dead)continue;const hand=hands[i%2],n=Math.floor(i/2);
     const ax=hand.x+hand.side*((n%5)-2)*4,ay=hand.y+22,ex=HSX(e.x,e.y),ey=HSY(e.x,e.y)-12-(e.z||0);
-    ctx.globalAlpha=a*.88;kLine(ax,ay,ax+(ex-ax)*drop,ay+(ey-ay)*drop,1,i%2?MAR2:MAR);}
+    ctx.globalAlpha=a*.88*(1-abEase((k-MAR_SLAM)/.24));kLine(ax,ay,ax+(ex-ax)*drop,ay+(ey-ay)*drop,1,i%2?MAR2:MAR);}
    for(const hand of hands){ctx.save();ctx.globalAlpha=a;ctx.translate(hand.x,hand.y+12);ctx.rotate(hand.side*(.11+.28*jerk));ctx.scale(hand.side,1);ctx.drawImage(MAR_GRIP,-13,-12);ctx.restore();}
    ctx.restore();}});}
 

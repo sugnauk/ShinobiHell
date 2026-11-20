@@ -228,7 +228,7 @@ const HERO_RESURGE={
 };
 CZ.heroResurge=function(z){if(z.t>0)return;
  rosterBurst(z.x,z.y,z.r,z.dm,22,z.col,{src:'e',chain:true});sfx('break');};
-CZD.heroResurge=z=>{ctx.globalAlpha=.42;wcirc(z.x,z.y,z.r,z.col);ctx.globalAlpha=1;};
+CZD.heroResurge=z=>{if(z.t>.42)return;ctx.globalAlpha=.42;wcirc(z.x,z.y,z.r,z.col);ctx.globalAlpha=1;};
 
 {
  const base=castUlt;
@@ -237,7 +237,8 @@ CZD.heroResurge=z=>{ctx.globalAlpha=.42;wcirc(z.x,z.y,z.r,z.col);ctx.globalAlpha
   const result=base.apply(this,arguments);
   if(P.ab.e<=before||P.evo<5)return result;
   const key=CLS().k,final=heroTransformed(),range=HERO_RESURGE[key],v=range?rosterAim(P,range):P;
-  zones.push({k:'heroResurge',src:'e',x:v.x,y:v.y,r:final?36:27,t:.42,tk:0,dm:S.atk*(final?1.75:1.1),col:CLS().col});
+  const delay=key==='marionettist'&&ultName()==='GRAND THEATRE'?MAR_SLAM+.28:.42;
+  zones.push({k:'heroResurge',src:'e',x:v.x,y:v.y,r:final?36:27,t:delay,tk:0,dm:S.atk*(final?1.75:1.1),col:CLS().col});
   if(key==='wizard'&&final){
    const v=rosterAim(P,135);
    windColumn(v,P.aim,S.atk*.75,1.7,36,35);

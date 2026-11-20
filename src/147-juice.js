@@ -17,6 +17,7 @@ function sxTone(t,f,d,type,v,f2){const o=sxOut();if(!o)return;const s=AC.createO
  g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(v,t+.006);g.gain.exponentialRampToValueAtTime(.0001,t+d);s.connect(g);g.connect(o);s.start(t);s.stop(t+d+.05);}
 function sxNoise(t,d,v,fq,type,q){const o=sxOut();if(!o||typeof noiseBuf!=='function')return;const s=AC.createBufferSource(),f=AC.createBiquadFilter(),g=AC.createGain();s.buffer=noiseBuf();s.loop=d>.3;
  f.type=type||'bandpass';f.frequency.value=fq;if(q)f.Q.value=q;g.gain.setValueAtTime(v,t);g.gain.exponentialRampToValueAtTime(.0001,t+d);s.connect(f);f.connect(g);g.connect(o);s.start(t);s.stop(t+d+.05);}
+function spearClack(t){sxNoise(t,.065,.075,3700,'highpass');sxTone(t,110,.12,'sine',.1,49);}
 const SND={
  zap:()=>{const t=AC.currentTime;sxNoise(t,.18,.09,4000,'highpass');sxTone(t,1400,.16,'square',.035,220);sxTone(t+.03,900,.12,'sawtooth',.02,160);},
  ward:()=>{const t=AC.currentTime;[0,4,7,12].forEach((s,i)=>sxTone(t+i*.04,880*Math.pow(2,s/12),.9,'sine',.04));sxNoise(t,.5,.015,6000,'highpass');},
@@ -29,6 +30,12 @@ const SND={
  bell:()=>{const t=AC.currentTime;for(const [h,a] of [[1,.07],[2.76,.03],[5.4,.015],[.5,.04]])sxTone(t,220*h,3.5,'sine',a);},
  taiko:()=>{const t=AC.currentTime;for(const d of [0,.32,.5]){sxTone(t+d,110,.5,'sine',.2,40);sxNoise(t+d,.12,.06,300,'lowpass');}},
  gong:()=>{const t=AC.currentTime;for(const [f,a] of [[98,.09],[147,.05],[196,.04],[263,.03],[311,.02]])sxTone(t,f,3,'sine',a,f*.97);sxNoise(t,1.2,.03,1500,'bandpass',.7);},
+ spearStone:()=>spearClack(AC.currentTime),
+ spearSteel:()=>{const t=AC.currentTime;spearClack(t);sxTone(t,1180,.19,'triangle',.045,945);sxTone(t,1960,.11,'sine',.028,1670);},
+ sumoStomp:()=>{const t=AC.currentTime;sxTone(t,91,.24,'sine',.19,32);sxNoise(t,.18,.12,320,'lowpass');},
+ sumoStone:()=>{const t=AC.currentTime;for(const [d,f,v] of [[0,970,.07],[.054,810,.045],[.103,530,.027]])sxNoise(t+d,.07,v,f);},
+ puppetPluck:()=>{const t=AC.currentTime;sxTone(t,415,.19,'triangle',.085,369);sxTone(t+.018,832,.09,'sine',.034,740);},
+ puppetSlam:()=>{const t=AC.currentTime;sxTone(t,157,.19,'triangle',.09,48);sxNoise(t,.135,.11,510,'lowpass');sxTone(t+.018,610,.08,'triangle',.025,290);},
  impact:()=>{const t=AC.currentTime;sxTone(t,220,.12,'square',.03,70);sxNoise(t,.08,.04,2500);}};
 const snd=k=>{try{if(AC&&!muted&&SND[k])SND[k]();}catch(_){}};
 
@@ -58,7 +65,7 @@ function castShow(k){const p=P,sp=SPELLS[k]?.[p.lo[k]],col=sp?.c||'#fff',a=p.aim
 for(const [nm,k] of [['castChain','q'],['castWard','w'],['castF','f'],['castUlt','e'],['castHeavy','h']]){const f=globalThis[nm];if(typeof f!=='function')continue;
  globalThis[nm]=function(){const before=P?slotCd(k):0;const r=f.apply(this,arguments);try{if(P&&slotCd(k)>before+.05&&mode==='play')castShow(k);}catch(_){}return r;};}
 // big ability hits land with an impact ring (a few per frame at most)
-{let lastF=-1,n=0;const _h=hurtE;hurtE=function(e,dmg,pd,o){const r=_h.apply(this,arguments);try{const src=(o&&o.src!==undefined)?o.src:castSrc;
+{let lastF=-1,n=0;const _h=hurtE;hurtE=function(e,dmg,pd,o){const r=_h.apply(this,arguments);if(o?.impactCue)return r;try{const src=(o&&o.src!==undefined)?o.src:castSrc;
   if(src&&src!=='m'&&P&&dmg>S.atk*1.8&&!(o&&o.chain)){const f=Math.floor(time*60);if(f!==lastF){lastF=f;n=0;}if(n<4){n++;const col=(SPELLS[src]&&SPELLS[src][P.lo[src]]&&SPELLS[src][P.lo[src]].c)||'#fff';
    juice({k:'ring',x:e.x,y:e.y,r0:2,r:14+Math.min(16,dmg/S.atk*2),dur:.2,col,white:1});spark(e.x,e.y,col,8,100);if(n===1&&Math.random()<.5)snd('impact');}}}catch(_){}return r;};}
 

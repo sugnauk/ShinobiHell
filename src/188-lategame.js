@@ -5,15 +5,18 @@
 //   TIER 1-2  stages I-XII     the campaign, unchanged
 //   TIER 3    stage XIII       advanced late game (its own stage, foes and guardian)
 //   TIER 4    stage XIV        endgame (its own stage, foes and guardian)
-//   TIER 5+   THE ABYSS        endless depths beyond: each depth remixes the late stages with a deeper director tier
+//   TIER 5    stage XV         Chapter II opens at the ferryman’s gate
+//   TIER 5+   THE ABYSS        remixes of stages XIII and XIV at deeper director tiers
 //                              and new guardian modifiers, so the patterns grow more intricate, not the numbers
 // At any late portal: G goes deeper, L leaves in triumph. Depth is recorded on the victory screen and in the trials.
 // Late stages are added into every per-stage table (stage, scenery, guardian, art, music, furnishings, floor art,
 // mood, trails, relics, campfire words...) through lateAdd(); a table a stage does not define copies its base stage.
 const CAMPAIGN_END=DUN.length-1;          // the throne room
 const LATE=[];                             // the late stages, in order (XIII, XIV...)
-const lateTier=di=>di<=CAMPAIGN_END?0:di===CAMPAIGN_END+1?3:di===CAMPAIGN_END+2?4:5+Math.floor((di-CAMPAIGN_END-3)/2);
-const lateDepth=di=>di-CAMPAIGN_END;       // XIII = depth 1
+const abyssDepth=di=>di-CAMPAIGN_END-LATE.length;
+const lateScaleIndex=di=>abyssDepth(di)>0?di-LATE.filter(def=>def.remix===false).length:di;
+const lateTier=di=>di<=CAMPAIGN_END?0:di===CAMPAIGN_END+1?3:di===CAMPAIGN_END+2?4:5+Math.floor(Math.max(0,abyssDepth(di)-1)/2);
+const lateDepth=di=>lateScaleIndex(di)-CAMPAIGN_END; // keep existing Abyss depth records stable
 const romanOf=n=>{const V=[[1000,'M'],[900,'CM'],[500,'D'],[400,'CD'],[100,'C'],[90,'XC'],[50,'L'],[40,'XL'],[10,'X'],[9,'IX'],[5,'V'],[4,'IV'],[1,'I']];let s='';for(const [v,r] of V)while(n>=v){s+=r;n-=v;}return s;};
 // every per-stage table: [name, getter]. A late stage writes its own value or copies its base stage's.
 const LTABLES=()=>[['DUN',DUN],['ENV',ENV],['BOSS',BOSS],['BLOOK',BLOOK],['BSTYLE',BSTYLE],['BMODES',BMODES],['BMOTIF',typeof BMOTIF!=='undefined'?BMOTIF:null],['ROMAN',ROMAN],
@@ -42,25 +45,25 @@ const ABYSS_MODS=[
  {k:'twin',n:'TWINNED',d:'A SHADE OF THE GUARDIAN CASTS A SECOND LAYER'},
  {k:'relentless',n:'RELENTLESS',d:'SHORTER PAUSES BETWEEN ATTACKS'},
  {k:'warded',n:'STAR-WARDED',d:'ORBITING WARDS SHIELD IT UNTIL STRUCK DOWN'}];
-function abyssMods(di){const d=lateDepth(di)-LATE.length;if(d<1)return [];const n=Math.min(3,1+Math.floor((d-1)/2)),out=[];let s=(Math.imul(di+1,2654435761)^0x5bd1e995)>>>0;const rnd2=()=>{s^=s<<13;s>>>=0;s^=s>>>17;s^=s<<5;s>>>=0;return s/4294967296;};rnd2();rnd2();
+function abyssMods(di){const d=abyssDepth(di);if(d<1)return [];const n=Math.min(3,1+Math.floor((d-1)/2)),out=[];let s=(Math.imul(lateScaleIndex(di)+1,2654435761)^0x5bd1e995)>>>0;const rnd2=()=>{s^=s<<13;s>>>=0;s^=s>>>17;s^=s<<5;s>>>=0;return s/4294967296;};rnd2();rnd2();
  const pool=ABYSS_MODS.slice();for(let i=0;i<n&&pool.length;i++)out.push(pool.splice(Math.floor(rnd2()*pool.length),1)[0]);return out;}
-function lateEnsure(di){if(!LATE.length)return;while(DUN.length<=di+1){const i=DUN.length,d=lateDepth(i)-LATE.length,src=LATE[(d-1)%LATE.length];
+function lateEnsure(di){const mix=LATE.filter(def=>def.remix!==false);if(!mix.length)return;while(DUN.length<=di+1){const i=DUN.length,d=abyssDepth(i),src=mix[(d-1)%mix.length];
   const def=Object.assign({},src,{t:Object.assign({},src.t),story:'THE ABYSS, DEPTH '+romanOf(lateDepth(i))+' - '+src.abyss,tale:src.tale});
   def.t.ROMAN=romanOf(i+1);def.t.DUN=Object.assign({},src.t.DUN,{name:'THE ABYSS - '+src.t.DUN.name.replace(/^THE /,'')});
   // the guardian is the same person, transformed: its name carries the depth, and its modifiers are set on spawn
   def.t.BOSS=Object.assign({},src.t.BOSS,{hp:Math.round(src.t.BOSS.hp*(1+.12*d))});
   def.t.BOSSRELIC=null;def.t.TRAILS=src.t.TRAILS;
   lateInstall(def,i);DUN[i].abyss=d;}}
-{const _ld=loadDungeon;loadDungeon=function(di){if(di>CAMPAIGN_END)lateEnsure(di);return _ld.apply(this,arguments);};}
+{const _ld=loadDungeon;loadDungeon=function(di){if(di>CAMPAIGN_END)lateEnsure(di);R.lateLayout=1;return _ld.apply(this,arguments);};}
 // a late guardian carries its tier and, in the abyss, its modifiers
 {const _mb=mkBoss;mkBoss=function(di){const e=_mb.apply(this,arguments);if(e&&di>CAMPAIGN_END){e.lateTier=lateTier(di);e.mods=abyssMods(di).map(m=>m.k);
   // depth adds a little damage, not a wall of numbers: the patterns do the work
-  e.dm=e.dm0=1+.14*CAMPAIGN_END+.06*(di-CAMPAIGN_END);}return e;};}
+  e.dm=e.dm0=1+.14*CAMPAIGN_END+.06*lateDepth(di);e.maxPosture-=55*(di-lateScaleIndex(di));}return e;};}
 // late foes: health and damage grow only gently past the throne room (the tiered patterns are the challenge)
-{const _mk=mkEnemy;mkEnemy=function(type,x,y,room,di){if(di>CAMPAIGN_END){const e=_mk.call(this,type,x,y,room,CAMPAIGN_END);if(e){const k=di-CAMPAIGN_END,f=1+.08*k;e.hp*=f;e.maxhp*=f;e.dm*=1+.04*k;e.lateTier=lateTier(di);}return e;}return _mk.apply(this,arguments);};}
+{const _mk=mkEnemy;mkEnemy=function(type,x,y,room,di){if(di>CAMPAIGN_END){const e=_mk.call(this,type,x,y,room,CAMPAIGN_END);if(e){const k=lateDepth(di),f=1+.08*k;e.hp*=f;e.maxhp*=f;e.dm*=1+.04*k;e.lateTier=lateTier(di);}return e;}return _mk.apply(this,arguments);};}
 // ---------------- the campaign is won at the throne; the run goes on if you want it to ----------------
 {const _ob=onBossDead;onBossDead=function(e){const r=_ob.apply(this,arguments);if(R&&e&&e.di===CAMPAIGN_END&&!R.rush&&!R.training){R.campaignWon=1;setToast('THE EMPEROR IS DEAD - THE CAMPAIGN IS WON','#ffd040',4);}
- if(R&&e&&e.di>CAMPAIGN_END&&!R.rush&&!R.training){R.lateBest=Math.max(R.lateBest||0,lateDepth(e.di));meta.lateBest=Math.max(meta.lateBest||0,lateDepth(e.di));saveMeta();if(typeof trialsCheck==="function")trialsCheck();}return r;};}
+ if(R&&e&&e.di>CAMPAIGN_END&&!R.rush&&!R.training&&!R.test){R.lateBest=Math.max(R.lateBest||0,lateDepth(e.di));meta.lateBest=Math.max(meta.lateBest||0,lateDepth(e.di));saveMeta();if(typeof trialsCheck==="function")trialsCheck();}return r;};}
 // the throne room's portal (and every late portal): G goes deeper, L leaves in triumph
 {const _in=interact;interact=function(){if(R&&!R.training&&!R.rush&&portal&&!portal.pending&&dist(portal,P)<20&&R.di>=CAMPAIGN_END&&R.campaignWon){openMaster();return;}return _in.apply(this,arguments);};}
 {const _ok=onKey;onKey=function(c){if(c==='KeyL'&&mode==='play'&&R&&R.campaignWon&&portal&&!portal.pending&&dist(portal,P)<20&&!paused){finishRun(true);return;}return _ok.apply(this,arguments);};}
