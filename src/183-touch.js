@@ -15,6 +15,11 @@
 // The fullscreen button is available in menus and during play. Portrait play shows a notice to turn the device.
 let TOUCH=false,TOUCHAT=-9;const TCH={stick:null,aim:null,btn:new Map(),aimDir:null};
 const touchActive=()=>TOUCH&&mode==='play'&&!paused&&!invOpen&&P&&!(P.dying>0);
+const smallTouchScreen=()=>Math.min(innerWidth,innerHeight)<520;
+// Near on a phone uses a 240px camera instead of 252px, about 5% larger at the same screen size.
+{const base=viewH;viewH=function(){const height=base();
+ return TOUCH&&mode==='play'&&smallTouchScreen()&&height===VIEWHS[0]?240:height;
+};}
 // the buttons, placed from the bottom-right corner; r is the touch radius in game pixels
 const TOUCHLAY={cx:-40,cy:-38,inR:80,outR:142,dash:24,ab:18,ult:21,small:14};
 function touchButtons(){const L=TOUCHLAY,cx=W+L.cx,cy=H+L.cy,ring=(ang,rad)=>[cx+Math.cos(ang*Math.PI/180)*rad,cy+Math.sin(ang*Math.PI/180)*rad];
@@ -37,9 +42,10 @@ function touchPress(b){if(b.aimFirst&&!TCH.aim){const e=touchTarget(TOUCHAIM);if
  if(b.hold==='rdown'){mouse.rdown=true;return;}const k=b.key();if(!k)return;keys[k]=true;onKey(k);}
 function touchRelease(b){if(b.hold==='rdown'){mouse.rdown=false;return;}const k=b.key();if(k)keys[k]=false;}
 function touchOn(){if(TOUCH)return;TOUCH=true;cv.style.touchAction='none';document.body.style.touchAction='none';
- cv.style.cursor='none';updateTouchDisplay();
+ cv.style.cursor='none';
  // a closer default zoom suits a small screen (only if you never picked one yourself)
- if(meta&&meta.opt&&meta.opt.zoom==null&&Math.min(innerWidth,innerHeight)<520){meta.opt.zoom=0;const v=VIEWWIDE;W=0;setView(v);fit();}}
+ if(meta&&meta.opt&&meta.opt.zoom==null&&smallTouchScreen())meta.opt.zoom=0;
+ setView(VIEWWIDE);updateTouchDisplay();}
 addEventListener('touchstart',e=>{TOUCHAT=performance.now();touchOn();
  if(touchDisplay.contains(e.target))return;
  if(mode==='master'&&e.changedTouches.length){
@@ -64,7 +70,7 @@ const touchEnd=e=>{if(!TOUCH||touchDisplay.contains(e.target))return;if(touchAct
 }};
 addEventListener('touchend',touchEnd,{passive:false});addEventListener('touchcancel',touchEnd,{passive:false});
 // a real mouse moving (not one the browser made up from a tap) hands control back to the PC
-addEventListener('mousemove',()=>{if(TOUCH&&performance.now()-TOUCHAT>1500){TOUCH=false;TCH.stick=TCH.aim=null;TCH.btn.clear();updateTouchDisplay();}});
+addEventListener('mousemove',()=>{if(TOUCH&&performance.now()-TOUCHAT>1500){TOUCH=false;TCH.stick=TCH.aim=null;TCH.btn.clear();setView(VIEWWIDE);updateTouchDisplay();}});
 // movement: the stick gives a smooth direction instead of the eight of the keys
 {const _mv=moveVec;moveVec=function(){const s=TOUCH&&touchActive()&&TCH.stick;if(!s)return _mv.apply(this,arguments);
  let dx=s.x-s.ox,dy=s.y-s.oy;const l=Math.hypot(dx,dy);if(l<4)return [0,0];if(l>22){s.ox=s.x-dx/l*22;s.oy=s.y-dy/l*22;}const k=Math.min(1,l/16);dx=dx/l*k;dy=dy/l*k;
