@@ -6,6 +6,8 @@
 - **Sumo:** Shiko now has a raised-leg wind-up and a dust shockwave timed to the stomp. Yokozuna's Ring summons a pale-gold spirit that performs the same stomp over a clearer straw boundary.
 - **Marionettist and Chimiko:** Grand Theatre starts with descending puppet strings. Crimson Moon starts with blood-red ink spreading under the caster.
 - **Mobile:** Basic auto-fire follows the equipped weapon's reach, up to 130 px. Tapped abilities can still aim at a visible foe up to 130 px away.
+- **Wizard:** Frost Nova sends a low wave of solid ice facets out from the caster, then breaks into shards.
+- **Archer:** The hawk banks into a smoother swoop and glides between wingbeats. Arrow Storm uses faint green landing patches without the bright rings.
 
 ## 0.8.7: Mobile fixes and roster balance
 - **Shrines on mobile:** each offering is now a tap target, and so is LEAVE. The screen used to accept only the 1-4 keys, so shrines couldn't be used on touch.
