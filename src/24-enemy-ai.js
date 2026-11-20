@@ -76,7 +76,7 @@ function updEnemy(e,dt){
  }
  e.slow=Math.min(e.zs||1,(e.st&&e.st.chillT>0)?.85-.15*e.st.chillS:1);e.zs=1;{const lq=liqAt(e.x,e.y);if(lq===1||lq===5)e.slow*=.78;}
  if(e.kx||e.ky){move(e,e.kx*dt,e.ky*dt,e.r);const f=Math.exp(-9*dt);e.kx*=f;e.ky*=f;if(Math.abs(e.kx)<2)e.kx=0;if(Math.abs(e.ky)<2)e.ky=0;}
- if(e.stag>0){e.stag-=dt;if(e.stag<=0){e.posture=0;}return;}
+ if(e.stag>0){e.stag-=dt;if(e.stag<=0){e.stag=0;e.posture=0;}return;}
  if(e.stun>0){e.stun-=dt;return;}
  e.pdelay-=dt;if(e.pdelay<=0)e.posture=Math.max(0,e.posture-e.maxPosture*.22*dt);
  const d=dist(e,P);

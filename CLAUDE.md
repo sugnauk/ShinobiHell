@@ -1,5 +1,8 @@
 # ShinobiDungeons: notes for Claude
 
+## Always open a pull request
+Whenever work is committed and pushed, open a pull request for it into `main` in the same step. Don't wait to be asked.
+
 ## Every pull request bumps the version
 Each new pull request gets a new version number, and the PR includes it. Raise the patch number by one, for example 0.7.2 to 0.7.3, unless told otherwise. Update all of these:
 - `GAME_VERSION` in `src/00-core.js`: this is the version shown on the title screen.
