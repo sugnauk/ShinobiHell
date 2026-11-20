@@ -7,6 +7,11 @@ You are continuing work on **ShinobiDungeons** (repo `sugnauk/ShinobiHell`, bran
 
 Then study the working example: **`src/205-silt-cellars.js`** (stage XVI, Nebari).
 
+**Look at the sprites before drawing anything.** They are rendered as images in **`docs/sprites/`** (see its `README.md`):
+- `genjuro_sheet.png`, `tatsuma_sheet.png`, `sazanami_sheet.png` and `nebari_sheet.png`: the guardians drawn with the double-size method, all frames, both forms. Match their style.
+- `all_guardians.png` and `all_heroes.png`: the whole cast.
+- `docs/chapter2/concept_sheet.png`: the A and B directions for Nebari, Kane, Sumi and Mukuro.
+
 ## The owner's request
 > "I'm thinking about having both directions available for different rewards, e.g. go to fight Boss A for this, fight Boss B for that, in the late game."
 
