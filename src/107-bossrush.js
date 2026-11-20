@@ -5,7 +5,9 @@
 // arena with a 30% heal. Your best rush (guardians beaten, then time) is kept, and all gold you carry turns into jade.
 // every guardian is in the gauntlet; it opens once you have beaten two of them
 const rushBeaten=()=>BOSS.map((b,i)=>i).filter(i=>meta.guide&&meta.guide.e&&meta.guide.e['boss'+i]);
-const rushPool=()=>BOSS.map((b,i)=>i);
+const rushPool=()=>BOSS.slice(0,CAMPAIGN_END+1+LATE.length).flatMap((b,i)=>{
+ const roads=DESCENT_ROADS[i];return roads?roads.map(road=>({di:i,road:road.id})):[i];
+});
 const rushOpen=()=>rushBeaten().length>=2;
 function startRush(){const pool=rushPool();if(!rushOpen()){sfx('block');setToast('BEAT TWO GUARDIANS TO OPEN THE BOSS RUSH','#c55',2.5);return;}
  startRun(pool[0]);R.rush={pool,i:0,t0:0};
@@ -24,7 +26,7 @@ function rushArena(){const r=map.bossRoom;if(!r)return;
 // the portal leads to the next guardian instead of the master
 {const _ui=interact;interact=function(){if(R&&R.rush&&portal&&!portal.pending&&dist(portal,P)<20&&!(nearBag()&&nearBag().items.length)){const rs=R.rush;rs.i++;
    if(rs.i>=rs.pool.length){rushDone(true);return;}
-   const keepHp=P.hp;loadDungeon(rs.pool[rs.i]);P.hp=Math.min(S.maxhp,keepHp+S.maxhp*.3);rushArena();setToast('GUARDIAN '+(rs.i+1)+'/'+rs.pool.length,'#ff6070',2.5);return;}
+   const keepHp=P.hp,next=rs.pool[rs.i];loadDungeon(next.di??next,next.road);P.hp=Math.min(S.maxhp,keepHp+S.maxhp*.3);rushArena();setToast('GUARDIAN '+(rs.i+1)+'/'+rs.pool.length,'#ff6070',2.5);return;}
   return _ui.apply(this,arguments);};}
 function rushDone(win){const rs=R.rush,beaten=rs.i,t=Math.round(R.time||0),b=meta.rushBest||{n:0,t:0};
  if(beaten>b.n||(beaten===b.n&&t<b.t)){meta.rushBest={n:beaten,t};setToast('NEW BEST RUSH: '+beaten+' GUARDIANS','#ffd040',4);}saveMeta();finishRun(win);}

@@ -1,8 +1,22 @@
 'use strict';
-// SHINOBIDUNGEONS - full screen: the game asks the browser for full screen on your first key press or click (browsers
-// only allow it after you interact), unless you turned FULLSCREEN off in the display settings.
-function goFullscreen(on){try{const d=document;if(on){if(!d.fullscreenElement&&d.documentElement.requestFullscreen)d.documentElement.requestFullscreen().catch(()=>{});}
- else if(d.fullscreenElement&&d.exitFullscreen)d.exitFullscreen().catch(()=>{});}catch(_){}}
-{let asked=false;const first=()=>{if(asked)return;asked=true;if(!meta||!meta.opt||meta.opt.fs!==0)goFullscreen(true);};
+const fullscreenElement=()=>document.fullscreenElement||document.webkitFullscreenElement;
+async function goFullscreen(on){try{
+ const d=document,el=d.documentElement;
+ if(on&&!fullscreenElement()){
+  if(d.fullscreenEnabled&&el.requestFullscreen)await el.requestFullscreen({navigationUI:'hide'});
+  else if(d.webkitFullscreenEnabled&&el.webkitRequestFullscreen)await el.webkitRequestFullscreen();
+  else return false;
+ }else if(!on&&fullscreenElement()){
+  const exit=d.fullscreenElement?d.exitFullscreen:d.webkitExitFullscreen;
+  if(!exit)return false;
+  await exit.call(d);
+ }
+ return true;
+ }catch(_){return false;}}
+// A desktop keyboard or mouse can enter fullscreen on its first interaction.
+{let asked=false;const first=e=>{if(asked||e.target?.closest?.('#touch-display')||matchMedia('(pointer: coarse)').matches)return;
+ asked=true;if(!meta||!meta.opt||meta.opt.fs!==0)goFullscreen(true);};
  addEventListener('keydown',first,{capture:true});addEventListener('mousedown',first,{capture:true});}
-document.addEventListener('fullscreenchange',()=>{const v=VIEWWIDE;W=0;setView(v);fit();});
+function fitFullscreen(){const v=VIEWWIDE;W=0;setView(v);fit();}
+document.addEventListener('fullscreenchange',fitFullscreen);
+document.addEventListener('webkitfullscreenchange',fitFullscreen);

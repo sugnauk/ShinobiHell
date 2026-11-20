@@ -8,8 +8,12 @@ const TEST={stage:0,cls:0,start:1,god:1,gear:0,power:0,ngp:0,sel:0,panel:false,a
 const TSTARTS=['STAGE START','BOSS ARENA','BOSS AT HALF HEALTH','BOSS EVENT','BOSS LAST PHASE','MOTH QUEEN (STAGE IV)'];
 const TGEAR=['STARTER','RARE','EPIC','LEGENDARY'];
 const TROWS=[
- {n:'STAGE',v:()=>ROMAN[TEST.stage]+'. '+DUN[TEST.stage].name,ch:d=>{TEST.stage=(TEST.stage+d+DUN.length)%DUN.length;}},
- {n:'BOSS',v:()=>BOSS[TEST.stage].name,c:()=>'#f77'},
+ {n:'STAGE',v:()=>ROMAN[TEST.stage]+'. '+(descentRoad(TEST.stage,TEST.road)?.def.t.DUN.name??DUN[TEST.stage].name),ch:d=>{
+  const stages=BOSS.slice(0,CAMPAIGN_END+1+LATE.length).flatMap((_,di)=>DESCENT_ROADS[di]?.map(r=>({di,road:r.id}))??[{di}]);
+  const i=stages.findIndex(s=>s.di===TEST.stage&&s.road===descentRoad(s.di,TEST.road)?.id);
+  const next=stages[(Math.max(0,i)+d+stages.length)%stages.length];TEST.stage=next.di;TEST.road=next.road;
+ }},
+ {n:'BOSS',v:()=>descentRoad(TEST.stage,TEST.road)?.def.t.BOSS.name??BOSS[TEST.stage].name,c:()=>'#f77'},
  {n:'CHARACTER',v:()=>CLASSES[TEST.cls].n,c:()=>CLASSES[TEST.cls].col,ch:d=>{TEST.cls=(TEST.cls+d+CLASSES.length)%CLASSES.length;}},
  {n:'START AT',v:()=>TSTARTS[TEST.start],ch:d=>{TEST.start=(TEST.start+d+TSTARTS.length)%TSTARTS.length;if(TEST.start===5)TEST.stage=3;}},
  {n:'GOD MODE',v:()=>TEST.god?'ON':'OFF',c:()=>TEST.god?'#6f6':'#ddd',ch:()=>{TEST.god^=1;}},
@@ -31,7 +35,7 @@ function resetTestInvulnerability(){TEST.combatT=0;TEST.invT=0;}
 function testStart(){resetTestInvulnerability();const keep={cls:meta.cls,trained:meta.trained,ngp:OPT().ngp,unlocked:meta.unlocked,ngU:meta.ngUnlocked};
  meta.cls=TEST.cls;meta.trained=true;meta.ngUnlocked=true;OPT().ngp=TEST.ngp;
  startRun(TEST.stage,true);R.test=true;R.testCls=TEST.cls;R.god=!!TEST.god;R.ngp=!!TEST.ngp;
- loadDungeon(TEST.stage);mode='play';paused=false;
+ loadDungeon(TEST.stage,TEST.road);mode='play';paused=false;
  Object.assign(meta,{cls:keep.cls,trained:keep.trained,ngUnlocked:keep.ngU});OPT().ngp=keep.ngp;S=calcStats();
  if(TEST.power){for(let i=0;i<TEST.power;i++){const it=randItem(['rez']);R.inv[it.id]=(R.inv[it.id]||0)+1;}P.evo=Math.min(9,TEST.power);}
  if(TEST.gear){const q=[0,2,3,4][TEST.gear];for(const s of ['wpn','arm','ring']){const g=q===4?mkGear(s,tierFor(TEST.stage,1),true):mkGear(s,tierFor(TEST.stage,1),false,q);if(s==='wpn'&&!g.rare){g.wt=WSIG[CLASSES[TEST.cls].k];g.name=(g.q>=2?QUAL[g.q].n+' ':'')+GEARN.wpn[g.tier]+' '+g.wt;}R.eq[s]=g;}syncLMB();}

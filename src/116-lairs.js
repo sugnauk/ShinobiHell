@@ -6,7 +6,7 @@
 const LAIRS=[
  {stage:2,art:'TSUCHIGUMO, EARTH SPIDER',name:'TSUCHIGUMO, THE EARTH SPIDER',title:"THE EARTH SPIDER'S DEN",col:'#c89040',et:'lairspider',hp:.5,ai:'spider',half:'IT SHEDS ITS SHELL'},
  {stage:5,art:'THE HITOBASHIRA',name:'THE HITOBASHIRA, MAIDEN OF THE WALL',title:'THE SEALED FOUNDATION',col:'#7af0d0',et:'lairghost',hp:.5,ai:'ghost',half:'THE PILLAR BREAKS',unique:'pillar'}];
-const lairFor=di=>LAIRS.find(L=>L.stage===di);
+const lairFor=di=>LAIRS.find(L=>L.stage===di&&(!L.when||L.when()));
 ET.lairspider={n:'TSUCHIGUMO',desc:'THE EARTH SPIDER, SEALED IN A LOCKED DEN',hp:400,spd:40,pos:700,r:14,ai:'dummy',rng:0,wl:0,atks:[]};
 ET.lairghost={n:'THE HITOBASHIRA',desc:'A MAIDEN WALLED UP ALIVE IN THE CASTLE FOUNDATIONS',hp:400,spd:50,pos:600,r:10,ai:'dummy',rng:0,wl:0,atks:[]};
 ROOMCOL.lair='#e05050';
@@ -77,10 +77,14 @@ const inRoomR=(r,x,y)=>x>r.x*T&&x<(r.x+r.w)*T&&y>r.y*T&&y<(r.y+r.h)*T;
  if(Math.floor(time*2)%3===0){ctx.fillStyle='#fff';ctx.fillRect(X+2,Y-9,1,1);}
  const gl=.25+.15*Math.sin(time*3);ctx.globalAlpha=gl;ctx.fillStyle=c;ctx.fillRect(X-15,Y-34,30,1);ctx.globalAlpha=1;};}
 // G at the door: unlock it with a key, or be told where to get one
-{const _in=interact;interact=function(){const p=nearProp();if(p&&p.k==='lairdoor'){if((R.keys||0)>0){R.keys--;unlockLair();}else{txtFx(P.x,P.y,'LOCKED','#c55');sfx('block');setToast('SEALED. THE TRADER SELLS LAIR KEYS','#e0b040',3);}return;}return _in.apply(this,arguments);};}
+{const _in=interact;interact=function(){const p=nearProp();if(p&&p.k==='lairdoor'){
+ if(p.L.free)unlockLair();
+ else if((R.keys||0)>0){R.keys--;unlockLair();}
+ else{txtFx(P.x,P.y,'LOCKED','#c55');sfx('block');setToast('SEALED. THE TRADER SELLS LAIR KEYS','#e0b040',3);}
+ return;}return _in.apply(this,arguments);};}
 
 // the trader sells a lair key on the stages that lead up to a lair
-{const _pr2=populateRoom;populateRoom=function(r,di){const out=_pr2.apply(this,arguments);if(r.type==='shop'&&LAIRS.some(L=>L.stage>=di&&L.stage-di<=2&&!(R.lairDone&&R.lairDone[L.stage]))){const c=roomCenter(r),dry=(x,y)=>!blocked(x,y,8)&&!map.liq[((y/T)|0)*MW+((x/T)|0)]&&map.roomOf[((y/T)|0)*MW+((x/T)|0)]===map.rooms.indexOf(r),
+{const _pr2=populateRoom;populateRoom=function(r,di){const out=_pr2.apply(this,arguments);if(r.type==='shop'&&LAIRS.some(L=>!L.free&&L.stage>=di&&L.stage-di<=2&&!(R.lairDone&&R.lairDone[L.stage]))){const c=roomCenter(r),dry=(x,y)=>!blocked(x,y,8)&&!map.liq[((y/T)|0)*MW+((x/T)|0)]&&map.roomOf[((y/T)|0)*MW+((x/T)|0)]===map.rooms.indexOf(r),
    spot=[[65,38],[-65,38],[0,62],[65,10],[-65,10],[26,62],[-26,62]].map(([a,b])=>({x:c.x+a,y:c.y+b})).find(q=>dry(q.x,q.y))||{x:c.x+65,y:c.y+38};
   props.push({k:'pedestal',x:spot.x,y:spot.y,room:r,lairKey:true,price:Math.round(SHOPX*110*(1+.2*di)),name:'LAIR KEY'});}return out;};}
 
@@ -89,9 +93,9 @@ const inRoomR=(r,x,y)=>x>r.x*T&&x<(r.x+r.w)*T&&y>r.y*T&&y<(r.y+r.h)*T;
  const inside=inRoomR(e.room,P.x,P.y);if(!e.awake&&inside)e.awake=true;if(!e.awake)return;
  if(!e.met){e.met=1;sfx('boss');shake=Math.max(shake,6);setToast(L.name+' AWAKENS','#ff8060',3);fxRing(e.x,e.y,70,L.col,.6);}
  if(e.stag>0||e.stun>0||(e.st&&e.st.frozen>0))return;
- if(!inside){e.at=Math.max(e.at,1.5);return;} // it will not chase you out of its lair
+ if(!inside){e.at=Math.max(e.at,1.5);if(L.onLeave)L.onLeave(e);return;} // it will not chase you out of its lair
  tickBarrage(e,dt);
- if(!e.half&&e.hp<e.maxhp*.5){e.half=1;e.phase=2;e.sprOv=lairSpr(L,1);for(const q of projs)if(q.from==='e'&&q.own===e)q.dead=true;impact(e.x,e.y,L.col,10,true);sfx('break');txtFx(e.x,e.y-20,L.half||'IT RAGES',L.col,2);e.iv=1;}
+ if(!e.half&&e.hp<e.maxhp*.5){e.half=1;e.phase=2;e.sprOv=lairSpr(L,1);for(const q of projs)if(q.from==='e'&&q.own===e)q.dead=true;impact(e.x,e.y,L.col,10,true);sfx('break');txtFx(e.x,e.y-20,L.half||'IT RAGES',L.col,2);e.iv=1;if(L.onHalf)L.onHalf(e);}
  LAIRAI[L.ai||'spider'](e,dt,e.half?1.3:1);};}
 const LAIRAI={
  // the spider: crawls after you, spits venom fans, webs the floor, broods spiderlings and leaps onto you
@@ -122,7 +126,7 @@ const LAIRAI={
 };
 // a lair boss's death: the rare rewards, and the lair stays beaten for the rest of the run
 {const _k=killE;killE=function(e){const L=e.lairBoss,was=L&&!e.dead;_k(e);
- if(was&&e.dead){for(const q of projs)if(q.own===e)q.dead=true;for(const c of e.clones||[])if(!c.dead)c.dead=true;for(const o of enemies)if(!o.dead&&o.type==='spiderling'&&o.room===e.room)o.dead=true;
+ if(was&&e.dead){if(L.onDeath)L.onDeath(e);for(const q of projs)if(q.own===e)q.dead=true;for(const c of e.clones||[])if(!c.dead)c.dead=true;for(const o of enemies)if(!o.dead&&o.type==='spiderling'&&o.room===e.room)o.dead=true;
   (R.lairDone??={})[L.stage]=1;if(L.unique&&ITEMBY[L.unique]){applyItem(L.unique);fxRing(P.x,P.y,40,L.col,.6);}dropBag(e.x-10,e.y+10,GOLDBAG,true);dropBag(e.x+12,e.y+12,TROPHY,true);for(let i=0;i<8;i++)dropPickup(e.x,e.y,'sen',Math.round(rnd(8,14)*(1+R.di*.3)*S.sen));
   addScore(6000,e.x,e.y,L.col);setToast(L.unique?'GUARANTEED BONUS: '+ITEMBY[L.unique].name+' - '+ITEMBY[L.unique].d:L.name+' IS SLAIN. ITS HOARD IS YOURS','#ffd040',5);shake=Math.max(shake,8);fxRing(e.x,e.y,80,L.col,.7);}};}
 // its health bar across the top while you are in the lair

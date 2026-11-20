@@ -1,6 +1,7 @@
 'use strict';
 // HELL OF THE EMPEROR - player and frame update (part of the former game.js; files load in numeric order, see index.html)
 // ---------- update ----------
+function playerMoveVec(){return moveVec();}
 function updPlayer(dt){
  const p=P;{const d=screenToWorldDelta(mouse.x,mouse.y);p.aim=Math.atan2(d.y,d.x);p.face=mouse.x<W/2?-1:1;}
  for(const k of ['atkCd','dashCd','iv','flash','mik','ward','hurtIv','lockT'])p[k]=Math.max(0,(p[k]||0)-dt);
@@ -9,7 +10,7 @@ function updPlayer(dt){
  if(p.stag>0){p.stag-=dt;if(p.stag<=0)p.pos=Math.min(p.pos,S.maxpos*.3);}
  if(p.animT>0)p.animT-=dt;
  const lq=liqAt(p.x,p.y);
- const cmb=inCombat();if(p.combatT>0)p.combatT-=dt;p.focus=false; /* focus mode (hold SHIFT) was removed */if(cmb&&p.oocRun){p.oocRun=false;}const [mx,my]=moveVec();p.sprintK=clamp((p.sprintK||0)+(p.oocRun?dt*4:-dt*8),0,1);if(p.sprintK>.5&&(mx||my)&&Math.random()<dt*14)particles.push({x:p.x-(mx||0)*4+rnd(-2,2),y:p.y-(my||0)*4+rnd(-2,2),vx:-(mx||0)*20,vy:-(my||0)*20,t:.35,col:'#9a9488'});const spd=S.spd*(p.focus?.45:1)*(1+.75*p.sprintK)*(p.haste>0?1.3:1)*(lq===1||lq===5?.72:lq===3?.85:1)*(P.webT>0?.55:1);p.mv=!!(mx||my);p.mvx=mx;p.mvy=my;
+ const cmb=inCombat();if(p.combatT>0)p.combatT-=dt;p.focus=false; /* focus mode (hold SHIFT) was removed */if(cmb&&p.oocRun){p.oocRun=false;}const [mx,my]=playerMoveVec(p,dt);p.sprintK=clamp((p.sprintK||0)+(p.oocRun?dt*4:-dt*8),0,1);if(p.sprintK>.5&&(mx||my)&&Math.random()<dt*14)particles.push({x:p.x-(mx||0)*4+rnd(-2,2),y:p.y-(my||0)*4+rnd(-2,2),vx:-(mx||0)*20,vy:-(my||0)*20,t:.35,col:'#9a9488'});const spd=S.spd*(p.focus?.45:1)*(1+.75*p.sprintK)*(p.haste>0?1.3:1)*(lq===1||lq===5?.72:lq===3?.85:1)*(P.webT>0?.55:1);p.mv=!!(mx||my);p.mvx=mx;p.mvy=my;
  if(p.mv&&(lq===1||lq===5)&&Math.random()<dt*8)particles.push({x:p.x+rnd(-3,3),y:p.y+rnd(-3,3),vx:0,vy:0,t:.3,col:map.env.lc[2]});
  if(p.dash>0){p.dash-=dt;move(p,p.dx*185*dt,p.dy*185*dt,4);}
  else if(p.stag<=0){move(p,mx*spd*dt,my*spd*dt,4);if(wantFire()&&p.atkCd<=0&&!hoverSlot()&&!(p.lockT>0&&p.lockK!=='m'))castBolt();if(mouse.rdown&&p.ab.h<=0&&(p.hCh>0||!(p.lockT>0))){p.hCh=(p.hCh||0)+dt;}else if(!mouse.rdown&&p.hCh>0){p.hFull=p.hCh>=HCHARGE;castHeavy();p.hCh=0;p.hFull=false;}}
@@ -74,6 +75,7 @@ function stepStyle(q,dt){
   // stick: flies a set distance then hangs in the air (spider silk strands that wall you in for a few seconds)
   case 'stick':{if(q.sd>0){q.sd-=Math.hypot(q.vx,q.vy)*dt;if(q.sd<=0){q.vx=q.vy=0;q.stuck=1;}}break;}
  }}
+function projectileCover(){return false;}
 function updProjs(dt){
  for(const q of projs){
   if(q.from==='e'&&freezeT>0)continue;
@@ -81,7 +83,9 @@ function updProjs(dt){
   if(q.rare&&Math.random()<dt*40)particles.push({x:q.x,y:q.y,vx:rnd(-10,10),vy:rnd(-10,10),t:.25,col:q.col});
   if(q.home){let tg=null,bd=q.rare?150:110;for(const e of enemies){if(e.dead||e.air)continue;const d=dist(e,q);if(d<bd){bd=d;tg=e;}}if(tg){const cur=Math.atan2(q.vy,q.vx),df=clamp(angDiff(angTo(q,tg),cur),-5*dt,5*dt),sp=Math.hypot(q.vx,q.vy);q.vx=Math.cos(cur+df)*sp;q.vy=Math.sin(cur+df)*sp;}}
   if(q.st)stepStyle(q,dt);if(q.dead)continue;
+  const x=q.x,y=q.y;
   q.x+=q.vx*dt;q.y+=q.vy*dt;q.life-=dt;
+  if(projectileCover(q,x,y)){q.dead=true;spark(q.x,q.y,q.col,2,30);continue;}
   if(q.life<=0){if(q.st==='split')splitShot(q);if(q.pool)hz.push({own:q.own,x:q.x,y:q.y,r:q.pool.r||12,t:q.pool.t||3.5,dps:q.pool.dps||10,col:q.pool.col||q.col});q.dead=true;continue;}
   if(solid(q.x,q.y)){
    // bouncing shots ricochet off walls a couple of times

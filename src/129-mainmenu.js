@@ -51,9 +51,10 @@ function renderMenu(){
  const heroAt=(k,st,hx,hy,sc)=>{const sp=heroSpr(k,st);ctx.drawImage(sp.c,WIZ.idle[Math.floor(time*2.5)%2]*sp.fw,0,sp.fw,sp.fh,hx,hy,sp.fw*(sc||1),sp.fh*(sc||1));};
  if(it.k==='cont'){const s=savedRun(),C=CLASSES[s.cls]||CLS();txt('CONTINUE YOUR RUN',x,y,'#fff',2);y+=18;
   ctx.fillStyle='#1e1628';ctx.fillRect(x,y,46,52);heroAt(C.k,(s.P&&s.P.evo)||0,x+3,y+2,2);
-  const tx=x+56;txt(C.n,tx,y+2,C.col);txt('STAGE '+ROMAN[s.R.di]+'. '+DUN[s.R.di].name,tx,y+12,'#ffe060');
+  const road=descentRoad(s.R.di,s.R.route?.[roadOffset(s.R.di)]),stage=road?.def.t.DUN??DUN[s.R.di];
+  const tx=x+56;txt(C.n,tx,y+2,C.col);txt('STAGE '+ROMAN[s.R.di]+'. '+stage.name,tx,y+12,'#ffe060');
   {const t=Math.floor(s.R.time||0);txt('TIME '+Math.floor(t/60)+'M '+String(t%60).padStart(2,'0')+'S',tx,y+22,'#aaa');}if(s.R.sen!=null){hudCoin(tx,y+31);txt(String(s.R.sen),tx+10,y+32,'#fc4');}
-  y+=60;para(DUN[s.R.di].tale||'','#aa9');}
+  y+=60;para(road?.def.tale??stage.tale??'','#aa9');}
  else if(it.k==='new'){txt('A NEW RUN',x,y,'#fff',2);y+=18;para('TWELVE STAGES STAND BETWEEN YOU AND THE CORRUPT EMPEROR. CHOOSE YOUR WARRIOR NEXT.','#ddd');y+=4;
   mmSect('THE FIRST STAGE',x,y);y+=9;txt(ROMAN[0]+'. '+DUN[0].name,x,y,'#ffe060');y+=9;para(DUN[0].tale||'','#aa9');y+=4;
   mmSect('ASCENSION',x,y);y+=9;

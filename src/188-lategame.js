@@ -12,6 +12,7 @@
 // Late stages are added into every per-stage table (stage, scenery, guardian, art, music, furnishings, floor art,
 // mood, trails, relics, campfire words...) through lateAdd(); a table a stage does not define copies its base stage.
 const CAMPAIGN_END=DUN.length-1;          // the throne room
+let lateStagesReady=false;                 // the title may read a checkpoint between script loads
 const LATE=[];                             // the late stages, in order (XIII, XIV...)
 const abyssDepth=di=>di-CAMPAIGN_END-LATE.length;
 const lateScaleIndex=di=>abyssDepth(di)>0?di-LATE.filter(def=>def.remix===false).length:di;
@@ -47,14 +48,14 @@ const ABYSS_MODS=[
  {k:'warded',n:'STAR-WARDED',d:'ORBITING WARDS SHIELD IT UNTIL STRUCK DOWN'}];
 function abyssMods(di){const d=abyssDepth(di);if(d<1)return [];const n=Math.min(3,1+Math.floor((d-1)/2)),out=[];let s=(Math.imul(lateScaleIndex(di)+1,2654435761)^0x5bd1e995)>>>0;const rnd2=()=>{s^=s<<13;s>>>=0;s^=s>>>17;s^=s<<5;s>>>=0;return s/4294967296;};rnd2();rnd2();
  const pool=ABYSS_MODS.slice();for(let i=0;i<n&&pool.length;i++)out.push(pool.splice(Math.floor(rnd2()*pool.length),1)[0]);return out;}
-function lateEnsure(di){const mix=LATE.filter(def=>def.remix!==false);if(!mix.length)return;while(DUN.length<=di+1){const i=DUN.length,d=abyssDepth(i),src=mix[(d-1)%mix.length];
+function lateEnsure(di){if(!lateStagesReady)return;const mix=LATE.filter(def=>def.remix!==false);if(!mix.length)return;while(DUN.length<=di+1){const i=DUN.length,d=abyssDepth(i),src=mix[(d-1)%mix.length];
   const def=Object.assign({},src,{t:Object.assign({},src.t),story:'THE ABYSS, DEPTH '+romanOf(lateDepth(i))+' - '+src.abyss,tale:src.tale});
   def.t.ROMAN=romanOf(i+1);def.t.DUN=Object.assign({},src.t.DUN,{name:'THE ABYSS - '+src.t.DUN.name.replace(/^THE /,'')});
   // the guardian is the same person, transformed: its name carries the depth, and its modifiers are set on spawn
   def.t.BOSS=Object.assign({},src.t.BOSS,{hp:Math.round(src.t.BOSS.hp*(1+.12*d))});
   def.t.BOSSRELIC=null;def.t.TRAILS=src.t.TRAILS;
   lateInstall(def,i);DUN[i].abyss=d;}}
-{const _ld=loadDungeon;loadDungeon=function(di){if(di>CAMPAIGN_END)lateEnsure(di);R.lateLayout=1;return _ld.apply(this,arguments);};}
+{const _ld=loadDungeon;loadDungeon=function(di){if(di>CAMPAIGN_END)lateEnsure(di);return _ld.apply(this,arguments);};}
 // a late guardian carries its tier and, in the abyss, its modifiers
 {const _mb=mkBoss;mkBoss=function(di){const e=_mb.apply(this,arguments);if(e&&di>CAMPAIGN_END){e.lateTier=lateTier(di);e.mods=abyssMods(di).map(m=>m.k);
   // depth adds a little damage, not a wall of numbers: the patterns do the work
