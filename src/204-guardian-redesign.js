@@ -16,18 +16,18 @@
 // most common colour, darker on a tie so outlines survive) and outlined as usual.
 
 // ---------------------------------------------------------------- the high-resolution painter
-const HI={W:144,H:152};
+const HI={W:144,H:152,ow:1};   // ow: the painted outline (at 2x); the sheet adds its own 1px edge after
 function hiArt(paint){return function(p,Q){Q=Q||{};const c=document.createElement('canvas');c.width=HI.W;c.height=HI.H;const g=c.getContext('2d');
  const ox=(Q.dx||0)*2,oy=(Q.dy||0)*2,by=(Q.b||0)*2;g.translate(ox,oy);
  const out=OUTC;
  const path=pts=>{g.beginPath();g.moveTo(pts[0][0],pts[0][1]);for(let i=1;i<pts.length;i++)g.lineTo(pts[i][0],pts[i][1]);g.closePath();};
  const H={g,by,two:ARTHURT,f:p.f||0,Q,
-  poly(pts,c,ow=2){path(pts);if(ow){g.lineJoin='round';g.strokeStyle=out;g.lineWidth=ow*2;g.stroke();}g.fillStyle=c;g.fill();},
+  poly(pts,c,ow=HI.ow){path(pts);if(ow){g.lineJoin='round';g.strokeStyle=out;g.lineWidth=ow*2;g.stroke();}g.fillStyle=c;g.fill();},
   fill(pts,c){path(pts);g.fillStyle=c;g.fill();},
-  ell(x,y,rx,ry,c,ow=2,rot=0){g.beginPath();g.ellipse(x,y,Math.max(.5,rx),Math.max(.5,ry),rot,0,TAU);if(ow){g.strokeStyle=out;g.lineWidth=ow*2;g.stroke();}g.fillStyle=c;g.fill();},
+  ell(x,y,rx,ry,c,ow=HI.ow,rot=0){g.beginPath();g.ellipse(x,y,Math.max(.5,rx),Math.max(.5,ry),rot,0,TAU);if(ow){g.strokeStyle=out;g.lineWidth=ow*2;g.stroke();}g.fillStyle=c;g.fill();},
   ln(x0,y0,x1,y1,w,c,cap='round'){g.lineCap=cap;g.strokeStyle=c;g.lineWidth=w;g.beginPath();g.moveTo(x0,y0);g.lineTo(x1,y1);g.stroke();},
   // a thick limb along points with an outline and a lit top edge
-  limb(pts,w,c,lit){g.lineJoin='round';g.lineCap='round';for(const [W,C] of [[w+4,out],[w,c]]){g.strokeStyle=C;g.lineWidth=W;g.beginPath();g.moveTo(pts[0][0],pts[0][1]);for(const q of pts.slice(1))g.lineTo(q[0],q[1]);g.stroke();}
+  limb(pts,w,c,lit){g.lineJoin='round';g.lineCap='round';for(const [W,C] of [[w+HI.ow*2,out],[w,c]]){g.strokeStyle=C;g.lineWidth=W;g.beginPath();g.moveTo(pts[0][0],pts[0][1]);for(const q of pts.slice(1))g.lineTo(q[0],q[1]);g.stroke();}
    if(lit){g.strokeStyle=lit;g.lineWidth=2;g.beginPath();g.moveTo(pts[0][0]-w*.25,pts[0][1]-w*.3);for(const q of pts.slice(1))g.lineTo(q[0]-w*.25,q[1]-w*.3);g.stroke();}},
   rect(x,y,w,h,c){g.fillStyle=c;g.fillRect(Math.round(x),Math.round(y),Math.round(w),Math.round(h));},
   // the pose's 1x points in 2x space
