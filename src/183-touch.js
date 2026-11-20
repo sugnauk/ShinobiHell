@@ -33,11 +33,9 @@ function touchButtons(){const L=TOUCHLAY,cx=W+L.cx,cy=H+L.cy,ring=(ang,rad)=>[cx
   {id:'swap',l:'SWAP',x:W-64,y:14,r:10,key:()=>KB.swap,top:1}];}
 const toCanvas=t=>{const r=cv.getBoundingClientRect();return {x:(t.clientX-r.left)/r.width*W,y:(t.clientY-r.top)/r.height*H};};
 function touchHit(p,pad){for(const b of touchButtons())if(Math.hypot(p.x-b.x,p.y-b.y)<=b.r+(pad||3))return b;return null;}
-// the nearest foe on screen: where the aim rests when you are not aiming
-function touchAutoAim(){let best=null,bd=200;for(const e of enemies){if(e.dead||e.air||e.prop)continue;const d=Math.hypot(e.x-P.x,e.y-P.y);if(d<bd&&los(P.x,P.y,e.x,e.y)){bd=d;best=e;}}
- if(best){mouse.x=W/2+sx(best.x,best.y)-sx(P.x,P.y);mouse.y=H/2+6+sy(best.x,best.y)-sy(P.x,P.y);}}
-function touchPress(b){if(b.hold==='rdown'){mouse.rdown=true;return;}const k=b.key();if(!k)return;
- if(b.aimFirst&&!TCH.aim)touchAutoAim();keys[k]=true;onKey(k);}
+function touchAimAt(e){mouse.x=W/2+sx(e.x,e.y)-sx(P.x,P.y);mouse.y=H/2+6+sy(e.x,e.y)-sy(P.x,P.y);P.aim=angTo(P,e);}
+function touchPress(b){if(b.aimFirst&&!TCH.aim){const e=touchTarget(TOUCHAIM);if(e)touchAimAt(e);}
+ if(b.hold==='rdown'){mouse.rdown=true;return;}const k=b.key();if(!k)return;keys[k]=true;onKey(k);}
 function touchRelease(b){if(b.hold==='rdown'){mouse.rdown=false;return;}const k=b.key();if(k)keys[k]=false;}
 function touchOn(){if(TOUCH)return;TOUCH=true;cv.style.touchAction='none';document.body.style.touchAction='none';
  try{if(meta.opt.fs!==0)goFullscreen(true);}catch(_){}try{screen.orientation&&screen.orientation.lock&&screen.orientation.lock('landscape').catch(()=>{});}catch(_){}
@@ -69,14 +67,22 @@ addEventListener('mousemove',()=>{if(TOUCH&&performance.now()-TOUCHAT>1500){TOUC
  let dx=s.x-s.ox,dy=s.y-s.oy;const l=Math.hypot(dx,dy);if(l<4)return [0,0];if(l>22){s.ox=s.x-dx/l*22;s.oy=s.y-dy/l*22;}const k=Math.min(1,l/16);dx=dx/l*k;dy=dy/l*k;
  // the same screen-to-world turn the keys use
  return unrot((dx+dy)*.7071,(dy-dx)*.7071);};}
-// aiming and attacking are automatic: the aim rests on the nearest foe, and the basic attack fires while one is in reach
-// auto-aim only locks on to foes about two-thirds of the way to the screen edge, so long-range kits do not snipe
-// foes you cannot see coming (it was 180)
+// A tapped ability can aim past melee reach. Auto-fire uses the equipped basic's shorter reach.
 const TOUCHAIM=130;
-function touchTarget(){let best=null,bd=TOUCHAIM;for(const e of enemies){if(e.dead||e.air||e.prop||e.ghost)continue;const d=Math.hypot(e.x-P.x,e.y-P.y);if(d<bd&&los(P.x,P.y,e.x,e.y)){bd=d;best=e;}}return best;}
-{const _u=update;update=function(dt){const r=_u.apply(this,arguments);if(!TOUCH)return r;
- if(touchActive()&&!TIPHOLD){const t=touchTarget();if(t){mouse.x=W/2+sx(t.x,t.y)-sx(P.x,P.y);mouse.y=H/2+6+sy(t.x,t.y)-sy(P.x,P.y);}mouse.down=!!t&&!mouse.rdown;}
- else if(TOUCH&&mode==='play')mouse.down=false;return r;};}
+const TOUCH_BASICS={
+ 0:()=>215*.55*(1+S.rangeM)+9,1:()=>220*.3*(1+S.rangeM)+2,
+ 4:()=>(P.combo===1&&R.time-P.lastSw<.75?40:32)*(1.12+S.rangeM*.5),8:()=>48*(1.12+S.rangeM*.5),9:()=>40*(1.12+S.rangeM*.5),
+ 13:()=>62*(1.12+S.rangeM*.5)+16,14:()=>38*AZ(),17:()=>70*(1.12+S.rangeM*.5)+16,
+ [SUMO_KIT.m]:()=>250*.13*(1+S.rangeM*.4)+5,
+ [CLASSES.find(c=>c.k==='kagura').kit.m]:()=>P.flowBoost>R.time?44:36,
+ [CLASSES.find(c=>c.k==='bellwarden').kit.m]:()=>37};
+function touchTarget(range,edge=false){let best=null,bd=TOUCHAIM;for(const e of enemies){if(!kitFoe(e))continue;
+ const d=Math.hypot(e.x-P.x,e.y-P.y);if(d>=bd||d>range+(edge?e.r:0))continue;
+ const x=sx(e.x,e.y),y=sy(e.x,e.y);if(x>=0&&x<W&&y>=0&&y<H&&los(P.x,P.y,e.x,e.y)){bd=d;best=e;}}return best;}
+{const _fire=wantFire;wantFire=function(){return TOUCH?mouse.down:_fire();};}
+{const _u=update;update=function(dt){if(touchActive()&&!TIPHOLD){const reach=TOUCH_BASICS[P.lo.m]?.()??TOUCHAIM,
+  t=touchTarget(mouse.rdown?TOUCHAIM:reach,!mouse.rdown);if(t)touchAimAt(t);mouse.down=!!t&&!mouse.rdown;}
+ else if(TOUCH&&mode==='play')mouse.down=false;return _u.apply(this,arguments);};}
 {const _hs=hoverSlot;hoverSlot=function(){if(TOUCH)return null;return _hs.apply(this,arguments);};}
 // drawing: sticks and buttons, faint so they never hide the fight; a button dims and counts down while it recharges
 function touchDraw(){if(!TOUCH||mode!=='play'||!P)return;const top=paused||invOpen,ask=TIPHOLD&&TIPHOLD.A?TIPHOLD.A.k||[]:[];

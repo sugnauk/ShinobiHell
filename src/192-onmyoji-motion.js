@@ -2,7 +2,7 @@
 // SHINOBIDUNGEONS - the ONMYOJI kit performed by paper and spirit (see ANIMATION_AUDIT.md; core in 191).
 //  RMB SPIRIT FOX   a talisman flicked from two fingers becomes a running fox of cyan fox-fire (two on a full charge)
 //  Q   SHIKIGAMI    talismans unfold into paper servants (hitogata) that hover, lean and throw origami cranes
-//  E   BARRIER      five talismans land in a ring round him and a dome of light rises; it cracks as the shield is spent
+//  E   BARRIER      a dome of light rises and cracks as the shield is spent
 //  F   HEALING CIRCLE  a soft green circle on the healing radius with motes rising inside it
 // (R DRAGON SPIRIT is a reference ability and is not touched.)
 Object.assign(ABTUNE,{fox:{flick:.3,gallop:12},shiki:{summon:.42,unfold:.3,fold:.3,lean:.18},barrier:{seal:.45,land:.2,burn:.3,rad:16},heal:{plant:.5,fall:.3,wards:8}});
@@ -14,7 +14,7 @@ Object.assign(AB_ANIM,{'SPIRIT FOX':['flick',ABTUNE.fox.flick],'SHIKIGAMI':['sum
   case 'flick':{o.frame=u<.35?12:u<.75?13:14;o.skew=(u<.35?-.12:.18*(1-u))*d;o.dx=Math.round((u<.35?-1:2*(1-u))*d);break;}
   // a two-handed summon: charms thrown up, the body rising on its toes
   case 'summon':{o.frame=u<.3?8:u<.7?9:15;const k2=Math.sin(u*Math.PI);o.sy=1+.08*k2;o.dy=-Math.round(2*k2);break;}
-  // the hand seal held before the chest while the star is pinned down
+  // the hand seal held before the chest while the shield rises
   case 'sealhand':{o.frame=u<.6?8:9;const k2=u<.25?abEase(u/.25):1-abEase((u-.6)/.4);o.sy=1-.1*Math.max(0,k2);o.sx=1+.04*Math.max(0,k2);break;}
   // kneel and drive the wand into the ground
   case 'plantstaff':{o.frame=u<.4?12:u<.7?14:8;const k2=u<.4?abEase(u/.4):1-abEase((u-.4)/.6);o.sy=1-.24*k2;o.sx=1+.08*k2;o.dy=0;break;}
@@ -51,20 +51,17 @@ CZD.shiki=z=>{const S=ABTUNE.shiki,age=7-z.t,unf=Math.min(1,age/S.unfold),fold=z
  R(-2,-1,5,7,'#14101a');R(-1,0,3,5,'#f0ece0');R(0,1,1,3,'#e03040');     // the body, a red ink seal down the middle
  R(-2,5+sway,2,3,'#14101a');R(1,5-sway,2,3,'#14101a');R(-1,5+sway,1,2,'#f0ece0');R(1,5-sway,1,2,'#f0ece0'); // legs fluttering
  if(fold<1){ctx.globalAlpha=1-fold;ctx.fillStyle='#ff8040';ctx.fillRect(X-3,Y-6+Math.round(12*fold),7,2);ctx.globalAlpha=1;}}; // burning away at the end
-// BARRIER: five talismans pin a Seimei star round the onmyoji and a dome of light rises; it cracks as the shield is spent
+// BARRIER: the dome cracks as the shield is spent
 {const _cc=classCast;classCast=function(k){const before=P&&P.ab.rmb;const r=_cc.apply(this,arguments);
  if(P&&k==='w'&&CLS().k==='onmyoji'&&P.ab.rmb!==before&&P.shieldHp>0)P.abxBarrier={t0:time,max:P.shieldHp,end:0,a:Math.random()*TAU};return r;};}
 function abxBarrierState(){const B=P&&P.abxBarrier;if(!B)return null;const live=P.shieldHp>0&&P.shieldT>0;if(!live&&!B.end){B.end=time;if(time-B.t0>.1){shake=Math.max(shake,2);flashT=Math.max(flashT,.05);flashCol='#9fe8ff';}}
  if(B.end&&time-B.end>ABTUNE.barrier.burn){P.abxBarrier=null;return null;}return B;}
 function abxBarrierDraw(front){const B=abxBarrierState();if(!B)return;const BA=ABTUNE.barrier,t=time-B.t0,land=Math.min(1,t/BA.land),out=B.end?1-(time-B.end)/BA.burn:1,hp=B.end?0:clamp(P.shieldHp/B.max,0,1);
- const cx=P.x,cy=P.y,pts=[];for(let i=0;i<5;i++){const a=B.a+i/5*TAU-Math.PI/2;pts.push([cx+Math.cos(a)*BA.rad*1.6,cy+Math.sin(a)*BA.rad*1.6]);}
+ const cx=P.x,cy=P.y;
  if(!front){
   ctx.globalAlpha=.6*out*land;ctx.strokeStyle='#5fd8ff';ctx.beginPath();for(let i=0;i<=24;i++){const a=i/24*TAU,x=cx+Math.cos(a)*BA.rad*1.6,y=cy+Math.sin(a)*BA.rad*1.6;if(i)ctx.lineTo(sx(x,y),sy(x,y));else ctx.moveTo(sx(x,y),sy(x,y));}ctx.stroke();
   // the back half of the dome
   ctx.globalAlpha=.16*out*land;ctx.fillStyle='#9fe8ff';ctx.beginPath();ctx.ellipse(sx(cx,cy),sy(cx,cy)-10,22,24,0,Math.PI,TAU);ctx.fill();ctx.globalAlpha=1;return;}
- // the talismans flying out and landing upright at the star's points (burning at the end)
- for(let i=0;i<5;i++){const [x,y]=pts[i],k2=abEase(land),wx=cx+(x-cx)*k2,wy=cy+(y-cy)*k2,X=sx(wx,wy),Y=sy(wx,wy)-Math.round(10*(1-k2))-4;
-  ctx.globalAlpha=out;ctx.fillStyle='#14101a';ctx.fillRect(Math.round(X)-2,Math.round(Y)-4,5,8);ctx.fillStyle=B.end?'#ff9050':'#f0ece0';ctx.fillRect(Math.round(X)-1,Math.round(Y)-3,3,6);ctx.fillStyle='#e03040';ctx.fillRect(Math.round(X),Math.round(Y)-2,1,4);}
  // the dome's front, its rim brighter, cracking as the shield is spent
  const X=sx(cx,cy),Y=sy(cx,cy)-10;ctx.globalAlpha=(.14+.08*Math.sin(time*5))*out*land;ctx.fillStyle='#9fe8ff';ctx.beginPath();ctx.ellipse(X,Y,22,24,0,0,Math.PI);ctx.ellipse(X,Y,22,24,0,Math.PI,TAU);ctx.fill();
  ctx.globalAlpha=.6*out*land;ctx.strokeStyle='#e8f8ff';ctx.beginPath();ctx.ellipse(X,Y,22,24,0,Math.PI*1.1,Math.PI*1.9);ctx.stroke();

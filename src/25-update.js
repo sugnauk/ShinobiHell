@@ -96,7 +96,7 @@ function updProjs(dt){
     if(res==='perfect'&&(P.wardRef=(P.wardRef||0)+1)>6){q.dead=true;}else if(res==='perfect'){q.from='p';const o=q.own;const a=o&&!o.dead?angTo(q,o):Math.atan2(-q.vy,-q.vx);const sp=Math.hypot(q.vx,q.vy)*1.5;q.vx=Math.cos(a)*sp;q.vy=Math.sin(a)*sp;q.dmg=q.dmg*.6+S.atk*.8;q.pd=30;q.pierce=0;q.hit=new Set();q.life=2;q.col='#fff';}
     else if(res!=='dodge')q.dead=true;}
   }else{
-   for(const e of projFoes(q)){if(e.dead||e.air||q.hit.has(e))continue;if(dist(q,e)<q.r+e.r||(e.boss&&typeof bossBodyHit==='function'&&bossBodyHit(q,e))){q.hit.add(e);let dm=q.dmg,pd=q.pd;if(e.shield&&e.stag<=0&&Math.abs(angDiff(angTo(e,q),e.fa||0))<1.1){dm*=.15;pd*=1.5;spark(q.x,q.y,'#aaf',4,50);}hurtE(e,dm,pd,{slash:!!q.main,kb:Math.atan2(q.vy,q.vx),el:q.el,src:q.src||null});if(--q.pierce<0){q.dead=true;break;}}}
+   for(const e of projFoes(q)){if(e.dead||e.air||q.hit.has(e))continue;if(dist(q,e)<q.r+e.r||(e.boss&&typeof bossBodyHit==='function'&&bossBodyHit(q,e))){q.hit.add(e);let dm=q.dmg,pd=q.pd;if(e.shield&&e.stag<=0&&Math.abs(angDiff(angTo(e,q),e.fa||0))<1.1){dm*=.15;pd*=1.5;spark(q.x,q.y,'#aaf',4,50);}hurtE(e,dm,pd,{slash:!!q.main,kb:Math.atan2(q.vy,q.vx),kbm:q.kbm,el:q.el,src:q.src||null});if(--q.pierce<0){q.dead=true;break;}}}
   }
  }
  // compact in place (no new array every frame); pooled bullets go back to the pool for reuse

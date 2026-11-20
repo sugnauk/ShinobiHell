@@ -64,7 +64,7 @@ function marSpool(p,a,dmg){const cap=kitFinal()?8:5;
   if(z.tg){if(z.tg.dead){z.tg=null;}else{const an=angTo(z,z.tg);z.vx=Math.cos(an)*340;z.vy=Math.sin(an)*340;}}
   z.x+=z.vx*dt;z.y+=z.vy*dt;z.left-=dt;if(solid(z.x,z.y)||(!z.tg&&z.left<=0)){z.done=1;z.t=Math.min(z.t,.25);return;}
   const e=z.tg&&dist(z,z.tg)<z.tg.r+5?z.tg:!z.tg?enemies.find(e=>kitFoe(e)&&!z.chain.includes(e)&&dist(z,e)<e.r+5):null;
-  if(e){z.chain.push(e);e.threadUntil=R.time+6;hurtE(e,dmg,14,{src:'q'});spark(e.x,e.y,MAR,3,40);sfx('tool');
+  if(e){z.chain.push(e);e.threadUntil=R.time+6;hurtE(e,dmg,14,{src:'q',threadHit:true});spark(e.x,e.y,MAR,3,40);sfx('tool');
    if(z.chain.length>=cap){z.done=1;z.t=.2;return;}
    const n=kitNearest(e.x,e.y,110,o=>z.chain.includes(o));if(n){z.tg=n;z.left=1;}else{z.done=1;z.t=.2;}}},
   end(z){if(z.chain.length>1){const L={list:z.chain.slice(),until:R.time+6};(HK.links=HK.links||[]).push(L);}},
@@ -104,8 +104,15 @@ function marPuppet(p,dmg){const v=kitAim(p,150);let e=kitNearest(v.x,v.y,60)||ki
   end(z){const e=z.e;e.z=0;e.sumoFlight=false;if(!e.dead){hurtE(e,dmg*1.3,30,{src:'f'});e.stun=Math.max(e.stun||0,1.2);impact(e.x,e.y,MAR,4);}},
   top(z){const e=z.e;if(e.dead)return;for(const o of [-5,0,5])marString(P.x,P.y,e.x+o*.6,e.y,(e.z||0)+4);
    const X=HSX(P.x,P.y)+3,Y=HSY(P.x,P.y)-17;KR(X,Y,1,-4,0,9,1,WOOD);KR(X,Y,1,0,-2,1,5,WOOD);}});}
-// R GRAND THEATRE: a giant puppeteer's cross-bar appears overhead, strings drop onto the foes and hoist them up,
-// then the bar yanks them all together and slams them down
+// R GRAND THEATRE: lacquered puppet hands hoist the lines, then pull them tight for the slam.
+const MAR_GRIP=mk(26,27,g=>{const hi=mk(104,108,h=>{h.scale(4,4);
+ const face=(col,pts)=>{h.fillStyle=col;h.beginPath();h.moveTo(...pts[0]);for(const p of pts.slice(1))h.lineTo(...p);h.fill();};
+ face('#17101e',[[4,1],[15,1],[17,6],[22,9],[25,14],[23,19],[20,19],[18,24],[15,24],[13,26],[10,25],[9,22],[7,24],[4,23],[3,19],[0,17],[1,12],[5,8]]);
+ face('#452343',[[5,3],[14,3],[16,8],[21,10],[23,14],[22,17],[19,16],[17,22],[14,22],[12,24],[10,21],[9,17],[7,22],[5,22],[5,17],[2,16],[3,12],[7,9]]);
+ face('#6f3c64',[[6,4],[13,4],[15,10],[20,11],[20,14],[15,14],[12,17],[9,13],[6,16],[4,15],[5,12],[8,9]]);
+ face('#ca9a73',[[5,4],[14,4],[14,6],[5,6]]);
+ for(const [x,y] of [[6,19],[11,21],[16,20],[21,15]]){h.fillStyle=MAR;h.fillRect(x,y,2,1);}
+ });g.imageSmoothingEnabled=false;g.drawImage(hi,0,0,26,27);});
 function marTheatre(p,dmg){const cap=kitFinal()?14:10,c=kitAim(p,110),foes=kitFoes(p.x,p.y,170).sort((a,b)=>dist(a,c)-dist(b,c)).slice(0,cap);
  for(const e of foes)if(!e.boss&&e.type!=='turret'){sumoInterrupt(e,2.4);e.sumoFlight=true;e.theatre={x:e.x,y:e.y};}
  kitZone({src:'e',t:2.1,x:c.x,y:c.y,foes,step(z,dt){const k=z.age;
@@ -116,15 +123,16 @@ function marTheatre(p,dmg){const cap=kitFinal()?14:10,c=kitAim(p,110),foes=kitFo
    if(k>=1.6&&!z.slam){z.slam=1;impact(z.x,z.y,MAR,9);sfx('break');shake=Math.max(shake,8);const n=z.foes.filter(e=>!e.dead).length;
     for(const e of z.foes){if(e.dead)continue;hurtE(e,dmg*(1+.12*Math.min(6,n-1)),75,{src:'e'});if(e.theatre){e.z=0;e.sumoFlight=false;e.stun=Math.max(e.stun||0,1.4);}}}},
   end(z){for(const e of z.foes){e.z=0;e.sumoFlight=false;e.theatre=null;}},
-  top(z){const k=z.age,X=HSX(z.x,z.y),Y=HSY(z.x,z.y)-70,a=Math.min(1,k/.3)*(z.t<.3?z.t/.3:1);ctx.globalAlpha=a;
-   const sway=Math.round(Math.sin(k*3)*3),yank=k>1.3&&k<1.6?-Math.round((k-1.3)/.3*10):0;
-   // the cross-bar: a big wooden cross with a carved pommel, swaying, and yanked up for the slam
-   const BX=X+sway,BY=Y+yank;KR(BX,BY,1,-44,-3,88,7,'#14101a');KR(BX,BY,1,-43,-2,86,5,WOOD);KR(BX,BY,1,-43,-2,86,1,'#d8a060');KR(BX,BY,1,-43,2,86,1,WOOD2);
-   KR(BX,BY,1,-4,-22,9,40,'#14101a');KR(BX,BY,1,-3,-21,7,38,WOOD);KR(BX,BY,1,-3,-21,1,38,'#d8a060');KR(BX,BY,1,-6,-27,13,7,'#14101a');KR(BX,BY,1,-5,-26,11,5,MAR);KR(BX,BY,1,-3,-25,3,2,MAR2);
-   for(const sgn of [-1,1])KR(BX,BY,1,sgn>0?40:-46,-5,6,11,'#14101a'),KR(BX,BY,1,sgn>0?41:-45,-4,4,9,MAR);
-   // the strings: drop from the bar to each foe
-   const drop=Math.min(1,k/.4);for(let i=0;i<z.foes.length;i++){const e=z.foes[i];if(e.dead)continue;const ax=BX-40+i*80/Math.max(1,z.foes.length-1),ay=BY+3,ex=HSX(e.x,e.y),ey=HSY(e.x,e.y)-12-(e.z||0);
-    ctx.globalAlpha=a*.85;kLine(ax,ay,ax+(ex-ax)*drop,ay+(ey-ay)*drop,1,i%2?MAR2:MAR);}ctx.globalAlpha=1;}});}
+  top(z){const k=z.age,X=HSX(z.x,z.y),Y=HSY(z.x,z.y)-70,a=Math.min(1,k/.3)*(z.t<.3?z.t/.3:1);
+   const jerk=abEase((k-1.28)/.27)*(1-abEase((k-1.62)/.23)),drop=abEase(k/.38),hands=[];
+   ctx.save();
+   for(const side of [-1,1])hands.push({side,x:X+side*(23-6*jerk)+Math.round(Math.sin(k*3+side)*3),y:Y-13-Math.round(11*jerk)});
+   for(let i=0;i<z.foes.length;i++){const e=z.foes[i];if(e.dead)continue;const hand=hands[i%2],n=Math.floor(i/2);
+    const ax=hand.x+hand.side*((n%5)-2)*4,ay=hand.y+22,ex=HSX(e.x,e.y),ey=HSY(e.x,e.y)-12-(e.z||0);
+    ctx.globalAlpha=a*.88;kLine(ax,ay,ax+(ex-ax)*drop,ay+(ey-ay)*drop,1,i%2?MAR2:MAR);}
+   for(const hand of hands){ctx.save();ctx.globalAlpha=a;ctx.translate(hand.x,hand.y+12);ctx.rotate(hand.side*(.11+.28*jerk));ctx.scale(hand.side,1);ctx.drawImage(MAR_GRIP,-13,-12);ctx.restore();}
+   ctx.restore();}});}
+
 
 // ======================================== TENGU ========================================
 const WND='#9cead2',WND2='#e8fff8',FEATH='#203a3a';
@@ -154,19 +162,27 @@ function tenLandFx(x,y){topFx({dur:.35,x,y,draw(o,k){ctx.globalAlpha=1-k;for(let
 function tenWings(p,lift,age,scale){const X=HSX(p.x,p.y),Y=HSY(p.x,p.y)-14-lift,fl=Math.sin(age*18)*2,s=scale||1;
  for(const f of [-1,1]){for(let i=0;i<5;i++){const len=Math.round((10-i)*s),x=Math.round(3+i*2.4*s),y=Math.round(-3+i*2+fl*(i/4));KR(X,Y,f,x,y,len,3,'#14101a');KR(X,Y,f,x+1,y+1,len-2,1,i<2?'#3a5a5a':FEATH);if(i===0)KR(X,Y,f,x+1,y,len-3,1,WND);}}}
 {const _dp=drawPlayer;drawPlayer=function(){const l=P&&P.lift;if(!l)return _dp.apply(this,arguments);shadow(HSX(P.x,P.y),HSY(P.x,P.y)+2,8);ctx.save();ctx.translate(0,-Math.round(l));try{return _dp.apply(this,arguments);}finally{ctx.restore();}};}
-// F CYCLONE: a real tornado that drifts after your cursor, sucks foes in and spins them around it, catches enemy
-// shots in orbit, and flings them out as yours when it dies
+// Both tornadoes share each foe's hold timer and reprieve, so overlapping funnels cannot chain the stun.
+const CYCLONE_HOLD=1,GALE_HOLD=1.4,CYCLONE_REPRIEVE=1.5;
+// F CYCLONE: drifts after your cursor, throws foes out after a short lift, and returns captured shots.
 function tenCyclone(x,y,o){const z=kitZone(Object.assign({x,y,r:30,pull:70,t:3,caught:[],spin:0,drift:55,follow:true,dm:0,src:'f',height:48},o,{
  step(z,dt,tick){z.spin+=dt*9;if(z.follow){const m=mouseWorld(),d=Math.hypot(m.x-z.x,m.y-z.y);if(d>3){const s=Math.min(d,z.drift*dt),nx=z.x+(m.x-z.x)/d*s,ny=z.y+(m.y-z.y)/d*s;if(!solid(nx,ny)){z.x=nx;z.y=ny;}}}
-  for(const e of enemies){if(!kitFoe(e))continue;const dx=e.x-z.x,dy=e.y-z.y,d=Math.hypot(dx,dy)||1;if(d>z.pull+e.r||!los(z.x,z.y,e.x,e.y))continue;
+  for(const e of enemies){if(!kitFoe(e)||e.cycImm>R.time)continue;const dx=e.x-z.x,dy=e.y-z.y,d=Math.hypot(dx,dy);if(d>z.pull+e.r||!los(z.x,z.y,e.x,e.y))continue;
    if(e.boss||e.type==='turret'){e.zs=Math.min(e.zs||1,.7);continue;}
-   // pulled in and spun around the funnel
-   const want=Math.max(8,z.r*.45),inward=d>want?Math.min(d-want,(z.big?150:110)*dt):0,tang=(z.big?5:4)*dt*Math.min(d,30),ux=dx/d,uy=dy/d;
-   move(e,-ux*inward-uy*tang,-uy*inward+ux*tang,e.r);e.kx=e.ky=0;if(d<z.r+e.r){e.act=null;e.tele=0;e.stun=Math.max(e.stun||0,.15);e.z=Math.min(14,(e.z||0)+dt*40);e.spun=R.time+.2;}}
+   if(e.sumoFlight||e.carried||e.cycHold?.last===R.time)continue;
+   const a=d>0?Math.atan2(dy,dx):z.spin,ux=Math.cos(a),uy=Math.sin(a),want=Math.max(8,z.r*.45),
+    inward=Math.min(Math.max(0,d-want),(z.big?150:110)*dt),tang=(z.big?5:4)*dt*Math.min(d,30);
+   if(d<z.r+e.r){
+    if(!e.cycHold||R.time-e.cycHold.last>dt+.0001)e.cycHold={start:R.time,limit:z.big?GALE_HOLD:CYCLONE_HOLD};
+    e.cycHold.last=R.time;
+    if(R.time-e.cycHold.start>=e.cycHold.limit){e.cycHold=null;e.cycImm=R.time+CYCLONE_REPRIEVE;e.spun=R.time;e.shoved=R.time;e.kx=ux*225;e.ky=uy*225;continue;}
+    e.act=null;e.tele=0;e.stun=Math.max(e.stun||0,.15);e.z=Math.min(14,(e.z||0)+dt*40);e.spun=R.time+.2;
+   }
+   move(e,-ux*inward-uy*tang,-uy*inward+ux*tang,e.r);e.kx=e.ky=0;}
   if(tick){z.tk=.3;for(const e of kitFoes(z.x,z.y,z.r)){hurtE(e,z.dm,8,{src:z.src});e.flash=Math.min(e.flash||0,.03);}}
   for(const q of projs){if(q.from!=='e'||q.dead||q.peril||z.caught.length>=24)continue;const d=Math.hypot(q.x-z.x,q.y-z.y);if(d>z.r+12)continue;q.dead=true;z.caught.push({a:Math.atan2(q.y-z.y,q.x-z.x),r:Math.max(10,d),h:4+Math.random()*30,col:q.col});}
   for(const c of z.caught){c.a+=dt*7;c.r+= (14-c.r)*dt;}},
- end(z){for(const e of enemies)if(e.spun>R.time-.3){e.z=0;}for(const c of z.caught){const q=kitShot(z.x,z.y,c.a,250,S.atk*.4*AP(),{col:WND,r:2,src:z.src,pierce:1});}
+ end(z){for(const c of z.caught)kitShot(z.x,z.y,c.a,250,S.atk*.4*AP(),{col:WND,r:2,src:z.src,pierce:1});
   if(z.caught.length)sfx('shoot');},
  ground(z){ctx.globalAlpha=.25;wdisc(z.x,z.y,z.r,'#204040');ctx.globalAlpha=1;},
  top(z){tenFunnel(z);}}));return z;}
@@ -182,11 +198,16 @@ function tenFunnel(z){const X=HSX(z.x,z.y),Y=HSY(z.x,z.y),H=z.height,fade=z.t<.3
 // sky onto everything caught in it
 function tenGale(p,dmg,tickDm){const v=kitAim(p,150);const z=tenCyclone(v.x,v.y,{r:kitFinal()?58:48,pull:170,t:3,follow:false,dm:tickDm,src:'e',big:true,height:96,drift:0});
  if(kitFinal())for(const s of [-1,1])tenCyclone(v.x+Math.cos(p.aim+s*1.57)*70,v.y+Math.sin(p.aim+s*1.57)*70,{r:24,pull:60,t:2.6,follow:false,dm:tickDm*.6,src:'e',height:44});
- z.fe=0;const st=z.step;z.step=(z,dt,tick)=>{st(z,dt,tick);z.fe-=dt;if(z.fe<=0&&z.age>.3&&z.t>.3){z.fe=.18;const e=kitFoes(z.x,z.y,z.pull).sort(()=>Math.random()-.5)[0];
-  const tx=e?e.x+rnd(-4,4):z.x+rnd(-30,30),ty=e?e.y+rnd(-4,4):z.y+rnd(-30,30);topFx({dur:.24,x:tx,y:ty,tg:e,draw:tenDiveFeather,fired:0});}};
+ const featherHits=new Map(),saturated=e=>(featherHits.get(e)||0)>=4;
+ z.fe=0;const st=z.step;z.step=(z,dt,tick)=>{st(z,dt,tick);z.fe-=dt;if(z.fe<=0&&z.age>.3&&z.t>.3){z.fe=.18;
+  const foes=kitFoes(z.x,z.y,z.pull).filter(e=>!saturated(e)),e=foes.length?pick(foes):null;
+  const x=e?e.x+rnd(-4,4):z.x+rnd(-30,30),y=e?e.y+rnd(-4,4):z.y+rnd(-30,30);
+  // Resolve the marked impact in simulation. Spread the volley over the pack so a lone foe cannot take every feather.
+  kitZone({src:'e',x,y,t:.24,end(f){const target=kitNearest(f.x,f.y,16,saturated);
+   if(target){featherHits.set(target,(featherHits.get(target)||0)+1);hurtE(target,dmg,20,{src:'e'});}spark(f.x,f.y,WND2,3,50);},
+   top(f){tenDiveFeather(f,Math.min(1,f.age/.24));}});}};
  shake=Math.max(shake,6);}
 function tenDiveFeather(o,k){const X=HSX(o.x,o.y),Y=HSY(o.x,o.y),fall=Math.round((1-k)*110),y=Y-fall-6;
- if(k>=.98&&!o.fired){o.fired=1;const e=o.tg&&!o.tg.dead?o.tg:kitNearest(o.x,o.y,16);if(e)hurtE(e,S.atk*1.1*AP()*(1+.25*S.epow),20,{src:'e'});spark(o.x,o.y,WND2,3,50);}
  // a long black feather spear diving point-first, with a wind streak behind it
  ctx.globalAlpha=.5;kLine(X+3,y-26,X+1,y-8,1,WND2);ctx.globalAlpha=1;KR(X,y,1,-2,-14,4,14,'#14101a');KR(X,y,1,-1,-13,2,12,FEATH);KR(X,y,1,0,-13,1,12,WND);KR(X,y,1,-1,0,2,3,'#f0f0f0');KR(X,y,1,0,2,1,2,'#ffffff');
  shadow(X,Y,Math.round(2+k*5));}
@@ -229,14 +250,14 @@ function kagBloom(o,k){const e=o.e;if(e.dead){o.dead=1;return;}const X=HSX(e.x,e
  if(k>=.66&&!o.done){o.done=1;hurtE(e,o.dm,24,{slash:true,src:'w'});buildFlow(P);sfx('slash');}
  ctx.globalAlpha=k>.9?(1-k)*10:1;for(let i=0;i<5;i++){const an=i/5*TAU+time*(k>.66?6:1),r=2+open*5,px=X+Math.round(Math.cos(an)*r),py=Y+Math.round(Math.sin(an)*r*.8);ctx.fillStyle='#14101a';ctx.fillRect(px-1,py-1,4,3);ctx.fillStyle=i%2?PET:PET2;ctx.fillRect(px,py,2,1);}
  ctx.fillStyle=KGOLD;ctx.fillRect(X,Y,1,1);}
-// F RHYTHM: a beat ring closes on you every half second; attacks that land on the beat crit and build double flow
-const KBEAT=.5;
-function kagRhythm(p){const flow=kaguraFlow(p);p.flow=0;HK.rhythm={t0:R.time,end:R.time+5+flow*.6};}
-const onBeat=()=>{const r=HK.rhythm;if(!r||R.time>r.end||kitHero()!=='kagura')return false;const ph=((R.time-r.t0)%KBEAT)/KBEAT;return ph<.18||ph>.88;};
-{const _h=hurtE;hurtE=function(e,dmg,pd,o){if(P&&R&&onBeat()&&o&&!o.chain&&(o.slash||o.src)&&!e.dead){const now=R.time;if(!(e.beatT>now-.1)){e.beatT=now;dmg*=1.6;if(!(HK.beatFlow>now-.2)){HK.beatFlow=now;buildFlow(P);txtFx(e.x,e.y-6,'ON KBEAT','#ffd36a');}}}return _h.call(this,e,dmg,pd,o);};}
-function kagRhythmDraw(){const r=HK.rhythm;if(!r||!P||R.time>r.end||kitHero()!=='kagura')return;const ph=((R.time-r.t0)%KBEAT)/KBEAT,X=HSX(P.x,P.y),Y=HSY(P.x,P.y)-6,rad=Math.round(6+28*(1-ph));
- ctx.strokeStyle=ph<.18||ph>.88?KGOLD:PET;ctx.globalAlpha=ph>.88||ph<.18?.95:.6;ctx.beginPath();ctx.ellipse(X,Y,rad,Math.round(rad*.5),0,0,TAU);ctx.stroke();
- if(ph<.12){ctx.globalAlpha=1-ph/.12;ctx.beginPath();ctx.ellipse(X,Y,9,4,0,0,TAU);ctx.stroke();}ctx.globalAlpha=1;}
+// F PETAL VOLLEY: fan blades travel through the pack. Flow makes the cast wider and stronger.
+function kagVolley(p,a,dmg){const flow=kaguraFlow(p),offsets=flow>=3?[-.58,-.29,0,.29,.58]:[-.29,0,.29],hit=new Set();p.flow=0;
+ for(const offset of offsets){const angle=a+offset,q=kitShot(p.x+Math.cos(angle)*7,p.y+Math.sin(angle)*7,angle,270,dmg*(1+.12*flow),
+  {src:'f',col:PET,r:6,pierce:99,pd:15,life:.52,spr:'petalfan',hit});q.spin=offset<0?-1:1;}
+ sfx('slash');}
+PSPR.petalfan=(X,Y,ux,uy,q)=>{ctx.save();ctx.globalAlpha=.5;
+ kLine(X-ux*13,Y-uy*13,X-ux*3,Y-uy*3,2,'#dc5b84');ctx.globalAlpha=1;
+ kagFan(X,Y,Math.atan2(uy,ux)+time*19*q.spin);ctx.restore();};
 // R LOTUS DANCE: you vanish and blink-strike foe after foe, untouchable; a lotus grows on each, and at the end they
 // all bloom at once
 function kagLotus(p,dmg,bloomDm){const cap=kitFinal()?10:8;let tg=[];let from=p;const pool=kitFoes(p.x,p.y,170);
@@ -401,14 +422,14 @@ function kitTick(dt){if(mode!=='play'||!P)return;marLinks(dt);marDollTick(dt);ch
  // anything lifted by the wind settles back down once it is out of the funnel
  for(const e of enemies)if(e.z>0&&!e.sumoFlight&&!(e.spun>R.time))e.z=Math.max(0,e.z-dt*60);}
 {const _u=update;update=function(dt){_u.apply(this,arguments);try{if(mode==='play'&&!paused)kitTick(dt);}catch(_){}};}
-{const _rp=drawPortal;drawPortal=function(){_rp.apply(this,arguments);kagRhythmDraw();
+{const _rp=drawPortal;drawPortal=function(){_rp.apply(this,arguments);
  // links: threads between linked foes (Marionettist)
  if(HK.links)for(const L of HK.links){const live=L.list.filter(e=>!e.dead&&e.threadUntil>R.time);for(let i=1;i<live.length;i++){const a=live[i-1],b=live[i];ctx.globalAlpha=.7;marString(a.x,a.y,b.x,b.y,0,MAR);}ctx.globalAlpha=1;}};}
 // [hero, old name, new name, cooldown, description, cast]
 const KITDEF=[
  ['marionettist','NEEDLE CAST','SILK NEEDLE',0,'A FAST NEEDLE THAT STITCHES FOES.',({p,a,A,bp,em})=>{marNeedle(p,a,A*1.05*bp*em);p.atkCd=.31/S.aspd;}],
  ['marionettist','PUPPET LASH','REEL IN',1.3,'HOOK A FOE AND YANK IT TO YOU.',({p,a,A,bp,em})=>marReel(p,a,A*2.3*bp*em,p.hFull)],
- ['marionettist','CURSED THREAD','CURSED THREAD',5,'A SPOOL LINKS FOES. HIT ONE, HURT ALL.',({p,a,A,qm,em})=>marSpool(p,a,A*1.5*qm*em)],
+ ['marionettist','CURSED THREAD','CURSED THREAD',5,'A SPOOL LINKS FOES. HIT ONE, HURT ALL.',({p,a,A,qm,em})=>marSpool(p,a,A*1.05*qm*em)],
  ['marionettist','THREAD STEP','SWAP DOLL',8,'LEAVE A DECOY DOLL AND LEAP BACK.',({p,a})=>marDoll(p,a)],
  ['marionettist','COCOON','PUPPET DANCE',10,'LIFT A FOE ON STRINGS AND SWING IT.',({p,A,ap,em})=>marPuppet(p,A*1.6*ap*em)],
  ['marionettist','PUPPET MASTER','GRAND THEATRE',28,'HOIST FOES ON STRINGS, THEN SLAM THEM.',({p,A,ep,em})=>marTheatre(p,A*4.4*ep*em)],
@@ -422,7 +443,7 @@ const KITDEF=[
  ['kagura','CRIMSON SWEEP','SILK VEIL',1.3,'A RIBBON THAT THROWS SHOTS BACK.',({p,a,A,bp,em})=>kagVeil(p,a,A*1.75*bp*em,p.hFull)],
  ['kagura','CRESCENT FAN','FAN WALTZ',5,'FANS DANCE A FIGURE EIGHT AT THE CURSOR.',({p,A,qm,em})=>kagWaltz(p,A*.74*qm*em)],
  ['kagura','PIROUETTE','PIROUETTE',6,'A SPINNING DASH. PASSED FOES BLOOM.',({p,a,A,ap,em})=>kagPirouette(p,a,A*2.1*ap*em)],
- ['kagura','PERFECT RHYTHM','RHYTHM',12,'HIT ON THE KBEAT FOR CRITS AND FLOW.',({p})=>kagRhythm(p)],
+ ['kagura','PERFECT RHYTHM','PETAL VOLLEY',9,'THROW A FAN OF PIERCING BLADES.',({p,a,A,ap,em})=>kagVolley(p,a,A*2.1*ap*em)],
  ['kagura','THOUSAND PETALS','LOTUS DANCE',27,'BLINK FROM FOE TO FOE. LOTUSES BLOOM.',({p,A,ep,em})=>kagLotus(p,A*1.6*ep*em,A*2.6*ep*em)],
  ['bloodoracle','SCARLET INK','SCARLET INK',0,'INK DARTS. 3 HITS SEAL A FOE.',({p,a,A,bp,em})=>{chiInk(p,a,A*1.15*bp*em);p.atkCd=.32/S.aspd;}],
  ['bloodoracle','RED SCRIBE','BLOOD BRUSH',1.3,'PAINT A STROKE THAT ERUPTS.',({p,A,bp,em})=>{chiBrush(p,A*2.7*bp*em,p.hFull);}],
@@ -441,13 +462,13 @@ for(const [hero,old,name,cd,d,fn] of KITDEF){const slot='mhqwfe'[KITDEF.filter(r
  NEWCAST[id*10+i]=args=>{if(i<2&&args.mik>0)args.bp*=1.6;if(fn(args)===false)return false;sfx(snd);};
  SPRULES.unshift([new RegExp('^'+name.replace(/'/g,"'")+'$'),['sword','shards','arrow','shield','whirl','shout'][i]]);}
 // poses (167) and ultimate lead-ins (168)
-Object.assign(AB_ANIM,{'REEL IN':['throw',.26],'CURSED THREAD':['throw',.26],'SWAP DOLL':['vanish',.3],'PUPPET DANCE':['cast',.4],'GRAND THEATRE':['bigcast',.6],
+Object.assign(AB_ANIM,{'REEL IN':['throw',.26],'CURSED THREAD':['throw',.26],'SWAP DOLL':['vanish',.3],'PUPPET DANCE':['cast',.4],'GRAND THEATRE':['theatre_release',.3],
  'GUST':['throw',.28],'WIND CUTTER':['throw',.24],'UPDRAFT':['cast',.5],'CYCLONE':['cast',.3],"HEAVEN'S GALE":['fall',.4],
- 'DANCING CUT':['swing',.16],'SILK VEIL':['spin',.32,.7],'FAN WALTZ':['throw',.3],'PIROUETTE':['spin',.24,1],'RHYTHM':['roar',.36],'LOTUS DANCE':['spin',1,3],
- 'BLOOD BRUSH':['thrust',.28,.8],'BLOOD SEAL':['throw',.3],'BLOOD MIRROR':['blink',.28],'HARVEST':['cast',.45],'CRIMSON MOON':['bigcast',.7],
+ 'DANCING CUT':['swing',.16],'SILK VEIL':['spin',.32,.7],'FAN WALTZ':['throw',.3],'PIROUETTE':['spin',.24,1],'PETAL VOLLEY':['petalcast',.34],'LOTUS DANCE':['spin',1,3],
+ 'BLOOD BRUSH':['thrust',.28,.8],'BLOOD SEAL':['throw',.3],'BLOOD MIRROR':['blink',.28],'HARVEST':['cast',.45],'CRIMSON MOON':['moon_release',.32],
  'BELL SWING':['swing',.2],'IRON BELL':['throw',.32],'STANDING WAVE':['slam',.32],'SANCTUARY':['guard',.9],'ECHO NOTES':['cast',.3],"HEAVEN'S BELL":['roar',.5]});
-Object.assign(ULTSEQ,{'GRAND THEATRE':{pre:.34,iv:.6,k:'hover',rise:10,runes:1,col:MAR},"HEAVEN'S GALE":{pre:.32,iv:.7,k:'leap',rise:18,col:WND},
- 'LOTUS DANCE':{pre:.24,iv:.4,k:'twirl',col:PET},'CRIMSON MOON':{pre:.32,iv:.5,k:'kneel',col:BLD},"HEAVEN'S BELL":{pre:.3,iv:.5,k:'brace',col:BEL}});
+Object.assign(ULTSEQ,{'GRAND THEATRE':{pre:.34,iv:.6,k:'theatre',col:MAR},"HEAVEN'S GALE":{pre:.32,iv:.7,k:'leap',rise:18,col:WND},
+ 'LOTUS DANCE':{pre:.24,iv:.4,k:'twirl',col:PET},'CRIMSON MOON':{pre:.32,iv:.5,k:'moon',col:BLD},"HEAVEN'S BELL":{pre:.3,iv:.5,k:'brace',col:BEL}});
 // what each one does, in the ability text (166): [description, second line, tip]
 Object.assign(ABTXT,{
  'SILK NEEDLE':['A FAST NEEDLE ON A SILK THREAD.','EACH HIT STITCHES THE FOE (UP TO 3). REEL IN SPENDS STITCHES FOR DAMAGE.','KEEP NEEDLING YOUR NEXT REEL TARGET.'],
@@ -460,13 +481,13 @@ Object.assign(ABTXT,{
  'GUST':['A WALL OF WIND SHOVES FOES BACK.','ENEMY SHOTS IT TOUCHES BLOW BACK AS YOURS. FULL CHARGE: WIDER, LONGER.','FIRE IT INTO A WALL OF BULLETS.'],
  'WIND CUTTER':['A SPINNING BLADE THAT RICOCHETS OFF WALLS UP TO 3 TIMES.','EVERY BOUNCE MAKES IT FASTER AND STRONGER, AND IT CAN HIT AGAIN.','THROW IT INTO A CORRIDOR OR A CORNER.'],
  'UPDRAFT':['LEAP ON THE WIND TOWARD THE CURSOR.','UNTOUCHABLE IN THE AIR. LANDING BLASTS NEARBY FOES AWAY.','JUMP OVER A PACK, NOT INTO ONE.'],
- 'CYCLONE':['A TORNADO DRIFTS AFTER YOUR CURSOR FOR 3S.','IT SUCKS FOES IN AND SPINS THEM, AND CATCHES ENEMY SHOTS, THEN FLINGS THEM OUT AS YOURS.','STEER IT THROUGH THE ENEMY LINE.'],
- "HEAVEN'S GALE":['A COLOSSAL TORNADO DRAGS THE ROOM IN FOR 3S.','GIANT FEATHERS DIVE FROM THE SKY ONTO EVERYTHING CAUGHT IN IT.','DROP IT WHERE THE ROOM IS THICKEST.'],
+ 'CYCLONE':['A TORNADO DRIFTS AFTER YOUR CURSOR FOR 3S.','IT LIFTS FOES FOR 1S BEFORE THROWING THEM OUT. CAPTURED SHOTS FLY BACK AS YOURS.','THROWN FOES RESIST ALL TORNADO PULLS FOR 1.5S.'],
+ "HEAVEN'S GALE":['A COLOSSAL TORNADO AND DIVING FEATHERS.','THE MAIN FUNNEL LIFTS FOES FOR 1.4S BEFORE THROWING THEM OUT.','THROWN FOES RESIST ALL TORNADO PULLS FOR 1.5S.'],
  'DANCING CUT':['ALTERNATING LEFT AND RIGHT FAN CUTS.','HITS BUILD FLOW.','A STEADY RHYTHM KEEPS FLOW HIGH.'],
  'SILK VEIL':['A RIBBON SWEEPS IN FRONT OF YOU.','ENEMY SHOTS IT TOUCHES FLY BACK AS PETALS AT THE NEAREST FOE. FULL CHARGE: WIDER, LONGER.','TIME IT AS A VOLLEY ARRIVES.'],
  'FAN WALTZ':['TWO FANS FLY TO THE CURSOR AND DANCE A FIGURE EIGHT.','THEY CUT FOR 1.2S, THEN RETURN TO YOUR HANDS.','THROW THEM ON A PACK AND FIGHT ELSEWHERE.'],
  'PIROUETTE':['A SPINNING DASH THROUGH FOES.','EVERY FOE YOU PASS IS MARKED WITH A PETAL THAT BLOOMS INTO A CUT.','DASH THROUGH A LINE OF FOES.'],
- 'RHYTHM':['A KBEAT RING CLOSES ON YOU EVERY HALF SECOND FOR 5S.','HITS ON THE KBEAT DEAL +60% AND BUILD EXTRA FLOW. FLOW YOU HOLD LENGTHENS IT.','ATTACK WHEN THE RING TURNS GOLD.'],
+ 'PETAL VOLLEY':['THROW THREE PIERCING FANS IN A SPREAD.','SPENDS FLOW TO BOOST DAMAGE. AT 3 OR MORE FLOW, THROW FIVE FANS.','EACH FOE CAN BE HIT ONCE PER VOLLEY.'],
  'LOTUS DANCE':['VANISH AND BLINK-STRIKE UP TO 8 FOES, UNTOUCHABLE.','A LOTUS GROWS ON EACH. AT THE END THEY ALL BLOOM AT ONCE.','A LONE BOSS IS STRUCK SEVERAL TIMES.'],
  'SCARLET INK':['A PIERCING INK DART.','THREE HITS ON ONE FOE SEAL IT.','SEALED FOES TAKE +20% DAMAGE.'],
  'BLOOD BRUSH':['PAINT A BRUSH STROKE TO THE CURSOR. IT ERUPTS IN SPIKES.','FULL CHARGE: THE STROKE STANDS FOR 2S AS A WALL THAT BLOCKS ENEMY SHOTS.','PAINT A WALL BETWEEN YOU AND THE SHOOTERS.'],

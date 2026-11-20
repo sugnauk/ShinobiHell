@@ -123,7 +123,7 @@ function buildHero(EV,star,back){const stage=star?9:0;
   let cz=HPOSE[CK][f0],f=f0;if(typeof cz==='number'){f=cz;cz=null;}
   const fr=mk(FW,FH,g=>{
    const R=(x,y,w,h,c)=>{g.fillStyle=C[c]||c;g.fillRect(x,y,w,h);};
-   if(EV.wpn==='palms'){drawSumoFrame(R,f0,back,EV.sumoStage,EV.masterySkin);return;}
+   if(EV.wpn==='palms'){drawSumoFrame(R,f0,back,EV.sumoStage,EV.masterySkin,g);return;}
    const walk=f>=2&&f<=5,bob=cz?(cz.crouch?1:0):(f===1||f===3||f===5)?1:0,lean=cz?(cz.lean||0):f===11?2:0,up=!cz&&(f===8||f===9||f===10);
    // staff placement per pose
    let sx=15,sy=5,horiz=false;if(f===6){sx=4;sy=7;}if(f===7){sx=17;sy=5;}if(up){sx=15;sy=1;}if(f===10){sx=10;sy=0;}if(f===11)horiz=true;

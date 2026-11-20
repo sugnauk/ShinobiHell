@@ -5,7 +5,7 @@
 //  Q   GRAPESHOT   a cone of fire bursts from the barrel the width of the spread, and the pellets fly as hot shards
 //  E   POWDER ROLL (the roll was already real) the keg goes up in a fireball, a smoke ring and flying barrel staves
 //  F   TRIPOD GUN  set up leg by leg, then the gun drops onto it; it turns to its target, kicks and flashes on every shot
-//  R   SIEGEBREAKER (already the standard) unchanged
+//  R   SIEGEBREAKER a compact hand cannon braces against the shoulder and fires a single pressure front
 Object.assign(ABTUNE,{slug:{flash:.09,smoke:.6},grape:{cone:.12},keg:{ball:.28,staves:8},tripod:{build:.45,kick:.08}});
 for(const n of ['HEAVY SLUG','GRAPESHOT','POWDER ROLL','TRIPOD GUN'])ABX_OWN.add(n);
 const isGun=()=>P&&CLS().k==='gunner';
@@ -46,33 +46,46 @@ CZD.tripod=z=>{const B=ABTUNE.tripod,age=z.born?time-z.born:9,X=Math.round(sx(z.
  ctx.fillStyle='#c8a040';ctx.fillRect(Math.round(gx),Math.round(gy)-1,2,2);ctx.fillStyle='#6a4428';ctx.fillRect(Math.round(gx-ux*5)-1,Math.round(gy-uy*5)-1,3,3);
  if(kick){ctx.fillStyle='#fff0bd';ctx.fillRect(Math.round(gx+ux*11)-1,Math.round(gy+uy*11)-1,3,3);ctx.fillStyle='#ffad5f';ctx.fillRect(Math.round(gx+ux*13),Math.round(gy+uy*13),2,2);}
  ctx.globalAlpha=1;};
-// fix: the siege cannon was drawn on EVERY recoil pose (Heavy Slug, Grapeshot...) while Siegebreaker was equipped;
-// now only the ultimate's own brace and recoil draw it
-{const _cu=castUlt;castUlt=function(){const H0=ABPOSE;const r=_cu.apply(this,arguments);if(ABPOSE&&ABPOSE!==H0&&ultName()==='SIEGEBREAKER'&&ABPOSE.k==='recoil')ABPOSE.sb=1;return r;};}
-{const _sg=drawSiegeGun;drawSiegeGun=function(){const H=ABPOSE;if(!H||!(H.k==='u_brace'||H.sb))return;return _sg.apply(this,arguments);};}
 // ---- areas you can see: the tripod's firing range and the keg's blast ----
 function areaRing(x,y,r,col,al,dash){ctx.globalAlpha=al;ctx.strokeStyle=col;if(dash)ctx.setLineDash([3,3]);ctx.beginPath();for(let i=0;i<=48;i++){const a=i/48*TAU,px=x+Math.cos(a)*r,py=y+Math.sin(a)*r;i?ctx.lineTo(sx(px,py),sy(px,py)):ctx.moveTo(sx(px,py),sy(px,py));}ctx.stroke();ctx.setLineDash([]);ctx.globalAlpha=1;}
-const TRIPOD_RANGE=240;
 {const _td=CZD.tripod;CZD.tripod=z=>{const f=Math.min(1,z.t/.3);ctx.globalAlpha=.06*f;wdisc(z.x,z.y,TRIPOD_RANGE,'#ffd060');ctx.globalAlpha=1;areaRing(z.x,z.y,TRIPOD_RANGE,'#ffd060',.45*f,true);return _td(z);};}
 {const _kd=CZD.gkeg;CZD.gkeg=z=>{const fl=Math.floor(time*10)%2;ctx.globalAlpha=.14+(fl?.08:0);wdisc(z.x,z.y,z.r,'#ff8030');ctx.globalAlpha=1;areaRing(z.x,z.y,z.r,'#ff8030',.8);return _kd(z);};}
 // the wizard's thunder totem (an E/F alternative) shows its reach too
 if(CZD.totem){const _tt=CZD.totem;CZD.totem=z=>{areaRing(z.x,z.y,z.r,'#ffff66',.4,true);return _tt(z);};}
-// ---- SIEGEBREAKER's gun, restyled: a bronze o-zutsu with a dragon-head muzzle on a red lacquered stock. The dragon's
-// jaws glow as it charges and breathe fire when it goes off ----
-drawSiegeGun=function(X,Y,aim,pull,after){const H=ABPOSE;if(!H||!(H.k==='u_brace'||H.sb))return;
- const v=scrVec(Math.cos(aim),Math.sin(aim)),aimA=Math.atan2(v[1],v[0]),left=v[0]<0,swing=abEase(Math.min(1,pull/.4)),a=aimA+(1-swing)*(left?1.6:-1.6);
- const kick=after>0?Math.max(0,1-after*3)*6:0,tremble=pull>=1||after>0?0:pull>.45?Math.sin(time*70)*.8:0,alpha=after>.7?1-(after-.7)/.3:1;
- ctx.save();ctx.globalAlpha*=Math.max(0,alpha);ctx.translate(Math.round(X+(left?-2:2)),Math.round(Y-11+tremble));ctx.rotate(a);if(left)ctx.scale(1,-1);ctx.translate(-kick,0);
- const sc=.6+.4*swing;ctx.scale(sc,sc);const Rr=(x,y,w,h,c)=>{ctx.fillStyle=c;ctx.fillRect(x,y,w,h);};
- Rr(-13,-4,13,8,'#14101a');Rr(-12,-3,11,6,'#a01818');Rr(-12,-3,11,1,'#d04040');Rr(-13,-4,2,8,'#e0b040');          // lacquered stock, gold butt
- Rr(-1,-5,24,10,'#14101a');Rr(0,-4,22,8,'#a0702a');Rr(0,-4,22,2,'#d8a850');Rr(0,2,22,2,'#6a4418');                  // bronze barrel
- for(const bx of [3,10,17]){Rr(bx,-5,2,10,'#14101a');Rr(bx,-4,2,8,'#e0b040');}                                       // gold rings
- // the dragon's head: brow and horn, red eye, upper jaw, open mouth, lower jaw, teeth
- Rr(21,-8,14,16,'#14101a');Rr(22,-7,9,5,'#c08a30');Rr(22,-7,9,1,'#e8c060');Rr(20,-10,4,3,'#14101a');Rr(21,-9,3,2,'#e8c060');Rr(27,-6,2,2,'#ff3030');
- Rr(31,-6,4,3,'#c08a30');Rr(22,3,13,4,'#a0702a');Rr(22,6,13,1,'#6a4418');
- const glow=after===0&&pull>.35?(pull-.35)/.65:0;Rr(28,-3,7,6,glow?(Math.floor(time*20)%2?'#ff9030':'#ffd060'):'#3a0a0a');
- for(const tx of [29,32])Rr(tx,-3,1,2,'#ffffff');for(const tx of [30,33])Rr(tx,2,1,2,'#ffffff');
- Rr(-4,4,3,5,'#14101a');Rr(-3,4,1,4,'#3a2416');                                                                     // grip
- if(after>0&&after<.3){ctx.globalAlpha=Math.max(0,alpha)*(1-after/.3);Rr(35,-7,10,14,'#ff9030');Rr(37,-5,10,10,'#ffd060');Rr(40,-3,8,6,'#ffffff');}
- ctx.restore();
- if(after>0&&after<.6&&Math.random()<.5){const wx=P.x+Math.cos(aim)*18,wy=P.y+Math.sin(aim)*18;particles.push({x:wx,y:wy,vx:rnd(-10,10),vy:rnd(-25,-8),t:.6,col:'#8a8494'});}};
+// ---- R SIEGEBREAKER: shoulder the short cannon, hold while the match catches, then kick on the shot.
+ULTSEQ.SIEGEBREAKER.k='siegeaim';
+AB_ANIM.SIEGEBREAKER=['siegehold',.55];
+{const _pa=abPoseAt;abPoseAt=function(H){if(!['u_siegeaim','siegehold','siegekick'].includes(H.k))return _pa.apply(this,arguments);
+ const u=clamp((time-H.t0)/H.dur,0,1),raise=H.k==='u_siegeaim'?abEase(u/.7):1,
+  kick=H.k==='siegekick'?1-abEase(u/.7):0,d=H.dir;
+ return {u,frame:H.k==='u_siegeaim'&&u<.4?12:kick>.15?14:13,flip:d<0,
+  dx:-Math.round((raise+3*kick)*d),sx:1+.08*kick,sy:1-.13*raise-.06*kick,skew:d*(.1*raise-.28*kick),alpha:1};};}
+function drawSiegeCarbine(X,Y,a,raise,match,kick){const [vx,vy]=scrVec(Math.cos(a),Math.sin(a)),side=vx<0?-1:1;
+ ctx.save();ctx.translate(X+side*2,Y-10+(1-raise)*5);ctx.rotate(Math.atan2(vy,vx)+side*.72*(1-raise));
+ if(side<0)ctx.scale(1,-1);ctx.translate(-kick*4,0);
+ const rect=(x,y,w,h,c)=>{ctx.fillStyle=c;ctx.fillRect(x,y,w,h);};
+ rect(-8,-3,11,6,'#14101a');rect(-7,-2,9,4,'#724a30');rect(-7,-2,8,1,'#a5784b');
+ rect(-1,-4,16,7,'#14101a');rect(0,-3,14,5,'#454650');rect(0,-3,13,1,'#8a8c91');
+ rect(4,-3,2,5,'#ae8342');rect(12,-4,3,7,'#14101a');rect(13,-3,1,5,'#71717a');
+ rect(-2,2,3,3,'#38251f');rect(-3,-5,2,2,'#a87944');
+ if(match){rect(-2,-6,2,2,'#e8803e');rect(-1,-6,1,1,'#ffe0ad');}
+ ctx.restore();}
+{const _dp=drawPlayer;drawPlayer=function(){const r=_dp.apply(this,arguments),H=ABPOSE;
+ if(!P||P.dying>0||!H)return r;
+ const u=clamp((time-H.t0)/H.dur,0,1),z=H.k==='siegehold'?zones.find(z=>z.k==='siege'):null;
+ if(H.k==='u_siegeaim')drawSiegeCarbine(sx(P.x,P.y),sy(P.x,P.y)-u,P.aim,abEase(u/.7),false,0);
+ if(z)drawSiegeCarbine(sx(P.x,P.y),sy(P.x,P.y),z.a,1,z.t<.2,0);
+ if(H.k==='siegekick')drawSiegeCarbine(sx(P.x,P.y),sy(P.x,P.y),H.a,1,false,1-abEase(u/.65));
+ return r;};}
+function fireSiegeFx(z){const c=Math.cos(z.a),s=Math.sin(z.a),mx=P.x+c*13,my=P.y+s*13;
+ if(ABPOSE?.k==='siegehold')ABPOSE={k:'siegekick',dur:.33,t0:time,dir:scrVec(c,s)[0]<0?-1:1,a:z.a};
+ gunFlash(mx,my,z.a,24,.46,.12,'#ffad5f');gunSmoke(mx,my,12,32);
+ topFx({dur:.32,draw(o,k){const front=z.len*abEase(k/.38),fade=1-k,
+   path=(along,offset)=>[sx(z.x+c*along-s*offset,z.y+s*along+c*offset),sy(z.x+c*along-s*offset,z.y+s*along+c*offset)-7];
+   ctx.save();ctx.globalAlpha=.6*fade;ctx.fillStyle='#86736e';ctx.beginPath();
+   for(const [i,[d,w]] of [[0,0],[front*.56,-z.r*.56],[front,-z.r*.76],[front,z.r*.76],[front*.56,z.r*.56]].entries()){
+    const [x,y]=path(d,w);if(i)ctx.lineTo(x,y);else ctx.moveTo(x,y);}
+   ctx.fill();ctx.globalAlpha=fade;
+   const [x0,y0]=path(front,-z.r*.78),[x1,y1]=path(front,z.r*.78),[xm,ym]=path(Math.min(z.len,front+6),0);
+   kLine(x0,y0,xm,ym,2,'#e99858');kLine(xm,ym,x1,y1,2,'#e99858');
+   ctx.globalAlpha=.8*fade;ctx.fillStyle='#ffe0aa';ctx.fillRect(xm-2,ym-1,5,3);ctx.restore();}});}

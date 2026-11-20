@@ -38,9 +38,9 @@ function drawSpear(S,ux,uy,len,col,ghost){const nx=-uy,ny=ux,tx=S.x+ux*len,ty=S.
    for(let i=1;i<=3;i++){ctx.globalAlpha*=.9;ctx.strokeStyle='rgba(255,255,255,.35)';ctx.beginPath();const o=(i-2)*3;ctx.moveTo(S.x+nx*o+ux*L*ext*.3,S.y+ny*o+uy*L*ext*.3);ctx.lineTo(S.x+nx*o+ux*L*ext*.8,S.y+ny*o+uy*L*ext*.8);ctx.stroke();}
    // a spear of normal length whose tip drives out to the full reach
    const tip=Math.max(12,L*ext),SL=Math.min(tip,46),st={x:S.x+ux*(tip-SL),y:S.y+uy*(tip-SL)};ctx.globalAlpha=k<.7?1:1-(k-.7)/.3*.8;drawSpear(st,ux,uy,SL,col,false);if(k>.3&&k<.55)sStar(S.x+ux*L,S.y+uy*L,4,col);break;}
-  case 'phantom':{const p=stE(k),len=Math.min(58,L*.55),start=L*.2+p*(L-len*.5);
-   ctx.globalAlpha=(1-k)*.45;drawSpear({x:S.x+ux*(start-14)-ux*len,y:S.y+uy*(start-14)-uy*len},ux,uy,len,col,true);
-   ctx.globalAlpha=1-k*.7;drawSpear({x:S.x+ux*start-ux*len,y:S.y+uy*start-uy*len},ux,uy,len,col,true);if(k>.5)sStar(S.x+ux*Math.min(L,start+4),S.y+uy*Math.min(L,start+4),3,'#c8e0ff');break;}
+  case 'phantom':{const p=stE(k),len=Math.min(58,L*.55),start=L*.2+p*(L-len*.5),lane=(f.lane||0)*(1-.2*k),X=S.x+nx*lane,Y=S.y+ny*lane;
+   ctx.globalAlpha=(1-k)*.45;drawSpear({x:X+ux*(start-14)-ux*len,y:Y+uy*(start-14)-uy*len},ux,uy,len,col,true);
+   ctx.globalAlpha=1-k*.7;drawSpear({x:X+ux*start-ux*len,y:Y+uy*start-uy*len},ux,uy,len,col,true);if(k>.5)sStar(X+ux*Math.min(L,start+4),Y+uy*Math.min(L,start+4),3,'#c8e0ff');break;}
   case 'blade':{const ap=Math.min(1,k/.15),split=stE(Math.max(0,(k-.2)/.8))*5,al=1-Math.max(0,(k-.3)/.7);ctx.globalAlpha=al;
    for(const s of split?[-1,1]:[0]){ctx.beginPath();const n=14;for(let i=0;i<=n;i++){const t=i/n*ap,w=Math.sin(t*Math.PI)*4.5*(1-k*.5),x=S.x+ux*L*t+nx*(w+split*s),y=S.y+uy*L*t+ny*(w+split*s);i?ctx.lineTo(x,y):ctx.moveTo(x,y);}
     for(let i=n;i>=0;i--){const t=i/n*ap,w=Math.sin(t*Math.PI)*4.5*(1-k*.5),x=S.x+ux*L*t-nx*(w-split*s)+(s?nx*split*s*0:0),y=S.y+uy*L*t-ny*(w-split*s);ctx.lineTo(x,y);}ctx.closePath();

@@ -76,7 +76,8 @@ function drawPlayer(){
  ctx.globalAlpha=1;
  if(!behind)tal();
  // casting glow around the staff orb
- if(st==='ult'||(st==='cast'&&CLS().k!=='archer')||(st==='atk'&&fr===13&&CLS().k==='wizard')){const ox=X+(flip?-1:1)*(st==='ult'?0:5),oy=Y-(st==='ult'?23:st==='atk'?18:22);const col=st==='ult'?'#fd4':SPELLS[p.animK==='atk'?'m':'q'][0].c;ctx.globalAlpha=.35+.25*Math.sin(time*30);disc(ox,oy,st==='ult'?6:4,st==='ult'?'#fd4':'#ffb050');ctx.globalAlpha=1;ctx.fillStyle='#fff';ctx.fillRect(ox,oy,1,1);
+ const ult=st==='ult'&&SPELLS.e[p.lo.e]?.n;
+ if((ult&&ult!=='SHADOW CLONES'&&ult!=='SIEGEBREAKER')||(st==='cast'&&CLS().k!=='archer')||(st==='atk'&&fr===13&&CLS().k==='wizard')){const ox=X+(flip?-1:1)*(st==='ult'?0:5),oy=Y-(st==='ult'?23:st==='atk'?18:22);ctx.globalAlpha=.35+.25*Math.sin(time*30);disc(ox,oy,st==='ult'?6:4,st==='ult'?'#fd4':'#ffb050');ctx.globalAlpha=1;ctx.fillStyle='#fff';ctx.fillRect(ox,oy,1,1);
   if(st==='ult'){circ(X,Y-12,14+Math.sin(time*20)*2,'#fd4');for(let i=0;i<6;i++){const an=time*6+i*TAU/6;ctx.fillStyle='#fd4';ctx.fillRect(Math.round(X+Math.cos(an)*12),Math.round(Y-12+Math.sin(an)*6),1,2);}}}
  if(p.evoT>0){ctx.globalAlpha=Math.min(.6,p.evoT*.5);disc(X,Y-11,10+Math.round((1.2-p.evoT)*14),'#ffe060');ctx.globalAlpha=1;}
  if(p.aegis>0){const pulse=Math.sin(time*10)*1.5;ctx.globalAlpha=.2;disc(X,Y-11,14,'#fff4b0');ctx.globalAlpha=1;circ(X,Y-11,14+pulse,'#fff4b0');circ(X,Y-11,10-pulse,'#fff');for(let i=0;i<6;i++){const an=-time*3+i*TAU/6;ctx.fillStyle=i%2?'#fff':'#fd4';ctx.fillRect(Math.round(X+Math.cos(an)*15),Math.round(Y-11+Math.sin(an)*15),2,2);}}

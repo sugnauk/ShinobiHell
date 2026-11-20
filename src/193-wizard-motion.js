@@ -4,13 +4,12 @@
 //  Q   CHAIN LIGHTNING the staff jolts forward and a forked bolt crackles from foe to foe, flickering as it holds
 //  E   SPIRIT WARD    a gyroscope of three tilted rune rings turns round him; every shot thrown back flashes the rings
 //                     and sends a ripple out from where it struck
-//  F   FROST NOVA     the staff stabs the floor and frost crawls out in branching lines to the blast's edge, then
-//                     shatters into shards; every foe it caught is crusted in ice while the chill lasts
+//  F   FROST NOVA     ice sweeps over the floor and lifts solid crystals, then flakes apart at the blast's edge
 //  R   DRAGON DESCENT a sigil of turning rings opens in the sky over the target, a thread of light drops from it, and
 //                     a pillar of golden fire slams down the full width of the blast, leaving a scorched ring
-Object.assign(ABTUNE,{void:{push:.26},zap:{pose:.26,hold:.25,flick:.04},ward:{rings:3,rad:15,spin:2.2,flash:.18},nova:{crawl:.16,hold:.35,fade:.25,arms:8,crust:1.2},descent:{sky:70,pillar:.28,scorch:1.6}});
+Object.assign(ABTUNE,{void:{push:.26},zap:{pose:.26,hold:.25,flick:.04},ward:{rings:3,rad:15,spin:2.2,flash:.18},nova:{spread:.17,shatter:.39,dur:.69,crust:1.2},descent:{sky:70,pillar:.28,scorch:1.6}});
 for(const n of ['VOID ORB','CHAIN LIGHTNING','SPIRIT WARD','FROST NOVA'])ABX_OWN.add(n);
-Object.assign(AB_ANIM,{'VOID ORB':['voidpush',ABTUNE.void.push],'CHAIN LIGHTNING':['zap',ABTUNE.zap.pose],'SPIRIT WARD':['wardplant',.4]});
+Object.assign(AB_ANIM,{'VOID ORB':['voidpush',ABTUNE.void.push],'CHAIN LIGHTNING':['zap',ABTUNE.zap.pose],'SPIRIT WARD':['wardplant',.4],'FROST NOVA':['frostplant',.4]});
 const isWiz=()=>P&&CLS().k==='wizard';
 {const _pa=abPoseAt;abPoseAt=function(H){const u=clamp((time-H.t0)/H.dur,0,1),d=H.dir,o={u,back:false,frame:null,flip:d<0,dx:0,dy:0,sx:1,sy:1,skew:0,rot:0,alpha:1};
  switch(H.k){
@@ -20,6 +19,8 @@ const isWiz=()=>P&&CLS().k==='wizard';
   case 'zap':{o.frame=7;const k2=1-u;o.dx=Math.round(Math.sin(time*90)*1.5*k2)+Math.round(-k2)*d;o.skew=-.1*d*k2;o.sy=1+.04*Math.sin(time*70)*k2;break;}
   // the staff planted, arms raised as the tablets rise
   case 'wardplant':{o.frame=u<.5?8:9;const k2=Math.sin(u*Math.PI);o.sy=1-.06*k2;o.dy=0;break;}
+  // The blast lands on cast. Brace low, then let the body settle as the ice spreads.
+  case 'frostplant':{const press=1-abEase(u);o.frame=u<.55?9:8;o.sy=1-.22*press;o.sx=1+.08*press;o.skew=.12*d*press;break;}
   default:return _pa.apply(this,arguments);}
  return o;};}
 // ---- RMB VOID ORB: a small black hole ----
@@ -55,26 +56,35 @@ function wardRings(front){const p=P,W2=ABTUNE.ward,X=sx(p.x,p.y),Y=sy(p.x,p.y)-1
 {const _dp=drawPlayer;drawPlayer=function(){const p=P;if(!p||!(p.ward>0)||!isWiz())return _dp.apply(this,arguments);
  const w=p.ward;wardRings(false);p.ward=0;try{_dp.apply(this,arguments);}finally{p.ward=w;}wardRings(true);};}
 {const _hp=hitPlayer;hitPlayer=function(raw,x,y,o){const w=P&&P.ward>0;const r=_hp.apply(this,arguments);if(w&&isWiz()&&r==='dodge'){P.wardRefT=time;P.wardRip={t:time,a:Math.atan2((y||P.y)-P.y,(x||P.x)-P.x)};}return r;};}
-// ---- F FROST NOVA: frost crawls out across the floor, shatters, and crusts the foes it caught ----
-{const _cf=castF;castF=function(){const n0=fx.length,before=P&&P.ab.f,near=isWiz()&&P.lo.f===0?enemies.filter(e=>!e.dead&&!e.air&&Math.hypot(e.x-P.x,e.y-P.y)<66*AZ()+e.r):[];const r=_cf.apply(this,arguments);
- if(isWiz()&&P.lo.f===0&&P.ab.f!==before){for(let i=fx.length-1;i>=n0;i--)if(fx[i].k==='ring')fx.splice(i,1);
-  const N=ABTUNE.nova,R0=66*AZ(),cx=P.x,cy=P.y,arms=[];
-  // dendrites: each arm a jagged line to the edge, with short side branches
-  for(let i=0;i<N.arms;i++){const a0=i/N.arms*TAU+rnd(-.12,.12),pts=[[0,0]];let a=a0;for(let d=6;d<=R0;d+=6){a+=rnd(-.18,.18);a=a0+clamp(angDiff(a,a0),-.25,.25);pts.push([Math.cos(a)*d,Math.sin(a)*d]);}
-   const br=[];for(let k=2;k<pts.length-1;k+=2){const [bx,by]=pts[k],ba=Math.atan2(by,bx)+(k%4?.7:-.7),bl=4+Math.random()*6;br.push([k,bx,by,bx+Math.cos(ba)*bl,by+Math.sin(ba)*bl]);}arms.push({pts,br});}
-  topFx({dur:N.crawl+N.hold+N.fade,draw(o,k){const t=time-o.t0,grow=Math.min(1,t/N.crawl),fade=t>N.crawl+N.hold?1-(t-N.crawl-N.hold)/N.fade:1;
-   for(const [w,c,al] of [[2,'#7ac8f0',.55],[1,'#e8f8ff',1]]){ctx.globalAlpha=al*fade;ctx.strokeStyle=c;ctx.lineWidth=w;
-    for(const A of arms){const n=Math.max(1,Math.round(A.pts.length*grow));ctx.beginPath();for(let i=0;i<n;i++){const [px,py]=A.pts[i];const X=sx(cx+px,cy+py),Y=sy(cx+px,cy+py);i?ctx.lineTo(X,Y):ctx.moveTo(X,Y);}ctx.stroke();
-     for(const [ki,x0,y0,x1,y1] of A.br){if(ki>=n)continue;ctx.beginPath();ctx.moveTo(sx(cx+x0,cy+y0),sy(cx+x0,cy+y0));ctx.lineTo(sx(cx+x1,cy+y1),sy(cx+x1,cy+y1));ctx.stroke();}}}
-   ctx.lineWidth=1;
-   // the edge flashes as the frost reaches it, and shards fly
-   if(t>=N.crawl&&!o.burst){o.burst=1;for(let i=0;i<18;i++){const a=i/18*TAU,x=cx+Math.cos(a)*R0,y=cy+Math.sin(a)*R0;particles.push({x,y,vx:Math.cos(a)*rnd(40,80),vy:Math.sin(a)*rnd(40,80)-10,t:.4,col:i%2?'#e8f8ff':'#9df'});}}
-   if(t>=N.crawl&&t<N.crawl+.18){ctx.globalAlpha=.7*(1-(t-N.crawl)/.18);ctx.strokeStyle='#e8f8ff';ctx.beginPath();for(let i=0;i<=40;i++){const a=i/40*TAU,x=cx+Math.cos(a)*R0,y=cy+Math.sin(a)*R0;i?ctx.lineTo(sx(x,y),sy(x,y)):ctx.moveTo(sx(x,y),sy(x,y));}ctx.stroke();}
-   ctx.globalAlpha=1;}});
-  // an ice crust on every foe it caught, while the chill holds
-  for(const e of near)topFx({dur:N.crust,e,draw(o,k){const e=o.e;if(e.dead){o.dead=1;return;}const X=Math.round(sx(e.x,e.y)),Y=Math.round(sy(e.x,e.y)),h=Math.round(e.r*2+10),w=Math.round(e.r*1.6+6),f=k>.8?1-(k-.8)/.2:1;
-   ctx.globalAlpha=.32*f;ctx.fillStyle='#bfe8ff';ctx.fillRect(X-w/2,Y-h,w,h);ctx.globalAlpha=.85*f;ctx.strokeStyle='#e8f8ff';ctx.strokeRect(X-w/2+.5,Y-h+.5,w-1,h-1);ctx.fillStyle='#ffffff';ctx.fillRect(X-w/2+2,Y-h+2,1,4);ctx.fillRect(X-w/2+2,Y-h+2,3,1);ctx.globalAlpha=1;}});}
- return r;};}
+// ---- F FROST NOVA: a low frost front and solid ice facets ----
+function frostFacet(x,y,h,w,lean){h=Math.round(h);if(h<2)return;
+ const tip=x+lean,shoulder=y-Math.round(h*.4);
+ ctx.fillStyle='#224c68';ctx.beginPath();ctx.moveTo(x-w-1,y);ctx.lineTo(x-w,shoulder);ctx.lineTo(tip,y-h-1);ctx.lineTo(x+w+1,y-2);ctx.lineTo(x+1,y+2);ctx.fill();
+ ctx.fillStyle='#67b6d7';ctx.beginPath();ctx.moveTo(x-w,y-1);ctx.lineTo(tip,y-h);ctx.lineTo(x+w,y-2);ctx.lineTo(x+1,y+1);ctx.fill();
+ ctx.fillStyle='#c8f3ff';ctx.beginPath();ctx.moveTo(x-w,y-1);ctx.lineTo(tip,y-h);ctx.lineTo(x+1,y);ctx.fill();}
+function drawFrostNova(z){const N=ABTUNE.nova,spread=abEase(z.age/N.spread),r=z.r*(.17+.83*spread),
+ melt=abEase((z.age-N.shatter)/(N.dur-N.shatter)),fade=1-melt;
+ ctx.save();ctx.globalAlpha=.22*fade;wdisc(z.x,z.y,r,'#64c6ea');
+ ctx.globalAlpha=.42*fade;wcirc(z.x,z.y,r,'#96dcef');
+ for(const c of z.crystals){const grow=abEase((z.age-c.start)/.105),x=sx(c.x,c.y),y=sy(c.x,c.y);if(!grow)continue;
+  ctx.globalAlpha=fade;frostFacet(x,y,c.h*grow*(1-melt),c.w,c.lean);
+  if(melt>0){const u=Math.sqrt(melt),chipY=y-Math.round(c.h*(.55+u*.45)-melt*melt*12),chipX=x+Math.round(c.lean*(1+u*2));
+   ctx.fillStyle='#d4f7ff';ctx.fillRect(chipX,chipY,2,2);}}
+ ctx.restore();}
+{const _cf=castF;castF=function(){if(!isWiz()||P.lo.f!==0)return _cf.apply(this,arguments);
+ const n0=fx.length,before=P.ab.f,x=P.x,y=P.y,reach=66*AZ(),near=enemies.filter(e=>!e.dead&&!e.air&&!(e.iv>0)&&Math.hypot(e.x-x,e.y-y)<reach+e.r&&los(x,y,e.x,e.y));
+ const result=_cf.apply(this,arguments);if(P.ab.f===before)return result;
+ for(let i=fx.length-1;i>=n0;i--)if(fx[i].k==='ring')fx.splice(i,1);
+ const N=ABTUNE.nova,crystals=[];
+ for(let i=0;i<36;i++){const a=i/36*TAU,outer=i%3!==1,r=reach*(outer?.91:.59),cx=x+Math.cos(a)*r,cy=y+Math.sin(a)*r;
+  if(!los(x,y,cx,cy))continue;
+  crystals.push({x:cx,y:cy,start:N.spread*(r/reach)*.73,h:outer?8+(i%5)*3:5+i%4,w:outer?3+i%2:2,lean:i%2?3:-3});}
+ crystals.sort((a,b)=>dep(a.x,a.y)-dep(b.x,b.y));
+ kitZone({x,y,r:reach,t:N.dur,crystals,ground:drawFrostNova});
+ for(const e of near)topFx({dur:N.crust,e,draw(o,k){const e=o.e;if(e.dead){o.dead=1;return;}
+  const x=sx(e.x,e.y),y=sy(e.x,e.y)+1,fade=1-abEase((k-.7)/.3),grow=abEase(k*15);
+  ctx.globalAlpha=.83*fade;frostFacet(x-4,y,9*grow,2,-2);frostFacet(x+4,y+1,13*grow,2,2);}});
+ return result;};}
 // ---- R DRAGON DESCENT: a sigil opens in the sky and a pillar of golden fire comes down through it ----
 {const _df=drawFx;drawFx=function(f){if(f.wizd)return;return _df.apply(this,arguments);};}
 {const _cu=castUlt;castUlt=function(){const n0=fx.length;const r=_cu.apply(this,arguments);
