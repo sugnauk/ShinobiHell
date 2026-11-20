@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.8.10: New prologue guardians and a redrawn ferryman
+- **Prologue I: Gondo, the Tax Enforcer** replaces Goro the bandit captain. He is the Emperor's tax officer in black-lacquered armour laced in red, with a war hat bearing the Emperor's coin crest, an iron half-mask and a studded iron club. In his second form the hat and mask are knocked away, one shoulder plate is gone and the club glows red-hot. The stage text and the campfire line are rewritten to match.
+- **Prologue II: Tatsuma, the Barge Master** replaces Kurobe the river pirate. He is master of the Emperor's tithe barges, in a heavy indigo quilted coat with white stitching, a straw rain cape, a twisted headband, a full beard and an iron-shod barge pole with a hook. In his second form the cape smoulders, his hair is loose and he carries a lit fire-jar. The stage text and the campfire line are rewritten to match.
+- **Sazanami, Ferryman of the Hollow** is redrawn: a deep straw hat, glowing eyes, a long white beard, a straw cape, a string of coins for the dead, a lantern on his pole and two drifting spirit flames. When the lanterns go red, his eyes, flames and lantern turn red, and his hat and cape are torn.
+- All three are painted at twice the size and reduced, and they now walk, wind up, follow through, cast and flinch.
+- The attacks and fights are unchanged.
+
 ## 0.8.9: Chapter II opens at the Gate of Still Water
 
 - Stage XV follows the Eclipse Shrine. Face Sazanami, Ferryman of the Hollow, and earn the Ferryman's Token before continuing into the Abyss.

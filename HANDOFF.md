@@ -158,3 +158,15 @@ Instead of one fixed range, lock on only to foes within the current basic attack
 - **Helpers:** `HSX/HSY` (screen position), `kLine`, `KR`, `wdisc`.
 - **Damage:** `hurtE(e, dmg, posture, {src, kb, kbm, slash})`.
 - **Ability-name order per hero:** `m` (basic), `h` (RMB), `q`, `w` (E key), `f`, `e` (R key, the ultimate).
+
+
+## Guardian sprite rework (0.8.10), and what is still to do
+The owner asked for complete sprite reworks of **Sazanami, Mukuro, Sumi, Nebari, Ruri and Kane**. Only Sazanami exists in the repo. The other five were never pushed (they are not on any branch), so add them with the same method once their code is in.
+
+**How the new guardians are drawn** (`src/204-guardian-redesign.js`):
+- `hiArt(paint)` paints a frame at twice the size (144x152, centre x 72, feet at y 146) with canvas shapes: `poly`, `ell`, `ln`, `limb`, `rect`, and `pt` for the 1x pose points.
+- It then reduces each 2x2 block to one pixel: the most common colour wins, and a tie goes to the darkest, so draw outlines and creases 2 px wide.
+- Register the art with `humBoss(name, hiArt(...), {idle0, idle1, atk}, {sc})`, then call `hiPoses(name, [farArm, nearArm])` to get walk, wind-up, follow-through, cast and flinch frames.
+- Render sheets to check them by calling `bossArt(name)` with `ARTHURT` false and then true (the second form).
+
+**The owner's taste:** no shirtless or bare-chested looks ("they look effeminate"). Armour, heavy coats and readable weapons work well.
