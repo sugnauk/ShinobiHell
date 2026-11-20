@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.8.10: New prologue guardians and a redrawn ferryman
+- **Prologue I: Genjuro, the Hired Blade** replaces Goro the bandit captain. He is a ronin the Emperor's tax men hired to collect from the villages that could not pay. He wears a battered straw hat with a notch cut from the brim, a cloth mask over his lower face, a patched dark kimono, scavenged armour (a dented breastplate and one shoulder plate) and carries a long nodachi, with its scabbard slung across his back. In his second form the hat is sliced away and the mask torn down, his long hair is tied back, and his eyes are red. The stage text and the campfire line are rewritten to match.
+- **Prologue II: Tatsuma, the Barge Master** replaces Kurobe the river pirate. He is master of the Emperor's tithe barges, in a heavy indigo quilted coat with white stitching, a straw rain cape, a twisted headband, a full beard and an iron-shod barge pole with a hook. In his second form the cape smoulders, his hair is loose and he carries a lit fire-jar. The stage text and the campfire line are rewritten to match.
+- **Sazanami, Ferryman of the Hollow** is redrawn: a deep straw hat, glowing eyes, a long white beard, a straw cape, a string of coins for the dead, a lantern on his pole and two drifting spirit flames. When the lanterns go red, his eyes, flames and lantern turn red, and his hat and cape are torn.
+- All three are painted at twice the size and reduced, with thin outlines in line with the other guardians, and they now walk, wind up, follow through, cast and flinch.
+- The attacks and fights are unchanged.
+
 ## 0.8.9: Chapter II opens at the Gate of Still Water
 
 - Stage XV follows the Eclipse Shrine. Face Sazanami, Ferryman of the Hollow, and earn the Ferryman's Token before continuing into the Abyss.
