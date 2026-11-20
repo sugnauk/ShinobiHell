@@ -1,9 +1,10 @@
 'use strict';
 // SHINOBIDUNGEONS - three guardians redrawn from scratch, and the two prologue guardians given new stories.
-//  PROLOGUE I   GONDO, THE TAX ENFORCER   (was Goro the bandit captain) the Emperor's tax officer: a crimson war coat
-//               with gold-trimmed edges over a lacquered breastplate, wide hakama, a war hat with the Emperor's coin
-//               crest, a scowling bearded face and a studded iron club. Second form: the hat knocked away (a shaven
-//               head and topknot), a fresh scar, the coat torn, and the club glowing red-hot from the burning village.
+//  PROLOGUE I   GENJURO, THE HIRED BLADE  (was Goro the bandit captain) a ronin the tax men hired: a battered straw
+//               hat with a notch cut from the brim, a cloth mask over his lower face, a patched dark kimono with the
+//               sleeves tied back in red cord, scavenged armour (a dented breastplate and a single shoulder plate) and a long nodachi
+//               with its scabbard slung across his back. Second form: the hat sliced away, the mask torn down, his long
+//               hair tied back in a tail, his eyes red and the blade chipped.
 //  PROLOGUE II  TATSUMA, THE BARGE MASTER (was Kurobe the river pirate) master of the Emperor's tithe barges: a heavy
 //               indigo quilted coat with white sashiko stitching, a shaggy straw rain cape, a twisted headband, a full
 //               black beard, wrapped shins, and an iron-shod barge pole with a gaff hook. Second form: the rain cape
@@ -55,60 +56,63 @@ const HIP={
 // the extra poses (walk, wind-up, follow-through, cast, flinch) come from these resting arms (133-boss-poses.js)
 function hiPoses(name,arms){GARMS[name]=arms;try{const P=BART[name].posed;delete P.pick;guardianPoses(name);}catch(err){console.warn('poses',name,err);}}
 
-// ---------------------------------------------------------------- PROLOGUE I: GONDO, THE TAX ENFORCER
-const GONDO='GONDO, THE TAX ENFORCER';
-const gondoArt=hiArt((H,Q)=>{const {by,two}=H,cx=72;
- const CO='#7a1e24',CO2='#9a2a2e',CO3='#561418',GD='#d8a838',GD2='#ffe080',KI='#2a2630',KI2='#3a3644',HK='#3a3442',HK2='#4e4858',LQ='#1e1a22',LQ2='#36323e',RD='#b02828',IR='#5a5e68',IR2='#9aa0ac',SK='#c48a62',SK2='#94603e',HR='#16120e',TB='#e8e0d0';
- const far=(Q.far||[[25,30],[20,40],[22,49]]).map(H.pt),near=(Q.near||[[47,30],[53,39],[52,47]]).map(H.pt);
- // the club: a long octagonal iron club studded with rivets, the grip bound in cloth; red-hot in the second form
- const club=()=>{const [x,y]=near[2],a=Q.wa!=null?Q.wa:-1.2,len=(Q.wl||36)*2,ca=Math.cos(a),sa=Math.sin(a),nx=-sa,ny=ca;
-  H.limb([[x-ca*10,y-sa*10],[x+ca*14,y+sa*14]],7,'#6a4a2a');for(let k=-8;k<14;k+=4)H.ln(x+ca*k-nx*3,y+sa*k-ny*3,x+ca*k+nx*3,y+sa*k+ny*3,2,TB);
-  const s0=14,w0=5,w1=10,P0=[x+ca*s0,y+sa*s0],P1=[x+ca*len,y+sa*len];
-  H.poly([[P0[0]+nx*w0,P0[1]+ny*w0],[P1[0]+nx*w1,P1[1]+ny*w1],[P1[0]+ca*4+nx*5,P1[1]+sa*4+ny*5],[P1[0]+ca*4-nx*5,P1[1]+sa*4-ny*5],[P1[0]-nx*w1,P1[1]-ny*w1],[P0[0]-nx*w0,P0[1]-ny*w0]],IR);
-  H.fill([[P0[0]+nx*(w0-2),P0[1]+ny*(w0-2)],[P1[0]+nx*(w1-2),P1[1]+ny*(w1-2)],[P1[0]+nx*(w1-5),P1[1]+ny*(w1-5)],[P0[0]+nx*(w0-3),P0[1]+ny*(w0-3)]],two?'#ff7038':IR2);
-  H.fill([[P0[0]-nx*(w0-1),P0[1]-ny*(w0-1)],[P1[0]-nx*(w1-1),P1[1]-ny*(w1-1)],[P1[0]-nx*(w1-4),P1[1]-ny*(w1-4)],[P0[0]-nx*(w0-3),P0[1]-ny*(w0-3)]],H.dk(IR));
-  for(let k=s0+6;k<len;k+=7){const t=(k-s0)/(len-s0),ww=w0+(w1-w0)*t;for(const s of [-.5,.5]){const px=x+ca*k+nx*ww*s,py=y+sa*k+ny*ww*s;H.rect(px-1,py-1,3,3,two?'#ffd060':'#c8ccd6');}}
-  if(two)for(let i=0;i<5;i++){const k=s0+((H.f*7+i*13)%(len-s0)),px=x+ca*k+nx*(w1+4),py=y+sa*k+ny*(w1+4)-i*3;H.rect(px,py,2,2,i%2?'#ffb040':'#ff6020');}};
- // legs: wide hakama flaring to the shins, short iron shin guards, straw sandals over white tabi
+// ---------------------------------------------------------------- PROLOGUE I: GENJURO, THE HIRED BLADE
+const GENJURO='GENJURO, THE HIRED BLADE';
+const genjuroArt=hiArt((H,Q)=>{const {by,two}=H,cx=72;
+ const KI='#3a3430',KI2='#4e4640',KI3='#2a2420',PT='#5e5444',PT2='#6e6250',HK='#34302e',HK2='#48423e',IR='#5a5e66',IR2='#8a909a',IR3='#3a3e46',LE='#6a4a2a',ST='#c8ccd6',ST2='#f0f4f8',SK='#c08a62',SK2='#8e5e3e',HR='#16120e',MK='#4a4a50',MK2='#5e5e66',STR='#b8a060',STR2='#d8c080',STR3='#7a6838',TS='#e8e0d0',TSR='#a82828';
+ const far=(Q.far||[[25,30],[20,40],[23,49]]).map(H.pt),near=(Q.near||[[47,30],[52,39],[51,47]]).map(H.pt);
+ // the nodachi: a very long blade, a dark iron guard, a long hilt wrapped in black diamonds
+ const sword=()=>{const [x,y]=near[2],a=Q.wa!=null?Q.wa:1.02,len=(Q.wl||31)*2,ca=Math.cos(a),sa=Math.sin(a),nx=-sa,ny=ca;
+  H.limb([[x-ca*16,y-sa*16],[x+ca*4,y+sa*4]],6,'#1a1418');for(let k=-14;k<4;k+=4){H.ln(x+ca*k-nx*3,y+sa*k-ny*3,x+ca*(k+2)+nx*3,y+sa*(k+2)+ny*3,1.5,'#e8e0d0');}
+  H.ell(x+ca*6,y+sa*6,6,6,IR3,1);H.ell(x+ca*6-1,y+sa*6-1,2,2,IR2,0);
+  const P0=[x+ca*9,y+sa*9],P1=[x+ca*len,y+sa*len];H.poly([[P0[0]+nx*4,P0[1]+ny*4],[P1[0]+nx*3,P1[1]+ny*3],[P1[0]+ca*8,P1[1]+sa*8],[P1[0]-nx*2,P1[1]-ny*2],[P0[0]-nx*3,P0[1]-ny*3]],ST);
+  H.ln(P0[0]+nx*2,P0[1]+ny*2,P1[0]+nx*2,P1[1]+ny*2,1.5,ST2);H.ln(P0[0]-nx*2,P0[1]-ny*2,P1[0]-nx*1,P1[1]-ny*1,1.5,'#8a909a');
+  if(two)for(const k of [.45,.7])H.rect(x+ca*len*k+nx*3-1,y+sa*len*k+ny*3-1,3,2,'#14101a');};
+ // the scabbard slung across the back
+ H.limb([[cx-30,40+by],[cx+26,96+by]],7,'#1e1a22',H.lt('#1e1a22'));H.ln(cx-24,46+by,cx-20,50+by,3,'#a88850');H.ln(cx+18,88+by,cx+22,92+by,3,'#a88850');
+ // legs: worn hakama, ragged at the hem, shins wrapped in cloth, straw sandals
  HIP.legs(H,Q,cx,96,([hp,kn,ft])=>{const mx=(kn[0]+ft[0])/2,my=(kn[1]+ft[1])/2;
-  H.poly([[hp[0]-9,hp[1]],[hp[0]+9,hp[1]],[mx+11,my+4],[mx-11,my+4]],HK);H.fill([[hp[0]-8,hp[1]+2],[hp[0]-3,hp[1]+2],[mx-6,my+3],[mx-10,my+3]],HK2);H.ln(hp[0]+2,hp[1]+4,mx+2,my+2,1.5,H.dk(HK));
-  H.limb([[mx,my+4],[ft[0],ft[1]-6]],8,IR,IR2);H.poly([[ft[0]-9,ft[1]-6],[ft[0]+10,ft[1]-6],[ft[0]+12,ft[1]],[ft[0]-10,ft[1]]],'#ece8e0');H.ln(ft[0]-9,ft[1]-1,ft[0]+11,ft[1]-1,2,'#a88850');});
- // the far arm: a dark kimono sleeve, an iron forearm guard, a leather glove
- H.limb([far[0],far[1]],12,KI,KI2);H.limb([far[1],far[2]],9,IR,IR2);HIP.hand(H,far[2][0],far[2][1],'#4a3428');
- // the war coat (jinbaori) behind: crimson, flaring wide at the shoulders and hanging to the knee; torn in the second form
- const cy0=52+by,cy1=112+by;H.poly([[cx-16,cy0-2],[cx+16,cy0-2],[cx+24,cy0+6],[cx+33,cy1],[cx+20,cy1+(two?-8:0)],[cx+12,cy1-4],[cx-12,cy1-4],[cx-20,cy1],[cx-33,cy1],[cx-24,cy0+6]],CO);
- H.fill([[cx-23,cy0+8],[cx-17,cy0+8],[cx-20,cy1-2],[cx-30,cy1-2]],CO2);H.fill([[cx+17,cy0+8],[cx+23,cy0+8],[cx+30,cy1-2],[cx+21,cy1-2]],CO3);
- for(const s of [-1,1])H.ln(cx+s*24,cy0+20,cx+s*29,cy1-4,1.5,CO3);
- // the kimono and a black lacquered breastplate laced in red, the Emperor's coin crest
- H.poly([[cx-16,cy0],[cx+16,cy0],[cx+14,94+by],[cx-14,94+by]],KI);H.poly([[cx-14,58+by],[cx+14,58+by],[cx+13,84+by],[cx-13,84+by]],LQ);
- H.fill([[cx-13,60+by],[cx-6,60+by],[cx-6,83+by],[cx-12,83+by]],LQ2);for(const y of [72,78])H.ln(cx-12,y+by,cx+12,y+by,2,RD);H.ell(cx,66+by,4,4,GD);H.rect(cx-1,65+by,2,2,LQ);
- H.poly([[cx-6,cy0],[cx+6,cy0],[cx,60+by]],'#e8e4d4',1);
- // the coat's gold-trimmed front edges and the Emperor's crest on each lapel
- for(const s of [-1,1]){H.ln(cx+s*15,cy0,cx+s*13,cy1-4,3,GD);H.ell(cx+s*21,cy0+12,3,3,GD,1);}H.ln(cx-32,cy1,cx-20,cy1,2,GD);H.ln(cx+20,cy1,cx+32,cy1,2,GD);
- // the obi with the tax ledger tucked in, the hakama ties
- H.rect(cx-16,86+by,32,7,'#14101a');H.rect(cx-15,87+by,30,4,RD);H.poly([[cx+6,82+by],[cx+13,82+by],[cx+13,96+by],[cx+6,96+by]],'#e8dcc0',1);H.ln(cx+7,86+by,cx+12,86+by,1,'#6a5a40');H.ln(cx+7,90+by,cx+11,90+by,1,'#6a5a40');
- // the near arm and the club
- club();H.limb([near[0],near[1]],12,KI,KI2);H.limb([near[1],near[2]],9,IR,IR2);HIP.hand(H,near[2][0],near[2][1],'#4a3428');
- // the coat's broad shoulders over both arms
- for(const [s,A] of [[-1,far],[1,near]]){const [x,y]=A[0];H.ell(x+s*2,y+1,9,8,s<0?CO2:CO);H.ell(x+s*1,y-2,5,3,s<0?shade(CO2,.15):CO2,0);}
- if(two){H.ln(cx+18,cy1-10,cx+26,cy1-2,2,CO3);H.ln(cx-28,cy0+30,cx-22,cy0+40,2,CO3);}
- // the head: a hard, weathered face, a scowl, a thick moustache and a short beard
- const hx=cx,hy=33+by;H.ell(hx,hy,13,15,SK);H.ell(hx-3,hy-3,5,6,H.lt(SK),0);H.fill([[hx+6,hy-8],[hx+12,hy-2],[hx+11,hy+8],[hx+6,hy+4]],SK2);
- H.ln(hx-10,hy-6,hx-2,hy-3,3,HR);H.ln(hx+2,hy-3,hx+10,hy-6,3,HR);H.rect(hx-8,hy-2,4,3,'#14101a');H.rect(hx+3,hy-2,4,3,'#14101a');
- if(two){H.rect(hx-7,hy-2,2,2,'#ff3030');H.rect(hx+4,hy-2,2,2,'#ff3030');H.ln(hx-10,hy-10,hx-3,hy+3,2,'#c03030');}else{H.rect(hx-7,hy-1,1,1,'#e8e0d0');H.rect(hx+4,hy-1,1,1,'#e8e0d0');}
- H.ln(hx,hy-1,hx+2,hy+4,2,SK2);
- H.fill([[hx-10,hy+5],[hx-3,hy+3],[hx,hy+4],[hx+3,hy+3],[hx+10,hy+5],[hx+7,hy+8],[hx+2,hy+6],[hx-2,hy+6],[hx-7,hy+8]],HR);
- H.fill([[hx-7,hy+8],[hx+7,hy+8],[hx+4,hy+15],[hx,hy+17],[hx-4,hy+15]],HR);H.rect(hx-3,hy+8,6,2,'#6a2a1a');
+  H.poly([[hp[0]-9,hp[1]],[hp[0]+9,hp[1]],[mx+10,my+2],[mx+5,my+5],[mx,my+2],[mx-5,my+5],[mx-10,my+2]],HK);H.fill([[hp[0]-8,hp[1]+2],[hp[0]-3,hp[1]+2],[mx-5,my+2],[mx-9,my+2]],HK2);
+  H.limb([[mx,my+3],[ft[0],ft[1]-6]],8,'#8a8070');for(let t=.2;t<1;t+=.3){const xx=mx+(ft[0]-mx)*t,yy=my+3+(ft[1]-6-my-3)*t;H.ln(xx-4,yy-1,xx+4,yy+1,1.5,'#5a5448');}
+  H.poly([[ft[0]-9,ft[1]-5],[ft[0]+10,ft[1]-5],[ft[0]+12,ft[1]],[ft[0]-10,ft[1]]],STR);H.ln(ft[0]-8,ft[1]-1,ft[0]+10,ft[1]-1,1.5,STR3);});
+ // far arm: the sleeve tied back, a bare wrapped forearm, the lone shoulder plate
+ H.limb([far[0],far[1]],12,KI,KI2);H.limb([far[1],far[2]],8,SK,H.lt(SK));for(const t of [.4,.7]){const xx=far[1][0]+(far[2][0]-far[1][0])*t,yy=far[1][1]+(far[2][1]-far[1][1])*t;H.ln(xx-4,yy,xx+4,yy,2,TS);}HIP.hand(H,far[2][0],far[2][1],SK);
+ {const [x,y]=far[0];H.poly([[x-10,y-6],[x+6,y-6],[x+4,y+14],[x-12,y+14]],IR);for(let r=0;r<3;r++){H.ln(x-11,y-1+r*6,x+5,y-1+r*6,1.5,IR3);H.ln(x-10,y+1+r*6,x+4,y+1+r*6,1.5,TSR);}H.ln(x-9,y-5,x+5,y-5,1.5,IR2);}
+ // the patched kimono, the dented breastplate strapped over it, a dark obi, the tasuki cord crossing the chest
+ H.poly([[cx-19,52+by],[cx+19,52+by],[cx+18,96+by],[cx-18,96+by]],KI);H.fill([[cx-18,54+by],[cx-10,54+by],[cx-10,94+by],[cx-17,94+by]],KI2);H.fill([[cx+11,54+by],[cx+18,54+by],[cx+17,94+by],[cx+11,94+by]],KI3);
+ for(const [x,y,w,h] of [[-15,80,8,7],[8,58,7,6]]){H.rect(cx+x,y+by,w,h,PT);H.rect(cx+x,y+by,w,1,PT2);for(let i=1;i<w;i+=2)H.rect(cx+x+i,y+by+h-1,1,1,'#2a2420');}
+ H.poly([[cx-14,60+by],[cx+14,60+by],[cx+12,82+by],[cx-12,82+by]],'#45494f');H.fill([[cx-13,62+by],[cx-7,62+by],[cx-7,80+by],[cx-11,80+by]],IR);H.ln(cx-12,61+by,cx+12,61+by,1.5,IR2);
+ H.ln(cx-11,71+by,cx+11,71+by,1.5,IR3);H.fill([[cx+4,64+by],[cx+9,66+by],[cx+6,70+by]],IR3);H.rect(cx+4,64+by,2,1,IR2);for(const [x,y] of [[-9,64],[9,64],[-9,78],[9,78]])H.rect(cx+x,y+by,2,2,IR2);
+ for(const y of [64,78]){H.ln(cx-17,y+by,cx-13,y+by,3,LE);H.ln(cx+13,y+by,cx+17,y+by,3,LE);}
+ H.poly([[cx-8,52+by],[cx+8,52+by],[cx,62+by]],'#d8d0c0',.5);
+ for(const s of [-1,1])H.ln(cx+s*19,53+by,cx+s*13,58+by,2,TSR);
+ H.rect(cx-19,84+by,38,8,'#14101a');H.rect(cx-18,85+by,36,5,'#5a2a24');H.limb([[cx+8,90+by],[cx+12,100+by]],3,'#5a2a24');
+ // near arm, sleeve tied back, the sword in hand
+ sword();H.limb([near[0],near[1]],12,KI,KI2);H.limb([near[1],near[2]],8,SK,H.lt(SK));for(const t of [.4,.7]){const xx=near[1][0]+(near[2][0]-near[1][0])*t,yy=near[1][1]+(near[2][1]-near[1][1])*t;H.ln(xx-4,yy,xx+4,yy,2,TS);}HIP.hand(H,near[2][0],near[2][1],SK);
+ // the head
+ const hx=cx,hy=34+by;
+ // second form: long dark hair tied back in a tail that swings behind
+ if(two){H.limb([[hx-6,hy-8],[hx-14,hy+2],[hx-18,hy+18]],6,HR);H.ell(hx,hy-6,13,10,HR);}
+ H.ell(hx,hy,12,14,SK);H.ell(hx-3,hy-3,5,6,H.lt(SK),0);H.fill([[hx+6,hy-8],[hx+12,hy-2],[hx+11,hy+8],[hx+6,hy+4]],SK2);
+ if(two){H.poly([[hx-12,hy-6],[hx-6,hy-12],[hx+6,hy-12],[hx+12,hy-6],[hx+10,hy-4],[hx-10,hy-4]],HR,0);}
+ H.ln(hx-10,hy-4,hx-2,hy-2,3,HR);H.ln(hx+2,hy-2,hx+10,hy-4,3,HR);H.rect(hx-8,hy-1,4,3,'#14101a');H.rect(hx+3,hy-1,4,3,'#14101a');
+ if(two){H.rect(hx-7,hy-1,2,2,'#ff3030');H.rect(hx+4,hy-1,2,2,'#ff3030');}else{H.rect(hx-7,hy,1,1,'#e8e0d0');H.rect(hx+4,hy,1,1,'#e8e0d0');}
+ H.ln(hx+5,hy-9,hx+9,hy+3,1.5,'#a85040');
  if(!two){
-  // the war hat: a black lacquered jingasa, gold rim and the Emperor's coin crest, a cord under the chin
-  H.poly([[hx-26,hy-10],[hx,hy-22],[hx+26,hy-10],[hx+22,hy-6],[hx-22,hy-6]],LQ);H.ln(hx-24,hy-8,hx+24,hy-8,2,GD);H.fill([[hx-22,hy-11],[hx-2,hy-20],[hx-2,hy-17],[hx-18,hy-10]],LQ2);
-  H.ell(hx,hy-15,4,3,GD,1);H.rect(hx-1,hy-16,2,2,LQ);H.ln(hx-10,hy-6,hx-9,hy+3,1.5,'#6a5a40');H.ln(hx+10,hy-6,hx+9,hy+3,1.5,'#6a5a40');}
+  // the cloth mask over his lower face, tied behind with trailing ends
+  H.poly([[hx-13,hy+3],[hx+13,hy+3],[hx+12,hy+12],[hx,hy+16],[hx-12,hy+12]],MK);H.fill([[hx-12,hy+4],[hx-4,hy+4],[hx-5,hy+12],[hx-11,hy+11]],MK2);H.ln(hx-12,hy+3,hx+12,hy+3,1.5,'#2a2a30');
+  H.limb([[hx-13,hy+5],[hx-20,hy+9],[hx-24,hy+16]],3,MK);H.limb([[hx-13,hy+7],[hx-18,hy+14],[hx-19,hy+22]],3,MK2);
+  // the battered straw hat, a notch cut out of its brim
+  H.poly([[hx-30,hy-6],[hx-6,hy-20],[hx+6,hy-20],[hx+30,hy-6],[hx+26,hy-3],[hx+14,hy-4],[hx+10,hy-8],[hx+6,hy-4],[hx-26,hy-3]],STR);
+  for(let i=-5;i<=5;i++)H.ln(hx+i*1.2,hy-19,hx+i*5,hy-5,1.5,i%2?STR3:STR2);H.ln(hx-28,hy-4,hx+28,hy-4,1.5,STR3);H.ell(hx,hy-19,4,2,STR3,.5);
+  H.ln(hx-9,hy-4,hx-9,hy+4,1.5,'#6a5a40');H.ln(hx+9,hy-4,hx+9,hy+4,1.5,'#6a5a40');}
  else{
-  // the hat knocked away: a shaven pate and a topknot
-  H.ell(hx,hy-8,11,6,shade(SK,.1),0);H.limb([[hx,hy-14],[hx+2,hy-22],[hx+8,hy-24]],4,HR);}});
-humBoss(GONDO,gondoArt,{idle0:{},idle1:{b:1},
- atk:{dy:-1,legs:'lunge',near:[[47,28],[55,20],[56,11]],wa:-2.25,wl:30,far:[[25,29],[17,36],[13,44]]}},{sc:1.1});
-hiPoses(GONDO,[[[25,30],[20,40],[22,49]],[[47,30],[53,39],[52,47]]]);
+  // the mask torn down round his neck: a stubbled jaw and a hard mouth
+  for(let x=-9;x<=9;x+=3)H.rect(hx+x,hy+6+Math.abs(x)*.2,1.5,1.5,'#5a4030');H.rect(hx-4,hy+8,8,2,'#6a2a1a');
+  H.poly([[hx-13,hy+13],[hx+13,hy+13],[hx+11,hy+20],[hx-11,hy+20]],MK,.5);H.limb([[hx+12,hy+16],[hx+18,hy+24]],3,MK);}});
+humBoss(GENJURO,genjuroArt,{idle0:{},idle1:{b:1},
+ atk:{dy:-1,legs:'lunge',near:[[47,28],[55,20],[56,11]],wa:-2.3,wl:30,far:[[25,29],[17,36],[13,44]]}},{sc:1.1});
+hiPoses(GENJURO,[[[25,30],[20,40],[23,49]],[[47,30],[52,39],[51,47]]]);
 
 // ---------------------------------------------------------------- PROLOGUE II: TATSUMA, THE BARGE MASTER
 const TATSUMA='TATSUMA, THE BARGE MASTER';
@@ -212,13 +216,13 @@ hiPoses('SAZANAMI, FERRYMAN OF THE HOLLOW',[[[26,30],[19,41],[21,50]],[[46,31],[
 
 // ---------------------------------------------------------------- the new prologue stories
 // Prologue I: the Emperor's own tax enforcer, not a bandit; Prologue II: the master of the tithe barges, not a pirate.
-Object.assign(PRO.dun,{story:'THE EMPEROR\'S TAX ENFORCERS BURN THE VILLAGE',
- tale:'THE VILLAGES THAT COULD NOT PAY THE EMPEROR\'S RICE TAX ARE BURNING. GONDO, HIS TAX ENFORCER, RIDES WITH A BAND OF HIRED BLADES AND A LEDGER OF EVERY DEBT. YOURS IS NEXT. THIS IS WHERE THE MARCH BEGINS.'});
-PRO.boss.name=GONDO;PRO.style.t=['THE IRON CLUB','TORCHES','THE LAST LEDGER'];
-PRO.master='THE VILLAGE IS SAFE, BUT ITS RICE IS GONE. GONDO\'S LEDGER SAYS IT WENT DOWNRIVER ON THE EMPEROR\'S TITHE BARGES, AND THAT TATSUMA, THE BARGE MASTER, HOLDS THE FLOODED FIELDS.';
+Object.assign(PRO.dun,{story:'HIRED BLADES BURN THE VILLAGE FOR THE EMPEROR\'S TAX',
+ tale:'THE EMPEROR\'S TAX MEN DO NOT DIRTY THEIR OWN HANDS. THEY HIRED GENJURO, A RONIN WITH NO LORD AND NO MERCY, TO COLLECT FROM THE VILLAGES THAT COULD NOT PAY. HIS BLADES ARE BURNING YOURS. THIS IS WHERE THE MARCH BEGINS.'});
+PRO.boss.name=GENJURO;PRO.style.t=['THE LONG BLADE','TORCHES','A RONIN\'S LAST STAND'];
+PRO.master='THE VILLAGE IS SAFE, BUT ITS RICE IS GONE. GENJURO WAS PAID FROM THE EMPEROR\'S TITHE BARGES, AND THE RICE WENT DOWNRIVER ON THEM. TATSUMA, THE BARGE MASTER, HOLDS THE FLOODED FIELDS.';
 Object.assign(PRO2.dun,{story:'THE TITHE BARGES CARRY THE STOLEN RICE THROUGH THE FLOODED FIELDS',
  tale:'THE VILLAGE\'S RICE WENT DOWNRIVER ON THE EMPEROR\'S TITHE BARGES. TATSUMA, MASTER OF THE BARGE GUILD, HOLDS THE FLOODED PADDIES WITH HIS POLEMEN, AND SKIMS A SHARE OF EVERY LOAD FOR HIMSELF.'});
 PRO2.boss.name=TATSUMA;PRO2.style.t=['THE BARGE POLE','HIS POLEMEN','FIRE ON THE WATER'];
 PRO2.master='THE RICE GOES HOME ON TATSUMA\'S OWN BARGE. HIS MANIFESTS NAME THE WATCHTOWER ON THE HILL ROAD: THE EMPEROR\'S EYES, SIGNALLING THE WARBANDS. IT MUST FALL BEFORE WE CAN PASS.';
 // the old names have no art any more; anything still asking for them gets the new guardians
-BART['GORO, THE BANDIT CAPTAIN']=BART[GONDO];BART['KUROBE, THE RIVER PIRATE']=BART[TATSUMA];
+BART['GORO, THE BANDIT CAPTAIN']=BART[GENJURO];BART['KUROBE, THE RIVER PIRATE']=BART[TATSUMA];
