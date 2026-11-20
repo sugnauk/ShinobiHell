@@ -1,5 +1,25 @@
 # Changelog
 
+## 0.8.11: Stage XVI, the Silt Cellars, and Nebari the Mire Warden
+- **New stage XVI, the Silt Cellars.** This is the first stage of the descent below Sazanami's gate, and the Abyss now opens after it.
+  - **The idea is mire:** black silt slows you to about half speed, though a dash still carries you across it.
+  - **The first room teaches it** with silt pools and only two slow foes.
+  - **The rooms that follow** put silt among ranged foes, with tar vents that bloom on a warning.
+- **New guardian: Nebari, the Mire Warden.**
+  - **Tar Bloom:** a ring of tar spreads where he aims for 1.1s. Walk out of it. The splash traps him in his own tar for 1.6s, and that is your opening.
+  - **"The silt sets":** at half health his pools harden into stone that stops shots from both sides, and he switches to aimed mud volleys.
+  - **"The Draining":** an event at 28% health.
+  - **New relic: the Mire Lantern.**
+  - **Art:** he uses temporary art (concept A).
+- **Fix: guardians stopped attacking after a posture break.** Every guardian using the shared boss director went passive for the rest of the fight after its first stagger.
+- **Fix: stage XV's music could crash the game.**
+- **Touch:** auto-fire uses each weapon's real reach, capped at 150px. Ranged weapons missing from the reach table were stuck at 130px.
+- **Saves:** Abyss checkpoints saved before stage XVI existed keep their depth.
+- **Docs:**
+  - `CHAPTER_II_DESCENT.md` is the design brief for XVI–XX.
+  - `docs/chapter2/` holds the guardian concept sheet (two directions each), its source, and the fight-testing bot.
+  - `CHATGPT_BRANCHING_PROMPT.md` hands over the next pass.
+
 ## 0.8.10: New prologue guardians and a redrawn ferryman
 - **Prologue I: Genjuro, the Hired Blade** replaces Goro the bandit captain. He is a ronin the Emperor's tax men hired to collect from the villages that could not pay. He wears a battered straw hat with a notch cut from the brim, a cloth mask over his lower face, a patched dark kimono, scavenged armour (a dented breastplate and one shoulder plate) and carries a long nodachi, with its scabbard slung across his back. In his second form the hat is sliced away and the mask torn down, his long hair is tied back, and his eyes are red. The stage text and the campfire line are rewritten to match.
 - **Prologue II: Tatsuma, the Barge Master** replaces Kurobe the river pirate. He is master of the Emperor's tithe barges, in a heavy indigo quilted coat with white stitching, a straw rain cape, a twisted headband, a full beard and an iron-shod barge pole with a hook. In his second form the cape smoulders, his hair is loose and he carries a lit fire-jar. The stage text and the campfire line are rewritten to match.

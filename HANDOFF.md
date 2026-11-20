@@ -170,3 +170,18 @@ The owner asked for complete sprite reworks of **Sazanami, Mukuro, Sumi, Nebari,
 - Render sheets to check them by calling `bossArt(name)` with `ARTHURT` false and then true (the second form).
 
 **The owner's taste:** no shirtless or bare-chested looks ("they look effeminate"). Armour, heavy coats and readable weapons work well.
+
+## Target fight lengths (owner's table)
+| Boss category | Target |
+|---|---|
+| Early-game boss | 45–90s |
+| Mid-game boss | 90–120s |
+| Late-game boss | 120–180s |
+| Chapter I final boss | 150–210s |
+| Chapter II major bosses (XVI–XX) | 180–240s |
+| Ultimate optional boss | 240–300s |
+
+**Nebari (XVI)** is tuned with `BOSS_HPT` 9:
+- **The test bot:** it reads every warning and keeps attacking, so it plays like a careful player. It finishes in about 135–150s with the archer and sumo, and slower with the samurai. The spread between runs is wide.
+- **A real player** fights less efficiently than the bot, so should land in the 180–240s window.
+- **Still needed:** confirm the length in human playtests.

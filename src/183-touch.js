@@ -67,8 +67,11 @@ addEventListener('mousemove',()=>{if(TOUCH&&performance.now()-TOUCHAT>1500){TOUC
  let dx=s.x-s.ox,dy=s.y-s.oy;const l=Math.hypot(dx,dy);if(l<4)return [0,0];if(l>22){s.ox=s.x-dx/l*22;s.oy=s.y-dy/l*22;}const k=Math.min(1,l/16);dx=dx/l*k;dy=dy/l*k;
  // the same screen-to-world turn the keys use
  return unrot((dx+dy)*.7071,(dy-dx)*.7071);};}
-// A tapped ability can aim past melee reach. Auto-fire uses the equipped basic's shorter reach.
-const TOUCHAIM=130;
+// A tapped ability can aim past melee reach. Auto-fire uses the equipped basic's own reach, never more than TOUCHCAP:
+// weapons with very long reach (bows, guns, needles: ~170px) are trimmed so auto-aim never snipes from off the edge of the
+// action, while every basic still fires at the distance it is played at. A basic not in the table below learns its reach
+// from its first shot (speed x life of the shot it fires).
+const TOUCHAIM=130,TOUCHCAP=150,TOUCH_REACH={};
 const TOUCH_BASICS={
  0:()=>215*.55*(1+S.rangeM)+9,1:()=>220*.3*(1+S.rangeM)+2,
  4:()=>(P.combo===1&&R.time-P.lastSw<.75?40:32)*(1.12+S.rangeM*.5),8:()=>48*(1.12+S.rangeM*.5),9:()=>40*(1.12+S.rangeM*.5),
@@ -76,11 +79,11 @@ const TOUCH_BASICS={
  [SUMO_KIT.m]:()=>250*.13*(1+S.rangeM*.4)+5,
  [CLASSES.find(c=>c.k==='kagura').kit.m]:()=>P.flowBoost>R.time?44:36,
  [CLASSES.find(c=>c.k==='bellwarden').kit.m]:()=>37};
-function touchTarget(range,edge=false){let best=null,bd=TOUCHAIM;for(const e of enemies){if(!kitFoe(e))continue;
+function touchTarget(range,edge=false){let best=null,bd=Infinity;for(const e of enemies){if(!kitFoe(e))continue;
  const d=Math.hypot(e.x-P.x,e.y-P.y);if(d>=bd||d>range+(edge?e.r:0))continue;
  const x=sx(e.x,e.y),y=sy(e.x,e.y);if(x>=0&&x<W&&y>=0&&y<H&&los(P.x,P.y,e.x,e.y)){bd=d;best=e;}}return best;}
 {const _fire=wantFire;wantFire=function(){return TOUCH?mouse.down:_fire();};}
-{const _u=update;update=function(dt){if(touchActive()&&!TIPHOLD){const reach=TOUCH_BASICS[P.lo.m]?.()??TOUCHAIM,
+{const _u=update;update=function(dt){if(touchActive()&&!TIPHOLD){const reach=Math.min(TOUCHCAP,TOUCH_BASICS[P.lo.m]?.()??TOUCH_REACH[P.lo.m]??TOUCHAIM),
   t=touchTarget(mouse.rdown?TOUCHAIM:reach,!mouse.rdown);if(t)touchAimAt(t);mouse.down=!!t&&!mouse.rdown;}
  else if(TOUCH&&mode==='play')mouse.down=false;return _u.apply(this,arguments);};}
 {const _hs=hoverSlot;hoverSlot=function(){if(TOUCH)return null;return _hs.apply(this,arguments);};}
@@ -127,3 +130,5 @@ cv.addEventListener('mousedown',e=>{if(mode!=='event'||!evOpts||e.button!==0)ret
  for(let i=0;i<evOpts.length;i++){const y0=54+i*30;if(x>=24&&x<=296&&y>=y0&&y<=y0+24){pickEvent(i);mouse.down=false;return;}}
  if(y>=144&&y<=162){pickEvent(3);mouse.down=false;}});
 {const _re=renderEvent;renderEvent=function(){_re.apply(this,arguments);if(!TOUCH)return;ctx.fillStyle='#000';ctx.fillRect(0,36,W,10);ctxt('ONE OFFERING ONLY - TAP ONE, OR TAP LEAVE',40,'#888');};}
+// learn a basic's reach from the shot it fires
+{const _cb=castBolt;castBolt=function(){const n0=projs.length;const r=_cb.apply(this,arguments);try{if(P&&TOUCH_BASICS[P.lo.m]==null)for(let i=n0;i<projs.length;i++){const q=projs[i];if(q.from!=='p')continue;const sp=Math.hypot(q.vx,q.vy),L=sp*(q.life||0);if(L>20){TOUCH_REACH[P.lo.m]=Math.max(TOUCH_REACH[P.lo.m]||0,L*.92);break;}}}catch(_){}return r;};}
