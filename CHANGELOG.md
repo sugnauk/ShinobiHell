@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.8.12: The fork beneath Still Water and mobile fullscreen
+
+- The campfire after XV offers two roads into XVI, with keyboard and touch controls. Checkpoints retain the chosen road.
+- Added the Palace Lacquer Works and the Lacquer Master. Wet lacquer carries movement and cured lacquer stops shots. The Lacquer Seal powers heavy hits after a perfect dodge.
+- Both XVI roads lead to a second fork. The Lapis Cistern houses Ruri, the Glass Warden, and awards the Lapis Prism. The Shard Kiln houses Ruri's Furnace Warden form and awards the Tempered Seal. The Shardsmith guards an optional side furnace in the kiln.
+- Test Mode and Boss Rush include both guardians at XVI and XVII. Checkpoints in older Abyss layouts keep their depth.
+- Touch players can enter or leave fullscreen from the title and during play. iPhone Safari shows the Home Screen shortcut instructions if it cannot fullscreen the page.
+- The Near camera makes gameplay about 5% larger on phones using touch controls.
+
 ## 0.8.11: Stage XVI, the Silt Cellars, and Nebari the Mire Warden
 - **New stage XVI, the Silt Cellars.** This is the first stage of the descent below Sazanami's gate, and the Abyss now opens after it.
   - **The idea is mire:** black silt slows you to about half speed, though a dash still carries you across it.

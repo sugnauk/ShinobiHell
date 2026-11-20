@@ -1,11 +1,14 @@
 const {chromium}=require('playwright');(async()=>{const b=await chromium.launch();const p=await b.newPage();const errs=[];p.on('pageerror',e=>errs.push(String(e)));
 await p.goto('file://'+process.cwd()+'/index.html');await p.waitForTimeout(400);
 const res=await p.evaluate(()=>{
- const roman=['I','II','III','IV','V','VI','VII','VIII','IX','X','XI','XII','XIII','XIV','XV'];
+ const roman=['I','II','III','IV','V','VI','VII','VIII','IX','X','XI','XII','XIII','XIV','XV','XVI','XVII'];
  const groups=[['PROLOGUES',PROS.map((x,i)=>[x.boss.name,'PROLOGUE '+roman[i]])],
   ['STAGES I - XII',BOSS.slice(0,12).map((b,i)=>[b.name,'STAGE '+roman[i]])],
-  ['LATE GAME AND CHAPTER II',BOSS.slice(12).map((b,i)=>[b.name,'STAGE '+roman[12+i]])],
-  ['MINI-BOSSES AND LAIRS',[['THE MOTH QUEEN','MINI-BOSS'],['TSUCHIGUMO, EARTH SPIDER','LAIR III'],['THE HITOBASHIRA','LAIR V'],['KUROGANE ON FOOT','XI, ON FOOT']]]];
+  ['LATE GAME AND CHAPTER II',BOSS.slice(12, CAMPAIGN_END+1+LATE.length).flatMap((b,i)=>{
+   const di=12+i,roads=DESCENT_ROADS[di];
+   return roads?roads.map((road,k)=>[road.def.t.BOSS.name,'STAGE '+roman[di]+' '+(k?'B':'A')]):[[b.name,'STAGE '+roman[di]]];
+  })],
+  ['MINI-BOSSES AND LAIRS',[['THE MOTH QUEEN','MINI-BOSS'],['TSUCHIGUMO, EARTH SPIDER','LAIR III'],['THE HITOBASHIRA','LAIR V'],['KUROGANE ON FOOT','XI, ON FOOT'],[SHARDSMITH,'LAIR XVII']]]];
  const Z=2,CW=210,CH=196,COLS=6,HDR=28,TOP=40;let rows=0;for(const [,L] of groups)rows+=Math.ceil(L.length/COLS);
  const c=document.createElement('canvas');c.width=CW*COLS+20;c.height=TOP+groups.length*HDR+rows*CH+10;const g=c.getContext('2d');g.imageSmoothingEnabled=false;
  g.fillStyle='#1a1820';g.fillRect(0,0,c.width,c.height);g.font='bold 18px monospace';g.fillStyle='#f0d8a0';g.fillText('SHINOBIDUNGEONS - EVERY GUARDIAN (FIRST FORM | SECOND FORM)',10,26);

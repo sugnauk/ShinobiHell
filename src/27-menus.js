@@ -503,8 +503,15 @@ const PKEEP=['hp','rez','evo','lo','emp','gourd','aegis'];
 function saveRun(){if(!R||R.training)return;try{const r=JSON.parse(JSON.stringify(R,(k,v)=>k==='lastKill'||k==='training'||k==='_rc'?undefined:v));const p={};for(const k of PKEEP)p[k]=P[k];
  localStorage.setItem(RUNKEY,JSON.stringify({v:1,cls:meta.cls||0,R:r,P:p,when:Date.now()}));}catch(e){console.warn('save failed',e);}}
 function savedRun(){try{const s=JSON.parse(localStorage.getItem(RUNKEY));if(s?.v!==1||!Number.isSafeInteger(s.R?.di)||s.R.di<0)return null;
- // Older Abyss checkpoints used Stage XV's slot. Keep their current depth when Chapter II takes that number.
- const oldAbyss=CAMPAIGN_END+3;if(!s.R.lateLayout&&s.R.di>=oldAbyss){s.R.di++;if(s.R.start>=oldAbyss)s.R.start++;s.R.lateLayout=1;}
+ // Title rendering can start before the numbered stages finish registering.
+ if(!lateStagesReady)return null;
+ // Each layout introduced one story stage where the first Abyss floor used to be.
+ const layout=s.R.lateLayout|0;
+ if(layout<3){
+  const oldAbyss=CAMPAIGN_END+3+Math.max(0,layout),shift=3-Math.max(0,layout);
+  if(s.R.di>=oldAbyss){s.R.di+=shift;if(s.R.start>=oldAbyss)s.R.start+=shift;}
+  s.R.lateLayout=3;
+ }
  if(s.R.di>CAMPAIGN_END)lateEnsure(s.R.di);return DUN[s.R.di]?s:null;}catch(e){return null;}}
 function clearRun(){try{localStorage.removeItem(RUNKEY);}catch(e){}}
 function continueRun(){const s=savedRun();if(!s)return false;meta.cls=s.cls;startRun(s.R.start||0,true);R=Object.assign(R,s.R);S=calcStats();Object.assign(P,s.P);

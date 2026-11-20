@@ -12,10 +12,14 @@
 //                anywhere else closes the tip)
 //  The ability bar along the bottom is hidden on touch: the buttons show the same cooldowns
 //  MENUS         taps act as clicks everywhere outside a fight: menus, the bag, the shop, reward cards, the pause menu
-// The first tap also asks for full screen and landscape where the browser allows it, and a notice asks you to turn
-// the device if it is held upright.
+// The fullscreen button is available in menus and during play. Portrait play shows a notice to turn the device.
 let TOUCH=false,TOUCHAT=-9;const TCH={stick:null,aim:null,btn:new Map(),aimDir:null};
 const touchActive=()=>TOUCH&&mode==='play'&&!paused&&!invOpen&&P&&!(P.dying>0);
+const smallTouchScreen=()=>Math.min(innerWidth,innerHeight)<520;
+// Near on a phone uses a 240px camera instead of 252px, about 5% larger at the same screen size.
+{const base=viewH;viewH=function(){const height=base();
+ return TOUCH&&mode==='play'&&smallTouchScreen()&&height===VIEWHS[0]?240:height;
+};}
 // the buttons, placed from the bottom-right corner; r is the touch radius in game pixels
 const TOUCHLAY={cx:-40,cy:-38,inR:80,outR:142,dash:24,ab:18,ult:21,small:14};
 function touchButtons(){const L=TOUCHLAY,cx=W+L.cx,cy=H+L.cy,ring=(ang,rad)=>[cx+Math.cos(ang*Math.PI/180)*rad,cy+Math.sin(ang*Math.PI/180)*rad];
@@ -38,10 +42,15 @@ function touchPress(b){if(b.aimFirst&&!TCH.aim){const e=touchTarget(TOUCHAIM);if
  if(b.hold==='rdown'){mouse.rdown=true;return;}const k=b.key();if(!k)return;keys[k]=true;onKey(k);}
 function touchRelease(b){if(b.hold==='rdown'){mouse.rdown=false;return;}const k=b.key();if(k)keys[k]=false;}
 function touchOn(){if(TOUCH)return;TOUCH=true;cv.style.touchAction='none';document.body.style.touchAction='none';
- try{if(meta.opt.fs!==0)goFullscreen(true);}catch(_){}try{screen.orientation&&screen.orientation.lock&&screen.orientation.lock('landscape').catch(()=>{});}catch(_){}
+ cv.style.cursor='none';
  // a closer default zoom suits a small screen (only if you never picked one yourself)
- if(meta&&meta.opt&&meta.opt.zoom==null&&Math.min(innerWidth,innerHeight)<520){meta.opt.zoom=0;const v=VIEWWIDE;W=0;setView(v);fit();}}
+ if(meta&&meta.opt&&meta.opt.zoom==null&&smallTouchScreen())meta.opt.zoom=0;
+ setView(VIEWWIDE);updateTouchDisplay();}
 addEventListener('touchstart',e=>{TOUCHAT=performance.now();touchOn();
+ if(touchDisplay.contains(e.target))return;
+ if(mode==='master'&&e.changedTouches.length){
+  e.preventDefault();const p=toCanvas(e.changedTouches[0]);mouse.x=p.x;mouse.y=p.y;masterClick();return;
+ }
  if(!touchActive()){
   // outside a fight: taps work as clicks; the top buttons still work in the bag and the pause menu
   if(mode==='play'&&TIPHOLD&&!paused&&!invOpen){e.preventDefault();onKey('Enter');return;}
@@ -53,15 +62,15 @@ addEventListener('touchstart',e=>{TOUCHAT=performance.now();touchOn();
   if(b){TCH.btn.set(t.identifier,b);touchPress(b);continue;}
   // the move stick: anywhere left of the buttons
   if(p.x<W*.62&&!TCH.stick)TCH.stick={id:t.identifier,ox:p.x,oy:p.y,x:p.x,y:p.y};}},{passive:false});
-addEventListener('touchmove',e=>{if(!TOUCH||!touchActive())return;e.preventDefault();
+addEventListener('touchmove',e=>{if(!TOUCH||!touchActive()||touchDisplay.contains(e.target))return;e.preventDefault();
  for(const t of e.changedTouches){const p=toCanvas(t);for(const s of [TCH.stick,TCH.aim])if(s&&s.id===t.identifier){s.x=p.x;s.y=p.y;}}},{passive:false});
-const touchEnd=e=>{if(!TOUCH)return;if(touchActive())e.preventDefault();
+const touchEnd=e=>{if(!TOUCH||touchDisplay.contains(e.target))return;if(touchActive())e.preventDefault();
  for(const t of e.changedTouches){const b=TCH.btn.get(t.identifier);if(b){touchRelease(b);TCH.btn.delete(t.identifier);}
   if(TCH.stick&&TCH.stick.id===t.identifier)TCH.stick=null;
 }};
 addEventListener('touchend',touchEnd,{passive:false});addEventListener('touchcancel',touchEnd,{passive:false});
 // a real mouse moving (not one the browser made up from a tap) hands control back to the PC
-addEventListener('mousemove',()=>{if(TOUCH&&performance.now()-TOUCHAT>1500){TOUCH=false;TCH.stick=TCH.aim=null;TCH.btn.clear();}});
+addEventListener('mousemove',()=>{if(TOUCH&&performance.now()-TOUCHAT>1500){TOUCH=false;TCH.stick=TCH.aim=null;TCH.btn.clear();setView(VIEWWIDE);updateTouchDisplay();}});
 // movement: the stick gives a smooth direction instead of the eight of the keys
 {const _mv=moveVec;moveVec=function(){const s=TOUCH&&touchActive()&&TCH.stick;if(!s)return _mv.apply(this,arguments);
  let dx=s.x-s.ox,dy=s.y-s.oy;const l=Math.hypot(dx,dy);if(l<4)return [0,0];if(l>22){s.ox=s.x-dx/l*22;s.oy=s.y-dy/l*22;}const k=Math.min(1,l/16);dx=dx/l*k;dy=dy/l*k;
@@ -113,18 +122,36 @@ function touchPortrait(){if(!TOUCH||innerWidth>=innerHeight)return;ctx.fillStyle
 // ---- all touch: no cursor at all on a touchscreen, and real full screen (no browser bars) ----
 {const _dc=drawCursor;drawCursor=function(){if(TOUCH)return;return _dc.apply(this,arguments);};}
 const isIOS=/iP(hone|od|ad)/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
-const isStandalone=()=>matchMedia('(display-mode: fullscreen)').matches||matchMedia('(display-mode: standalone)').matches||navigator.standalone===true;
-function touchFullscreen(){if(!TOUCH||meta&&meta.opt&&meta.opt.fs===0)return;const d=document,el=d.documentElement;if(d.fullscreenElement||d.webkitFullscreenElement)return;
- try{if(el.requestFullscreen)el.requestFullscreen({navigationUI:'hide'}).catch(()=>{});else if(el.webkitRequestFullscreen)el.webkitRequestFullscreen();}catch(_){}
- try{screen.orientation&&screen.orientation.lock&&screen.orientation.lock('landscape').catch(()=>{});}catch(_){}}
-// browsers only allow it from a tap, so every tap asks again until it holds (after you leave full screen, the next tap returns)
-addEventListener('touchend',()=>{touchFullscreen();cv.style.cursor='none';},{passive:true});
-document.addEventListener('webkitfullscreenchange',()=>{const v=VIEWWIDE;W=0;setView(v);fit();});
-// iPhone Safari cannot hide its bars from a web page: once, say how (Add to Home Screen opens it full screen)
-{let told=false;const _r=render;render=function(){const r=_r.apply(this,arguments);if(TOUCH&&isIOS&&!isStandalone()&&!(meta.tips&&meta.tips.iosfs)&&mode==='menu'){
- const a='FOR FULL SCREEN ON IPHONE:',b='SHARE, THEN ADD TO HOME SCREEN, THEN OPEN IT FROM THERE',w=Math.max(txtW(a),txtW(b))+12,x=Math.round(W/2-w/2),y=H-40;
- ctx.fillStyle='rgba(8,6,14,.9)';ctx.fillRect(x,y,w,22);ctx.strokeStyle='#ffd040';ctx.strokeRect(x+.5,y+.5,w-1,21);txt(a,x+6,y+4,'#ffd040');txt(b,x+6,y+13,'#ddd');
- if(!told){told=true;setTimeout(()=>{meta.tips=meta.tips||{};meta.tips.iosfs=1;saveMeta();},12000);}}return r;};}
+const touchDisplay=document.getElementById('touch-display'),fullscreenButton=document.getElementById('touch-fullscreen');
+const fullscreenHelp=document.getElementById('fullscreen-help'),coarseTouch=matchMedia('(pointer: coarse)');
+let touchDisplayMode;
+function updateTouchDisplay(){touchDisplayMode=mode;
+ const active=Boolean(fullscreenElement()),standalone=matchMedia('(display-mode: standalone)').matches||
+  matchMedia('(display-mode: fullscreen)').matches||navigator.standalone===true;
+ touchDisplay.hidden=!(TOUCH||coarseTouch.matches)||(standalone&&!active);
+ const label=active?'Exit fullscreen':'Enter fullscreen';
+ fullscreenButton.title=label;fullscreenButton.setAttribute('aria-label',label);
+ fullscreenButton.setAttribute('aria-pressed',String(active));
+ const bounds=cv.getBoundingClientRect();
+ touchDisplay.style.setProperty('--display-top',(mode==='play'?Math.max(8,bounds.top+34*bounds.height/H):8)+'px');
+}
+fullscreenButton.addEventListener('click',async()=>{
+ if(!fullscreenHelp.hidden){fullscreenHelp.hidden=true;return;}
+ const entering=!fullscreenElement();
+ if(await goFullscreen(entering)){
+  if(entering&&screen.orientation?.lock)try{await screen.orientation.lock('landscape');}catch(_){}
+  updateTouchDisplay();return;
+ }
+ fullscreenHelp.textContent=isIOS&&entering?
+  'In Safari, tap Share → Add to Home Screen, then launch ShinobiDungeons from its icon for fullscreen.':
+  'Fullscreen is unavailable here. Try opening the game directly in your browser.';
+ fullscreenHelp.hidden=false;
+});
+touchDisplay.addEventListener('mousedown',e=>e.stopPropagation());
+for(const event of ['fullscreenchange','webkitfullscreenchange'])document.addEventListener(event,()=>{fullscreenHelp.hidden=true;updateTouchDisplay();});
+coarseTouch.addEventListener?.('change',updateTouchDisplay);
+addEventListener('resize',updateTouchDisplay);
+{const base=render;render=function(){if(mode!==touchDisplayMode)updateTouchDisplay();return base.apply(this,arguments);};}
 // shrine offerings take a tap: each offering row and LEAVE are buttons (the screen used to want the 1-4 keys)
 cv.addEventListener('mousedown',e=>{if(mode!=='event'||!evOpts||e.button!==0)return;const x=mouse.x,y=mouse.y;
  for(let i=0;i<evOpts.length;i++){const y0=54+i*30;if(x>=24&&x<=296&&y>=y0&&y<=y0+24){pickEvent(i);mouse.down=false;return;}}

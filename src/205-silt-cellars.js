@@ -92,7 +92,7 @@ const NEB_I=lateAdd({base:FERRY_STAGE,remix:false,indoor:true,
 MASTER_LINES[FERRY_STAGE]='SAZANAMI\'S LANTERNS GO OUT AND HIS GATE STANDS OPEN. THE BLACK LAKE HAS DRAINED THROUGH IT, AND THE ROAD GOES DOWN INTO WHAT IT LEFT BEHIND: '+DUN[NEB_I].name+'. TAKE THE ROAD DOWN, OR RETURN WITH YOUR STORY.';
 
 // the rooms: teach, then combine. Built after every load of the stage.
-function nebRooms(){NEB.pools.length=0;NEB.vents.length=0;NEB.teach=null;NEB.taught=0;if(!R||R.di!==NEB_I||!map||!map.rooms)return;
+function nebRooms(){NEB.pools.length=0;NEB.vents.length=0;NEB.teach=null;NEB.taught=0;if(!R||R.di!==NEB_I||boss?.name!==NEB.name||!map||!map.rooms)return;
  const rooms=map.rooms.filter(r=>r.k==='room'&&r.type!=='shop'&&r.type!=='shrine'&&r.type!=='altar'&&r.type!=='rest').sort((a,b)=>(a.ord||0)-(b.ord||0));
  const inner=(r,k)=>{const s=spotIn(r);return {x:clamp(s.x,(r.x+2)*T,(r.x+r.w-2)*T),y:clamp(s.y,(r.y+2)*T,(r.y+r.h-2)*T)};};
  // TEACH: the first room on the way, wide pools and only two slow foes
@@ -178,9 +178,4 @@ BKIT[NEB.name]={director:bossDirector,noContact:true,pref:90,gap:.8,halfName:'TH
 {const _u=updPlay;updPlay=function(dt){const r=_u.apply(this,arguments);if(!P||!R||!R.inv||!R.inv.mirelantern)return r;
  for(const e of enemies){if(e.dead||e.boss||e.prop)continue;if((e.mlT||0)>R.time)continue;if(Math.hypot(e.x-P.x,e.y-P.y)<e.r+10){e.mlT=R.time+4;e.st=e.st||{};e.st.chillT=Math.max(e.st.chillT||0,2);e.st.chillS=Math.max(e.st.chillS||0,2);spark(e.x,e.y,NEB.c,4,40);}}return r;};}
 
-// ---------------------------------------------------------------- saves made in the Abyss before this stage existed
-// The Abyss starts one stage later now; a checkpoint inside it keeps its depth.
-{const _sv=savedRun;savedRun=function(){const s=_sv.apply(this,arguments);if(!s||!s.R)return s;const oldAbyss=CAMPAIGN_END+LATE.length;// first Abyss index before XVI
- if((s.R.lateLayout|0)<2){if(s.R.di>=oldAbyss){s.R.di++;if(s.R.start>=oldAbyss)s.R.start++;}s.R.lateLayout=2;if(s.R.di>CAMPAIGN_END)lateEnsure(s.R.di);}return s;};}
-{const _ld=loadDungeon;loadDungeon=function(){const r=_ld.apply(this,arguments);if(R)R.lateLayout=2;return r;};}
 {const _ld=loadDungeon;loadDungeon=function(){NEB.pools.length=0;NEB.vents.length=0;return _ld.apply(this,arguments);};}
