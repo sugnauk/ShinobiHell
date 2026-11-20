@@ -64,7 +64,7 @@ function marSpool(p,a,dmg){const cap=kitFinal()?8:5;
   if(z.tg){if(z.tg.dead){z.tg=null;}else{const an=angTo(z,z.tg);z.vx=Math.cos(an)*340;z.vy=Math.sin(an)*340;}}
   z.x+=z.vx*dt;z.y+=z.vy*dt;z.left-=dt;if(solid(z.x,z.y)||(!z.tg&&z.left<=0)){z.done=1;z.t=Math.min(z.t,.25);return;}
   const e=z.tg&&dist(z,z.tg)<z.tg.r+5?z.tg:!z.tg?enemies.find(e=>kitFoe(e)&&!z.chain.includes(e)&&dist(z,e)<e.r+5):null;
-  if(e){z.chain.push(e);e.threadUntil=R.time+6;hurtE(e,dmg,14,{src:'q'});spark(e.x,e.y,MAR,3,40);sfx('tool');
+  if(e){z.chain.push(e);e.threadUntil=R.time+6;hurtE(e,dmg,14,{src:'q',threadHit:true});spark(e.x,e.y,MAR,3,40);sfx('tool');
    if(z.chain.length>=cap){z.done=1;z.t=.2;return;}
    const n=kitNearest(e.x,e.y,110,o=>z.chain.includes(o));if(n){z.tg=n;z.left=1;}else{z.done=1;z.t=.2;}}},
   end(z){if(z.chain.length>1){const L={list:z.chain.slice(),until:R.time+6};(HK.links=HK.links||[]).push(L);}},
@@ -104,8 +104,15 @@ function marPuppet(p,dmg){const v=kitAim(p,150);let e=kitNearest(v.x,v.y,60)||ki
   end(z){const e=z.e;e.z=0;e.sumoFlight=false;if(!e.dead){hurtE(e,dmg*1.3,30,{src:'f'});e.stun=Math.max(e.stun||0,1.2);impact(e.x,e.y,MAR,4);}},
   top(z){const e=z.e;if(e.dead)return;for(const o of [-5,0,5])marString(P.x,P.y,e.x+o*.6,e.y,(e.z||0)+4);
    const X=HSX(P.x,P.y)+3,Y=HSY(P.x,P.y)-17;KR(X,Y,1,-4,0,9,1,WOOD);KR(X,Y,1,0,-2,1,5,WOOD);}});}
-// R GRAND THEATRE: a giant puppeteer's cross-bar appears overhead, strings drop onto the foes and hoist them up,
-// then the bar yanks them all together and slams them down
+// R GRAND THEATRE: lacquered puppet hands hoist the lines, then pull them tight for the slam.
+const MAR_GRIP=mk(26,27,g=>{const hi=mk(104,108,h=>{h.scale(4,4);
+ const face=(col,pts)=>{h.fillStyle=col;h.beginPath();h.moveTo(...pts[0]);for(const p of pts.slice(1))h.lineTo(...p);h.fill();};
+ face('#17101e',[[4,1],[15,1],[17,6],[22,9],[25,14],[23,19],[20,19],[18,24],[15,24],[13,26],[10,25],[9,22],[7,24],[4,23],[3,19],[0,17],[1,12],[5,8]]);
+ face('#452343',[[5,3],[14,3],[16,8],[21,10],[23,14],[22,17],[19,16],[17,22],[14,22],[12,24],[10,21],[9,17],[7,22],[5,22],[5,17],[2,16],[3,12],[7,9]]);
+ face('#6f3c64',[[6,4],[13,4],[15,10],[20,11],[20,14],[15,14],[12,17],[9,13],[6,16],[4,15],[5,12],[8,9]]);
+ face('#ca9a73',[[5,4],[14,4],[14,6],[5,6]]);
+ for(const [x,y] of [[6,19],[11,21],[16,20],[21,15]]){h.fillStyle=MAR;h.fillRect(x,y,2,1);}
+ });g.imageSmoothingEnabled=false;g.drawImage(hi,0,0,26,27);});
 function marTheatre(p,dmg){const cap=kitFinal()?14:10,c=kitAim(p,110),foes=kitFoes(p.x,p.y,170).sort((a,b)=>dist(a,c)-dist(b,c)).slice(0,cap);
  for(const e of foes)if(!e.boss&&e.type!=='turret'){sumoInterrupt(e,2.4);e.sumoFlight=true;e.theatre={x:e.x,y:e.y};}
  kitZone({src:'e',t:2.1,x:c.x,y:c.y,foes,step(z,dt){const k=z.age;
@@ -116,15 +123,16 @@ function marTheatre(p,dmg){const cap=kitFinal()?14:10,c=kitAim(p,110),foes=kitFo
    if(k>=1.6&&!z.slam){z.slam=1;impact(z.x,z.y,MAR,9);sfx('break');shake=Math.max(shake,8);const n=z.foes.filter(e=>!e.dead).length;
     for(const e of z.foes){if(e.dead)continue;hurtE(e,dmg*(1+.12*Math.min(6,n-1)),75,{src:'e'});if(e.theatre){e.z=0;e.sumoFlight=false;e.stun=Math.max(e.stun||0,1.4);}}}},
   end(z){for(const e of z.foes){e.z=0;e.sumoFlight=false;e.theatre=null;}},
-  top(z){const k=z.age,X=HSX(z.x,z.y),Y=HSY(z.x,z.y)-70,a=Math.min(1,k/.3)*(z.t<.3?z.t/.3:1);ctx.globalAlpha=a;
-   const sway=Math.round(Math.sin(k*3)*3),yank=k>1.3&&k<1.6?-Math.round((k-1.3)/.3*10):0;
-   // the cross-bar: a big wooden cross with a carved pommel, swaying, and yanked up for the slam
-   const BX=X+sway,BY=Y+yank;KR(BX,BY,1,-44,-3,88,7,'#14101a');KR(BX,BY,1,-43,-2,86,5,WOOD);KR(BX,BY,1,-43,-2,86,1,'#d8a060');KR(BX,BY,1,-43,2,86,1,WOOD2);
-   KR(BX,BY,1,-4,-22,9,40,'#14101a');KR(BX,BY,1,-3,-21,7,38,WOOD);KR(BX,BY,1,-3,-21,1,38,'#d8a060');KR(BX,BY,1,-6,-27,13,7,'#14101a');KR(BX,BY,1,-5,-26,11,5,MAR);KR(BX,BY,1,-3,-25,3,2,MAR2);
-   for(const sgn of [-1,1])KR(BX,BY,1,sgn>0?40:-46,-5,6,11,'#14101a'),KR(BX,BY,1,sgn>0?41:-45,-4,4,9,MAR);
-   // the strings: drop from the bar to each foe
-   const drop=Math.min(1,k/.4);for(let i=0;i<z.foes.length;i++){const e=z.foes[i];if(e.dead)continue;const ax=BX-40+i*80/Math.max(1,z.foes.length-1),ay=BY+3,ex=HSX(e.x,e.y),ey=HSY(e.x,e.y)-12-(e.z||0);
-    ctx.globalAlpha=a*.85;kLine(ax,ay,ax+(ex-ax)*drop,ay+(ey-ay)*drop,1,i%2?MAR2:MAR);}ctx.globalAlpha=1;}});}
+  top(z){const k=z.age,X=HSX(z.x,z.y),Y=HSY(z.x,z.y)-70,a=Math.min(1,k/.3)*(z.t<.3?z.t/.3:1);
+   const jerk=abEase((k-1.28)/.27)*(1-abEase((k-1.62)/.23)),drop=abEase(k/.38),hands=[];
+   ctx.save();
+   for(const side of [-1,1])hands.push({side,x:X+side*(23-6*jerk)+Math.round(Math.sin(k*3+side)*3),y:Y-13-Math.round(11*jerk)});
+   for(let i=0;i<z.foes.length;i++){const e=z.foes[i];if(e.dead)continue;const hand=hands[i%2],n=Math.floor(i/2);
+    const ax=hand.x+hand.side*((n%5)-2)*4,ay=hand.y+22,ex=HSX(e.x,e.y),ey=HSY(e.x,e.y)-12-(e.z||0);
+    ctx.globalAlpha=a*.88;kLine(ax,ay,ax+(ex-ax)*drop,ay+(ey-ay)*drop,1,i%2?MAR2:MAR);}
+   for(const hand of hands){ctx.save();ctx.globalAlpha=a;ctx.translate(hand.x,hand.y+12);ctx.rotate(hand.side*(.11+.28*jerk));ctx.scale(hand.side,1);ctx.drawImage(MAR_GRIP,-13,-12);ctx.restore();}
+   ctx.restore();}});}
+
 
 // ======================================== TENGU ========================================
 const WND='#9cead2',WND2='#e8fff8',FEATH='#203a3a';
@@ -242,14 +250,14 @@ function kagBloom(o,k){const e=o.e;if(e.dead){o.dead=1;return;}const X=HSX(e.x,e
  if(k>=.66&&!o.done){o.done=1;hurtE(e,o.dm,24,{slash:true,src:'w'});buildFlow(P);sfx('slash');}
  ctx.globalAlpha=k>.9?(1-k)*10:1;for(let i=0;i<5;i++){const an=i/5*TAU+time*(k>.66?6:1),r=2+open*5,px=X+Math.round(Math.cos(an)*r),py=Y+Math.round(Math.sin(an)*r*.8);ctx.fillStyle='#14101a';ctx.fillRect(px-1,py-1,4,3);ctx.fillStyle=i%2?PET:PET2;ctx.fillRect(px,py,2,1);}
  ctx.fillStyle=KGOLD;ctx.fillRect(X,Y,1,1);}
-// F RHYTHM: a beat ring closes on you every half second; attacks that land on the beat crit and build double flow
-const KBEAT=.5;
-function kagRhythm(p){const flow=kaguraFlow(p);p.flow=0;HK.rhythm={t0:R.time,end:R.time+5+flow*.6};}
-const onBeat=()=>{const r=HK.rhythm;if(!r||R.time>r.end||kitHero()!=='kagura')return false;const ph=((R.time-r.t0)%KBEAT)/KBEAT;return ph<.18||ph>.88;};
-{const _h=hurtE;hurtE=function(e,dmg,pd,o){if(P&&R&&onBeat()&&o&&!o.chain&&(o.slash||o.src)&&!e.dead){const now=R.time;if(!(e.beatT>now-.1)){e.beatT=now;dmg*=1.6;if(!(HK.beatFlow>now-.2)){HK.beatFlow=now;buildFlow(P);txtFx(e.x,e.y-6,'ON KBEAT','#ffd36a');}}}return _h.call(this,e,dmg,pd,o);};}
-function kagRhythmDraw(){const r=HK.rhythm;if(!r||!P||R.time>r.end||kitHero()!=='kagura')return;const ph=((R.time-r.t0)%KBEAT)/KBEAT,X=HSX(P.x,P.y),Y=HSY(P.x,P.y)-6,rad=Math.round(6+28*(1-ph));
- ctx.strokeStyle=ph<.18||ph>.88?KGOLD:PET;ctx.globalAlpha=ph>.88||ph<.18?.95:.6;ctx.beginPath();ctx.ellipse(X,Y,rad,Math.round(rad*.5),0,0,TAU);ctx.stroke();
- if(ph<.12){ctx.globalAlpha=1-ph/.12;ctx.beginPath();ctx.ellipse(X,Y,9,4,0,0,TAU);ctx.stroke();}ctx.globalAlpha=1;}
+// F PETAL VOLLEY: fan blades travel through the pack. Flow makes the cast wider and stronger.
+function kagVolley(p,a,dmg){const flow=kaguraFlow(p),offsets=flow>=3?[-.58,-.29,0,.29,.58]:[-.29,0,.29],hit=new Set();p.flow=0;
+ for(const offset of offsets){const angle=a+offset,q=kitShot(p.x+Math.cos(angle)*7,p.y+Math.sin(angle)*7,angle,270,dmg*(1+.12*flow),
+  {src:'f',col:PET,r:6,pierce:99,pd:15,life:.52,spr:'petalfan',hit});q.spin=offset<0?-1:1;}
+ sfx('slash');}
+PSPR.petalfan=(X,Y,ux,uy,q)=>{ctx.save();ctx.globalAlpha=.5;
+ kLine(X-ux*13,Y-uy*13,X-ux*3,Y-uy*3,2,'#dc5b84');ctx.globalAlpha=1;
+ kagFan(X,Y,Math.atan2(uy,ux)+time*19*q.spin);ctx.restore();};
 // R LOTUS DANCE: you vanish and blink-strike foe after foe, untouchable; a lotus grows on each, and at the end they
 // all bloom at once
 function kagLotus(p,dmg,bloomDm){const cap=kitFinal()?10:8;let tg=[];let from=p;const pool=kitFoes(p.x,p.y,170);
@@ -414,14 +422,14 @@ function kitTick(dt){if(mode!=='play'||!P)return;marLinks(dt);marDollTick(dt);ch
  // anything lifted by the wind settles back down once it is out of the funnel
  for(const e of enemies)if(e.z>0&&!e.sumoFlight&&!(e.spun>R.time))e.z=Math.max(0,e.z-dt*60);}
 {const _u=update;update=function(dt){_u.apply(this,arguments);try{if(mode==='play'&&!paused)kitTick(dt);}catch(_){}};}
-{const _rp=drawPortal;drawPortal=function(){_rp.apply(this,arguments);kagRhythmDraw();
+{const _rp=drawPortal;drawPortal=function(){_rp.apply(this,arguments);
  // links: threads between linked foes (Marionettist)
  if(HK.links)for(const L of HK.links){const live=L.list.filter(e=>!e.dead&&e.threadUntil>R.time);for(let i=1;i<live.length;i++){const a=live[i-1],b=live[i];ctx.globalAlpha=.7;marString(a.x,a.y,b.x,b.y,0,MAR);}ctx.globalAlpha=1;}};}
 // [hero, old name, new name, cooldown, description, cast]
 const KITDEF=[
  ['marionettist','NEEDLE CAST','SILK NEEDLE',0,'A FAST NEEDLE THAT STITCHES FOES.',({p,a,A,bp,em})=>{marNeedle(p,a,A*1.05*bp*em);p.atkCd=.31/S.aspd;}],
  ['marionettist','PUPPET LASH','REEL IN',1.3,'HOOK A FOE AND YANK IT TO YOU.',({p,a,A,bp,em})=>marReel(p,a,A*2.3*bp*em,p.hFull)],
- ['marionettist','CURSED THREAD','CURSED THREAD',5,'A SPOOL LINKS FOES. HIT ONE, HURT ALL.',({p,a,A,qm,em})=>marSpool(p,a,A*1.5*qm*em)],
+ ['marionettist','CURSED THREAD','CURSED THREAD',5,'A SPOOL LINKS FOES. HIT ONE, HURT ALL.',({p,a,A,qm,em})=>marSpool(p,a,A*1.05*qm*em)],
  ['marionettist','THREAD STEP','SWAP DOLL',8,'LEAVE A DECOY DOLL AND LEAP BACK.',({p,a})=>marDoll(p,a)],
  ['marionettist','COCOON','PUPPET DANCE',10,'LIFT A FOE ON STRINGS AND SWING IT.',({p,A,ap,em})=>marPuppet(p,A*1.6*ap*em)],
  ['marionettist','PUPPET MASTER','GRAND THEATRE',28,'HOIST FOES ON STRINGS, THEN SLAM THEM.',({p,A,ep,em})=>marTheatre(p,A*4.4*ep*em)],
@@ -435,7 +443,7 @@ const KITDEF=[
  ['kagura','CRIMSON SWEEP','SILK VEIL',1.3,'A RIBBON THAT THROWS SHOTS BACK.',({p,a,A,bp,em})=>kagVeil(p,a,A*1.75*bp*em,p.hFull)],
  ['kagura','CRESCENT FAN','FAN WALTZ',5,'FANS DANCE A FIGURE EIGHT AT THE CURSOR.',({p,A,qm,em})=>kagWaltz(p,A*.74*qm*em)],
  ['kagura','PIROUETTE','PIROUETTE',6,'A SPINNING DASH. PASSED FOES BLOOM.',({p,a,A,ap,em})=>kagPirouette(p,a,A*2.1*ap*em)],
- ['kagura','PERFECT RHYTHM','RHYTHM',12,'HIT ON THE KBEAT FOR CRITS AND FLOW.',({p})=>kagRhythm(p)],
+ ['kagura','PERFECT RHYTHM','PETAL VOLLEY',9,'THROW A FAN OF PIERCING BLADES.',({p,a,A,ap,em})=>kagVolley(p,a,A*2.1*ap*em)],
  ['kagura','THOUSAND PETALS','LOTUS DANCE',27,'BLINK FROM FOE TO FOE. LOTUSES BLOOM.',({p,A,ep,em})=>kagLotus(p,A*1.6*ep*em,A*2.6*ep*em)],
  ['bloodoracle','SCARLET INK','SCARLET INK',0,'INK DARTS. 3 HITS SEAL A FOE.',({p,a,A,bp,em})=>{chiInk(p,a,A*1.15*bp*em);p.atkCd=.32/S.aspd;}],
  ['bloodoracle','RED SCRIBE','BLOOD BRUSH',1.3,'PAINT A STROKE THAT ERUPTS.',({p,A,bp,em})=>{chiBrush(p,A*2.7*bp*em,p.hFull);}],
@@ -456,7 +464,7 @@ for(const [hero,old,name,cd,d,fn] of KITDEF){const slot='mhqwfe'[KITDEF.filter(r
 // poses (167) and ultimate lead-ins (168)
 Object.assign(AB_ANIM,{'REEL IN':['throw',.26],'CURSED THREAD':['throw',.26],'SWAP DOLL':['vanish',.3],'PUPPET DANCE':['cast',.4],'GRAND THEATRE':['theatre_release',.3],
  'GUST':['throw',.28],'WIND CUTTER':['throw',.24],'UPDRAFT':['cast',.5],'CYCLONE':['cast',.3],"HEAVEN'S GALE":['fall',.4],
- 'DANCING CUT':['swing',.16],'SILK VEIL':['spin',.32,.7],'FAN WALTZ':['throw',.3],'PIROUETTE':['spin',.24,1],'RHYTHM':['roar',.36],'LOTUS DANCE':['spin',1,3],
+ 'DANCING CUT':['swing',.16],'SILK VEIL':['spin',.32,.7],'FAN WALTZ':['throw',.3],'PIROUETTE':['spin',.24,1],'PETAL VOLLEY':['petalcast',.34],'LOTUS DANCE':['spin',1,3],
  'BLOOD BRUSH':['thrust',.28,.8],'BLOOD SEAL':['throw',.3],'BLOOD MIRROR':['blink',.28],'HARVEST':['cast',.45],'CRIMSON MOON':['moon_release',.32],
  'BELL SWING':['swing',.2],'IRON BELL':['throw',.32],'STANDING WAVE':['slam',.32],'SANCTUARY':['guard',.9],'ECHO NOTES':['cast',.3],"HEAVEN'S BELL":['roar',.5]});
 Object.assign(ULTSEQ,{'GRAND THEATRE':{pre:.34,iv:.6,k:'theatre',col:MAR},"HEAVEN'S GALE":{pre:.32,iv:.7,k:'leap',rise:18,col:WND},
@@ -479,7 +487,7 @@ Object.assign(ABTXT,{
  'SILK VEIL':['A RIBBON SWEEPS IN FRONT OF YOU.','ENEMY SHOTS IT TOUCHES FLY BACK AS PETALS AT THE NEAREST FOE. FULL CHARGE: WIDER, LONGER.','TIME IT AS A VOLLEY ARRIVES.'],
  'FAN WALTZ':['TWO FANS FLY TO THE CURSOR AND DANCE A FIGURE EIGHT.','THEY CUT FOR 1.2S, THEN RETURN TO YOUR HANDS.','THROW THEM ON A PACK AND FIGHT ELSEWHERE.'],
  'PIROUETTE':['A SPINNING DASH THROUGH FOES.','EVERY FOE YOU PASS IS MARKED WITH A PETAL THAT BLOOMS INTO A CUT.','DASH THROUGH A LINE OF FOES.'],
- 'RHYTHM':['A KBEAT RING CLOSES ON YOU EVERY HALF SECOND FOR 5S.','HITS ON THE KBEAT DEAL +60% AND BUILD EXTRA FLOW. FLOW YOU HOLD LENGTHENS IT.','ATTACK WHEN THE RING TURNS GOLD.'],
+ 'PETAL VOLLEY':['THROW THREE PIERCING FANS IN A SPREAD.','SPENDS FLOW TO BOOST DAMAGE. AT 3 OR MORE FLOW, THROW FIVE FANS.','EACH FOE CAN BE HIT ONCE PER VOLLEY.'],
  'LOTUS DANCE':['VANISH AND BLINK-STRIKE UP TO 8 FOES, UNTOUCHABLE.','A LOTUS GROWS ON EACH. AT THE END THEY ALL BLOOM AT ONCE.','A LONE BOSS IS STRUCK SEVERAL TIMES.'],
  'SCARLET INK':['A PIERCING INK DART.','THREE HITS ON ONE FOE SEAL IT.','SEALED FOES TAKE +20% DAMAGE.'],
  'BLOOD BRUSH':['PAINT A BRUSH STROKE TO THE CURSOR. IT ERUPTS IN SPIKES.','FULL CHARGE: THE STROKE STANDS FOR 2S AS A WALL THAT BLOCKS ENEMY SHOTS.','PAINT A WALL BETWEEN YOU AND THE SHOOTERS.'],

@@ -3,8 +3,7 @@
 ## 0.8.8: Tornado counterplay and roster animation polish
 
 - **Tengu:** Cyclone throws foes out after a 1-second hold. The main Heaven's Gale funnel holds for 1.4 seconds. Both share a 1.5-second reprieve from pull and stun, including the final form's side funnels. Tornado damage and Cyclone's shot returns still work during the reprieve. Gale feathers strike their marked landing spot on the simulation timer, up to four hits per foe.
-- **Sumo:** Shiko now has a raised-leg wind-up and a dust shockwave timed to the stomp. Yokozuna's Ring summons a pale-gold spirit that performs the same stomp over a clearer straw boundary.
-- **Marionettist and Chimiko:** Grand Theatre starts with descending puppet strings. Crimson Moon starts with blood-red ink spreading under the caster.
+- **Chimiko:** Crimson Moon starts with blood-red ink spreading under the caster.
 - **Mobile:** Basic auto-fire follows the equipped weapon's reach, up to 130 px. Tapped abilities can still aim at a visible foe up to 130 px away.
 - **Wizard:** Frost Nova sends a low wave of solid ice facets out from the caster, then breaks into shards.
 - **Archer:** The hawk banks into a smoother swoop and glides between wingbeats. Arrow Storm uses faint green landing patches without the bright rings.
@@ -12,6 +11,10 @@
 - **Shinobi:** Caltrops last 7 seconds. A thrown capsule hits the ground and releases Smoke Bomb's cloud. Shadow Clones split and fade smoothly without the gold flash.
 - **Onmyoji:** Barrier displays only the ring and cracking dome.
 - **Gunner:** Matchlock and repeater shots push foes a little harder, with Heavy Slug retaining the strongest push. The tripod targets within 160 px. Siegebreaker uses a short hand cannon and a single travelling blast.
+- **Lancer:** War Banner's base radius rises from 70 to 100. Thousand Thrusts uses three visible lanes. Pole Vault holds a fixed-length spear through a slower, point-first landing. Sky Piercer is a shorter braced jab.
+- **Sumo:** Salt Throw shows a sweeping fan of grains. Shiko adds a stronger raised-leg wind-up, deeper fissures, and larger slabs. Yokozuna's Ring summons a newly drawn guardian with a braided ring boundary and visible ring-out impacts.
+- **Marionettist:** Cursed Thread deals 30% less direct damage, and the spool's hits no longer trigger shared link damage. Grand Theatre uses lacquered puppet hands for the overhead rig.
+- **Kagura:** Petal Volley replaces Rhythm. Flow powers the three-fan spread and widens it to five fans at three stacks.
 
 ## 0.8.7: Mobile fixes and roster balance
 - **Shrines on mobile:** each offering is now a tap target, and so is LEAVE. The screen used to accept only the 1-4 keys, so shrines couldn't be used on touch.

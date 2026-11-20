@@ -54,7 +54,7 @@ const NEWCAST={
   if(p.hFull){coneHit(p.x,p.y,a,44,TAU,e=>hurtE(e,A*1.6*bp*em,30,{slash:true,kb:Math.atan2(e.y-p.y,e.x-p.x)}));fx.push({k:'slash',x:p.x,y:p.y,a,arc:TAU,r:44,t:.2,dur:.2,col:'#fff'});}sfx('dash');impact(p.x,p.y,'#c8e0ff',3);},
  92:(c)=>{const {p,A,qm,em}=c;zones.push({k:'whirl',x:p.x,y:p.y,r:66*AZ(),t:.62,tk:0,dm:A*1.6*qm*em,n:1});sfx('dash');},
  93:(c)=>{const {p,A,ap,em}=c;zones.push({k:'deflect',x:p.x,y:p.y,r:30,t:1,tk:0,dm:A*.6*ap*em});fxRing(p.x,p.y,30,'#e0b040',.3);sfx('block');},
- 94:(c)=>{const {p}=c;zones.push({k:'banner',x:p.x,y:p.y,r:70*AZ(),t:8,tk:0});sfx('rare');},
+ 94:(c)=>{const {p}=c;zones.push({k:'banner',x:p.x,y:p.y,r:100*AZ(),t:8,tk:0});sfx('rare');},
  95:(c)=>{const {p,a,A,ep,em}=c;p.iv=Math.max(p.iv,.5);zones.push({k:'flurry',x:p.x,y:p.y,r:0,t:1.6,tk:0,a,dm:A*.9*ep*em});sfx('boss');setToast('THOUSAND THRUSTS','#c8e0ff',1.2);},
 };
 {const _cc=classCast;classCast=function(k){const p=P;if(!p)return;const v=p.lo[k],code=v*10+'mhqwfe'.indexOf(k),fn=NEWCAST[code];if(!fn)return _cc(k);
@@ -86,7 +86,7 @@ Object.assign(CZ,{
   q.life=TRIPOD_RANGE/TRIPOD_SPEED;projs.push(q);sfx('shoot');}}},
  deflect:(z)=>{z.x=P.x;z.y=P.y;for(const q of projs)if(q.from==='e'&&!q.peril&&!q.dead&&Math.hypot(q.x-z.x,q.y-z.y)<z.r){const s=Math.hypot(q.vx,q.vy)*1.4||200,a=Math.atan2(q.y-z.y,q.x-z.x);q.from='p';q.vx=Math.cos(a)*s;q.vy=Math.sin(a)*s;q.dmg=z.dm;q.col='#ffd040';q.hit=new Set();q.life=1.2;q.pierce=0;q.st=null;spark(q.x,q.y,'#ffd040',3,40);}},
  banner:(z,dt,tick)=>{const inside=Math.hypot(P.x-z.x,P.y-z.y)<z.r;if(inside){P.rage=Math.max(P.rage||0,.2);if(tick)P.hp=Math.min(S.maxhp,P.hp+S.maxhp*.007);}if(tick)z.tk=.35;},
- flurry:(z)=>{z.x=P.x;z.y=P.y;if(z.tk<=0){z.tk=.08;const a=P.aim+rnd(-.35,.35),len=100*(1+S.rangeM*.4);lineHit(P.x,P.y,a,len,8,e=>hurtE(e,z.dm,8,{slash:true}));fx.push({k:'line',x:P.x,y:P.y,a,len,t:.08,dur:.08,col:Math.random()<.5?'#fff':'#c8e0ff'});if(Math.random()<.5)sfx('slash');}}});
+ flurry:(z)=>{z.x=P.x;z.y=P.y;if(z.tk<=0){z.tk=.08;const a=P.aim+rnd(-.35,.35),len=100*(1+S.rangeM*.4);lineHit(P.x,P.y,a,len,8,e=>hurtE(e,z.dm,8,{slash:true}));z.strikes=(z.strikes||0)+1;fx.push({k:'line',x:P.x,y:P.y,a,len,t:.08,dur:.08,lane:((z.strikes+1)%3-1)*11,col:Math.random()<.5?'#fff':'#c8e0ff'});if(Math.random()<.5)sfx('slash');}}});
 let _dt0=.016;const dt0=()=>_dt0;{const _uw=updWorld;updWorld=function(dt){_dt0=dt;_uw(dt);};}
 Object.assign(CZD,{
  siege:z=>{

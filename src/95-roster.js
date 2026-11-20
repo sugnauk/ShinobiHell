@@ -308,7 +308,7 @@ Object.assign(CZD,{rosterWard:rosterZoneRing,rosterWind:rosterZoneRing,rosterCur
 {
  const base=hurtE;
  hurtE=function(e,amount,posture,options){
-  const linked=R&&P&&e.threadUntil>R.time&&CLS().k==='marionettist'&&!options?.chain&&!options?.foe&&!e.dead;
+  const linked=R&&P&&e.threadUntil>R.time&&CLS().k==='marionettist'&&!options?.chain&&!options?.foe&&!options?.threadHit&&!e.dead;
   const hp=e.hp;
   const result=base.apply(this,arguments);
   if(linked&&hp>e.hp){

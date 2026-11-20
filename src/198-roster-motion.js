@@ -2,7 +2,7 @@
 // SHINOBIDUNGEONS - the newer heroes' kits already act through real objects (bells, fans, threads, tornadoes, salt);
 // what they lacked was the body: several abilities played the shared cast/guard/roar. Each now has its own motion
 // (see ANIMATION_AUDIT.md; core in 191):
-//  KAGURA      F RHYTHM        steps on the beat: a stamp-and-turn, the fan snapping open on every step
+//  KAGURA      F PETAL VOLLEY  flicks both fans open and throws the volley
 //  BELL WARDEN RMB IRON BELL   a two-handed overhead heave before the throw
 //              E SANCTUARY     drops to one knee, palms together, as the great bell comes down
 //              F ECHO NOTES    strikes the bell at his hip; the notes leave it
@@ -16,13 +16,14 @@
 //              F CYCLONE       a full swing of the feather fan that throws the tornado out
 //  CHIMIKO     F HARVEST       pulls the red threads back hard, the body straining
 //  MARIONETTIST F PUPPET DANCE both hands up, the fingers working the strings
-Object.assign(AB_ANIM,{'RHYTHM':['beatstep',.48],'IRON BELL':['heave',.34],'SANCTUARY':['pray',.9],'ECHO NOTES':['bellstrike',.3],
+Object.assign(AB_ANIM,{'IRON BELL':['heave',.34],'SANCTUARY':['pray',.9],'ECHO NOTES':['bellstrike',.3],
  'UPDRAFT':['springup',.4],'CYCLONE':['fanswing',.34],'HARVEST':['strain',.45],'PUPPET DANCE':['puppeteer',.5]});
-for(const n of ['RHYTHM','SANCTUARY','ECHO NOTES','UPDRAFT','CYCLONE','HARVEST','PUPPET DANCE','SHIKO',"YOKOZUNA'S RING",'GRAND THEATRE','CRIMSON MOON'])ABX_OWN.add(n);
+for(const n of ['PETAL VOLLEY','SANCTUARY','ECHO NOTES','UPDRAFT','CYCLONE','HARVEST','PUPPET DANCE','SHIKO','SALT THROW',"YOKOZUNA'S RING",'GRAND THEATRE','CRIMSON MOON'])ABX_OWN.add(n);
 ULTSEQ["HEAVEN'S BELL"].k='bellpull';ULTSEQ["YOKOZUNA'S RING"].k='dohyo';
 {const _pa=abPoseAt;abPoseAt=function(H){const u=clamp((time-H.t0)/H.dur,0,1),d=H.dir,o={u,back:false,frame:null,flip:d<0,dx:0,dy:0,sx:1,sy:1,skew:0,rot:0,alpha:1};
  switch(H.k){
-  case 'beatstep':{const n=Math.floor(u*4),k2=(u*4)%1;o.frame=n%2?13:14;o.flip=n%2?d>0:d<0;o.sy=1-.08*Math.sin(k2*Math.PI);o.dy=-Math.round(2*Math.sin(k2*Math.PI));break;}
+  case 'petalcast':{const release=abEase((u-.12)/.27)*(1-abEase((u-.55)/.45));o.frame=u<.24?12:u<.58?13:14;
+   o.dx=Math.round(3*d*release);o.skew=.2*d*release;o.sy=1-.085*release;break;}
   case 'heave':{if(u<.45){const k2=abEase(u/.45);o.frame=10;o.sy=1+.08*k2;o.skew=-.14*d*k2;o.dy=-Math.round(2*k2);}else{const k2=abEase((u-.45)/.55);o.frame=k2<.5?13:14;o.skew=.26*d*(1-k2);o.dx=Math.round(3*d*(1-k2));o.sy=.94+.06*k2;}break;}
   case 'pray':{const k2=abEase(Math.min(1,u/.2));o.frame=8;o.sy=1-.2*k2;o.sx=1+.06*k2;break;}
   case 'bellstrike':{o.frame=u<.3?12:u<.6?13:14;o.skew=(u<.3?-.15:.22*(1-u))*d;o.dx=Math.round((u<.3?-1:2*(1-u))*d);if(u>.3&&u<.45)o.dx+=Math.round(Math.sin(time*80));break;}
@@ -32,10 +33,12 @@ ULTSEQ["HEAVEN'S BELL"].k='bellpull';ULTSEQ["YOKOZUNA'S RING"].k='dohyo';
   case 'puppeteer':{o.frame=Math.floor((time-H.t0)*16)%2?8:9;o.dy=-Math.round(Math.abs(Math.sin(u*Math.PI*3)));o.sy=1+.04*Math.sin(u*Math.PI);break;}
   // lead-ins (168 plays them as 'u_' + kind before the ultimate goes off)
   case 'u_bellpull':{const D=H.D||{},k2=(u*2)%1,pull=k2<.5?abEase(k2/.5):1-abEase((k2-.5)/.5);o.frame=pull<.5?10:12;o.sy=1+.1*(1-pull)-.12*pull;o.dy=-Math.round(3*(1-pull));o.skew=-.06*d;break;}
+  case 'saltcast':{const load=abEase(u/.27),sweep=abEase((u-.2)/.27)*(1-abEase((u-.57)/.43));
+   o.frame=u<.25?12:u<.58?13:14;o.skew=d*(.29*sweep-.16*load*(1-sweep));o.dx=Math.round(d*(-2+6*sweep));o.sy=1-.13*sweep;break;}
   case 'u_dohyo':case 'shiko':case 'shiko_ring':{const t=time-H.t0,ring=H.k==='shiko_ring',lead=H.k==='u_dohyo',at=ring?RING_IMPACT:SHIKO_IMPACT;
-   if(lead||t<at){const lift=abEase((t-.06)/.12),drop=lead||ring?0:abEase((t-at+.06)/.06);
-    o.frame=t<.084?12:15;o.skew=-.2*d*lift*(1-drop);o.sy=1+.08*lift-.14*drop;o.dx=-Math.round(2*lift*(1-drop))*d;}
-   else{const stamp=1-abEase((t-at)/.16);o.frame=10;o.sy=1-.2*stamp;o.sx=1+.16*stamp;}break;}
+   if(lead||t<at){const lift=abEase((t-.05)/.15),drop=lead?0:abEase((t-at+.09)/.09);
+    o.frame=t<.085?12:15;o.skew=-.32*d*lift*(1-drop);o.sy=1+.12*lift-.18*drop;o.dx=-Math.round(3*lift*(1-drop))*d;}
+   else{const stamp=1-abEase((t-at)/.16);o.frame=10;o.sy=1-.26*stamp;o.sx=1+.22*stamp;}break;}
   case 'u_theatre':{const pull=abEase((u-.2)/.6);o.frame=u<.22?8:10;o.dy=-Math.round(pull*8);o.sy=1+.08*pull;break;}
   case 'theatre_release':{o.frame=u<.55?9:8;o.dy=-Math.round(8*(1-abEase(u)));break;}
   case 'u_moon':{const kneel=abEase(u/.6);o.frame=12;o.sy=1-.24*kneel;o.sx=1+.08*kneel;break;}
