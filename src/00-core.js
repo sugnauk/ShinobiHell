@@ -7,12 +7,17 @@ const cv=document.getElementById('c'),ctx=cv.getContext('2d');
 cv.width=W;cv.height=H;
 // the wide view (play, and the newer menus) fills the window: its height is the zoom (more pixels = zoomed further out)
 // and its width follows the window's shape, so there are no black bars. Narrow menus stay 320x180, scaled to fit.
-let VIEWWIDE=false;const VIEWHS=[252,300,348];
+let VIEWWIDE=false,viewScale=1;const VIEWHS=[252,300,348],WORLD_SCALE=2;
 function viewH(){try{return VIEWHS[(typeof meta!=='undefined'&&meta.opt&&meta.opt.zoom!=null)?meta.opt.zoom:1]||300;}catch(_){return 300;}}
 function viewDims(wide){if(!wide)return [320,180];const h=viewH(),a=innerWidth/Math.max(1,innerHeight),w=Math.round(clamp(h*a,h*1.3,h*2.4)/2)*2;return [w,h];}
-function setView(wide){VIEWWIDE=!!wide;const [nw,nh]=viewDims(wide);if(nw===W&&nh===H)return;W=nw;H=nh;cv.width=W;cv.height=H;fit();}
+function setView(wide,scale=1){VIEWWIDE=!!wide;const [nw,nh]=viewDims(wide);if(nw===W&&nh===H&&scale===viewScale)return;W=nw;H=nh;viewScale=scale;cv.width=W*scale;cv.height=H*scale;fit();}
+function drawInView(draw){
+ ctx.save();
+ try{ctx.scale(viewScale,viewScale);draw();}
+ finally{ctx.restore();}
+}
 function fit(){const s=Math.min(innerWidth/W,innerHeight/H);const w=Math.round(W*s),h=Math.round(H*s);cv.style.width=w+'px';cv.style.height=h+'px';cv.style.left=Math.floor((innerWidth-w)/2)+'px';cv.style.top=Math.floor((innerHeight-h)/2)+'px';}
-addEventListener('resize',()=>{const v=VIEWWIDE;W=0;setView(v);fit();});fit();
+addEventListener('resize',()=>{W=0;setView(VIEWWIDE,viewScale);});fit();
 
 // the game's version, shown on the title screen. Bump it with every change that reaches main.
 const GAME_VERSION='0.8.13';

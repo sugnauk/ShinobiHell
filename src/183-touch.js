@@ -45,7 +45,7 @@ function touchOn(){if(TOUCH)return;TOUCH=true;cv.style.touchAction='none';docume
  cv.style.cursor='none';
  // a closer default zoom suits a small screen (only if you never picked one yourself)
  if(meta&&meta.opt&&meta.opt.zoom==null&&smallTouchScreen())meta.opt.zoom=0;
- setView(VIEWWIDE);updateTouchDisplay();}
+ setView(VIEWWIDE,viewScale);updateTouchDisplay();}
 addEventListener('touchstart',e=>{TOUCHAT=performance.now();touchOn();
  if(touchDisplay.contains(e.target))return;
  if(mode==='master'&&e.changedTouches.length){
@@ -70,7 +70,7 @@ const touchEnd=e=>{if(!TOUCH||touchDisplay.contains(e.target))return;if(touchAct
 }};
 addEventListener('touchend',touchEnd,{passive:false});addEventListener('touchcancel',touchEnd,{passive:false});
 // a real mouse moving (not one the browser made up from a tap) hands control back to the PC
-addEventListener('mousemove',()=>{if(TOUCH&&performance.now()-TOUCHAT>1500){TOUCH=false;TCH.stick=TCH.aim=null;TCH.btn.clear();setView(VIEWWIDE);updateTouchDisplay();}});
+addEventListener('mousemove',()=>{if(TOUCH&&performance.now()-TOUCHAT>1500){TOUCH=false;TCH.stick=TCH.aim=null;TCH.btn.clear();setView(VIEWWIDE,viewScale);updateTouchDisplay();}});
 // movement: the stick gives a smooth direction instead of the eight of the keys
 {const _mv=moveVec;moveVec=function(){const s=TOUCH&&touchActive()&&TCH.stick;if(!s)return _mv.apply(this,arguments);
  let dx=s.x-s.ox,dy=s.y-s.oy;const l=Math.hypot(dx,dy);if(l<4)return [0,0];if(l>22){s.ox=s.x-dx/l*22;s.oy=s.y-dy/l*22;}const k=Math.min(1,l/16);dx=dx/l*k;dy=dy/l*k;
@@ -118,7 +118,7 @@ function touchDraw(){if(!TOUCH||mode!=='play'||!P)return;const top=paused||invOp
 // held upright, ask for landscape
 function touchPortrait(){if(!TOUCH||innerWidth>=innerHeight)return;ctx.fillStyle='rgba(6,4,12,.92)';ctx.fillRect(0,0,W,H);
  const a='TURN YOUR DEVICE',b2='SHINOBIDUNGEONS PLAYS IN LANDSCAPE';txt(a,Math.round(W/2-txtW(a,2)/2),Math.round(H/2-14),'#ffd040',2);txt(b2,Math.round(W/2-txtW(b2)/2),Math.round(H/2+6),'#ddd');}
-{const _r=render;render=function(){const r=_r.apply(this,arguments);if(TOUCH){try{touchDraw();touchPortrait();}catch(_){}}return r;};}
+{const _r=render;render=function(){const r=_r.apply(this,arguments);if(TOUCH){try{drawInView(()=>{touchDraw();touchPortrait();});}catch(_){}}return r;};}
 // ---- all touch: no cursor at all on a touchscreen, and real full screen (no browser bars) ----
 {const _dc=drawCursor;drawCursor=function(){if(TOUCH)return;return _dc.apply(this,arguments);};}
 const isIOS=/iP(hone|od|ad)/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);

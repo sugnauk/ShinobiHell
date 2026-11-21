@@ -655,11 +655,18 @@ function drawIntro(){const el=INTRO-introT,bar=Math.round(22*Math.min(1,el/.3,in
 function renderPlay(){
  ctx.fillStyle='#07060a';ctx.fillRect(0,0,W,H);
  // screen shake is almost gone (at most a 1px nudge on the very biggest moments); power comes from recoil, bursts and freeze-frames instead
- const sk=shake>=10&&OPT().shake?1:0,shx=sk?Math.round(rnd(-1,1)):0,shy=0;
+ const sk=shake>=10&&OPT().shake?1:0,shx=sk?Math.round(rnd(-1,1)):0;
  let fcx=P.x,fcy=P.y;if(introT>0&&introE){const el=INTRO-introT,f=Math.min(1,el/.5,introT/.5),k=f*f*(3-2*f);fcx=P.x+(introE.x-P.x)*k;fcy=P.y+(introE.y-P.y)*k;}
- cam.x=Math.round(isoX(fcx,fcy)-W/2+shx);cam.y=Math.round(isoY(fcx,fcy)-(H/2+6)+shy);
+ // Keep pixel-art placement on the logical grid and scroll the whole scene in backing-pixel steps.
+ const scrollX=isoX(fcx,fcy)-W/2+shx,scrollY=isoY(fcx,fcy)-(H/2+6);
+ const snap=v=>Math.round(v*viewScale)/viewScale,viewX=snap(scrollX),viewY=snap(scrollY);
+ cam.x=Math.round(scrollX);cam.y=Math.round(scrollY);
+ const px=isoX(P.x,P.y),py=isoY(P.x,P.y),playerDX=snap(px)-Math.round(px),playerDY=snap(py)-Math.round(py);
+ ctx.save();
+ try{
+ ctx.translate(cam.x-viewX,cam.y-viewY);
  const M=mapCanvas;
- {const x0=Math.max(0,cam.x),y0=Math.max(0,cam.y),x1=Math.min(M.FW,cam.x+W),y1=Math.min(M.FH,cam.y+H);if(x1>x0&&y1>y0)ctx.drawImage(M.floor,x0,y0,x1-x0,y1-y0,x0-cam.x,y0-cam.y,x1-x0,y1-y0);}
+ {const x0=Math.max(0,Math.floor(viewX)),y0=Math.max(0,Math.floor(viewY)),x1=Math.min(M.FW,Math.ceil(viewX+W)),y1=Math.min(M.FH,Math.ceil(viewY+H));if(x1>x0&&y1>y0)ctx.drawImage(M.floor,x0,y0,x1-x0,y1-y0,x0-cam.x,y0-cam.y,x1-x0,y1-y0);}
  const tiles=sceneTiles(M);
  drawLiquids(tiles.liquids);
  drawGround();
@@ -676,21 +683,24 @@ function renderPlay(){
  for(const o of decos){const X=sx(o.x,o.y),Y=sy(o.x,o.y);if(X<-40||X>W+40||Y<-10||Y>H+50)continue;dr.push({d:dep(o.x,o.y)-((DECOSPR[o.k].flat||o.onliq)?60:0),dc:o});}
  dr.push({d:dep(P.x,P.y),pl:1});
  dr.sort((a,b)=>a.d-b.d);
- for(const o of dr){if(o.wall)drawWall(o);else if(o.e)drawEnemy(o.e);else if(o.k)drawPickup(o.k);else if(o.p)drawProp(o.p);else if(o.dc)drawDeco(o.dc);else drawPlayer();}
+ for(const o of dr){if(o.wall)drawWall(o);else if(o.e)drawEnemy(o.e);else if(o.k)drawPickup(o.k);else if(o.p)drawProp(o.p);else if(o.dc)drawDeco(o.dc);else{
+  ctx.save();try{ctx.translate(playerDX,playerDY);drawPlayer();}finally{ctx.restore();}
+ }}
  drawPortal();
  for(const q of projs)drawProj(q);
  // the hitbox core is always drawn on top of everything: only this dot can be hit by bullets
  // only shown when it matters: while focusing (SHIFT), or fading in as enemy bullets get close
  if(P.hp>0){let near=99;for(const q of projs)if(q.from==='e'){const d=scrDist(q)-q.r;if(d<near)near=d;}
   const a=P.focus?1:clamp((40-near)/25,0,1);
-  if(a>0){const X=sx(P.x,P.y),Y=sy(P.x,P.y)-7;ctx.globalAlpha=a;
+  if(a>0){const X=sx(P.x,P.y),Y=sy(P.x,P.y)-7;ctx.translate(playerDX,playerDY);ctx.globalAlpha=a;
    if(P.focus){ctx.globalAlpha=.5;circ(X,Y,12,'#cef');ctx.globalAlpha=a;}
-   ctx.fillStyle='#14101a';ctx.fillRect(X-2,Y-2,5,5);ctx.fillStyle='#fff';ctx.fillRect(X-1,Y-1,3,3);ctx.fillStyle=P.focus?'#f44':'#ff8080';ctx.fillRect(X,Y,1,1);ctx.globalAlpha=1;}}
- if(slowT>0||ultSlow>0){ctx.fillStyle='rgba(160,220,255,.08)';ctx.fillRect(0,0,W,H);}
+   ctx.fillStyle='#14101a';ctx.fillRect(X-2,Y-2,5,5);ctx.fillStyle='#fff';ctx.fillRect(X-1,Y-1,3,3);ctx.fillStyle=P.focus?'#f44':'#ff8080';ctx.fillRect(X,Y,1,1);ctx.globalAlpha=1;ctx.translate(-playerDX,-playerDY);}}
+ if(slowT>0||ultSlow>0){ctx.fillStyle='rgba(160,220,255,.08)';ctx.fillRect(viewX-cam.x,viewY-cam.y,W,H);}
  for(const f of fx)drawFx(f);
  for(const q of particles){ctx.fillStyle=q.col;ctx.fillRect(sx(q.x,q.y),sy(q.x,q.y)-8,1,1);}
  drawAmbient();
  for(const t of texts){ctx.globalAlpha=Math.min(1,t.t*2);txt(t.s,sx(t.x,t.y)-Math.round(txtW(t.s,t.sc)/2),sy(t.x,t.y)-24-(t.sc>1?4:0)-(.9-t.t)*14|0,t.col,t.sc);ctx.globalAlpha=1;}
+ }finally{ctx.restore();}
  if(freezeT>0){ctx.fillStyle='rgba(120,160,255,.14)';ctx.fillRect(0,0,W,H);}
  if(flashT>0&&OPT().flash){ctx.globalAlpha=Math.min(.35,flashT*3);ctx.fillStyle=flashCol;ctx.fillRect(0,0,W,H);ctx.globalAlpha=1;}
  {const low=P.hp<S.maxhp*.25?.18+lowPulse*.9:0,a=Math.max(hurtT*1.1,low);if(a>0)vignette('#c01010',Math.min(.6,a));}

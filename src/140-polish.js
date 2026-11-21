@@ -7,7 +7,7 @@
 //  3. The indoor halls feel lived-in: dust drifts through the lamplight in the cellars, keep, palace and throne room.
 
 // ---------- 1. the march on the end screens ----------
-{const _sv=setView;setView=function(w){if(mode==='dead'||mode==='win')w=true;return _sv(w);};}
+{const _sv=setView;setView=function(w,scale){if(mode==='dead'||mode==='win')w=true;return _sv(w,scale);};}
 {const _re=renderEnd;renderEnd=function(){_re.apply(this,arguments);const d=deadInfo;if(!d)return;
  const w=Math.min(250,W-16),h=56,x=Math.round((W-w)/2),y=H-h-4;
  drawProvinceMap(x,y,w,h,d.win?-1:d.di,d.win?12:d.di);

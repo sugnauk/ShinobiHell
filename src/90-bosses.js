@@ -75,7 +75,7 @@ function tickMarks(dt){for(const m of BMK){
   else{m.stay-=dt;if(m.sdmg&&P.hp>0&&P.dash<=0&&inShape(m,P.x,P.y))hitPlayer(m.sdmg,P.x,P.y,{peril:true,src:m.src});if(m.stay<=0)m.dead=1;}}
  for(let i=BMK.length-1;i>=0;i--)if(BMK[i].dead)BMK.splice(i,1);}
 // draw in world space: the iso projection is affine, so canvas paths can be drawn straight in world coordinates
-function worldXf(){ctx.setTransform(RA-RD,ISOK*(RA+RD),RB-RE,ISOK*(RB+RE),RC-RF+VOFF-cam.x,ISOK*(RC+RF)-cam.y);}
+function worldXf(){ctx.transform(RA-RD,ISOK*(RA+RD),RB-RE,ISOK*(RB+RE),RC-RF+VOFF-cam.x,ISOK*(RC+RF)-cam.y);}
 function shapePath(m,k){ctx.beginPath();k=k==null?1:k;switch(m.k){
  case 'c':ctx.arc(m.x,m.y,Math.max(.1,m.r*k),0,TAU);break;
  case 'l':{const c=Math.cos(m.a),s=Math.sin(m.a),L=m.len*k,w=m.w/2;ctx.moveTo(m.x-s*w,m.y+c*w);ctx.lineTo(m.x-s*w+c*L,m.y+c*w+s*L);ctx.lineTo(m.x+s*w+c*L,m.y-c*w+s*L);ctx.lineTo(m.x+s*w,m.y-c*w);ctx.closePath();break;}

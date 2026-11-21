@@ -106,7 +106,7 @@ selConfirm=function(){if(selLock)return;if(isLocked(selIdx)){sfx('block');return
  const [width,height]=base(wide);
  return mode==='select'&&selTab===0?[Math.max(width,448),height]:[width,height];
 };}
-{const _sv=setView;setView=function(w){if(mode==='menu'||mode==='select')w=true;return _sv(w);};}
+{const _sv=setView;setView=function(w,scale){if(mode==='menu'||mode==='select')w=true;return _sv(w,scale);};}
 
 {const _rs=renderSelect;renderSelect=function(){if(selTab===1)return _rs.apply(this,arguments);
  bg();ctx.fillStyle='rgba(6,3,10,.8)';ctx.fillRect(0,0,W,H);

@@ -40,9 +40,11 @@ function heroAnnounce(H){const C=CLASSES.find(c=>c.k===H.k);HEROANN={C,H,t0:perf
  if(mode==='choose'||mode==='play'&&portal?.pending){A.hold??=now;return r;}
  if(A.hold!=null){A.t0+=now-A.hold;A.hold=null;}
  const k=now-A.t0;if(k>4.5){HEROANN=null;return r;}
- const a=Math.min(1,k/.25,(4.5-k)/.4),w=Math.min(W-20,240),h=46,x=Math.round(W/2-w/2),y=Math.round(H*.16);ctx.globalAlpha=a*.94;ctx.fillStyle='#0c0a12';ctx.fillRect(x,y,w,h);ctx.fillStyle=A.C.col;ctx.fillRect(x,y,w,1);ctx.fillRect(x,y+h-1,w,1);
- ctx.globalAlpha=a;try{drawSpr(heroSpr(A.C.k,0),x+20,y+h-6,false,0,false);}catch(_){}
- txt('NEW HERO: '+A.C.n,x+40,y+8,A.C.col,1);txt(A.H.t,x+40,y+20,'#e0c070');txt('CHOOSE THEM ON CHARACTER SELECT',x+40,y+31,'#aaa');ctx.globalAlpha=1;return r;};}
+ drawInView(()=>{
+  const a=Math.min(1,k/.25,(4.5-k)/.4),w=Math.min(W-20,240),h=46,x=Math.round(W/2-w/2),y=Math.round(H*.16);ctx.globalAlpha=a*.94;ctx.fillStyle='#0c0a12';ctx.fillRect(x,y,w,h);ctx.fillStyle=A.C.col;ctx.fillRect(x,y,w,1);ctx.fillRect(x,y+h-1,w,1);
+  ctx.globalAlpha=a;try{drawSpr(heroSpr(A.C.k,0),x+20,y+h-6,false,0,false);}catch(_){}
+  txt('NEW HERO: '+A.C.n,x+40,y+8,A.C.col,1);txt(A.H.t,x+40,y+20,'#e0c070');txt('CHOOSE THEM ON CHARACTER SELECT',x+40,y+31,'#aaa');
+ });return r;};}
 // ---------------- what the challenges watch ----------------
 const ucOn=()=>R&&!R.training&&!R.test;
 {const _ob=onBossDead;onBossDead=function(e){const r=_ob.apply(this,arguments);try{if(ucOn()){const U=UC(),pro=R.pro|0;

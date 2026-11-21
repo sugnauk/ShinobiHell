@@ -427,10 +427,13 @@ function renderChoose(){
 }
 function ctxt2(s,x,w,y,c){txt(s,Math.round(x+(w-txtW(s))/2),y,c);}
 function render(){
- setView(mode==='play'||mode==='choose'||mode==='scroll'||mode==='lootConfirm'||mode==='event');
+ const world=mode==='play'||mode==='choose'||mode==='scroll'||mode==='lootConfirm'||mode==='event';
+ setView(world,world?WORLD_SCALE:1);
  ctx.imageSmoothingEnabled=false;
- if(mode==='title')renderTitle();else if(mode==='options')renderOptions();else if(mode==='guide')renderGuide();else if(mode==='master')renderMaster();else if(mode==='select')renderSelect();else if(mode==='tut')renderTut();else if(mode==='hub')renderHub();else if(mode==='play')renderPlay();else if(mode==='choose')renderChoose();else if(mode==='scroll')renderScroll();else if(mode==='lootConfirm')renderLootConfirm();else if(mode==='event')renderEvent();else renderEnd();
- drawDbg();drawCursor();
+ drawInView(()=>{
+  if(mode==='title')renderTitle();else if(mode==='options')renderOptions();else if(mode==='guide')renderGuide();else if(mode==='master')renderMaster();else if(mode==='select')renderSelect();else if(mode==='tut')renderTut();else if(mode==='hub')renderHub();else if(mode==='play')renderPlay();else if(mode==='choose')renderChoose();else if(mode==='scroll')renderScroll();else if(mode==='lootConfirm')renderLootConfirm();else if(mode==='event')renderEvent();else renderEnd();
+  drawDbg();drawCursor();
+ });
 }
 // one cursor for every screen: crosshair while fighting, an arrow on menus, pause and the backpack
 function drawCursor(){const mx=Math.round(mouse.x),my=Math.round(mouse.y);
@@ -458,7 +461,7 @@ const OPTROWS=()=>[
  {n:'SUGGESTIONS',v:()=>OPT().sugg===0?'OFF':'ON',info:()=>'A STAR MARKS A GOOD PICK FOR YOUR HERO ON REWARD CARDS AND IN THE SHOP',ch:()=>{OPT().sugg=OPT().sugg===0?1:0;}},
  {n:'DANGER WARNINGS',v:()=>OPT().bold?'BOLD':'NORMAL',info:()=>'BOLD: A PULSING RING SHOWS EACH FOE ATTACK AS IT WINDS UP, AND GROUND DANGERS ARE EASIER TO SEE',ch:()=>{OPT().bold=OPT().bold?0:1;}},
  {n:'FULLSCREEN',v:()=>OPT().fs===0?'OFF':'ON',info:()=>'FILL THE WHOLE SCREEN (ESC OR F11 LEAVES IT FOR NOW)',ch:()=>{OPT().fs=OPT().fs===0?1:0;goFullscreen(OPT().fs!==0);}},
- {n:'VIEW ZOOM',v:()=>['NEAR','NORMAL','FAR'][OPT().zoom==null?1:OPT().zoom],info:()=>'HOW MUCH OF THE DUNGEON YOU SEE AROUND YOU',ch:d=>{OPT().zoom=clamp((OPT().zoom==null?1:OPT().zoom)+d,0,2);W=0;setView(VIEWWIDE);}},
+ {n:'VIEW ZOOM',v:()=>['NEAR','NORMAL','FAR'][OPT().zoom==null?1:OPT().zoom],info:()=>'HOW MUCH OF THE DUNGEON YOU SEE AROUND YOU',ch:d=>{OPT().zoom=clamp((OPT().zoom==null?1:OPT().zoom)+d,0,2);W=0;setView(VIEWWIDE,viewScale);}},
  {n:'SCREEN SHAKE',v:()=>OPT().shake?'ON':'OFF',ch:()=>{OPT().shake^=1;}},
  {n:'SCREEN FLASHES',v:()=>OPT().flash?'ON':'OFF',ch:()=>{OPT().flash^=1;}},
  {n:'BULLET CONTRAST',v:()=>OPT().bcon?'ON':'OFF',info:()=>'ENEMY BULLETS GET A DARK RIM AND A BRIGHT CORE SO THEY STAND OUT ON BUSY FLOORS',ch:()=>{OPT().bcon^=1;}},

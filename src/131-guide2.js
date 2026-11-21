@@ -61,4 +61,4 @@ renderGuide=function(){
   for(const l of e.L){if(!l)continue;const m=/^([A-Z0-9 ']{3,18}): (.*)$/.exec(l),lines=wrapTxt(l,Math.floor((Wd-16)/4.6));
    for(let k=0;k<lines.length;k++){if(ly>Y+Hd-8)break;if(k===0&&m){txt(m[1]+':',X+8,ly,e.col||tc);txt(lines[0].slice(m[1].length+1),X+8+txtW(m[1]+':'),ly,'#ddd');}else txt(lines[k],X+8,ly,'#ccc');ly+=8;}ly+=1;}}
  txt('A/D TABS   W/S BROWSE   CLICK OR WHEEL   K OR ESC CLOSE',6,H-9,'#666');};
-{const _sv=setView;setView=function(w){if(mode==='guide')w=true;return _sv(w);};}
+{const _sv=setView;setView=function(w,scale){if(mode==='guide')w=true;return _sv(w,scale);};}

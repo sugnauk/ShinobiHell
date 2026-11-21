@@ -12,6 +12,7 @@
 - Prologue III has one prisoner rescue with a potion reward. The healer restores 25% max HP at campfires, and the peddler gives 30 gold and a 10% shop discount.
 - The Wizard can move during ultimate wind-ups.
 - Reduced cooldown bonuses from the skill tree, relics, gear, scrolls, shrines, and Daily pacts. Stacked bonuses can lower ability cooldowns by up to 25%. Grazes, perfect dodges, Echo Mind, and kills refund less time.
+- Smoothed camera scrolling while walking diagonally on keyboard and touch.
 - Documented attack patterns for the rest of Chapter II and recorded the keyboard and touch playtest results.
 
 ## 0.8.12: The fork beneath Still Water and mobile fullscreen
