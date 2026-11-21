@@ -1,10 +1,9 @@
 'use strict';
 // The roster opens as you beat guardians. Lifetime clears include the prologues and carry across runs.
-const HERO_START=['wizard','samurai','archer','sumo'];
+const HERO_START=['wizard','samurai','archer'];
 const HERO_RECRUITS=[
- ['shinobi','gunner','lancer'],
- ['onmyoji','marionettist','tengu'],
- ['kagura','bloodoracle','bellwarden']
+ 'gunner','lancer','tengu','kagura','bellwarden',
+ 'onmyoji','shinobi','marionettist','sumo','bloodoracle'
 ];
 const heroOwned=k=>!!meta.heroes?.[k];
 function heroSync(){
@@ -17,19 +16,17 @@ heroLocked=function(i){
  return !C||((meta.unlocked||0)<=CLASSES.length&&!heroOwned(C.k));
 };
 function heroLockInfo(i){
- const k=CLASSES[i]?.k,need=HERO_RECRUITS.findIndex(group=>group.includes(k))+1;
+ const k=CLASSES[i]?.k,need=HERO_RECRUITS.indexOf(k)+1;
  if(!need)return null;
  const target=need===1?'A GUARDIAN':need+' GUARDIANS';
  return {title:'GUARDIANS DEFEATED',d:'DEFEAT '+target+'. WINS ADD UP ACROSS RUNS, INCLUDING THE PROLOGUE.',cur:meta.life.bosses,need};
 }
 function recruitHeroes(){
  const recruits=[];
- for(const group of HERO_RECRUITS.slice(0,meta.life.bosses)){
-  for(const k of group){
-   if(heroOwned(k))continue;
-   meta.heroes[k]=1;
-   recruits.push(CLASSES.find(c=>c.k===k));
-  }
+ for(const k of HERO_RECRUITS.slice(0,meta.life.bosses)){
+  if(heroOwned(k))continue;
+  meta.heroes[k]=1;
+  recruits.push(CLASSES.find(c=>c.k===k));
  }
  heroSync();
  return recruits;

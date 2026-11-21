@@ -10,7 +10,7 @@ const CLSINFO={
  shinobi:{role:'MELEE - ASSASSIN',diff:3,lore:'IN, KILL, OUT. FRAGILE BUT DEADLY.'},
  onmyoji:{role:'SUMMONER - CONTROL',diff:3,lore:'BINDS SPIRITS TO FIGHT AND SHIELD.'},
  gunner:{role:'RANGED - ARTILLERY',diff:2,lore:'A MATCHLOCK, A TURRET, A LOT OF POWDER.'},
- sumo:{role:'MELEE - BRAWLER',diff:2,lore:'A RING CHAMPION WITH POWERFUL PALM STRIKES.'},
+ sumo:{role:'MELEE - BRAWLER',diff:3,lore:'A RING CHAMPION WITH POWERFUL PALM STRIKES.'},
  lancer:{role:'MELEE - REACH',diff:2,lore:'THE LONGEST REACH. HOLDS THE LINE.'}};
 const SELTREE={x:105,y:3,w:142,h:13};
 const inSelTree=()=>mouse.x>=SELTREE.x&&mouse.x<SELTREE.x+SELTREE.w&&mouse.y>=SELTREE.y&&mouse.y<SELTREE.y+SELTREE.h;
