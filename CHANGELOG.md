@@ -3,7 +3,8 @@
 ## 0.8.14: More shop choices
 
 - Shops stock up to three different relics. Each stage allows one relic purchase.
-- Centred Lord Kurogane's mounted sprite in his boss intro.
+- Sumo’s Salt Throw heals for 25% of damage dealt, up to 20% max HP per throw.
+- Centred Lord Kurogane's mounted sprite in his boss intro. In phase two he dismounts, and Yamikaze pursues the player with telegraphed charges. Both must be defeated.
 
 ## 0.8.13: Late-game guardian fights
 

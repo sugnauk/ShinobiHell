@@ -22,7 +22,7 @@ function rageStart(e,D){e.rage={k:D.k,t:0,ct:1.4,st:0,sh:.8,bt:3};e.dm*=1.2;e.iv
  sfx('boss');shake=Math.max(shake,10);hitstop=Math.max(hitstop,.1);fxRing(e.x,e.y,90,RAGEC,.6);fxRing(e.x,e.y,50,'#fff',.4);spark(e.x,e.y,RAGEC,30,150);
  clearEnemyShots(true,1);phaseBanner={t:0,text:'RAGE',sub:D.n,col:RAGEC};setToast(e.name.split(',')[0]+': '+D.n,RAGEC,3);}
 const rageBusy=e=>e.EV||e.ev||e.phx||e.storm>0||e.dying||e.stag>0;
-{const _u=update;update=function(dt){_u.apply(this,arguments);if(mode!=='play'||!boss||boss.dead||!boss.awake||!P)return;const e=boss,D=RAGE[e.name];if(!D)return;
+{const _u=update;update=function(dt){_u.apply(this,arguments);if(mode!=='play'||!boss||boss.dead||boss.riderDown||!boss.awake||!P)return;const e=boss,D=RAGE[e.name];if(!D)return;
  if(!e.rage){if(e.hp/e.maxhp<RAGE_AT&&!rageBusy(e)&&(typeof bossNextTh!=='function'||bossNextTh(e)==null))rageStart(e,D);return;}
  const G=e.rage;G.t+=dt;if(rageBusy(e))return;
  if(Math.random()<dt*25)particles.push({x:e.x+rnd(-e.r,e.r),y:e.y+rnd(-4,4),vx:rnd(-10,10),vy:-30,t:.4,col:Math.random()<.7?RAGEC:'#ffb0a0'});

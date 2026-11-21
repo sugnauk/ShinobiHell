@@ -141,6 +141,7 @@ function dropLoot(e){
  if(e.boss){dropBag(e.x+20,e.y+24,Math.random()<.14?GOLDBAG:TROPHY,true);return;} // the white royal bag is a rare boss prize
  // a promised bag (from a curse) drops from the next foe you kill
  if(R.bonusBag!=null){dropBag(e.x,e.y,R.bonusBag);R.bonusBag=null;}
+ if(e.horse)return; // Yamikaze's rewards come from clearing the encounter
  if(e.echo)return; // its dedicated cache is rolled by the Echo defeat handler
  if(e.dropBag!=null)dropBag(e.x+8,e.y,e.dropBag);
  const LT=LOOT[lootKind(e)],lk=1/(1+.15*(R.asc||0));
