@@ -63,7 +63,7 @@ drawTraining=function(){const T=R.training;if(!T)return;const L=LESSONS[T.i];if(
  // Master Kaito, watching from the corner of the yard
  const rib=4+24+L.l().length*8+6; // keep the bubble clear of the trial ribbon and the minimap
  const mp=tAt(.1,.18),MX=sx(mp.x,mp.y),MY=sy(mp.x,mp.y),onS=MX>10&&MX<W-10&&MY>rib+30&&MY<H-30;
- if(MX>-30&&MX<W+30&&MY>-10&&MY<H+50){shadow(MX,MY,14);drawSpr({...heroSpr('wizard',9),sc:1},MX,MY,false,WIZ.idle[Math.floor(time*2.5)%2],MX>W/2);}
+ if(MX>-30&&MX<W+30&&MY>-10&&MY<H+50){shadow(MX,MY,14);drawKaito(MX,MY,1,MX>W/2);}
  if(TRAIN_MASTER.sayT>0&&TRAIN_MASTER.say){const lines=wrapTxt(TRAIN_MASTER.say,30),w=Math.max(txtW('MASTER KAITO')+8,...lines.map(s=>txtW(s)))+8,h=lines.length*8+14;
   let bx,by;if(onS){bx=clamp(MX-w/2,4,W-w-4);by=clamp(MY-34-h,rib+(bx+w>W-140?136-rib:0),H-h-40);}else{bx=6;by=rib+40;}
   ctx.fillStyle='#14101a';ctx.fillRect(bx-1,by-1,w+2,h+2);ctx.fillStyle='#f4ecd8';ctx.fillRect(bx,by,w,h);

@@ -13,6 +13,7 @@
 - The Wizard can move during ultimate wind-ups.
 - Reduced cooldown bonuses from the skill tree, relics, gear, scrolls, shrines, and Daily pacts. Stacked bonuses can lower ability cooldowns by up to 25%. Grazes, perfect dodges, Echo Mind, and kills refund less time.
 - Smoothed camera scrolling while walking diagonally on keyboard and touch.
+- Gave Master Kaito a dedicated sprite in camp and training, and reduced Genji’s campfire size.
 - Lair minibosses and the Moth Queen have a 10% chance to drop legendary loot. Otherwise, they drop a war chest with two epic items.
 - Guardian Echoes can recur among regular enemies in later dungeons after their guardian is beaten. Echoes award 4% Legendary and 12% Epic loot.
 - Reduced relics from random bags and chests. Shops and shrines each offer at most one relic trade per stage. Duplicate relic effects scale to 150% and 175%, with single-copy limits on special relics.

@@ -233,7 +233,7 @@ function masterCamp(t,accent){
   ctx.fillStyle=i%2?'#f4a854':'#ffde98';ctx.fillRect(x,y,1,1);
  }
  shadow(91,134,29);shadow(226,134,29);
- drawSpr({...heroSpr('wizard',9),sc:2},91,134,false,WIZ.idle[Math.floor(time*2.5)%2],false);
+ drawKaito(91,134,2);
  const elapsed=time-CS.pageAt,change=CS.step===1,form=change&&elapsed<.32?CS.from:P.evo||0;
  const hero={...heroSpr(CLS().k,form),sc:2},frame=WIZ.idle[Math.floor(time*2.5)%2];
  drawSpr(hero,226,134,false,frame,true);
