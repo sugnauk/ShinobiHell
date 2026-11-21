@@ -1179,6 +1179,7 @@ const KUR={bearers:e=>(e.bearers||[]).filter(m=>!m.dead),
  corpseBlock(e,dt){const c=e.corpse;if(!c)return;for(const q of projs)if(Math.hypot(q.x-c.x,q.y-c.y)<c.r){q.dead=true;spark(q.x,q.y,'#3a3a48',2,30);}
   const d=Math.hypot(P.x-c.x,P.y-c.y);if(d<c.r+3&&d>0){const a=Math.atan2(P.y-c.y,P.x-c.x);P.x=c.x+Math.cos(a)*(c.r+3);P.y=c.y+Math.sin(a)*(c.r+3);}}};
 BKIT['LORD KUROGANE']={director:bossDirector,pref:0,gap:.8,halfName:'YAMIKAZE FALLS - HE FIGHTS ON FOOT',keepSpr:1,
+ introFocus:[.57,.525], // centre of the rider, spear and horse in the mounted idle frames
  style:{c:'#c0a040',t:['CAVALRY','CAVALRY WING','ON FOOT'],ph:[[],[],[]]},
  guide:['SKILL: BIG-SPACE POSITIONING. MOUNTED, HE NEVER STOPS','TWO STANDARD-BEARERS RIDE WITH HIM: HALF DAMAGE WHILE EITHER LIVES','STAY AHEAD OF HIS PATH: HIS ARROWS FALL BEHIND IT','ON FOOT: STOP SHOOTING WHILE HIS WAR FAN IS OPEN'],
  init(e){e.mounted=1;e.loopA=0;e.bearers=[0,1].map(i=>{const m=bMin(e,'samurai',e.x,e.y);m.t=Object.assign({},ET.samurai,{ai:'dummy'});m.sprOv=Object.assign({},foeSprite('samurai',basePal('#1e1e28','#0a0a12','#c0a040','#801818')),{sc:1.1});m.label='BEARER';m.labelC='#c0a040';m.hp=m.maxhp=m.maxhp*2.2;m.slot=i;return m;});

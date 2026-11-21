@@ -3,6 +3,7 @@
 ## 0.8.14: More shop choices
 
 - Shops stock up to three different relics. Each stage allows one relic purchase.
+- Centred Lord Kurogane's mounted sprite in his boss intro.
 
 ## 0.8.13: Late-game guardian fights
 

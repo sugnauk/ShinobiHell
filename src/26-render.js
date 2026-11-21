@@ -16,6 +16,7 @@ function sline(x0,y0,x1,y1,col){ctx.fillStyle=col;const n=Math.max(Math.abs(x1-x
 function tdiamond(tx,ty,col){const X=sx(tx*T,ty*T),Y=sy(tx*T,ty*T);ctx.fillStyle=col;for(let j=0;j<TILEH;j++){const half=dHalf(j);ctx.fillRect(X-half,Y+j,half*2,1);}}
 function shadow(x,y,w){ctx.fillStyle='rgba(0,0,0,.35)';ctx.fillRect(Math.round(x-w/2),Math.round(y),w,2);}
 function sprOf(e){if(e.sprOv)return e.sprOv;const key=e.boss?'boss'+e.di:e.type;const o=OV[key];return (o&&o.ok)?o:(e.boss?(e.spr2&&e.hp<e.maxhp*.5?e.spr2:e.spr):getSpr(e.type,e.di));}
+const enemyFootOffset=e=>Math.min(6,Math.round(e.r*.6))+2;
 function drawEnemy(e){
  if(e.ghost)return; // a squad's invisible coordinator
  if(e.boss&&e.awake){ // boss state visuals: a guard bubble during minion events, a burning aura below a quarter health
@@ -24,7 +25,7 @@ function drawEnemy(e){
   if(e.air&&e.z>60){const X=sx(e.x,e.y),Y=sy(e.x,e.y);ctx.globalAlpha=.5;wdisc(e.x,e.y,e.r+4,'#000');ctx.globalAlpha=1;if(e.ceil)wcirc(e.x,e.y,e.r+4+Math.sin(time*14)*2,'#ff4040');return;}}
  // recoil: the sprite jerks back along the hit direction for a moment
  let kx=0,ky=0,settle=0;if(e.kick&&e.kick.t>0){const k=e.kick.t/(e.kick.dur||.12),v=scrVec(Math.cos(e.kick.a),Math.sin(e.kick.a));kx=Math.round(v[0]*e.kick.p*k);ky=Math.round(v[1]*e.kick.p*k);settle=Math.round((e.kick.drop||0)*k*k);}
- const s=sprOf(e),X=sx(e.x,e.y)+kx,Y=sy(e.x,e.y)+ky+Math.min(6,Math.round(e.r*.6))+2,H0=s.fh*s.sc;let frame=Math.floor(time*4+e.wob);
+ const s=sprOf(e),X=sx(e.x,e.y)+kx,Y=sy(e.x,e.y)+ky+enemyFootOffset(e),H0=s.fh*s.sc;let frame=Math.floor(time*4+e.wob);
  shadow(X,Y-2,Math.round(e.r*2+6));
  if(e.elite){ctx.globalAlpha=.7;wcirc(e.x,e.y,e.r+3+Math.sin(time*6),ELMOD[e.elite].c);ctx.globalAlpha=1;}
  const blink=e.tele>0&&Math.floor(time*16)%2===0;
@@ -659,9 +660,20 @@ function renderPlay(){
  ctx.fillStyle='#07060a';ctx.fillRect(0,0,W,H);
  // screen shake is almost gone (at most a 1px nudge on the very biggest moments); power comes from recoil, bursts and freeze-frames instead
  const sk=shake>=10&&OPT().shake?1:0,shx=sk?Math.round(rnd(-1,1)):0;
- let fcx=P.x,fcy=P.y;if(introT>0&&introE){const el=INTRO-introT,f=Math.min(1,el/.5,introT/.5),k=f*f*(3-2*f);fcx=P.x+(introE.x-P.x)*k;fcy=P.y+(introE.y-P.y)*k;}
+ let fcx=P.x,fcy=P.y,introDX=0,introDY=0;
+ if(introT>0&&introE){
+  const el=INTRO-introT,f=Math.min(1,el/.5,introT/.5),k=f*f*(3-2*f);
+  fcx=P.x+(introE.x-P.x)*k;fcy=P.y+(introE.y-P.y)*k;
+  const focus=!introE.camOnly&&BKIT[introE.name]?.introFocus;
+  if(focus){
+   const s=sprOf(introE),flip=isoX(P.x,P.y)<isoX(introE.x,introE.y);
+   // Frame the mounted silhouette, easing the offset in and out with the existing pan.
+   introDX=k*(focus[0]-.5)*s.fw*s.sc*(flip?-1:1);
+   introDY=k*(6+enemyFootOffset(introE)-(introE.z||0)+(focus[1]-1)*s.fh*s.sc);
+  }
+ }
  // Keep pixel-art placement on the logical grid and scroll the whole scene in backing-pixel steps.
- const scrollX=isoX(fcx,fcy)-W/2+shx,scrollY=isoY(fcx,fcy)-(H/2+6);
+ const scrollX=isoX(fcx,fcy)-W/2+shx+introDX,scrollY=isoY(fcx,fcy)-(H/2+6)+introDY;
  const snap=v=>Math.round(v*viewScale)/viewScale,viewX=snap(scrollX),viewY=snap(scrollY);
  cam.x=Math.round(scrollX);cam.y=Math.round(scrollY);
  const px=isoX(P.x,P.y),py=isoY(P.x,P.y),playerDX=snap(px)-Math.round(px),playerDY=snap(py)-Math.round(py);
