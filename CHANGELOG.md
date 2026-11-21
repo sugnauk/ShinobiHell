@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.8.15: Mobile ability aim
+
+- Touch abilities and charged heavy attacks aim along your current or last walking direction when auto-aim has no target. Ground-targeted casts aim ahead up to the first wall.
+
 ## 0.8.14: The First Flame
 
 - Start with Wizard, Samurai and Archer. Recruit one hero for each of the first ten lifetime guardian clears, with Sumo on the ninth. Prologue clears and past wins count.
