@@ -29,7 +29,7 @@ installDescentRoad(NEB_I,descentRoad(NEB_I,'nebariA'));
  return r;
 };}
 {const base=saveRun;saveRun=function(){
- if(R)R.lateLayout=3;
+ if(R)R.lateLayout=LATE_LAYOUT;
  return base.apply(this,arguments);
 };}
 {const base=onBossDead;onBossDead=function(e){

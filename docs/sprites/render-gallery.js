@@ -6,7 +6,7 @@ const res=await p.evaluate(()=>{
   ['STAGES I - XII',BOSS.slice(0,12).map((b,i)=>[b.name,'STAGE '+roman[i]])],
   ['LATE GAME AND CHAPTER II',BOSS.slice(12, CAMPAIGN_END+1+LATE.length).flatMap((b,i)=>{
    const di=12+i,roads=DESCENT_ROADS[di];
-   return roads?roads.map((road,k)=>[road.def.t.BOSS.name,'STAGE '+roman[di]+' '+(k?'B':'A')]):[[b.name,'STAGE '+roman[di]]];
+   return roads?roads.map((road,k)=>[road.def.t.BOSS.name,'STAGE '+romanOf(di+1)+' '+(k?'B':'A')]):[[b.name,'STAGE '+romanOf(di+1)]];
   })],
   ['MINI-BOSSES AND LAIRS',[['THE MOTH QUEEN','MINI-BOSS'],['TSUCHIGUMO, EARTH SPIDER','LAIR III'],['THE HITOBASHIRA','LAIR V'],['KUROGANE ON FOOT','XI, ON FOOT'],[SHARDSMITH,'LAIR XVII']]]];
  const Z=2,CW=210,CH=196,COLS=6,HDR=28,TOP=40;let rows=0;for(const [,L] of groups)rows+=Math.ceil(L.length/COLS);

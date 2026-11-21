@@ -1,7 +1,8 @@
 # Changelog
 
-## 0.8.14: More shop choices
+## 0.8.14: The First Flame
 
+- Added the Temple of the First Flame after Ruri. Master Kaito alternates palm, bow and sword forms, then links them after his braziers go out. His guardian artwork also appears at campfires and in training.
 - Shops stock up to three different relics. Each stage allows one relic purchase.
 - Sumo’s Salt Throw heals for 25% of damage dealt, up to 20% max HP per throw.
 - Centred Lord Kurogane's mounted sprite in his boss intro. In phase two he dismounts, and Yamikaze pursues the player with telegraphed charges. Both must be defeated.

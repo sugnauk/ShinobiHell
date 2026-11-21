@@ -512,10 +512,10 @@ function savedRun(){try{const s=JSON.parse(localStorage.getItem(RUNKEY));if(s?.v
  if(!lateStagesReady)return null;
  // Each layout introduced one story stage where the first Abyss floor used to be.
  const layout=s.R.lateLayout|0;
- if(layout<3){
-  const oldAbyss=CAMPAIGN_END+3+Math.max(0,layout),shift=3-Math.max(0,layout);
+ if(layout<LATE_LAYOUT){
+  const oldAbyss=CAMPAIGN_END+3+Math.max(0,layout),shift=LATE_LAYOUT-Math.max(0,layout);
   if(s.R.di>=oldAbyss){s.R.di+=shift;if(s.R.start>=oldAbyss)s.R.start+=shift;}
-  s.R.lateLayout=3;
+  s.R.lateLayout=LATE_LAYOUT;
  }
  if(s.R.di>CAMPAIGN_END)lateEnsure(s.R.di);return DUN[s.R.di]?s:null;}catch(e){return null;}}
 function clearRun(){try{localStorage.removeItem(RUNKEY);}catch(e){}}

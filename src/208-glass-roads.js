@@ -428,5 +428,3 @@ installDescentRoad(RURI_I,descentRoad(RURI_I,'ruriA'));
 const glassRoadStory='CLEAR WATER RUNS BELOW. ONE ROAD LEADS INTO THE LAPIS CISTERN; THE OTHER GLOWS WITH THE HEAT OF THE SHARD KILN.';
 for(const r of DESCENT_ROADS[NEB_I])r.def.t.MASTER_LINES=glassRoadStory;
 MASTER_LINES[NEB_I]=glassRoadStory;
-
-lateStagesReady=true;
