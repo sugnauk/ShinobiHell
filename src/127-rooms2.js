@@ -5,7 +5,7 @@
 
 // ---------- minimap: every foe you have seen the ground of is a small red dot ----------
 {const _dm=drawMinimap;drawMinimap=function(){_dm.apply(this,arguments);if(R.fog===R.di||!P)return;
- const k=64/(MW+MH),mw=Math.round((MW+MH)*k),ox=W-mw-3,oy=3,mp=(x,y)=>{const [u,v]=tileR(x,y);return [ox+Math.round((u-v+RMH)*k),oy+Math.round((u+v)*k)];};
+ const {point:mp}=minimapLayout();
  ctx.fillStyle='#ff3030';
  for(const e of enemies){if(e.dead||e.boss||e.type==='dummy'||e.type==='turret')continue;const tx=e.x/T|0,ty=e.y/T|0;if(tx<0||ty<0||tx>=MW||ty>=MH||!map.expl[ty*MW+tx])continue;const q=mp(tx,ty);ctx.fillRect(q[0],q[1],1,1);if(e.elite)ctx.fillRect(q[0]+1,q[1],1,1);}
  const q=mp(P.x/T|0,P.y/T|0);ctx.fillStyle='#fff';ctx.fillRect(q[0]-1,q[1]-1,3,3);};} // you stay on top

@@ -17,6 +17,6 @@ async function goFullscreen(on){try{
 {let asked=false;const first=e=>{if(asked||e.target?.closest?.('#touch-display')||matchMedia('(pointer: coarse)').matches)return;
  asked=true;if(!meta||!meta.opt||meta.opt.fs!==0)goFullscreen(true);};
  addEventListener('keydown',first,{capture:true});addEventListener('mousedown',first,{capture:true});}
-function fitFullscreen(){const v=VIEWWIDE;W=0;setView(v,viewScale);}
+function fitFullscreen(){resizeView();}
 document.addEventListener('fullscreenchange',fitFullscreen);
 document.addEventListener('webkitfullscreenchange',fitFullscreen);

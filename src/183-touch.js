@@ -22,8 +22,14 @@ const smallTouchScreen=()=>Math.min(innerWidth,innerHeight)<520;
 };}
 // the buttons, placed from the bottom-right corner; r is the touch radius in game pixels
 const TOUCHLAY={cx:-40,cy:-38,inR:80,outR:142,dash:24,ab:18,ult:21,small:14};
+const TOUCH_TOP={right:17,y:16,r:11,step:29,fullscreen:44,gap:6};
+const touchPixelScale=()=>parseFloat(cv.style.height)/H||1;
+const touchFullscreenSize=()=>touchDisplay.hidden?0:Math.ceil(TOUCH_TOP.fullscreen/touchPixelScale());
+const touchHudRowBottom=()=>Math.max(34,2*TOUCH_TOP.gap+touchFullscreenSize());
 function touchButtons(){const L=TOUCHLAY,cx=W+L.cx,cy=H+L.cy,ring=(ang,rad)=>[cx+Math.cos(ang*Math.PI/180)*rad,cy+Math.sin(ang*Math.PI/180)*rad];
  const at=(ang,rad,o)=>{const [x,y]=ring(ang,rad);return Object.assign({x,y},o);};
+ const row=TOUCH_TOP,fullscreen=touchFullscreenSize(),right=W-row.right-(fullscreen?fullscreen+row.gap:0);
+ const top=(i,id,l,key)=>({id,l,key,x:right-i*row.step,y:row.y,r:row.r,top:1,act:id});
  return [{id:'dash',l:'DASH',x:cx,y:cy,r:L.dash,key:()=>KB.dash,col:'#9cdfff',act:'dash'},
   at(180,L.inR,{id:'heavy',l:'RMB',slot:'h',r:L.ab,hold:'rdown',col:'#ffd080'}),
   at(214,L.inR,{id:'q',l:'Q',slot:'q',r:L.ab,key:()=>KB.q,aimFirst:1,act:'q'}),
@@ -32,11 +38,9 @@ function touchButtons(){const L=TOUCHLAY,cx=W+L.cx,cy=H+L.cy,ring=(ang,rad)=>[cx
   at(190,L.outR,{id:'e',l:'R',slot:'e',r:L.ult,key:()=>KB.e,aimFirst:1,col:'#ffd040',act:'e'}),
   at(224,L.outR,{id:'heal',l:'POT',r:L.small,key:()=>KB.heal,col:'#ff7070',act:'heal'}),
   at(254,L.outR,{id:'use',l:'USE',r:L.small,key:()=>KB.use,col:'#c8f0a0',act:'use'}),
-  {id:'pause',l:'II',x:W-14,y:14,r:10,key:()=>'Escape',top:1},
-  {id:'pack',l:'BAG',x:W-38,y:14,r:10,key:()=>KB.pack,top:1,act:'pack'},
-  {id:'swap',l:'SWAP',x:W-64,y:14,r:10,key:()=>KB.swap,top:1}];}
+  top(0,'pause','II',()=>'Escape'),top(1,'pack',invOpen?'X':'BAG',()=>KB.pack),top(2,'swap','SWAP',()=>KB.swap)];}
 const toCanvas=t=>{const r=cv.getBoundingClientRect();return {x:(t.clientX-r.left)/r.width*W,y:(t.clientY-r.top)/r.height*H};};
-function touchHit(p,pad){for(const b of touchButtons())if(Math.hypot(p.x-b.x,p.y-b.y)<=b.r+(pad||3))return b;return null;}
+function touchHit(p,pad){for(const b of touchButtons())if(Math.hypot(p.x-b.x,p.y-b.y)<=b.r+(b.top?3:pad||3))return b;return null;}
 function touchAimAt(e){mouse.x=W/2+sx(e.x,e.y)-sx(P.x,P.y);mouse.y=H/2+6+sy(e.x,e.y)-sy(P.x,P.y);P.aim=angTo(P,e);}
 function touchPress(b){if(b.aimFirst&&!TCH.aim){const e=touchTarget(TOUCHAIM);if(e)touchAimAt(e);}
  if(b.hold==='rdown'){mouse.rdown=true;return;}const k=b.key();if(!k)return;keys[k]=true;onKey(k);}
@@ -45,7 +49,7 @@ function touchOn(){if(TOUCH)return;TOUCH=true;cv.style.touchAction='none';docume
  cv.style.cursor='none';
  // a closer default zoom suits a small screen (only if you never picked one yourself)
  if(meta&&meta.opt&&meta.opt.zoom==null&&smallTouchScreen())meta.opt.zoom=0;
- setView(VIEWWIDE,viewScale);updateTouchDisplay();}
+ resizeView();}
 addEventListener('touchstart',e=>{TOUCHAT=performance.now();touchOn();
  if(touchDisplay.contains(e.target))return;
  if(mode==='master'&&e.changedTouches.length){
@@ -58,7 +62,9 @@ addEventListener('touchstart',e=>{TOUCHAT=performance.now();touchOn();
   return;}
  e.preventDefault();
  if(TIPHOLD){for(const t of e.changedTouches){const b=touchHit(toCanvas(t),6);if(b&&!b.top){TCH.btn.set(t.identifier,b);touchPress(b);return;}}onKey('Enter');return;}
- for(const t of e.changedTouches){const p=toCanvas(t),b=touchHit(p,6);
+ for(const t of e.changedTouches){const p=toCanvas(t);
+  if(p.x<0||p.x>W||p.y<0||p.y>H)continue;
+  const b=touchHit(p,6);
   if(b){TCH.btn.set(t.identifier,b);touchPress(b);continue;}
   // the move stick: anywhere left of the buttons
   if(p.x<W*.62&&!TCH.stick)TCH.stick={id:t.identifier,ox:p.x,oy:p.y,x:p.x,y:p.y};}},{passive:false});
@@ -70,7 +76,7 @@ const touchEnd=e=>{if(!TOUCH||touchDisplay.contains(e.target))return;if(touchAct
 }};
 addEventListener('touchend',touchEnd,{passive:false});addEventListener('touchcancel',touchEnd,{passive:false});
 // a real mouse moving (not one the browser made up from a tap) hands control back to the PC
-addEventListener('mousemove',()=>{if(TOUCH&&performance.now()-TOUCHAT>1500){TOUCH=false;TCH.stick=TCH.aim=null;TCH.btn.clear();setView(VIEWWIDE,viewScale);updateTouchDisplay();}});
+addEventListener('mousemove',()=>{if(TOUCH&&performance.now()-TOUCHAT>1500){TOUCH=false;TCH.stick=TCH.aim=null;TCH.btn.clear();resizeView();}});
 // movement: the stick gives a smooth direction instead of the eight of the keys
 {const _mv=moveVec;moveVec=function(){const s=TOUCH&&touchActive()&&TCH.stick;if(!s)return _mv.apply(this,arguments);
  let dx=s.x-s.ox,dy=s.y-s.oy;const l=Math.hypot(dx,dy);if(l<4)return [0,0];if(l>22){s.ox=s.x-dx/l*22;s.oy=s.y-dy/l*22;}const k=Math.min(1,l/16);dx=dx/l*k;dy=dy/l*k;
@@ -99,14 +105,16 @@ function touchTarget(range,edge=false){let best=null,bd=Infinity;for(const e of 
 // drawing: sticks and buttons, faint so they never hide the fight; a button dims and counts down while it recharges
 function touchDraw(){if(!TOUCH||mode!=='play'||!P)return;const top=paused||invOpen,ask=TIPHOLD&&TIPHOLD.A?TIPHOLD.A.k||[]:[];
  for(const b of touchButtons()){if(top&&!b.top)continue;
-  const cd=b.slot?slotCd(b.slot):b.id==='dash'?P.dashCd||0:0,held=[...TCH.btn.values()].includes(b)||(b.hold==='rdown'&&mouse.rdown),col=b.col||'#e8e8f0',asked=b.act&&ask.includes(b.act);
+  const cd=b.slot?slotCd(b.slot):b.id==='dash'?P.dashCd||0:0,held=[...TCH.btn.values()].some(t=>t.id===b.id)||(b.hold==='rdown'&&mouse.rdown),col=b.col||'#e8e8f0',asked=b.act&&ask.includes(b.act);
   ctx.globalAlpha=held?.55:.32;ctx.fillStyle='#000';ctx.beginPath();ctx.arc(b.x,b.y,b.r,0,TAU);ctx.fill();
   ctx.globalAlpha=cd>0?.4:held?1:.8;ctx.strokeStyle=col;ctx.lineWidth=held?2:1;ctx.beginPath();ctx.arc(b.x,b.y,b.r,0,TAU);ctx.stroke();ctx.lineWidth=1;
   // the cooldown sweeps round the rim
   if(cd>0&&b.slot){const mx=b.slot==='h'?spellCd('h'):spellCd(b.slot);ctx.globalAlpha=.85;ctx.strokeStyle=col;ctx.lineWidth=2;ctx.beginPath();ctx.arc(b.x,b.y,b.r-2,-Math.PI/2,-Math.PI/2+TAU*(1-Math.min(1,cd/(mx||1))));ctx.stroke();ctx.lineWidth=1;}
   if(b.slot==='h'&&P.hCh>0){ctx.globalAlpha=.9;ctx.strokeStyle='#ffd040';ctx.lineWidth=2;ctx.beginPath();ctx.arc(b.x,b.y,b.r-2,-Math.PI/2,-Math.PI/2+TAU*Math.min(1,P.hCh/HCHARGE));ctx.stroke();ctx.lineWidth=1;}
   if(asked){const pu=.5+.5*Math.sin(time*10);ctx.globalAlpha=.6+.4*pu;ctx.strokeStyle='#ffffff';ctx.lineWidth=2;ctx.beginPath();ctx.arc(b.x,b.y,b.r+3+2*pu,0,TAU);ctx.stroke();ctx.lineWidth=1;}
-  const s=cd>.05&&b.slot?String(Math.ceil(cd)):b.l,big=b.r>=16&&s.length<=4;ctx.globalAlpha=cd>0?.55:1;txt(s,Math.round(b.x-txtW(s,big?2:1)/2),Math.round(b.y-(big?6:3)),cd>0?'#aaa':col,big?2:1);
+  const pack=b.id==='pack'&&!invOpen,s=cd>.05&&b.slot?String(Math.ceil(cd)):b.l,big=b.r>=16&&s.length<=4;
+  ctx.globalAlpha=cd>0?.55:1;txt(s,Math.round(b.x-txtW(s,big?2:1)/2),Math.round(b.y-(big?6:pack?6:3)),cd>0?'#aaa':col,big?2:1);
+  if(pack){const count=R.pack.length+'/'+PACKMAX;txt(count,Math.round(b.x-txtW(count)/2),b.y+1,R.pack.length>=PACKMAX?'#f66':'#aaa');}
   if(b.id==='heal'&&R)txt(String(R.pots),Math.round(b.x+b.r-6),Math.round(b.y+b.r-8),'#fff');}
  ctx.globalAlpha=1;if(top||TIPHOLD)return;
  const s=TCH.stick;if(s){ctx.globalAlpha=.3;ctx.strokeStyle='#ffffff';ctx.beginPath();ctx.arc(s.ox,s.oy,22,0,TAU);ctx.stroke();
@@ -124,17 +132,38 @@ function touchPortrait(){if(!TOUCH||innerWidth>=innerHeight)return;ctx.fillStyle
 const isIOS=/iP(hone|od|ad)/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
 const touchDisplay=document.getElementById('touch-display'),fullscreenButton=document.getElementById('touch-fullscreen');
 const fullscreenHelp=document.getElementById('fullscreen-help'),coarseTouch=matchMedia('(pointer: coarse)');
+const usesTouchViewport=()=>TOUCH||coarseTouch.matches;
+const touchInsets={top:0,right:0,bottom:0,left:0};
+function readTouchInsets(){
+ const style=getComputedStyle(document.documentElement);
+ for(const edge in touchInsets)touchInsets[edge]=parseFloat(style.getPropertyValue('--safe-'+edge))||0;
+}
+{const base=viewArea;viewArea=function(){
+ if(!usesTouchViewport())return base();
+ const viewport=window.visualViewport,{top,right,bottom,left}=touchInsets;
+ return {x:(viewport?.offsetLeft||0)+left,y:(viewport?.offsetTop||0)+top,
+  w:Math.max(1,(viewport?.width||innerWidth)-left-right),h:Math.max(1,(viewport?.height||innerHeight)-top-bottom)};
+};}
+{const base=resizeView;resizeView=function(){if(usesTouchViewport())readTouchInsets();base();};}
 let touchDisplayMode;
 function updateTouchDisplay(){touchDisplayMode=mode;
  const active=Boolean(fullscreenElement()),standalone=matchMedia('(display-mode: standalone)').matches||
   matchMedia('(display-mode: fullscreen)').matches||navigator.standalone===true;
- touchDisplay.hidden=!(TOUCH||coarseTouch.matches)||(standalone&&!active);
+ touchDisplay.hidden=!usesTouchViewport()||(standalone&&!active);
  const label=active?'Exit fullscreen':'Enter fullscreen';
  fullscreenButton.title=label;fullscreenButton.setAttribute('aria-label',label);
  fullscreenButton.setAttribute('aria-pressed',String(active));
- const bounds=cv.getBoundingClientRect();
- touchDisplay.style.setProperty('--display-top',(mode==='play'?Math.max(8,bounds.top+34*bounds.height/H):8)+'px');
+ const area=viewArea(),landscape=area.w>=area.h;
+ if(mode==='play'&&TOUCH&&landscape){
+  const bounds=cv.getBoundingClientRect(),padding=TOUCH_TOP.gap*touchPixelScale();
+  touchDisplay.style.setProperty('--display-top',(bounds.top+padding)+'px');
+  touchDisplay.style.setProperty('--display-right',(innerWidth-bounds.right+padding)+'px');
+ }else{
+  touchDisplay.style.setProperty('--display-top',(area.y+8)+'px');
+  touchDisplay.style.setProperty('--display-right',(innerWidth-area.x-area.w+8)+'px');
+ }
 }
+{const base=fit;fit=function(){base();updateTouchDisplay();};}
 fullscreenButton.addEventListener('click',async()=>{
  if(!fullscreenHelp.hidden){fullscreenHelp.hidden=true;return;}
  const entering=!fullscreenElement();
@@ -149,9 +178,10 @@ fullscreenButton.addEventListener('click',async()=>{
 });
 touchDisplay.addEventListener('mousedown',e=>e.stopPropagation());
 for(const event of ['fullscreenchange','webkitfullscreenchange'])document.addEventListener(event,()=>{fullscreenHelp.hidden=true;updateTouchDisplay();});
-coarseTouch.addEventListener?.('change',updateTouchDisplay);
-addEventListener('resize',updateTouchDisplay);
-{const base=render;render=function(){if(mode!==touchDisplayMode)updateTouchDisplay();return base.apply(this,arguments);};}
+coarseTouch.addEventListener?.('change',()=>resizeView());
+for(const event of ['resize','scroll'])window.visualViewport?.addEventListener(event,()=>{if(usesTouchViewport())resizeView();});
+{const base=render;render=function(){const result=base.apply(this,arguments);if(mode!==touchDisplayMode)updateTouchDisplay();return result;};}
+if(usesTouchViewport())resizeView();
 // shrine offerings take a tap: each offering row and LEAVE are buttons (the screen used to want the 1-4 keys)
 cv.addEventListener('mousedown',e=>{if(mode!=='event'||!evOpts||e.button!==0)return;const x=mouse.x,y=mouse.y;
  for(let i=0;i<evOpts.length;i++){const y0=54+i*30;if(x>=24&&x<=296&&y>=y0&&y<=y0+24){pickEvent(i);mouse.down=false;return;}}
