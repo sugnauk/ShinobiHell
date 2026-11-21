@@ -34,8 +34,12 @@ function heroCheck(){if(!meta.heroes)return;let any=null;for(const H of HERO_CH)
 let HEROANN=null;
 function heroAnnounce(H){const C=CLASSES.find(c=>c.k===H.k);HEROANN={C,H,t0:performance.now()/1000};try{sfx('rare');}catch(_){}
  if(typeof deadInfo!=='undefined'&&deadInfo&&!deadInfo.unlock)deadInfo.unlock=C;}
-// the announcement: a banner with the new hero's portrait, over whatever screen you are on
-{const _r=render;render=function(){const r=_r.apply(this,arguments);const A=HEROANN;if(!A)return r;const k=performance.now()/1000-A.t0;if(k>4.5){HEROANN=null;return r;}
+// Keep the unlock banner clear of the boss reward cards and their lead-in.
+{const _r=render;render=function(){const r=_r.apply(this,arguments);const A=HEROANN;if(!A)return r;
+ const now=performance.now()/1000;
+ if(mode==='choose'||mode==='play'&&portal?.pending){A.hold??=now;return r;}
+ if(A.hold!=null){A.t0+=now-A.hold;A.hold=null;}
+ const k=now-A.t0;if(k>4.5){HEROANN=null;return r;}
  const a=Math.min(1,k/.25,(4.5-k)/.4),w=Math.min(W-20,240),h=46,x=Math.round(W/2-w/2),y=Math.round(H*.16);ctx.globalAlpha=a*.94;ctx.fillStyle='#0c0a12';ctx.fillRect(x,y,w,h);ctx.fillStyle=A.C.col;ctx.fillRect(x,y,w,1);ctx.fillRect(x,y+h-1,w,1);
  ctx.globalAlpha=a;try{drawSpr(heroSpr(A.C.k,0),x+20,y+h-6,false,0,false);}catch(_){}
  txt('NEW HERO: '+A.C.n,x+40,y+8,A.C.col,1);txt(A.H.t,x+40,y+20,'#e0c070');txt('CHOOSE THEM ON CHARACTER SELECT',x+40,y+31,'#aaa');ctx.globalAlpha=1;return r;};}
