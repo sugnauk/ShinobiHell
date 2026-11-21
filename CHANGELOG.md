@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.8.13: Sazanami’s Last Crossing
+
+- Reworked the Stage XV fight with telegraphed bullet rows, visible safe lanes, a red-lantern reversal, and a three-part finale.
+- Added clipped Mooring Cut warnings and a stationary attack window when Sazanami lowers his lantern.
+- Documented attack patterns for the rest of Chapter II and recorded the keyboard and touch playtest results.
+
 ## 0.8.12: The fork beneath Still Water and mobile fullscreen
 
 - The campfire after XV offers two roads into XVI, with keyboard and touch controls. Checkpoints retain the chosen road.

@@ -213,6 +213,17 @@ const sazArt=hiArt((H,Q)=>{const {by,two}=H,cx=72;
  wisp(cx+30+Math.cos(ph)*3,80-Math.sin(ph)*4,.85);});
 humBoss('SAZANAMI, FERRYMAN OF THE HOLLOW',sazArt,{idle0:{},idle1:{b:1},atk:{near:[[46,31],[52,26],[48,23]],dy:-1,pa:-1.0,pb:26,pf:24}},{sc:1.13});
 hiPoses('SAZANAMI, FERRYMAN OF THE HOLLOW',[[[26,30],[19,41],[21,50]],[[46,31],[51,42],[48,48]]]);
+{const posed=BART[FERRY.name].posed,base=posed.pick;
+ posed.pick=(e,ix)=>{
+  const crossing=e.EV||e.A;
+  if(!e.phx&&crossing?.rows){
+   if(crossing.recover)return ix.follow;
+   if(crossing.t-crossing.release<.22)return ix.atk;
+   if(crossing.cue||crossing.cut)return ix.wind;
+   return ix.idle0;
+  }
+  return base(e,ix);
+ };}
 
 // ---------------------------------------------------------------- the new prologue stories
 // Prologue I: the Emperor's own tax enforcer, not a bandit; Prologue II: the master of the tithe barges, not a pirate.

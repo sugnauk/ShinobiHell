@@ -37,64 +37,144 @@ function ferryArt(p,Q){const {R,E,L,seg,trap,arm,leg,by}=HUM(p,Q),j=ARTHURT?'#53
  for(const side of [-1,1]){L(36+side*14,19+by,36+side*13,33+by,'#b2a983',1);R(36+side*13,31+by,2,4,'#e6b171');}}
 humBoss(FERRY.name,ferryArt,{idle0:{},idle1:{b:1},atk:{near:[[46,31],[52,26],[48,23]],dy:-1}},{sc:1.13});
 
-// The crossing is a sequence of floor strikes. The entire marked shape is dangerous, and the bright lane is safe.
-function ferryBand(e,E,lo,hi,t){const A=E.arena,h=E.axis==='x';if(hi<=lo)return;
- const box=h?{x0:lo,x1:hi,y0:A.y0-T,y1:A.y1+T}:{x0:A.x0-T,x1:A.x1+T,y0:lo,y1:hi};
- mark(Object.assign(box,{k:'rect',t,stay:.36,grow:false,col:E.beat===3?'#ea7f65':'#ce7463',dmg:13*e.dm,src:e,survival:E,quiet:true}));}
-function ferryCrossing(at,axis,width){return {at,dur:14,name:axis==='x'?'THE STILL WATER CROSSING':'THE LAST CROSSING',hint:'MOVE TO THE LIT LANE',survival:true,storm:1,ownPressure:true,
- start(e,E){const A=E.arena=arenaOf(e);E.axis=axis;E.mid=axis==='x'?A.cx:A.cy;
-  E.lo=(axis==='x'?A.x0:A.y0)-T;E.hi=(axis==='x'?A.x1:A.y1)+T;
-  E.side=P[axis]<E.mid?1:-1;E.edge=E.mid+E.side*102;E.home=freeSpot(e,A.cx,A.cy-54,e.r);E.hint='FIND THE CENTRE LANE';},
- tick(e,dt,E){e.x+=(E.home.x-e.x)*Math.min(1,dt*4);e.y+=(E.home.y-e.y)*Math.min(1,dt*4);
-  if(!E.beat){E.beat=1;E.safe=E.mid;E.width=width+8;E.shut=4.1;ferryBand(e,E,E.lo,E.safe-E.width,4.1);ferryBand(e,E,E.safe+E.width,E.hi,4.1);snd('bell');}
-  else if(E.beat===1&&E.t>=4.9){E.beat=2;E.safe=E.edge;E.width=width;E.shut=8.2;E.hint='CROSS TO THE LIT FAR LANE';
-   ferryBand(e,E,E.lo,E.safe-width,3.3);ferryBand(e,E,E.safe+width,E.hi,3.3);snd('puppetPluck');}
-  else if(E.beat===2&&E.t>=9.1){E.beat=3;E.shut=12.4;E.hint='HOLD THE LANE THROUGH THE SWEEP';const L=E.safe-width,R=E.safe+width;
-   const outer=E.side>0?E.lo:E.hi,near=E.side>0?L:R;for(let i=0;i<5;i++){
-    const a=lerp(outer,near,i/5),b=lerp(outer,near,(i+1)/5);ferryBand(e,E,Math.min(a,b)-.4,Math.max(a,b)+.4,1.75+i*.33);}
-   if(E.side>0)ferryBand(e,E,R,E.hi,3.05);else ferryBand(e,E,E.lo,L,3.05);snd('bell');}},
- end(e,E){e.ferryWait=1.6;}};}
-function drawFerryLane(e){const E=e.EV,A0=e.A;
- if(!E?.beat){if(A0?.n==='LANTERN FERRY'&&A0.arena&&!A0.waves){const B=A0.arena;
-   ctx.save();worldXf();ctx.globalAlpha=.4;ctx.strokeStyle=FERRY.jade;ctx.setLineDash([4,5]);ctx.strokeRect(B.x0,A0.origin-51,B.x1-B.x0,66);ctx.restore();}return;}
- const A=E.arena,h=E.axis==='x',lo=E.safe-E.width,hi=E.safe+E.width;
- ctx.save();worldXf();ctx.globalAlpha=E.t<E.shut?.68:.32;ctx.fillStyle=FERRY.jade;ctx.strokeStyle=FERRY.pale;ctx.lineWidth=1.6;
- ctx.setLineDash([6,4]);ctx.strokeRect(h?lo:A.x0,h?A.y0:lo,h?hi-lo:A.x1-A.x0,h?A.y1-A.y0:hi-lo);ctx.setLineDash([]);
- ctx.globalAlpha=.15;ctx.fillRect(h?lo:A.x0,h?A.y0:lo,h?hi-lo:A.x1-A.x0,h?A.y1-A.y0:hi-lo);
- if(E.beat===2&&E.t<E.shut){ctx.globalAlpha=.75;ctx.strokeStyle=FERRY.pale;ctx.lineWidth=2;
-  for(const o of [-34,0,34])for(const f of [.34,.57,.8]){const v=lerp(E.mid,E.safe,f),d=E.side*8,other=(h?A.cy:A.cx)+o;
-   ctx.beginPath();if(h){ctx.moveTo(v-d,other-5);ctx.lineTo(v,other);ctx.lineTo(v-d,other+5);}else{ctx.moveTo(other-5,v-d);ctx.lineTo(other,v);ctx.lineTo(other+5,v-d);}ctx.stroke();}}
- ctx.restore();}
-
-// Normal attacks introduce the two rules separately: follow a lit gap, then move when the toll marks your position.
-function clearFerryMarks(e,A){for(const m of A.marks||[]){const i=BMK.indexOf(m);if(i>=0)BMK.splice(i,1);}}
-const FERRY_ATTACKS=[
- {n:'LANTERN FERRY',wt:3,gap:.88,run(e,A){
-  if(at(A,0)){A.arena=arenaOf(e);A.origin=clamp(P.y,A.arena.y0+56,A.arena.y1-56);A.dir=P.x<A.arena.cx?1:-1;A.waves=0;e.tele=1;snd('bell');}
-  const B=A.arena,step=e.half?.57:.76;if(A.waves<(e.half?4:3)&&A.t>=.88+A.waves*step){
-   e.tele=0;const dir=A.waves%2?-A.dir:A.dir,gap=A.origin+((A.waves%3)-1)*19,sp=e.half?154:132;A.waves++;
-   for(let y=B.y0+5;y<B.y1;y+=14){if(Math.abs(y-gap)<33)continue;
-    bsh(e,dir>0?B.x0+6:B.x1-6,y,dir>0?0:Math.PI,sp,5,{r:3,spr:'bgrain',life:4.4,col:dir>0?FERRY.jade:FERRY.amber});}
-   sfx('shoot');}
-  return A.t>(e.half?3.3:2.9);}},
- {n:'ANCHOR TOLL',wt:2,gap:1.18,end:clearFerryMarks,run(e,A){const count=e.half?3:2,next=e.half?.63:.82;
-  if(at(A,0)){A.waves=0;A.marks=[];e.tele=1;}
-  if(A.waves<count&&A.t>=.13+A.waves*next){A.waves++;const x=P.x,y=P.y,n=e.half?15:12;
-   const m=mark({k:'c',x,y,r:e.half?29:26,t:.84,dmg:12*e.dm,col:FERRY.amber,src:e,quiet:true,on(){
-    const a=aimAt(e,x,y);for(let i=-3;i<=3;i++){if(i===0)continue;const q=a+i*.2;bsh(e,e.x,e.y,q,112+3*n,6,{r:3,spr:'bshard',life:1.8,col:FERRY.pale});}
-    fxRing(x,y,m.r,FERRY.amber,.34);snd('sumoStomp');}});A.marks.push(m);}
-  if(A.t>1.1)e.tele=0;return A.t>(e.half?2.55:2.25);}},
- {n:'MOORING CUT',half:1,wt:2,gap:1.05,end:clearFerryMarks,run(e,A){
-  if(at(A,0)){const a=aimAt(e),D=arenaOf(e);e.tele=2;A.marks=[];for(const off of [-.26,.26])A.marks.push(mark({k:'l',x:e.x,y:e.y,a:a+off,len:D.R*1.65,w:13,t:1.03,stay:.25,dmg:14*e.dm,col:FERRY.amber,src:e,quiet:true}));snd('puppetPluck');}
-  if(at(A,1.03)){e.tele=0;snd('spearSteel');}return A.t>1.65;}}
-];
-BKIT[FERRY.name]={director:bossDirector,noContact:true,pref:98,halfName:'THE LANTERNS GO RED',
- guide:['THE GATE OF STILL WATER OPENS CHAPTER II. SAZANAMI GUARDS THE ROAD INTO THE ABYSS.',
-  'LANTERN FERRY: FIND THE GAP IN THE SHOTS FROM EITHER BANK. ANCHOR TOLL MARKS THE GROUND UNDERFOOT.',
-  'DURING THE CROSSING, MOVE TO THE LIT CENTRE LANE. THEN CROSS TO THE FAR LANE AND HOLD THROUGH THE SWEEP.'],
- events:[ferryCrossing(.68,'x',43),ferryCrossing(.24,'y',38)],atks:FERRY_ATTACKS,floor:drawFerryLane,
- reset(e){e.ferryWait=0;},
- move(e,dt,d,a){if(e.ferryWait>0){e.ferryWait-=dt;e.gapT=Math.max(e.gapT,e.ferryWait);return;}defaultMove(e,dt,d,a,BKIT[FERRY.name]);}};
+// A bank follows the shape of the walkable room, including its clipped corners.
+function ferryBank(A,y,dir,pad){
+ const start=dir>0?A.x0+pad:A.x1-pad;
+ for(let x=start;dir*(A.cx-x)>=0;x+=dir*2)if(!blocked(x,y,pad))return x;
+ return null;
+}
+function ferryCue(e,state,row){
+ state.cue=row;e.tele=1;snd('bell');
+}
+function ferryRows(e,state,slots,gap,shift,first,lead=1){
+ const A=state.arena=arenaOf(e);
+ const origin=clamp(P.y,A.cy-32,A.cy+32);
+ state.rows=slots.map((t,i)=>({t,lead,y:origin+(i%2?shift:0),gap,dir:i%2?-first:first}));
+}
+function ferryWave(e,A,row){
+ const shots=[],speed=95,col=row.dir>0?FERRY.jade:FERRY.amber;
+ for(let y=A.y0+8;y<A.y1-7;y+=13){
+  if(Math.abs(y-row.y)<row.gap/2+3)continue;
+  const x=ferryBank(A,y,row.dir,5);
+  if(x==null)continue;
+  // The water carries a row across the arena; it dissipates at the other bank.
+  const far=ferryBank(A,y,-row.dir,5);
+  if(far==null||Math.abs(far-x)<30)continue;
+  shots.push(bhNew(x,y,row.dir>0?0:Math.PI,speed,5*e.dm,{r:3,col,spr:'bgrain',
+   own:e,life:Math.abs(far-x)/(speed*(1+.06*(R.asc||0))),ferryRow:true}));
+ }
+ bhFair(shots,null);
+ for(const q of shots)if(!q.dead)projs.push(q);else if(BHPOOL.length<4000)BHPOOL.push(q);
+ sfx('shoot');
+}
+function ferryStep(e,S){
+ for(const row of S.rows){
+  if(at(S,row.t-row.lead))ferryCue(e,S,row);
+  if(at(S,row.t)){
+   ferryWave(e,S.arena,row);S.release=S.t;
+   if(S.cue===row)S.cue=null;
+   e.tele=S.cue?1:0;
+  }
+ }
+}
+function drawFerryLane(e){
+ const S=e.EV||e.A,row=S?.cue||(S?.cut?S.rows.at(-1):null);
+ if(!row)return;
+ const A=S.arena,lo=row.y-row.gap/2,hi=row.y+row.gap/2;
+ ctx.save();worldXf();
+ // Narrow bands of light fill the safe channel. Arrows point away from the firing bank.
+ ctx.fillStyle=row.dir>0?FERRY.jade:FERRY.amber;ctx.globalAlpha=.19;
+ for(let y=lo;y<hi;y+=3){
+  const x0=ferryBank(A,y,1,4),x1=ferryBank(A,y,-1,4);
+  if(x0!=null&&x1!=null)ctx.fillRect(x0,y,x1-x0,Math.min(3,hi-y));
+ }
+ ctx.globalAlpha=.95;ctx.strokeStyle=ctx.fillStyle;ctx.lineWidth=2;
+ const arrow=(x,y)=>{
+  ctx.beginPath();ctx.moveTo(x,y-5);ctx.lineTo(x+row.dir*8,y);ctx.lineTo(x,y+5);ctx.stroke();
+ };
+ for(const y of S.cue?[lo+7,row.y,hi-7]:[]){
+  const bank=ferryBank(A,y,row.dir,6);
+  if(bank!=null)arrow(bank+row.dir*10,y);
+ }
+ // The bank can be off-screen on phones. Repeat the direction cue within the camera's view.
+ if(S.cue){
+  for(const off of [-26,26]){
+   const x=clamp(P.x+off,A.x0+16,A.x1-16);
+   if(!blocked(x,row.y,12))arrow(x,row.y);
+  }
+ }
+ ctx.restore();
+}
+function ferryToll(e,S){
+ const A=S.arena,r=23,y=clamp(P.y,A.y0+r+4,A.y1-r-4),x=clamp(P.x,A.x0+r+4,A.x1-r-4);
+ // Keep the route between consecutive gaps clear, even if the player is already in it.
+ if(S.rows.some(row=>Math.abs(y-row.y)<row.gap/2+r+8)||blocked(x,y,r+3))return;
+ S.marks.push(mark({k:'c',x,y,r,t:1.15,dmg:12*e.dm,col:FERRY.amber,src:e,quiet:true,ferryCheck:true,on(){
+  fxRing(x,y,r,FERRY.amber,.34);snd('sumoStomp');
+ }}));
+}
+function ferryMooringCut(e,S){
+ const A=S.arena,row=S.rows.at(-1),w=12,pad=w/2+2;
+ for(const side of [-1,1]){
+  const dir=side*row.dir,y=row.y+side*(row.gap/2+10),x=ferryBank(A,y,dir,pad);
+  if(x==null)continue;
+  let len=0;
+  for(let d=2;d<=A.x1-A.x0;d+=2){
+   const u=x+dir*d;
+   if(u<A.x0+pad||u>A.x1-pad||blocked(u,y,pad))break;
+   len=d;
+  }
+  if(len<24)continue;
+  S.marks.push(mark({k:'l',x,y,a:dir>0?0:Math.PI,len,w,t:1.1,stay:.25,grow:false,
+   dmg:13*e.dm,col:FERRY.amber,src:e,quiet:true,ferryCheck:true}));
+ }
+ if(S.marks.length){S.cut=true;e.tele=1;snd('puppetPluck');}
+}
+function ferryClear(e){
+ for(const q of projs)if(q.own===e&&q.ferryRow)q.dead=true;
+}
+function ferryEnd(e,S){
+ for(const m of S.marks??[]){const i=BMK.indexOf(m);if(i>=0&&!m.fired)BMK.splice(i,1);}
+ S.cue=null;ferryClear(e);
+}
+const lanternFerry={n:'LANTERN FERRY',wt:1,gap:.45,run(e,S){
+ if(at(S,0)){
+  const cycle=e.ferryCycle++;
+  // Each form opens with a solo demonstration. The first red-lantern row comes from the other bank.
+  const demo=cycle===0,first=(e.half?-1:1)*(cycle%2?-1:1);
+  ferryRows(e,S,[1,1.95,2.9],e.half?48:60,demo?0:(cycle%2?-18:18),first,.9);
+  S.demo=demo;S.marks=[];
+ }
+ ferryStep(e,S);
+ if(!S.demo&&at(S,2.12))ferryToll(e,S);
+ if(e.half&&!S.demo&&at(S,4.15))ferryMooringCut(e,S);
+ if(S.cut&&at(S,5.25)){S.cut=false;S.release=S.t;e.tele=0;snd('spearSteel');}
+ if(at(S,5.9)){ferryClear(e);S.recover=true;e.tele=0;fxRing(e.x,e.y,24,FERRY.jade,.45);}
+ // The ferryman holds still through the whole opening so melee can close.
+ return S.t>=7.5;
+},end:ferryEnd};
+const lastCrossing={at:.24,dur:12,name:'THE LAST CROSSING',hint:'FOLLOW THE LIGHT. WATCH THE NEXT BANK.',survival:true,storm:1,ownPressure:true,
+ start(e,S){
+  ferryRows(e,S,[1.15,2.1,4.3,5.25,7.35,8.3,9.25],48,18,1,.9);
+  // The final sweep comes from one bank instead of alternating again.
+  S.rows[5].dir=S.rows[4].dir;S.rows[6].dir=S.rows[4].dir;
+ },
+ tick(e,dt,S){ferryStep(e,S);},
+ end(e,S){ferryEnd(e,S);e.ferryWait=1.8;fxRing(e.x,e.y,29,FERRY.jade,.55);}
+};
+BKIT[FERRY.name]={director:bossDirector,noContact:true,pref:78,halfName:'THE LANTERNS GO RED',
+ guide:['THE LANTERN LIGHTS THE NEXT GAP. THE ARROWS SHOW WHICH BANK FIRES.',
+  'FOLLOW THE GAPS. IF AN ANCHOR MARKS THE OLD LANE, KEEP CROSSING.',
+  'RED LANTERNS REVERSE THE FIRST BANK. MOORING CUT SWEEPS BESIDE THE LAST GAP. STRIKE WHEN HIS LANTERN DROPS.'],
+ events:[lastCrossing],atks:[lanternFerry],floor:drawFerryLane,
+ init(e){e.ferryCycle=0;},
+ onHalf(e){ferryClear(e);e.ferryCycle=0;},
+ reset(e){ferryClear(e);e.ferryWait=0;},
+ onDeath:ferryClear,
+ move(e,dt,d,a){
+  if(e.ferryWait>0){e.ferryWait-=dt;e.gapT=Math.max(e.gapT,e.ferryWait);return;}
+  defaultMove(e,dt,d,a,BKIT[FERRY.name]);
+ }};
 
 {const _pd=perfectDodge;perfectDodge=function(){const n=R?.pdodge,r=_pd.apply(this,arguments);
  if(R?.inv.ferrytoken&&R.pdodge!==n&&R.time>=(P.ferryReady||0)){P.ferryReady=R.time+3;P.haste=Math.max(P.haste,.85);}return r;};}
