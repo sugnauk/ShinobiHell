@@ -9,6 +9,7 @@
 - Fixed the Lacquer Seal icon and a reward-screen drawing error that could enlarge the dungeon and HUD over the reward cards. Boss-exclusive relics stay out of random loot.
 - Hero unlock banners wait until after the player chooses a boss reward.
 - The three prologues now award common and uncommon loot. Players keep their inventory into Stage I.
+- Prologue III has one prisoner rescue with a potion reward. The healer restores 25% max HP at campfires, and the peddler gives 30 gold and a 10% shop discount.
 - The Wizard can move during ultimate wind-ups.
 - Reduced cooldown bonuses from the skill tree, relics, gear, scrolls, shrines, and Daily pacts. Stacked bonuses can lower ability cooldowns by up to 25%. Grazes, perfect dodges, Echo Mind, and kills refund less time.
 - Documented attack patterns for the rest of Chapter II and recorded the keyboard and touch playtest results.

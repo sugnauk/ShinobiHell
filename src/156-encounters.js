@@ -4,29 +4,32 @@
 // your cause: each gives something at once, sits with you and Master Kaito at the campfire between stages, and helps
 // for the rest of the run.
 //  HANZO THE SMITH     - reforges your weapon at the next campfire: +5 power for the rest of the run
-//  OYUKI THE HEALER    - heals you now, and fully at every campfire from then on (+20 max health the first time)
-//  GENJI THE PEDDLER   - gives you 60 gold; every shop after this is 25% cheaper
+//  OYUKI THE HEALER    - restores 25% max HP on rescue and at each campfire
+//  GENJI THE PEDDLER   - gives you 30 gold; every shop after this is 10% cheaper
 //  AYA THE SCOUT       - from the next stage on, every stage's map is revealed when you arrive
 //  TAKEDA THE RONIN    - fights at your side for the rest of the run
+const ALLY_HEAL=.25,ALLY_GOLD=30,ALLY_SHOP_DISCOUNT=.10;
 const ALLIES={
  smith:{n:'HANZO THE SMITH',c:'#ff9a50',cls:'samurai',f:'grayscale(.6) sepia(.5) brightness(.9)',st:[2,5,7],
   free:'THEY CHAINED ME TO THEIR FORGES TO MAKE BLADES FOR THE EMPEROR. FIND ME AT YOUR FIRE - I WILL MAKE ONE FOR YOU.',
   camp:'GIVE ME YOUR BLADE. ...THERE. IT WILL CUT TRUER NOW.',gift:'+5 POWER',now:null},
  healer:{n:'OYUKI THE HEALER',c:'#70e090',cls:'onmyoji',f:'hue-rotate(110deg) saturate(.8)',st:[1,3,6],
   free:'THE TEMPLE SENT ME TO TEND THE VILLAGES. THE EMPEROR SENT ME HERE. LET ME MEND YOU.',
-  camp:'SIT. YOUR WOUNDS FIRST, THEN THE MARCH. I WILL BE AT EVERY FIRE.',gift:'FULL HEAL AT EVERY FIRE',now:'heal'},
+  camp:'SIT. YOUR WOUNDS FIRST, THEN THE MARCH. I WILL BE AT EVERY FIRE.',gift:'HEALS '+cdPct(ALLY_HEAL)+' MAX HP AT CAMPFIRES',now:'heal'},
  peddler:{n:'GENJI THE PEDDLER',c:'#ffd040',cls:null,f:'',st:[0,3,7],
   free:'MY CARAVAN WAS SEIZED FOR "TAXES". TAKE THIS - AND TELL THE TRADERS GENJI SENT YOU.',
-  camp:'I HAVE SENT WORD AHEAD. EVERY TRADER ON THE ROAD WILL GIVE YOU A FAIR PRICE.',gift:'SHOPS 25% CHEAPER',now:'gold'},
+  camp:'I HAVE SENT WORD AHEAD. EVERY TRADER ON THE ROAD WILL GIVE YOU A FAIR PRICE.',gift:'SHOPS '+cdPct(ALLY_SHOP_DISCOUNT)+' CHEAPER',now:'gold'},
  scout:{n:'AYA THE SCOUT',c:'#80c0ff',cls:'archer',f:'hue-rotate(-40deg) saturate(.7)',st:[0,4,9],
   free:'I WAS MAPPING THEIR PATROLS WHEN THEY CAUGHT ME. I WILL GO AHEAD OF YOU NOW.',
   camp:'I HAVE WALKED THE NEXT STAGE ALREADY. HERE - EVERY ROOM, EVERY DOOR.',gift:'MAPS REVEALED',now:null},
  ronin:{n:'TAKEDA THE RONIN',c:'#e04050',cls:'samurai',f:'hue-rotate(160deg) saturate(.7) brightness(.85)',st:[5,7,8],
   free:'I SERVED THE OLD LORD OF THESE WALLS. HIS SWORD IS YOURS UNTIL THE EMPEROR FALLS.',
-  camp:'I WILL WALK BESIDE YOU. KEEP THEM OFF MY LEFT AND I WILL KEEP THEM OFF YOURS.',gift:'FIGHTS AT YOUR SIDE',now:null}};
+  camp:'I WILL WALK BESIDE YOU. KEEP THEM OFF MY LEFT AND I WILL KEEP THEM OFF YOURS.',gift:'FIGHTS AT YOUR SIDE',now:null},
+ villager:{n:'WATCHTOWER PRISONER',c:'#b6d08b',cls:null,st:[],
+  free:'YOU BROKE THE LOCK! TAKE THIS MEDICINE. I CAN FIND MY WAY BACK TO THE VILLAGE.',gift:'+1 HP POTION'}};
 const ALLYK=Object.keys(ALLIES);
 const allyHas=k=>!!(R&&R.allies&&R.allies.includes(k));
-// ---------- the captive's look: a hero sheet, tinted (or the peddler, who shares the trader's coat) ----------
+// ---------- the captive's look: a tinted hero sheet or the trader sprite ----------
 const ALLYSPR={};
 function allySpr(k){if(ALLYSPR[k])return ALLYSPR[k];const A=ALLIES[k];if(!A.cls)return ALLYSPR[k]=MERCH;
  const s=heroSpr(A.cls,0),c=document.createElement('canvas');c.width=s.c.width;c.height=s.c.height;const g=c.getContext('2d');g.filter=A.f||'none';g.drawImage(s.c,0,0);
@@ -35,8 +38,11 @@ const allyFrame=(k,t)=>ALLIES[k].cls?WIZ.idle[Math.floor(t*2.5)%2]:Math.floor(t*
 // ---------- placing the cages ----------
 {const _ld=loadDungeon;loadDungeon=function(di){const r=_ld.apply(this,arguments);try{if(R&&!R.training&&!R.rush&&map&&!map.train)placeCaptives(di);if(allyHas('scout')&&R.scoutFrom!=null&&di>=R.scoutFrom)revealAll();spawnRonin();}catch(e){console.error(e);}return r;};}
 function placeCaptives(di){R.allies=R.allies||[];
- const want=ALLYK.filter(k=>!R.allies.includes(k)&&ALLIES[k].st.includes(di));if(!want.length)return;
- const n=DUN[di].name==='IRON CELLARS'?2:(Math.random()<.65?1:0);if(!n)return;
+ // The prologues share Stage I's index. Use a local rescue instead of the campaign recruit pool.
+ const pro=prologueLoot();
+ if(pro&&(R.pro!==3||R.proRescued))return;
+ const want=pro?['villager']:ALLYK.filter(k=>!R.allies.includes(k)&&ALLIES[k].st.includes(di));if(!want.length)return;
+ const n=pro?1:DUN[di].name==='IRON CELLARS'?2:(Math.random()<.65?1:0);if(!n)return;
  const rooms=map.rooms.filter(r=>r.k==='room'&&r!==map.bossRoom&&['combat','elite','trap'].includes(r.type)&&enemies.some(e=>!e.dead&&e.room===r));
  for(let i=0;i<n&&want.length&&rooms.length;i++){const k=want.splice(ri(0,want.length-1),1)[0],r=rooms.splice(ri(0,rooms.length-1),1)[0];
   let c=roomCenter(r);if(blocked(c.x,c.y,10)){for(let t=0;t<30;t++){const s=spotIn(r);if(!blocked(s.x,s.y,10)){c=s;break;}}}
@@ -47,11 +53,24 @@ const cageLocked=p=>!!(p&&p.k==='cage'&&!p.used&&enemies.some(e=>!e.dead&&e.room
  if(!p||p.k!=='cage')return _in.apply(this,arguments);
  if(cageLocked(p)){txtFx(P.x,P.y,'DEFEAT THE GUARDS FIRST','#c55');sfx('block');return;}
  freeAlly(p);};}
-function freeAlly(p){const k=p.ally,A=ALLIES[k];p.used=true;p.freedAt=time;R.allies=R.allies||[];if(!R.allies.includes(k))R.allies.push(k);
- R.allyNew=R.allyNew||[];R.allyNew.push(k);
+function healFromAlly(fraction){
+ P.hp=Math.min(S.maxhp,P.hp+S.maxhp*fraction);fxRing(P.x,P.y,24,'#6f6',.4);sfx('heal');
+}
+function freeAlly(p){
+ if(p.used)return;
+ const k=p.ally,A=ALLIES[k];p.used=true;p.freedAt=time;
  sfx('break');sfx('rare');shake=Math.max(shake,4);spark(p.x,p.y,'#c8a060',18,90);spark(p.x,p.y-10,A.c,16,70);fxRing(p.x,p.y,22,A.c,.5);
- if(A.now==='heal'){P.hp=S.maxhp;fxRing(P.x,P.y,24,'#6f6',.4);sfx('heal');}
- if(A.now==='gold'){for(let i=0;i<8;i++)dropPickup(p.x,p.y,'sen',Math.round(7.5*S.sen));}
+ if(k==='villager'){
+  if(R.proRescued)return;
+  R.proRescued=true;
+  if(R.pots<POTMAX){R.pots++;setToast(A.gift,A.c,3.5);}
+  else{healFromAlly(POTHEAL);setToast('PRISONER FREED - MEDICINE RESTORES HEALTH',A.c,3.5);}
+  return;
+ }
+ R.allies=R.allies||[];if(!R.allies.includes(k))R.allies.push(k);
+ R.allyNew=R.allyNew||[];R.allyNew.push(k);
+ if(A.now==='heal')healFromAlly(ALLY_HEAL);
+ if(A.now==='gold')dropPickup(p.x,p.y,'sen',ALLY_GOLD);
  if(k==='scout')R.scoutFrom=R.di+1;
  if(k==='ronin'){R.roninFrom=R.di;spawnRonin(p.x,p.y);}
  setToast(A.n+' JOINS YOUR CAUSE - '+A.gift,A.c,3.5);
@@ -80,9 +99,9 @@ function freeAlly(p){const k=p.ally,A=ALLIES[k];p.used=true;p.freedAt=time;R.all
  const A=ALLIES[p.ally],s=cageLocked(p)?'LOCKED - DEFEAT EVERY GUARD IN THE ROOM':'G: FREE '+A.n+' ('+A.gift+')';ctx.fillStyle='#100d18';ctx.fillRect(Math.round((W-txtW(s))/2)-3,H-46,txtW(s)+6,9);ctxt(s,H-44,A.c);};}
 // ---------- the gifts ----------
 // peddler: every shop is cheaper
-{const _pr=populateRoom;populateRoom=function(r,di){const n0=props.length;_pr.apply(this,arguments);if(r.type==='shop'&&allyHas('peddler'))for(let i=n0;i<props.length;i++){const p=props[i];if(p.k==='pedestal'&&p.price&&!p.relicStand)p.price=Math.round(p.price*.75);}
+{const _pr=populateRoom;populateRoom=function(r,di){const n0=props.length;_pr.apply(this,arguments);if(r.type==='shop'&&allyHas('peddler'))for(let i=n0;i<props.length;i++){const p=props[i];if(p.k==='pedestal'&&p.price&&!p.relicStand)p.price=Math.round(p.price*(1-ALLY_SHOP_DISCOUNT));}
  if(r.type==='shop'&&allyHas('peddler'))for(const p of props)if(p.k==='merchant'&&p.room===r)p.line='GENJI SENT YOU? A FRIEND\'S PRICE, THEN.';};}
-{const _st=stockRelics;stockRelics=function(c,r,di){const o=_st.apply(this,arguments);if(allyHas('peddler'))for(const p of props){if(p.room===r&&p.k==='pedestal'&&p.relicStand&&p.price&&!p._gd){p.price=Math.round(p.price*.75);p._gd=1;}}return o;};}
+{const _st=stockRelics;stockRelics=function(c,r,di){const o=_st.apply(this,arguments);if(allyHas('peddler'))for(const p of props){if(p.room===r&&p.k==='pedestal'&&p.relicStand&&p.price&&!p._gd){p.price=Math.round(p.price*(1-ALLY_SHOP_DISCOUNT));p._gd=1;}}return o;};}
 // scout: the stage map
 function revealAll(){if(!map||!map.expl)return;for(let i=0;i<map.expl.length;i++)if(map.t[i])map.expl[i]=1;}
 // ---------- TAKEDA THE RONIN: an ally who fights beside you ----------
@@ -111,7 +130,7 @@ const ALLYSEAT=[[126,134],[196,134],[50,134],[264,134],[22,134]];
 {const _om=openMaster;openMaster=function(){const r=_om.apply(this,arguments);if(!CS)return r;const L=[];
  for(const k of (R.allyNew||[]))L.push({k,s:ALLIES[k].camp});R.allyNew=[];
  if(allyHas('smith')&&!R.smithDone){R.smithDone=1;bless('atk',5);if(!L.some(x=>x.k==='smith'))L.push({k:'smith',s:ALLIES.smith.camp});}
- if(allyHas('healer')){P.hp=S.maxhp;if(!R.healerHp){R.healerHp=1;bless('hp',20);P.hp=S.maxhp;}if(!L.some(x=>x.k==='healer'))L.push({k:'healer',s:'REST. I HAVE MENDED YOU.'});}
+ if(allyHas('healer')){healFromAlly(ALLY_HEAL);if(!L.some(x=>x.k==='healer'))L.push({k:'healer',s:'REST. I HAVE TREATED YOUR WOUNDS.'});}
  CS.ally=L;CS.allyAt=time;return r;};}
 {const _am=advanceMaster;advanceMaster=function(){if(CS&&CS.ally&&CS.ally.length){if(time-CS.allyAt<.25)return;CS.ally.shift();CS.allyAt=time;CS.pageAt=time;CS.t0=time;CS.revealed=false;sfx('pickup');return;}return _am.apply(this,arguments);};}
 {const _mc=masterCamp;masterCamp=function(t,accent){_mc.apply(this,arguments);if(!R||!R.allies)return;
