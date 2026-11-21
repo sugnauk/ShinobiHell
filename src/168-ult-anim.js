@@ -1,6 +1,6 @@
 'use strict';
 // SHINOBIDUNGEONS - ultimates get a show of their own. Pressing R now plays a short lead-in before the ultimate goes
-// off (you are invulnerable through it and rooted in place), then the ultimate fires, then its follow-through:
+// off (you are invulnerable through it; the Wizard can move), then the ultimate fires, then its follow-through:
 //  DRAGON CLEAVE (samurai)     lifted high into the air in his dash stance, wind rushing in and the dash line burning gold, then
 //                              the dash: a streak of afterimages along the path, and a landing slam
 //  ARROW STORM (archer)        leaps high, looses the storm from the top of the leap, and drops back down
@@ -28,12 +28,13 @@ const ultName=()=>P&&SPELLS.e[P.lo.e]?SPELLS.e[P.lo.e].n:'';
 {const _cu=castUlt;castUlt=function(){const D=ULTSEQ[ultName()];
  if(ULTGO||!D||!P)return _cu.apply(this,arguments);
  if(ULT||P.ab.e>0||P.stag>0||(P.lock&&P.lock.e)||mode!=='play')return;
- ULT={D,t0:time,x:P.x,y:P.y,a:P.aim};P.iv=Math.max(P.iv||0,D.iv);sfx('tool');
+ ULT={D,t0:time,x:P.x,y:P.y,a:P.aim,mobile:CLS().k==='wizard'};P.iv=Math.max(P.iv||0,D.iv);sfx('tool');
  ABPOSE={k:'u_'+D.k,dur:D.pre,p:1,t0:time,dir:scrVec(Math.cos(P.aim),Math.sin(P.aim))[0]<0?-1:1,D};};}
-// the lead-in runs in the update: you stay put, and when it ends the ultimate really goes off
+// The lead-in ends by firing from the hero's current position.
 {const _u=update;update=function(dt){_u.apply(this,arguments);if(!ULT||mode!=='play'||!P)return;const U=ULT,D=U.D,k=(time-U.t0)/D.pre;
  if(P.dying>0||P.hp<=0){ULT=null;return;}
- P.x=U.x;P.y=U.y;P.iv=Math.max(P.iv,.05);
+ if(!U.mobile){P.x=U.x;P.y=U.y;}
+ P.iv=Math.max(P.iv,.05);
  // energy rushing in
  if(Math.random()<.18){const a=Math.random()*TAU,r=rnd(26,44);particles.push({x:P.x+Math.cos(a)*r,y:P.y+Math.sin(a)*r,vx:-Math.cos(a)*r*2.6,vy:-Math.sin(a)*r*2.6,t:.35,col:Math.random()<.5?D.col:'#fff'});}
  if(k>=1){ULT=null;const x0=P.x,y0=P.y;ULTGO=true;try{castUlt();}finally{ULTGO=false;}

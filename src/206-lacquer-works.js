@@ -1,7 +1,7 @@
 'use strict';
 // Stage XVI alternate. Wet lacquer carries movement. Once cured, the raised strips stop shots.
 const LAC={name:'NEBARI, THE LACQUER MASTER',warm:'#ffd095',red:'#c3483c',trails:[],presses:[],teach:null};
-const LAC_RELIC={id:'lacquerseal',name:'LACQUER SEAL',d:'PERFECT DODGE: HEAVY HITS DEAL +25% DAMAGE FOR 4 SECONDS',g:'L',fx:'power',mo:'vortex'};
+const LAC_RELIC={id:'lacquerseal',name:'LACQUER SEAL',d:'PERFECT DODGE: HEAVY HITS DEAL +25% DAMAGE FOR 4 SECONDS',g:'L',fx:'dmg',mo:'vortex'};
 function lacquerTrail(x,y,r,wet,life,room){
  const t={x,y,r,wet,life,room};
  LAC.trails.push(t);

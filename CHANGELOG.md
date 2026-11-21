@@ -6,6 +6,9 @@
 - Added clipped Mooring Cut warnings and a stationary attack window when Sazanami lowers his lantern.
 - Hoshiyomi and Getsurei open each attack cycle with a signature, layer supporting patterns, and give players a stationary recovery window. Their Abyss versions keep their modifiers.
 - Both Nebari and Ruri variants now combine staged volleys with their arena rules. Their low-health sequences build in distinct beats. The optional Shardsmith gains a follow-up volley when her panes link.
+- Fixed the Lacquer Seal icon and a reward-screen drawing error that could enlarge the dungeon and HUD over the reward cards. Boss-exclusive relics stay out of random loot.
+- The three prologues now award common and uncommon loot. Players keep their inventory into Stage I.
+- The Wizard can move during ultimate wind-ups.
 - Documented attack patterns for the rest of Chapter II and recorded the keyboard and touch playtest results.
 
 ## 0.8.12: The fork beneath Still Water and mobile fullscreen

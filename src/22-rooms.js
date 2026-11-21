@@ -49,8 +49,8 @@ function populateRoom(r,di){
   case 'challenge':r.ev={k:'challenge',state:0};props.push({k:'gong',x:c.x,y:c.y,room:r});break;
   case 'shop':{dressShopEntrance(r);props.push({k:'merchant',x:c.x,y:c.y-22,room:r,line:pick(SHOPLINES)});stockRelics(c,r,di);
    // second row: a weapon from your family, an enchant, a potion, and a reroll stand
-   {const g=mkGear('wpn',tierFor(di,1),false,Math.random()<.35?3:2);props.push({k:'pedestal',x:c.x-39,y:c.y+38,room:r,gear:g,price:Math.round(SHOPX*(g.q===3?180:110)*(1+.2*di)),name:g.name});}
-   {const en=mkEnch();props.push({k:'pedestal',x:c.x-13,y:c.y+38,room:r,ench:en,price:Math.round(SHOPX*90*(1+.2*di)),name:'ENCHANT '+ENCH.find(x=>x.k===en.k).n});}
+   {const g=mkGear('wpn',tierFor(di,1),false,Math.random()<.35?3:2);props.push({k:'pedestal',x:c.x-39,y:c.y+38,room:r,gear:g,price:Math.round(SHOPX*(g.q===3?180:g.q===2?110:60)*(1+.2*di)),name:g.name});}
+   if(!prologueLoot()){const en=mkEnch();props.push({k:'pedestal',x:c.x-13,y:c.y+38,room:r,ench:en,price:Math.round(SHOPX*90*(1+.2*di)),name:'ENCHANT '+ENCH.find(x=>x.k===en.k).n});}
    props.push({k:'pedestal',x:c.x+13,y:c.y+38,room:r,heal:true,price:Math.round(SHOPX*60*(1+.2*di)),name:'HP POTION'});
    props.push({k:'pedestal',x:c.x+39,y:c.y+38,room:r,reroll:true,price:Math.round(SHOPX*25*(1+.2*di)),name:'REROLL THE RELICS'});break;}
   case 'shrine':{const gk=pick(Object.keys(GODS));props.push({k:'altar',x:c.x,y:c.y,room:r,col:GODS[gk].c,god:gk});break;}
@@ -68,8 +68,10 @@ function interact(){
  if(p.k==='chest'){
   p.used=true;p.openedAt=time;sfx('pickup');
   const items=[{t:'relic',id:randItem(['rez'],Math.random()<.5?1:0).id}];
-  if(Math.random()<.35)items.push(mkEnch());
-  if(Math.random()<.40)items.push({t:'scroll',regular:true});
+  if(!prologueLoot()){
+   if(Math.random()<.35)items.push(mkEnch());
+   if(Math.random()<.40)items.push({t:'scroll',regular:true});
+  }
   pickups.push({x:p.x,y:p.y+6,k:'bag',tier:10,items,t:0,z:2,vx:0,vy:0,vz:75});
   for(let i=0;i<5;i++)dropPickup(p.x,p.y,'sen',Math.round(rnd(3,6)*(1+R.di*.3)*S.sen));
   if(Math.random()<.22){setToast('AMBUSH!','#f55',2);for(let i=0;i<3+Math.floor(R.di/3);i++){const a=i/4*TAU,x=p.x+Math.cos(a)*40,y=p.y+Math.sin(a)*40;if(blocked(x,y,6))continue;const e=mkEnemy(pick(DUN[R.di].pool),x,y,p.room,R.di);e.awake=true;enemies.push(e);spark(x,y,'#f55',8,60);}}
@@ -165,7 +167,9 @@ function drawRoomEvents(){
   const pts=[[x0,y0],[x1,y0],[x1,y1],[x0,y1],[x0,y0]];for(let i=0;i<4;i++){const a=pts[i],b=pts[i+1];sline(sx(a[0],a[1]),sy(a[0],a[1])-1,sx(b[0],b[1]),sy(b[0],b[1])-1,c);sline(sx(a[0],a[1]),sy(a[0],a[1])-6,sx(b[0],b[1]),sy(b[0],b[1])-6,c);}}
  const ch=map.rooms.find(r=>r.ev&&r.ev.k==='challenge'&&r.ev.state===1);if(ch){const t=Math.max(0,ch.ev.t);ctxt('CHALLENGE '+t.toFixed(1)+'S   FOES LEFT '+enemies.filter(e=>!e.dead&&e.room===ch).length,H-60,t<8&&Math.floor(time*4)%2?'#f66':'#fc4');}
 }
-function openShrine(p){const gd=GODS[p.god]||GODS.crane;evOpts=gd.O;evProp=p;evGod=gd;mode='event';sfx('boss');G('g',p.god||'crane');}
+function openShrine(p){const gd=GODS[p.god]||GODS.crane;
+ evOpts=gd===GODS.ox&&prologueLoot()?[{...gd.O[0],d:'LOSE 30% HP. GAIN AN UNCOMMON RELIC'},gd.O[1]]:gd.O;
+ evProp=p;evGod=gd;mode='event';sfx('boss');G('g',p.god||'crane');}
 let evGod=null;
 function pickEvent(i){if(!evOpts)return;if(i>=3){mode='play';evOpts=null;return;}const o=evOpts[i];if(!o)return;if(!o.ok()){sfx('block');return;}o.fn();evProp.used=true;sfx('pickup');mode='play';evOpts=null;trainEv('offer');}
 function renderEvent(){

@@ -419,7 +419,9 @@ function renderChoose(){
  const cw=92,gap=8,x0=Math.round((W-(3*cw+2*gap))/2);
  chooseOpts.forEach((it,i)=>{const x=x0+i*(cw+gap),y=44,h=92,hov=mouse.x>=x&&mouse.x<=x+cw&&mouse.y>=y&&mouse.y<=y+h;
   ctx.fillStyle=hov?'#2a1a30':'#160e1a';ctx.fillRect(x,y,cw,h);ctx.fillStyle=RCOL[it.r];ctx.fillRect(x,y,cw,1);ctx.fillRect(x,y+h-1,cw,1);ctx.fillRect(x,y,1,h);ctx.fillRect(x+cw-1,y,1,h);
-  ctx.save();ctx.translate(x+cw/2-13,y+12);ctx.scale(2,2);relicBox(0,0,it.id);ctx.restore();
+  ctx.save();
+  try{ctx.translate(x+cw/2-13,y+12);ctx.scale(2,2);relicBox(0,0,it.id);}
+  finally{ctx.restore();}
   txt('['+(i+1)+']',x+cw/2-6,y+4,'#aaa');
   const nm=fxLabel(it.name,it.r+1);ctxt2(nm.length>22?nm.slice(0,22):nm,x,cw,y+44,fxCol(it.id));wrapTxt(it.d,22).slice(0,2).forEach((l,j)=>ctxt2(l,x,cw,y+56+j*8,'#ddd'));ctxt2(FXNAME[fxStyle(it.id)]+' RELIC',x,cw,y+74,fxCol(it.id));ctxt2(['COMMON','UNCOMMON','RARE','LEGENDARY'][it.r],x,cw,y+82,'#777');});
 }

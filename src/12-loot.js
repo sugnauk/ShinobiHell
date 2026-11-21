@@ -28,7 +28,7 @@ const FXK={fire:'fire',burn:'fire',frost:'frost',chill:'frost',shock:'storm',sto
  vamp:'heal',leech:'heal',blood:'heal',gourd:'heal',rez:'heal',phoenix:'heal',hunger:'heal',hp:'heal',
  aspd:'speed',cd:'speed',emb:'speed',spd:'speed',shadow:'speed',ecd:'speed',mikiri:'speed',
  iron:'guard',ghost:'guard',pos:'guard',parry:'guard',thorn:'guard',def:'guard',gale:'control',magnet:'wealth'};
-const fxStyle=k=>FXK[k]||'dmg',fxCol=k=>FXCOL[fxStyle(k)];
+const fxStyle=k=>Object.hasOwn(FXCOL,FXK[k])?FXK[k]:'dmg',fxCol=k=>FXCOL[fxStyle(k)];
 const ENCH=[{k:'fire',n:'FLAME',d:'ABILITY HITS MAY BURN'},{k:'frost',n:'FROST',d:'ABILITY HITS MAY CHILL'},{k:'shock',n:'STORM',d:'ABILITY HITS MAY SHOCK + ARC'},
  {k:'poison',n:'VENOM',d:'ABILITY HITS POISON'},{k:'blast',n:'BLAST',d:'ABILITY HITS SPLASH 30% AROUND'},{k:'leech',n:'LEECH',d:'ABILITY HITS HEAL 2% OF DAMAGE'},
  {k:'gale',n:'GALE',d:'ABILITY HITS SHOVE + 50% STUN'}];
@@ -41,7 +41,7 @@ function abFx(k){const a=(R&&R.addon&&R.addon[k])||{};
  return {burn:.35*enchN('fire')+(a.burn?1:0),chill:.3*enchN('frost')+(a.chill?1:0),shock:.2*enchN('shock')+(a.shock?1:0),poison:enchN('poison')||a.poison?1:0,
   blast:enchN('blast'),leech:enchN('leech'),gale:enchN('gale'),crit:.25*(a.crit||0)+(a.edge?.08:0),pierce:2*(a.pierce||0),cd:a.cd?1:0};}
 // rarity is gated by depth: epics from dungeon III, legendaries (named) only in gold bags
-function rollQ(di,bias){const w=[Math.max(12,60-6*di),28,8+2.5*di,2+2*di];let r=Math.random()*w.reduce((a,b)=>a+b,0),q=0;for(;q<3;q++){if((r-=w[q])<0)break;}q=clamp(q+(bias||0),0,3);if(di<2)q=Math.min(q,2);if(di<1&&!bias)q=Math.min(q,1);return q;}
+function rollQ(di,bias){const w=[Math.max(12,60-6*di),28,8+2.5*di,2+2*di];let r=Math.random()*w.reduce((a,b)=>a+b,0),q=0;for(;q<3;q++){if((r-=w[q])<0)break;}q=clamp(q+(bias||0),0,3);if(di<2)q=Math.min(q,2);if(di<1&&!bias||prologueLoot())q=Math.min(q,1);return q;}
 const tierFor=(di,b)=>clamp(Math.floor(di*1.35)+ri(0,1)+(b||0),0,TMAX);
 function gearVals(g){const t=g.tier,m=QUAL[g.q||0].m;return g.slot==='wpn'?{atk:Math.round((2+t*.9)*m)}:g.slot==='arm'?{hp:Math.round((6+t*4)*m),def:Math.round((1+t*.4)*m)}:{sv:Math.round((2+t*.5)*m)};}
 function gearLines(g){const v=gearVals(g),L=['T'+(g.tier+1)+' '+QUAL[g.q||0].n+' '+(g.slot==='wpn'?wtName(g):SLOTNAME[g.slot])];
@@ -60,6 +60,9 @@ const RARE=[
 ];
 const SLOTNAME={wpn:'STAFF',arm:'ROBE',ring:'RING'},GEARG={wpn:'/',arm:'V',ring:'O'};
 function mkGear(slot,tier,rare,q){
+ if(prologueLoot()){
+  slot=slot||pick(Object.keys(GEARN));q=Math.min(q??(rare?1:rollQ(R?R.di:0,0)),1);rare=false;
+ }
  tier=clamp(tier,0,TMAX);const g={t:'gear',slot,tier,rare:!!rare,q:rare?4:(q==null?rollQ(R?R.di:0,0):q),aff:[],ench:[]};
  if(rare){const opts=RARE.filter(x=>!slot||x.slot===slot),r=pick(opts);Object.assign(g,{slot:r.slot,name:r.n,fx:r.fx,rd:r.d});g.tier=Math.min(TMAX,tier+1);}
  if(g.slot==='wpn')g.wt=rare&&RARE.find(x=>x.n===g.name).wt||rollWT(); // weapon type: decides the LMB attack
@@ -138,11 +141,13 @@ function itemName(it){return it.t==='ench'?'ENCHANT '+ENCH.find(x=>x.k===it.k).n
 function itemCol(it){if(it.t==='gear')return QUAL[it.q||0].c;if(it.t==='ench')return ENCH.find(x=>x.k===it.k).c;return it.t==='scroll'?(it.regular?'#93d6de':Math.floor(time*4)%2?'#ffe060':'#fff'):it.t==='hp'?'#e33':it.t==='stat'?STATS.find(s=>s.k===it.s).c:it.t==='relic'?RCOL[ITEMBY[it.id].r]:it.rare?'#fd4':'#ddd';}
 // bag tiers: 0 brown (common), 1 purple (potions/gear), 2 gold (rare gear)
 function bagContents(tier,boss){
+ const pro=prologueLoot();
+ if(pro)tier=Math.min(tier,1);
  const di=R.di,it=[],slot=()=>pick(['wpn','arm','ring']),gear=(b,q)=>mkGear(slot(),tierFor(di,b),false,q==null?rollQ(di,0):q);
  if(tier===1||tier===2){ // green pack / blue satchel: a decent piece of gear plus extras
-  it.push(gear(0,rollQ(di,tier-1)));if(Math.random()<.1)it.push({t:'hp'});if(tier===2&&Math.random()<.3)it.push(statSwap());if(Math.random()<.1*tier)it.push(mkEnch());if(tier===2&&Math.random()<.14)it.push({t:'scroll',regular:true});}
+  it.push(gear(0,boss&&pro?1:rollQ(di,tier-1)));if(Math.random()<.1)it.push({t:'hp'});if(tier===2&&Math.random()<.3)it.push(statSwap());if(!pro&&Math.random()<.1*tier)it.push(mkEnch());if(tier===2&&Math.random()<.14)it.push({t:'scroll',regular:true});}
  else if(tier===0){ // brown: 1-3 small things
-  if(Math.random()<.08)it.push({t:'hp'});if(Math.random()<.45||!it.length)it.push(gear(-1,rollQ(di,-1)));if(di>=1&&Math.random()<.08)it.push(mkEnch());}
+  if(Math.random()<.08)it.push({t:'hp'});if(Math.random()<.45||!it.length)it.push(gear(-1,rollQ(di,-1)));if(!pro&&di>=1&&Math.random()<.08)it.push(mkEnch());}
  else if(tier===3){ // purple: 2-4 things, better gear
   it.push(gear(0,rollQ(di,1)));if(Math.random()<.45)it.push(statSwap());if(Math.random()<.3)it.push(mkEnch());if(Math.random()<.2)it.push({t:'relic',id:randItem(['rez']).id});if(Math.random()<.15)it.push({t:'hp'});}
  else if(tier===5){ // enchanter pouch: two different enchants, sometimes a scroll

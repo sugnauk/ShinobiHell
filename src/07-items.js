@@ -15,8 +15,15 @@ const ITEMS=[
  {id:'iron',name:'IRON BODY',d:'-8% DAMAGE TAKEN',g:'I',r:1},{id:'ghost',name:'PHANTOM',d:'6% DODGE',g:'N',r:1},
 ];
 const RCOL=['#9ab','#6c6','#c6f'],ITEMBY={};ITEMS.forEach(i=>ITEMBY[i.id]=i);
-// rarity weights: common 12, uncommon 6, rare 3, legendary 1. minR filters out lower rarities.
-function randItem(excl,minR){const RW=[14,7,3,2.2],pool=[]; /* legendary relics (r3) are very rare unless a source forces them with minR */for(const it of ITEMS){if(excl&&excl.includes(it.id))continue;if(minR&&it.r<minR)continue;for(let k=0;k<RW[it.r];k++)pool.push(it);}return pick(pool.length?pool:ITEMS);}
+const prologueLoot=()=>typeof PRO_ON!=='undefined'&&PRO_ON;
+function randItem(excl,minR=0){
+ const cap=prologueLoot()?1:3,weights=[14,7,3,2.2],pool=[];
+ // Registration marks boss rewards even when their road is absent from the active stage table.
+ const allowed=ITEMS.filter(it=>!it.bossRelic&&it.r<=cap),available=allowed.filter(it=>!excl?.includes(it.id));
+ const minimum=Math.min(minR,cap);
+ for(const it of available)if(it.r>=minimum)for(let k=0;k<weights[it.r];k++)pool.push(it);
+ return pick(pool.length?pool:available.length?available:allowed);
+}
 
 // ---------- mage abilities ----------
 const ULT_CD=32,WARD_CD=7,CHAIN_CD=4.5;
