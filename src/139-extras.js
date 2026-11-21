@@ -36,7 +36,10 @@ function drawProvinceMap(x0,y0,w,h,cur,reached,anim){
 // at the start of each stage the map slides in, the road from the last stage drawing itself
 {const _ld=loadDungeon;loadDungeon=function(di){const r=_ld.apply(this,arguments);try{if(R&&!R.training&&!R.rush)R.mapCard={t:time,di};}catch(_){}return r;};}
 {const _rp=renderPlay;renderPlay=function(){_rp.apply(this,arguments);const M=R&&R.mapCard;if(!M||R.training||boss&&boss.awake||(typeof TIPHOLD!=='undefined'&&TIPHOLD))return;const k=time-M.t;if(k>4.2){R.mapCard=null;return;}
- const a=Math.min(1,k/.35,(4.2-k)/.5),w=170,h=96,x=Math.round(W-w-8+(1-a)*40),y=44;ctx.globalAlpha=a;drawProvinceMap(x,y,w,h,M.di,M.di,clamp((k-.3)/1.2,0,1));
+ if(TOUCH&&(paused||invOpen))return;
+ const a=Math.min(1,k/.35,(4.2-k)/.5),w=170,h=TOUCH?80:96;
+ const slide=(1-a)*40,x=Math.round(TOUCH?6-slide:W-w-8+slide),y=TOUCH?68:44;
+ ctx.globalAlpha=a;drawProvinceMap(x,y,w,h,M.di,M.di,clamp((k-.3)/1.2,0,1));
  txt('THE MARCH ON THE CASTLE',x+4,y-8,'#bbb');ctx.globalAlpha=1;};}
 // the main menu's NEW RUN panel: how far you have ever pushed
 {const _rm=renderMenu;renderMenu=function(){_rm.apply(this,arguments);try{const L=mmItems(),it=L[clamp(mmSel,0,L.length-1)];if(it.k!=='new')return;

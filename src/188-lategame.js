@@ -12,6 +12,7 @@
 // Late stages are added into every per-stage table (stage, scenery, guardian, art, music, furnishings, floor art,
 // mood, trails, relics, campfire words...) through lateAdd(); a table a stage does not define copies its base stage.
 const CAMPAIGN_END=DUN.length-1;          // the throne room
+const LATE_LAYOUT=4;
 let lateStagesReady=false;                 // the title may read a checkpoint between script loads
 const LATE=[];                             // the late stages, in order (XIII, XIV...)
 const abyssDepth=di=>di-CAMPAIGN_END-LATE.length;

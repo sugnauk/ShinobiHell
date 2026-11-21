@@ -1,5 +1,5 @@
 'use strict';
-// ===== LORD KUROGANE, THE BLACK HORSE GENERAL: the general himself (the horse comes later) =====
+// ===== LORD KUROGANE AND YAMIKAZE =====
 // Black lacquered armour laced in deep blue and trimmed in gold; a white jinbaori (a commander's sleeveless surcoat)
 // flaring from his shoulders; a ridged black helmet with a flared neck guard and a great thin gold crescent; a black iron
 // mask with a silver moustache and eyes glowing in its shadow; fur boots; a cross-bladed jumonji yari with a black tassel.
@@ -84,7 +84,8 @@ function kgDraw(p,Q){const {R:R_,E:E_,L:L_}=p,two=ARTHURT,ox=Q.dx||0,oy=(Q.dy||0
   for(let i=0;i<pts.length-1;i++){const w=Math.max(1,3-Math.floor(i/5));L(pts[i][0],pts[i][1],pts[i+1][0],pts[i+1][1],O,w+2);}
   for(let i=0;i<pts.length-1;i++){const w=Math.max(1,3-Math.floor(i/5));L(pts[i][0],pts[i][1],pts[i+1][0],pts[i+1][1],G2,w);L(pts[i][0],pts[i][1]-1,pts[i+1][0],pts[i+1][1]-1,G3,1);}}}
 const KG_POSES={idle0:{},idle1:{b:1,flare:1},
- atk:{legs:'lunge',flare:3,dx:-2,near:[[52,40],[60,46],[64,50]],far:[[28,40],[36,48],[46,52]],thrust:[[30,58],[70,36]],ka:-.4}};
+ atk:{legs:'lunge',flare:3,dx:-2,near:[[52,40],[60,46],[64,50]],far:[[28,40],[36,48],[46,52]],thrust:[[30,58],[70,36]],ka:-.4},
+ dismount:{legs:'lunge',dy:-3,flare:3,near:[[52,40],[58,47],[55,52]],far:[[28,40],[24,49],[19,53]],ka:-.7}};
 humBoss('KUROGANE ON FOOT',kgDraw,KG_POSES,{fw:84,fh:110,sc:.95});
 if(typeof KUR!=='undefined')KUR.foot=null;
 
@@ -155,6 +156,11 @@ function kgMount(p,Q){const {R:R_,E:E_,L:L_}=p,ox=Q.dx||0,by=Q.b||0,g=Q.gallop,t
  R(64,72+by,22,13,O);R(65,73+by,20,11,BL);R(65,73+by,20,1,BL2);for(let k=66;k<85;k+=3){R(k,83+by,1,2,G2);}R(65,82+by,20,1,G2);
  R(64,66+by,24,8,O);R(65,67+by,22,6,K1);R(65,67+by,22,1,G2);R(66,72+by,20,1,G1);
  if(g){legH(48,92,0,1);legF(102,94,0,1);}else{legH(50,92,0,0);legF(103,96,0,0);}
+ if(Q.riderless){
+  // Loose reins and an empty saddle identify Yamikaze after the dismount.
+  L(138,58+hy,119,75+by,BL,1);L(119,75+by,101,76+by,BL2,1);
+  return;
+ }
  // ---- the general in the saddle (his own sprite, seated)
  const ax=Math.round(KGM.X(76)+ox),ay=Math.round(YS(76,66+by)+oy);kgRider(p,ax,ay,{charge:g,b:by,stream:g?3:by?1:0});
  // ---- reins from the bit to his near hand
@@ -198,3 +204,135 @@ function kgRider(p,ax,ay,Q){const {R:R_,E:E_,L:L_}=p,O=OUTC,K1='#1a1a24',K2='#2c
   for(let i=0;i<10;i++){const w=Math.max(1,3-Math.floor(i/4));L(pts[i][0],pts[i][1],pts[i+1][0],pts[i+1][1],O,w+2);}for(let i=0;i<10;i++){const w=Math.max(1,3-Math.floor(i/4));L(pts[i][0],pts[i][1],pts[i+1][0],pts[i+1][1],G2,w);L(pts[i][0],pts[i][1]-1,pts[i+1][0],pts[i+1][1]-1,G3,1);}}}
 humBoss('LORD KUROGANE',kgMount,{idle0:{},idle1:{b:1},
  atk:{gallop:1}},{fw:176,fh:176,sc:.9});
+
+// Phase two: Yamikaze ranges ahead, commits to a lane, then needs a moment to recover.
+const YAMIKAZE={name:'YAMIKAZE',radius:12,lanePad:16,wind:.9,speed:235,recover:1.25};
+ET.yamikaze={n:YAMIKAZE.name,desc:'KUROGANE’S WARHORSE. DODGE HIS CHARGE AND STRIKE AS HE RECOVERS.',
+ hp:100,spd:60,pos:300,r:YAMIKAZE.radius,ai:'dummy',rng:0,wl:0,atks:[]};
+humBoss(YAMIKAZE.name,kgMount,{idle0:{riderless:true},idle1:{riderless:true,b:1},
+ atk:{riderless:true,gallop:1}},{fw:176,fh:176,sc:.9});
+const kuroKit=BKIT['LORD KUROGANE'];
+const kuroHorseSpr=()=>KUR.horseSpr||(KUR.horseSpr=bossArt(YAMIKAZE.name));
+function kuroFootSpr(){
+ if(KUR.foot)return KUR.foot;
+ const hurt=ARTHURT;
+ try{ARTHURT=true;return KUR.foot=bossArt('KUROGANE ON FOOT');}
+ finally{ARTHURT=hurt;}
+}
+function kuroInside(A,x,y,pad){
+ return x>=A.x0+pad&&x<=A.x1-pad&&y>=A.y0+pad&&y<=A.y1-pad&&!blocked(x,y,pad);
+}
+function kuroLane(A,x,y,angle,limit,pad){
+ const dx=Math.cos(angle),dy=Math.sin(angle);
+ // Sample the padded lane, including its starting point.
+ if(!kuroInside(A,x,y,pad))return 0;
+ let len=0;
+ for(let n=2;n<=limit;n+=2){
+  if(!kuroInside(A,x+dx*n,y+dy*n,pad))break;
+  len=n;
+ }
+ return len;
+}
+function kuroDismount(e){
+ const a=aimAt(e)+Math.PI/2,origin=freeSpot(e,e.x,e.y,YAMIKAZE.radius);
+ return {origin,land:freeSpot(e,e.x+Math.cos(a)*68,e.y+Math.sin(a)*68,8),flip:sx(P.x,P.y)<sx(e.x,e.y)};
+}
+{const base=doHalf;doHalf=function(e,K){
+ const r=base.apply(this,arguments);
+ if(K===kuroKit&&e.phx&&!e.dismount)e.dismount=kuroDismount(e);
+ return r;
+};}
+kuroKit.draw=function(e){
+ if(!e.phx||!e.dismount||e.phx.t<PHDUR-.85)return;
+ const {origin,land,flip}=e.dismount;
+ const k=clamp((e.phx.t-(PHDUR-.85))/.85,0,1),ease=k*k*(3-2*k);
+ const x=lerp(origin.x,land.x,ease),y=lerp(origin.y,land.y,ease);
+ const hx=sx(origin.x,origin.y),hy=sy(origin.x,origin.y)+8;
+ shadow(hx,hy-2,36);drawSpr(kuroHorseSpr(),hx,hy,false,0,flip);
+ const X=sx(x,y),Y=sy(x,y)+7;
+ shadow(X,Y-2,16);
+ drawSpr(kuroFootSpr(),X,Y-(1-ease)*65-Math.sin(Math.PI*k)*21,false,k<.8?3:0,flip);
+ return false;
+};
+function kuroDrawHorse(h){
+ const s=kuroHorseSpr(),x=sx(h.x,h.y),y=sy(h.x,h.y)+enemyFootOffset(h)-h.z;
+ const moving=h.charge?.mark.fired||(!h.charge&&h.rest<=0),frame=moving&&Math.floor(time*9)%2?2:Math.floor(time*3)%2;
+ const [dx]=scrVec(Math.cos(h.heading),Math.sin(h.heading));
+ shadow(x,y-2,36);drawSpr(s,x,y,h.flash>0,frame,dx<0);
+ const color=h.rest>0?'#f6d28a':'#ff9850';
+ const label=h.rest>0?'YAMIKAZE - OPEN':'YAMIKAZE';
+ txt(label,x-Math.round(txtW(label)/2),y+10,color);
+ bar(x-24,y+18,48,3,Math.max(0,h.hp/h.maxhp),color,'#352024');
+ return false;
+}
+KUR.spawnHorse=function(e){
+ const {origin}=e.dismount||kuroDismount(e),hp=Math.round(e.maxhp*.21);
+ return bMin(e,'yamikaze',origin.x,origin.y,{horse:true,hp,maxhp:hp,heading:aimAt(e),windCd:1.85,rest:0,
+  drawFn:kuroDrawHorse,sprOv:kuroHorseSpr(),maxPosture:Math.round(e.maxPosture*.45),
+  onHurt:h=>h.rest>0?1.35:1});
+};
+function kuroStopCharge(h){
+ if(h.charge)h.charge.mark.dead=true;
+ h.charge=null;h.tele=0;h.rest=YAMIKAZE.recover;h.windCd=2.15;
+}
+function kuroTickHorse(h,dt){
+ const A=arenaOf(h),charge=h.charge;
+ if(h.stag>0||h.stun>0||h.st?.frozen>0){if(charge)kuroStopCharge(h);return;}
+ if(charge){
+  const m=charge.mark,dx=Math.cos(m.a),dy=Math.sin(m.a);
+  if(m.fired)charge.progress=Math.min(m.len,charge.progress+YAMIKAZE.speed*dt);
+  h.x=m.x+dx*charge.progress;h.y=m.y+dy*charge.progress;
+  if(!m.fired)return;
+  dustTrail(h,'#bd9473');
+  if(!charge.hit&&P.hp>0&&dist(h,P)<=YAMIKAZE.lanePad&&inShape(m,P.x,P.y)){
+   charge.hit=hitPlayer(15*h.bossOwned.dm,h.x,h.y,{src:h,peril:true,pd:18})==='hit';
+  }
+  if(charge.progress>=m.len)kuroStopCharge(h);
+  return;
+ }
+ if(h.rest>0){h.rest=Math.max(0,h.rest-dt);return;}
+ const a=aimAt(h),d=dist(h,P);
+ h.windCd-=dt;
+ if(h.windCd<=0&&d>=34&&d<=135){
+  const len=kuroLane(A,h.x,h.y,a,Math.min(172,d+38),YAMIKAZE.lanePad+1);
+  if(len>=d){
+   h.heading=a;h.tele=2;
+   h.charge={progress:0,hit:false,mark:mark({k:'l',x:h.x,y:h.y,a,len,w:YAMIKAZE.lanePad*2,
+    t:YAMIKAZE.wind,col:'#ff9f59',src:h,grow:false,lateCheck:true,on:()=>{h.tele=0;sfx('dash');}})};
+   sfx('block');return;
+  }
+ }
+ const heading=d<34?a+Math.PI:a,ox=h.x,oy=h.y;
+ if(steer(h,heading,h.spd,dt)){
+  if(kuroInside(A,h.x,h.y,h.r)){h.heading=Math.atan2(h.y-oy,h.x-ox);dustTrail(h,'#82705a');}
+  else{h.x=ox;h.y=oy;}
+ }
+}
+{const base=updEnemy;updEnemy=function(e,dt){
+ if(e.horse&&e.charge)e.kx=e.ky=0;
+ const r=base.apply(this,arguments);
+ if(e.horse&&!e.dead&&!e.bossOwned.dead&&!e.bossOwned.phx)kuroTickHorse(e,dt);
+ return r;
+};}
+
+// Both can be defeated first. Keep the portal closed while the other is still fighting.
+{const base=killE;killE=function(e){
+ if(e.boss&&e.name==='LORD KUROGANE'&&!e.dead&&!e.rush_skip&&e.yamikaze&&!e.yamikaze.dead&&bossFloor(e)==null){
+  if(!e.riderDown){
+   e.riderDown=true;e.hp=1;e.iv=999;e.alpha=.40;e.fan=0;e.brq=[];
+   cancelAtk(e);
+   for(const m of BMK)if(m.src===e)m.dead=true;
+   clearEnemyShots(false,1);sfx('break');
+   setToast('KUROGANE IS DOWN - DEFEAT YAMIKAZE','#ffd040',3);
+  }
+  return;
+ }
+ const horse=e.horse===true&&!e.dead,r=base.apply(this,arguments);
+ if(horse&&e.dead){
+  kuroStopCharge(e);
+  const owner=e.bossOwned;
+  if(owner.riderDown){owner.hp=0;killE(owner);}
+  else setToast('YAMIKAZE IS DOWN - DEFEAT KUROGANE','#ffd040',3);
+ }
+ return r;
+};}

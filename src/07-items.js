@@ -53,6 +53,6 @@ const ULT_CD=32,WARD_CD=7,CHAIN_CD=4.5;
 // ---------- meta progression ----------
 const UPG=[{k:'vit',name:'VITALITY',d:'+12 MAX HP',base:30,max:10},{k:'atk',name:'MIGHT',d:'+2 SPELL POWER',base:40,max:10},{k:'pos',name:'RESOLVE',d:'+10 STUN RESIST',base:30,max:10},{k:'emb',name:'FOCUS',d:'-'+cdPct(COOLDOWN.focusRank)+' COOLDOWNS',base:35,max:8},{k:'sen',name:'GREED',d:'+10% GOLD',base:50,max:8},{k:'res',name:'SECOND WIND',d:'+1 RESURRECTION',base:300,max:2}];
 function loadMeta(){let m=null;try{m=JSON.parse(localStorage.getItem('shinobiDungeons1'));}catch(e){}if(!m||!m.up)m={sen:0,reached:0,runs:0,wins:0,up:{vit:0,atk:0,pos:0,emb:0,sen:0,res:0}};if(!m.loadout)m.loadout={};for(const k of 'mhqwfe')if(m.loadout[k]==null)m.loadout[k]=0;if(!m.stats)m.stats={att:0,def:0,spd:0,dex:0,vit:0,wis:0};if(!m.codex)m.codex={sp:{},gear:{}};if(m.asc==null){m.asc=0;m.ascMax=0;}
- // characters: 2 to start, one more after each finished run (older saves get credit for runs already played)
- if(m.unlocked==null)m.unlocked=Math.min(5,2+(m.runs||0));if((m.cls||0)>=m.unlocked)m.cls=0;return m;}
+ // Legacy saves used a contiguous roster. Modern saves validate the selected hero against ownership.
+ if(m.unlocked==null)m.unlocked=Math.min(5,2+(m.runs||0));if(!m.heroesV&&(m.cls||0)>=m.unlocked)m.cls=0;return m;}
 let meta=loadMeta();function saveMeta(){try{localStorage.setItem('shinobiDungeons1',JSON.stringify(meta));}catch(e){}}

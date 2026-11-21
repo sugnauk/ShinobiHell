@@ -11,6 +11,7 @@ These are pictures of the in-game sprites, so you can see them without running t
 | `ruri_sheet.png` | **Ruri, the Glass Warden** (stage XVII, Lapis Cistern). Code: `src/208-glass-roads.js` |
 | `furnace_warden_sheet.png` | **Ruri, the Furnace Warden** (stage XVII, Shard Kiln). Code: `src/208-glass-roads.js` |
 | `shardsmith_sheet.png` | **The Shardsmith** (stage XVII, optional Side Furnace lair). Code: `src/208-glass-roads.js` |
+| `kaito_sheet.png` | **Master Kaito, Keeper of the First Flame** (Temple of the First Flame), including palm, bow, sword and recovery poses. Code: `src/209-first-flame.js` |
 | `all_guardians.png` | Every guardian in the game, first and second form |
 | `all_heroes.png` | Every hero at first, middle and final form |
 | `../chapter2/concept_sheet.png` | Concepts for the Chapter II guardians: two directions each for Nebari, Kane, Sumi and Mukuro. Code: `../chapter2/guardian-concepts.js` |
@@ -31,6 +32,7 @@ node docs/sprites/render-boss-sheet.js "NEBARI, THE LACQUER MASTER" docs/sprites
 node docs/sprites/render-boss-sheet.js "RURI, THE GLASS WARDEN" docs/sprites/ruri_sheet.png
 node docs/sprites/render-boss-sheet.js "RURI, THE FURNACE WARDEN" docs/sprites/furnace_warden_sheet.png
 node docs/sprites/render-boss-sheet.js "THE SHARDSMITH" docs/sprites/shardsmith_sheet.png
+node docs/sprites/render-boss-sheet.js "MASTER KAITO, KEEPER OF THE FIRST FLAME" docs/sprites/kaito_sheet.png
 node docs/sprites/render-gallery.js
 node docs/chapter2/render-concept-sheet.js
 ```

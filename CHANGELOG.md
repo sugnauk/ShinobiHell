@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.8.14: The First Flame
+
+- Start with Wizard, Samurai and Archer. Recruit one hero for each of the first ten lifetime guardian clears, with Sumo on the ninth. Prologue clears and past wins count.
+- Fit mobile play and menus inside the phone’s safe area. Give Pause, Bag, Swap and Fullscreen a dedicated row above the map, and keep gold and revives beside equipped gear.
+- Raised guardian HP by 50% in the prologues, 85% in stages I–IV, 100% in V–XII and 60% from XIII onward. Enrage timers scale with the added health. Lair bosses, the Moth Queen and guardian echoes also have more HP.
+- Narrowed the damage gap across all 13 heroes while keeping a close-range damage advantage. Test Mode now equips the selected hero’s own starter weapon when switching characters.
+- Executioner’s Mark deathblows deal 1% of a guardian’s max HP or the hit’s damage, whichever is greater.
+- Added the Temple of the First Flame after Ruri. Master Kaito alternates palm, bow and sword forms, then links them after his braziers go out. His guardian artwork also appears at campfires and in training.
+- Shops stock up to three different relics. Each stage allows one relic purchase.
+- Sumo’s Salt Throw heals for 25% of damage dealt, up to 20% max HP per throw.
+- Centred Lord Kurogane's mounted sprite in his boss intro. In phase two he dismounts, and Yamikaze pursues the player with telegraphed charges. Both must be defeated.
+
 ## 0.8.13: Late-game guardian fights
 
 - Reworked the Stage XV fight with telegraphed bullet rows, visible safe lanes, a red-lantern reversal, and a three-part finale.

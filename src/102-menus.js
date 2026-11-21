@@ -38,7 +38,7 @@ function drawPause(){
  it.forEach((x,i)=>{const y=PIY(i),sel=i===pauseSel;m2Pill(12,y-3,96,13,'#d02030',sel);if(sel){ctx.fillStyle='#ff6070';ctx.fillRect(12,y-3,2,13);}txt(x.n,sel?20:16,y,sel?'#fff':'#999');});
  txt('M MUTE   ESC RESUME',12,H-10,'#666');
  // right: the run summary, or the controls
- const X=118,Y=8,Wd=W-X-6,Hd=H-16;m2Box(X,Y,Wd,Hd,CLS().col);
+ const X=118,Y=TOUCH?touchHudRowBottom():8,Wd=W-X-6,Hd=H-Y-8;m2Box(X,Y,Wd,Hd,CLS().col);
  if(it[pauseSel].ctl){drawControlsCard(X,Y,Wd);return;}
  // hero, form, trophy and health
  const C=CLS(),st=P.evo||0,sp=heroSpr(C.k,st);ctx.fillStyle='#1e1628';ctx.fillRect(X+6,Y+6,30,34);ctx.drawImage(sp.c,WIZ.idle[Math.floor(time*2.5)%2]*sp.fw,0,sp.fw,sp.fh,X+11,Y+10,sp.fw,sp.fh);
@@ -53,8 +53,9 @@ function drawPause(){
  {let x=X+6;STATS.forEach(s=>{const b=(typeof heroBaseSt==='function'?heroBaseSt()[s.k]:0)||0,r=(S.st[s.k]||0)-b,t=s.n.slice(0,3)+' '+b+(r?'+'+r:'');txt(t,x,Y+89,s.c);x+=txtW(t)+6;});}
  // gear and relics
  txt('GEAR',X+6,Y+100,'#d02030');['wpn','arm','ring'].forEach((s,i)=>{const g=R.eq[s],y=Y+108+i*14;drawItemIcon(g,X+6,y);txt(g?g.name.slice(0,22):'NO '+SLOTNAME[s],X+24,y+1,g?itemCol(g):'#555');if(g)txt(gearLines(g)[1]?gearLines(g)[1].slice(0,22):'',X+24,y+7,'#777');});
- txt('RELICS',X+110,Y+100,'#d02030');{const ids=Object.keys(R.inv);if(!ids.length)txt('NONE YET',X+110,Y+109,'#555');ids.slice(0,24).forEach((id,i)=>{const x=X+110+(i%6)*13,y=Y+108+((i/6)|0)*13;relicBox(x,y,id,11);if(R.inv[id]>1)txt(R.inv[id],x+7,y+7,'#fff');});
-  if(ids.length>24)txt('+'+(ids.length-24),X+110,Y+160,'#aaa');}
+ const relicX=X+(TOUCH?clamp(Wd-84,110,136):110);
+ txt('RELICS',relicX,Y+100,'#d02030');{const ids=Object.keys(R.inv);if(!ids.length)txt('NONE YET',relicX,Y+109,'#555');ids.slice(0,24).forEach((id,i)=>{const x=relicX+(i%6)*13,y=Y+108+((i/6)|0)*13;relicBox(x,y,id,11);if(R.inv[id]>1)txt(R.inv[id],x+7,y+7,'#fff');});
+  if(ids.length>24)txt('+'+(ids.length-24),relicX,Y+160,'#aaa');}
  // set bonuses and curses at the bottom
  {let y=Y+152;for(const l of setLines().slice(0,1)){txt(l.s.slice(0,46),X+6,y,l.c);y+=8;}
   if(curseCount()){const cn={};for(const k of (R.cnames||[]))cn[k]=(cn[k]||0)+1;let x=X+6;txt('CURSES',x,y,'#c6f');x+=30;for(const k in cn){const C=CURSES[k];if(!C)continue;const t=C.n.split(' ').pop()+(cn[k]>1?' X'+cn[k]:'');txt(t,x,y,C.c);x+=txtW(t)+6;}}}

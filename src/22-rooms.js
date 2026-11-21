@@ -5,14 +5,21 @@ const SHOPX=1.25; // shop prices (raised 25% in 0.6.2)
 const ROOMCOL={treasure:'#fd4',shop:'#4cf',shrine:'#c6f',rest:'#6f6',elite:'#f84',trap:'#f44',altar:'#f33',ambush:'#f66',challenge:'#fc4'};
 const ROOMORDER=['combat','elite','treasure','shop','ambush','rest','challenge','shrine','altar','elite','trap','combat','combat'];
 function spotIn(r){let x,y,tries=0;do{x=ri(r.x+1,r.x+r.w-2);y=ri(r.y+1,r.y+r.h-2);tries++;}while((!map.t[y*MW+x]||(map.liq[y*MW+x]&&tries<30))&&tries<40);return {x:x*T+8,y:y*T+8};}
-// ---- the shop: one relic purchase per stage, plus gear, enchants and potions ----
+// ---- the shop: up to three relic choices, one relic purchase per stage ----
 const SHOPLINES=['WELCOME, TRAVELLER','FINE WARES FOR A FINE WARRIOR','GOLD SPEAKS LOUDER THAN STEEL','EVERYTHING HERE HAS A STORY','MIND THE BOSS AHEAD - BUY WISELY'];
 const relicShopOpen=()=>R.relicShopDepth!==relicTradeDepth()&&relicTradeAvailable(0,2,['rez']);
 function stockRelics(c,r,di){
  props=props.filter(p=>p.room!==r||!p.relicStand);
  if(!relicShopOpen())return;
- const it=randItem(['rez'],0,2);
- props.push({k:'pedestal',relicStand:true,x:c.x,y:c.y+10,room:r,item:it.id,price:Math.round(SHOPX*[35,60,100][it.r]*(1+.15*di)),name:it.name});
+ const stock=[],excluded=['rez'];
+ while(stock.length<3&&relicTradeAvailable(0,2,excluded)){
+  const it=randItem(excluded,0,2);
+  stock.push(it);excluded.push(it.id);
+ }
+ for(const [i,it] of stock.entries()){
+  const x=c.x+(i-(stock.length-1)/2)*26;
+  props.push({k:'pedestal',relicStand:true,x,y:c.y+10,room:r,item:it.id,price:Math.round(SHOPX*[35,60,100][it.r]*(1+.15*di)),name:it.name});
+ }
 }
 function roomCenter(r){return {x:(r.x+(r.w>>1))*T+8,y:(r.y+(r.h>>1))*T+8};}
 function dressBossApproach(r){
@@ -57,7 +64,7 @@ function populateRoom(r,di){
    {const g=mkGear('wpn',tierFor(di,1),false,Math.random()<.35?3:2);props.push({k:'pedestal',x:c.x-39,y:c.y+38,room:r,gear:g,price:Math.round(SHOPX*(g.q===3?180:g.q===2?110:60)*(1+.2*di)),name:g.name});}
    if(!prologueLoot()){const en=mkEnch();props.push({k:'pedestal',x:c.x-13,y:c.y+38,room:r,ench:en,price:Math.round(SHOPX*90*(1+.2*di)),name:'ENCHANT '+ENCH.find(x=>x.k===en.k).n});}
    props.push({k:'pedestal',x:c.x+13,y:c.y+38,room:r,heal:true,price:Math.round(SHOPX*60*(1+.2*di)),name:'HP POTION'});
-   if(relicShopOpen())props.push({k:'pedestal',x:c.x+39,y:c.y+38,room:r,reroll:true,price:Math.round(SHOPX*25*(1+.2*di)),name:'REROLL THE RELIC'});break;}
+   if(relicShopOpen())props.push({k:'pedestal',x:c.x+39,y:c.y+38,room:r,reroll:true,price:Math.round(SHOPX*25*(1+.2*di)),name:'REROLL THE RELICS'});break;}
   case 'shrine':{const gk=pick(Object.keys(GODS));props.push({k:'altar',x:c.x,y:c.y,room:r,col:GODS[gk].c,god:gk});break;}
   case 'rest':props.push({k:'spring',x:c.x,y:c.y,room:r});break;
   case 'trap':{const n=ri(20,30)+di*2;for(let k=0;k<n;k++){const tx=ri(r.x+1,r.x+r.w-2),ty=ri(r.y+1,r.y+r.h-2);if(map.t[ty*MW+tx]&&!traps.some(t=>t.tx===tx&&t.ty===ty))traps.push({tx,ty,ph:((tx+ty)%3)*1.07});}addE(ri(2,3));break;}

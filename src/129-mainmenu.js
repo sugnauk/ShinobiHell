@@ -145,7 +145,7 @@ selConfirm=function(){if(selLock)return;if(isLocked(selIdx)){sfx('block');return
  y+=12;
  if(lk){const U=typeof heroLockInfo==='function'?heroLockInfo(selIdx):null;
   txt('LOCKED',px,y,'#e0c070',2);y+=18;txt(U?U.title:'',px,y,'#e0c070');y+=10;for(const l of wrapTxt(U?U.d:'',Math.floor(pw/4.6))){txt(l,px,y,'#ddd');y+=8;}
-  if(U&&U.need>1){y+=4;const s2=Math.min(U.cur,U.need)+' / '+U.need+(U.run?'  (IN ONE RUN)':'');txt(s2,px,y,'#aaa');segBar(px,y+10,Math.min(1,U.cur/U.need),'#e0c070',Math.min(10,U.need));}}
+  if(U){y+=4;txt(Math.min(U.cur,U.need)+' / '+U.need,px,y,'#aaa');segBar(px,y+10,Math.min(1,U.cur/U.need),'#e0c070',U.need);}}
  else{
   for(const l of wrapTxt(I.lore+(I.lore===C.d?'':' '+C.d),Math.floor(pw/4.6)).slice(0,3)){txt(l,px,y,'#ddd');y+=8;}
   if(I.limit){txt('TRADE-OFF: '+I.limit,px,y,'#e3af90');y+=8;}y+=3;

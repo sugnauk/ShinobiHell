@@ -12,7 +12,7 @@
 //  - TABS FOR EVERYTHING YOU OWN: GEAR (paper doll, pack, stats, sets), RELICS (an icon grid with stack counts) and SPELLS
 //    (each ability with its scroll add-ons, the weapon's enchants).
 let invPage=0,invSel=0,invArm=null,invRows=[];
-const IX=6,IY=6;let IW=W-12,IH=H-16;
+const IX=6;let IY=6,IW=W-12,IH=H-16;
 const INVTABS=[{n:'GEAR'},{n:'RELICS'},{n:'SPELLS'}];
 const INV_SLOTS=()=>{const L=[{x:IX+14,y:IY+46,eq:'wpn'},{x:IX+88,y:IY+30,eq:'arm'},{x:IX+88,y:IY+58,eq:'ring'}];
  for(let i=0;i<PACKMAX;i++)L.push({x:IX+122+(i%4)*21,y:IY+32+((i/4)|0)*22,pi:i});return L;};
@@ -94,7 +94,7 @@ function drawSpellTab(){invRows=[];ipanel(IX+4,IY+14,206,IH-16,'ABILITIES AND SC
  else{txt('POINT AT AN ABILITY,',x+5,yy+6,'#666');txt('A SCROLL OR AN ENCHANT',x+5,yy+13,'#666');}
  return '';}
 // ---- the whole screen
-drawInv=function(){IW=W-12;IH=H-16;ctx.fillStyle='rgba(4,2,8,.72)';ctx.fillRect(0,0,W,H);ctx.fillStyle='#100c16';ctx.fillRect(IX,IY,IW,IH);ctx.fillStyle='#d02030';ctx.fillRect(IX,IY,IW,1);ctx.fillRect(IX,IY+IH-1,IW,1);
+drawInv=function(){IY=TOUCH?touchHudRowBottom():6;IW=W-12;IH=H-IY-10;ctx.fillStyle='rgba(4,2,8,.72)';ctx.fillRect(0,0,W,H);ctx.fillStyle='#100c16';ctx.fillRect(IX,IY,IW,IH);ctx.fillStyle='#d02030';ctx.fillRect(IX,IY,IW,1);ctx.fillRect(IX,IY+IH-1,IW,1);
  txt('INVENTORY',IX+5,IY+3,'#d02030');
  tabRects().forEach((r,i)=>{const on=i===invPage;ctx.fillStyle=on?'#3a2434':'#1a1420';ctx.fillRect(r.x,r.y,r.w,r.h);if(on){ctx.fillStyle='#d02030';ctx.fillRect(r.x,r.y+r.h-1,r.w,1);}txt(r.n,r.x+4,r.y+2,on?'#fff':'#887');});
  {const g='GOLD '+R.sen;txt(g,IX+IW-5-txtW(g),IY+3,'#ffd040');}

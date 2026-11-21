@@ -23,4 +23,4 @@ function bladeCut(test){if(!P||!R||!MELEE())return;const hit=[];for(const q of p
 {const _he=hurtE;hurtE=function(e,dmg,pd,o){const r=_he(e,dmg,pd,o);if(o&&o.slash&&P&&R&&MELEE()&&!e.prop){const now=R.time;if(now-(P.lsW||0)>1){P.lsW=now;P.lsN=0;}if((P.lsN||0)<.04){P.lsN=(P.lsN||0)+.005;P.hp=Math.min(S.maxhp,P.hp+S.maxhp*.005);}}return r;};}
 // the Wizard and Archer are the two starting characters (the class list was reordered: old saves keep their class)
 {if(!meta.clsV2){const swap=i=>i===1?2:i===2?1:i;meta.cls=swap(meta.cls||0);try{const k='shinobiDungeonsRun',s=JSON.parse(localStorage.getItem(k));if(s&&s.cls!=null){s.cls=swap(s.cls);localStorage.setItem(k,JSON.stringify(s));}}catch(e){}
-  meta.clsV2=1;if((meta.cls||0)>=(meta.unlocked||2))meta.cls=0;saveMeta();}}
+  meta.clsV2=1;if(!meta.heroesV&&(meta.cls||0)>=(meta.unlocked||2))meta.cls=0;saveMeta();}}

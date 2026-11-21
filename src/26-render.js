@@ -16,6 +16,7 @@ function sline(x0,y0,x1,y1,col){ctx.fillStyle=col;const n=Math.max(Math.abs(x1-x
 function tdiamond(tx,ty,col){const X=sx(tx*T,ty*T),Y=sy(tx*T,ty*T);ctx.fillStyle=col;for(let j=0;j<TILEH;j++){const half=dHalf(j);ctx.fillRect(X-half,Y+j,half*2,1);}}
 function shadow(x,y,w){ctx.fillStyle='rgba(0,0,0,.35)';ctx.fillRect(Math.round(x-w/2),Math.round(y),w,2);}
 function sprOf(e){if(e.sprOv)return e.sprOv;const key=e.boss?'boss'+e.di:e.type;const o=OV[key];return (o&&o.ok)?o:(e.boss?(e.spr2&&e.hp<e.maxhp*.5?e.spr2:e.spr):getSpr(e.type,e.di));}
+const enemyFootOffset=e=>Math.min(6,Math.round(e.r*.6))+2;
 function drawEnemy(e){
  if(e.ghost)return; // a squad's invisible coordinator
  if(e.boss&&e.awake){ // boss state visuals: a guard bubble during minion events, a burning aura below a quarter health
@@ -24,7 +25,7 @@ function drawEnemy(e){
   if(e.air&&e.z>60){const X=sx(e.x,e.y),Y=sy(e.x,e.y);ctx.globalAlpha=.5;wdisc(e.x,e.y,e.r+4,'#000');ctx.globalAlpha=1;if(e.ceil)wcirc(e.x,e.y,e.r+4+Math.sin(time*14)*2,'#ff4040');return;}}
  // recoil: the sprite jerks back along the hit direction for a moment
  let kx=0,ky=0,settle=0;if(e.kick&&e.kick.t>0){const k=e.kick.t/(e.kick.dur||.12),v=scrVec(Math.cos(e.kick.a),Math.sin(e.kick.a));kx=Math.round(v[0]*e.kick.p*k);ky=Math.round(v[1]*e.kick.p*k);settle=Math.round((e.kick.drop||0)*k*k);}
- const s=sprOf(e),X=sx(e.x,e.y)+kx,Y=sy(e.x,e.y)+ky+Math.min(6,Math.round(e.r*.6))+2,H0=s.fh*s.sc;let frame=Math.floor(time*4+e.wob);
+ const s=sprOf(e),X=sx(e.x,e.y)+kx,Y=sy(e.x,e.y)+ky+enemyFootOffset(e),H0=s.fh*s.sc;let frame=Math.floor(time*4+e.wob);
  shadow(X,Y-2,Math.round(e.r*2+6));
  if(e.elite){ctx.globalAlpha=.7;wcirc(e.x,e.y,e.r+3+Math.sin(time*6),ELMOD[e.elite].c);ctx.globalAlpha=1;}
  const blink=e.tele>0&&Math.floor(time*16)%2===0;
@@ -418,9 +419,13 @@ function drawPortal(){
  const by=Math.round(Y-62+Math.sin(t*5)*3);ctx.fillStyle=OL;ctx.fillRect(X-4,by-1,9,4);ctx.fillRect(X-2,by+3,5,3);ctx.fillStyle='#fd4';ctx.fillRect(X-3,by,7,2);ctx.fillRect(X-1,by+2,3,2);ctx.fillRect(X,by+4,1,1);
  txt('PORTAL',X-11,by-9,'#fff');
 }
+function minimapLayout(){
+ const size=TOUCH?48:64,x=W-size-(TOUCH?6:3),y=TOUCH?touchHudRowBottom():3,k=size/(MW+MH);
+ return {size,x,y,point(tx,ty){const [u,v]=tileR(tx,ty);return [x+Math.round((u-v+RMH)*k),y+Math.round((u+v)*k)];}};
+}
 function drawMinimap(){
  // bird's-eye minimap: straight top-down, turned 45 degrees so up on the map is up on screen
- const k=64/(MW+MH),mw=Math.round((MW+MH)*k),mh=mw,ox=W-mw-3,oy=3,mp=(x,y)=>{const [u,v]=tileR(x,y);return [ox+Math.round((u-v+RMH)*k),oy+Math.round((u+v)*k)];};
+ const {size:mw,x:ox,y:oy,point:mp}=minimapLayout(),mh=mw;
  ctx.fillStyle='rgba(0,0,0,.55)';ctx.fillRect(ox-1,oy-1,mw+2,mh+2);
  if(R.fog===R.di){ctx.fillStyle='rgba(150,140,170,.25)';for(let i=0;i<14;i++){const a=time*.3+i;ctx.fillRect(ox+((i*23+Math.round(time*6))%(mw-10)),oy+(i*11)%(mh-4),10,3);}txt('FOG',ox+mw/2-5,oy+mh/2-2,'#b8b0c8');const q=[ox+mw/2,oy+mh/2];return;}
  // a quiet, mostly grey map: explored floor grey, finished rooms a lighter grey. Colour is kept for what you look for:
@@ -502,6 +507,12 @@ const JADEC='#5fd08a';
 function hudJade(x,y){ctx.fillStyle='#1e5a3a';ctx.fillRect(x+1,y,4,1);ctx.fillRect(x,y+1,6,3);ctx.fillRect(x+1,y+4,5,1);ctx.fillRect(x+3,y+5,3,1);ctx.fillRect(x+4,y+6,1,1);
  ctx.fillStyle='#5fd08a';ctx.fillRect(x+1,y+1,4,3);ctx.fillRect(x+2,y+4,3,1);ctx.fillStyle='#c8ffd8';ctx.fillRect(x+1,y+1,1,1);ctx.fillStyle='#1e5a3a';ctx.fillRect(x+2,y+2,1,1);}
 function hudRevive(x,y){const f=Math.floor(time*6)%2;ctx.fillStyle='#2a6aa0';ctx.fillRect(x+1,y+3,5,4);ctx.fillRect(x+2,y+1,3,2);ctx.fillRect(x+3-f,y,1,1);ctx.fillStyle='#8cf';ctx.fillRect(x+2,y+3,3,3);ctx.fillRect(x+3,y+2,1,1);ctx.fillStyle='#fff';ctx.fillRect(x+3,y+4,1,2);}
+function drawRunCounters(x,y){
+ const gold=String(R.sen),revives='X'+P.rez;
+ hudCoin(x,y);txt(gold,x+9,y+1,'#fc4');
+ hudRevive(x,y+8);txt(revives,x+9,y+9,P.rez>0?'#bfe8ff':'#777');
+ return 9+Math.max(txtW(gold),txtW(revives));
+}
 const bossBarBox=()=>({x:Math.round((W-180)/2),y:14,w:180});
 function drawHUD(){
  syncLMB();
@@ -518,14 +529,17 @@ function drawHUD(){
   }
   ctxt('HP '+Math.ceil(P.hp)+' / '+S.maxhp,y+2,'#fff');
   bar(x,y+10,w,3,P.pos/S.maxpos,P.stag>0?'#f84':'#fd4','#3a3010');
-  hudCoin(7,y);txt(String(R.sen),16,y+1,'#fc4');hudRevive(7,y+8);txt('X'+P.rez,16,y+9,P.rez>0?'#bfe8ff':'#777');}
+  if(!TOUCH)drawRunCounters(7,y);}
  // HP potions live in the ability bar: C is effectively your heal ability
  {const x=slotX(0)-24,y=SLOTY(),has=R.pots>0;ctx.fillStyle='#000';ctx.fillRect(x-1,y-1,15,15);ctx.fillStyle=has?'#e33':'#555';ctx.fillRect(x,y,13,13);ctx.fillStyle='#14101a';ctx.fillRect(x+1,y+1,11,11);
   if(!has)ctx.globalAlpha=.4;ctx.fillStyle='#c8a070';ctx.fillRect(x+5,y+2,3,1);ctx.fillStyle='#ddd';ctx.fillRect(x+5,y+3,3,2);ctx.fillStyle='#e33';ctx.fillRect(x+3,y+5,7,6);ctx.fillRect(x+4,y+4,5,1);ctx.fillStyle='#ff8080';ctx.fillRect(x+4,y+6,1,3);ctx.globalAlpha=1;
   txt(String(R.pots),x+10,y+8,has?'#fff':'#888');txt('C',x+5,y+15,has?'#ccc':'#777');
   for(let i=0;i<POTMAX;i++){ctx.fillStyle=i<R.pots?'#e33':'#3a2030';ctx.fillRect(x+1+i*4,y+22,3,2);}}
  // top left: your gear, then your relics, then curses
- {let gx=6;for(const s of ['wpn','arm','ring']){const g=R.eq[s];drawItemIcon(g,gx,6);gx+=18;}txt('TAB '+R.pack.length+'/'+PACKMAX,gx,11,R.pack.length>=PACKMAX?'#f66':'#888');if(P.oocRun)txt('SWIFT',gx+38,11,Math.floor(time*4)%2?'#8cf':'#cef');}
+ {let gx=6;for(const s of ['wpn','arm','ring']){const g=R.eq[s];drawItemIcon(g,gx,6);gx+=18;}
+  if(TOUCH)gx+=drawRunCounters(gx,6)+7;
+  else{txt('TAB '+R.pack.length+'/'+PACKMAX,gx,11,R.pack.length>=PACKMAX?'#f66':'#888');gx+=38;}
+  if(P.oocRun)txt('SWIFT',gx,11,Math.floor(time*4)%2?'#8cf':'#cef');}
  {const ids=Object.keys(R.inv),per=11;let shown=0;ids.forEach((id,i)=>{if(i>=per*2)return;const ix=6+(i%per)*13,iy=24+((i/per)|0)*13;relicBox(ix,iy,id,11);if(R.inv[id]>1)txt(R.inv[id],ix+7,iy+8,'#fff');shown++;});if(shown<ids.length)txt('+'+(ids.length-shown),6+per*13,37,'#aaa');}
  if(curseCount()){const cn={};for(const k of (R.cnames||[]))cn[k]=(cn[k]||0)+1;if(R.curse&&!cn.frail)cn.frail=R.curse;const cy=Object.keys(R.inv).length>11?52:Object.keys(R.inv).length?39:26;let cx=6;txt('CURSES',cx,cy,'#c6f');cx+=28;
   for(const k in cn){const C=CURSES[k];if(!C)continue;const s=C.n.split(' ').pop()+(cn[k]>1?' '+ROM[Math.min(4,cn[k])]:'');txt(s,cx,cy,C.c);cx+=txtW(s)+6;}}
@@ -549,7 +563,8 @@ function drawHUD(){
  if(RK()>0)txt('RANK '+(RK()+1),slotX(0),H-37,'#fd4');
  // hit combo: grows with every hit, pops on each new hit, fades 2s after the last one
  {const age=time-(R.comboAt||-9);if(R.combo>=5&&age<2){const pop=age<.1?2:1,s=R.combo+' HITS',c=R.combo>=100?'#ff5050':R.combo>=50?'#ffd040':R.combo>=25?'#f84':'#fff';
-  ctx.globalAlpha=Math.min(1,(2-age)*2);txt(s,W-6-txtW(s,pop),H/2-20,c,pop);ctx.fillStyle=c;ctx.fillRect(W-6-40,H/2-20+(pop===2?12:7),Math.round(40*(1-age/2)),1);ctx.globalAlpha=1;}}
+  const right=TOUCH?W-86:W-6;
+  ctx.globalAlpha=Math.min(1,(2-age)*2);txt(s,right-txtW(s,pop),H/2-20,c,pop);ctx.fillStyle=c;ctx.fillRect(right-40,H/2-20+(pop===2?12:7),Math.round(40*(1-age/2)),1);ctx.globalAlpha=1;}}
  if(P.storm>0)ctxt('STORM '+P.storm.toFixed(1),H-52,'#ff8a30');
  if(freezeT>0)ctxt('TIME STOPPED '+freezeT.toFixed(1),H-52,'#8cf');
  if((!boss?.awake||boss.dead)&&!R.training)ctxt(R.training?'TRAINING GROUNDS':ROMAN[R.di]+'. '+DUN[R.di].name,4,'#ddd');
@@ -585,10 +600,13 @@ function drawHUD(){
   if(np.curse){const C=CURSES[np.ck||'frail'],Ls=C.L.concat([{s:'LASTS ALL RUN AND STACKS',c:'#888'}]),w=196,h=Ls.length*9+18,x=Math.round((W-w)/2),y=H-50-h;ctx.fillStyle='rgba(20,8,12,.94)';ctx.fillRect(x,y,w,h);ctx.fillStyle=C.c;ctx.fillRect(x,y,w,1);ctx.fillRect(x,y+h-1,w,1);
    txt(C.n,x+4,y+4,C.c);{const s2='YOU CARRY '+curseCount();txt(s2,x+w-4-txtW(s2),y+4,'#c6f');}Ls.forEach((l,i)=>txt(l.s,x+4,y+14+i*9,l.c));}
   else if(np.k==='altar'&&np.god){const D=GODS[np.god];ctxt(D.n+' - '+D.sub,H-54,D.c);}if(np.k==='pedestal'){const it=np.item?ITEMBY[np.item]:null;
-   if(it)ctxt(FXNAME[fxStyle(it.id)]+' RELIC '+ROM[it.r]+': '+it.d,H-36,fxCol(it.id));
+   if(it){
+    if(np.relicStand)ctxt('ONE RELIC PURCHASE PER STAGE',H-52,'#ffd040');
+    ctxt(FXNAME[fxStyle(it.id)]+' RELIC '+ROM[it.r]+': '+it.d,H-36,fxCol(it.id));
+   }
    else if(np.gear)ctxt(gearLines(np.gear).slice(1,3).join('  '),H-36,QUAL[np.gear.q].c);
    else if(np.ench){const E=ENCH.find(x=>x.k===np.ench.k);ctxt('ENCHANT: '+E.d,H-36,E.c);}
-   else if(np.reroll)ctxt('REROLL THE RELIC. ONE PURCHASE PER STAGE',H-36,'#ffd040');
+   else if(np.reroll)ctxt('REFRESHES THE RELIC SELECTION. PRICE RISES EACH TIME',H-36,'#ffd040');
    else ctxt('HP POTION: DRINK WITH C TO HEAL 35%',H-36,'#50e060');}}
  drawMinimap();
  if(toast.t>0){ctx.globalAlpha=Math.min(1,toast.t);ctxt(toast.s,24,toast.c,1);ctx.globalAlpha=1;}
@@ -656,9 +674,20 @@ function renderPlay(){
  ctx.fillStyle='#07060a';ctx.fillRect(0,0,W,H);
  // screen shake is almost gone (at most a 1px nudge on the very biggest moments); power comes from recoil, bursts and freeze-frames instead
  const sk=shake>=10&&OPT().shake?1:0,shx=sk?Math.round(rnd(-1,1)):0;
- let fcx=P.x,fcy=P.y;if(introT>0&&introE){const el=INTRO-introT,f=Math.min(1,el/.5,introT/.5),k=f*f*(3-2*f);fcx=P.x+(introE.x-P.x)*k;fcy=P.y+(introE.y-P.y)*k;}
+ let fcx=P.x,fcy=P.y,introDX=0,introDY=0;
+ if(introT>0&&introE){
+  const el=INTRO-introT,f=Math.min(1,el/.5,introT/.5),k=f*f*(3-2*f);
+  fcx=P.x+(introE.x-P.x)*k;fcy=P.y+(introE.y-P.y)*k;
+  const focus=!introE.camOnly&&BKIT[introE.name]?.introFocus;
+  if(focus){
+   const s=sprOf(introE),flip=isoX(P.x,P.y)<isoX(introE.x,introE.y);
+   // Frame the mounted silhouette, easing the offset in and out with the existing pan.
+   introDX=k*(focus[0]-.5)*s.fw*s.sc*(flip?-1:1);
+   introDY=k*(6+enemyFootOffset(introE)-(introE.z||0)+(focus[1]-1)*s.fh*s.sc);
+  }
+ }
  // Keep pixel-art placement on the logical grid and scroll the whole scene in backing-pixel steps.
- const scrollX=isoX(fcx,fcy)-W/2+shx,scrollY=isoY(fcx,fcy)-(H/2+6);
+ const scrollX=isoX(fcx,fcy)-W/2+shx+introDX,scrollY=isoY(fcx,fcy)-(H/2+6)+introDY;
  const snap=v=>Math.round(v*viewScale)/viewScale,viewX=snap(scrollX),viewY=snap(scrollY);
  cam.x=Math.round(scrollX);cam.y=Math.round(scrollY);
  const px=isoX(P.x,P.y),py=isoY(P.x,P.y),playerDX=snap(px)-Math.round(px),playerDY=snap(py)-Math.round(py);

@@ -508,7 +508,7 @@ function drawDeathOverlay(){const e=DEATHT-P.dying,d=clamp(e/DEATHT,0,1);
 function finishRun(win){
  clearRun();
  R.sen=Math.round(R.sen*(1+.2*(R.asc||0)));meta.sen+=R.sen+(win?200:0);meta.runs++;if(win){meta.wins++;if(R.asc>=meta.ascMax&&meta.ascMax<10){meta.ascMax=R.asc+1;setToast('ASCENSION '+meta.ascMax+' UNLOCKED','#f5a',4);}}meta.reached=Math.max(meta.reached,Math.min(DUN.length-1,R.di));
- let unlock=null; // heroes now unlock through their own challenges (185-unlocks.js), not one per run
+ let unlock=null; // heroes join at lifetime guardian milestones (185-unlocks.js)
  saveMeta();
  deadInfo={win,cause:win?null:P.deathCause,sen:R.sen+(win?200:0),di:R.di,kills:R.kills,time:R.time,db:R.deathblows,pf:R.perfect,unlock,
   cls:CLS(),dmg:Object.assign({},R.dmg||{}),lo:Object.assign({},P.lo),eq:Object.assign({},R.eq),inv:Object.assign({},R.inv),ench:(R.ench||[]).slice(),addon:JSON.parse(JSON.stringify(R.addon||{})),combo:R.bestCombo||0,evo:P.evo||0};

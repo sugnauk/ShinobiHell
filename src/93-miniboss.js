@@ -9,7 +9,7 @@ const MOTH={stage:3,
  pickRoom(){const st=map.startRoom,br=map.bossRoom,c=r=>({x:r.x+r.w/2,y:r.y+r.h/2}),a=c(st),b=c(br),mid={x:(a.x+b.x)/2,y:(a.y+b.y)/2};
   let best=null,bd=1e9;for(const r of map.rooms){if(r===st||r===br||r.k==='boss'||r.k==='start'||r.type==='shop'||r.w<10||r.h<10)continue;const d=Math.hypot(c(r).x-mid.x,c(r).y-mid.y);if(d<bd){bd=d;best=r;}}return best;},
  spawn(){const r=MOTH.pickRoom();if(!r)return;for(const e of enemies)if(e.room===r&&!e.prop)e.dead=true;enemies=enemies.filter(e=>!e.dead);
-  const e=mkEnemy('mothqueen',(r.x+r.w/2)*T,(r.y+r.h/2)*T,r,R.di);const hp=BOSS[MOTH.stage].hp*BOSSHP*.3*DF().hp*(R.ngp?1.25:1);Object.assign(e,{hp,maxhp:hp,mini:1,sprOv:MOTH.spr(0),phase:1,label:null,elite:null,at:2,bt:1,k:0,ang:0});enemies.push(e);MOTH.e=e;},
+  const e=mkEnemy('mothqueen',(r.x+r.w/2)*T,(r.y+r.h/2)*T,r,R.di);const hp=BOSS[MOTH.stage].hp*BOSSHP*MINIBOSS_HEALTH*.3*DF().hp*(R.ngp?1.25:1);Object.assign(e,{hp,maxhp:hp,mini:1,sprOv:MOTH.spr(0),phase:1,label:null,elite:null,at:2,bt:1,k:0,ang:0});enemies.push(e);MOTH.e=e;},
  inRoom(e){const r=e.room;return P.x>r.x*T&&P.x<(r.x+r.w)*T&&P.y>r.y*T&&P.y<(r.y+r.h)*T;},
 };
 {const _ld=loadDungeon;loadDungeon=function(di){const r=_ld(di);MOTH.e=null;if(di===MOTH.stage&&R&&!R.training)MOTH.spawn();return r;};}

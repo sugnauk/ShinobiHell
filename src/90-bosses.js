@@ -66,6 +66,7 @@ function inShape(m,x,y){switch(m.k){
  case 'ring':{const d=Math.hypot(x-m.x,y-m.y);return d>m.r0&&d<m.r1;}
  case 'rect':return x>m.x0&&x<m.x1&&y>m.y0&&y<m.y1;}return false;}
 function tickMarks(dt){for(const m of BMK){
+  if(m.dead)continue;
   if(m.survival&&m.src.EV!==m.survival){m.dead=1;continue;}
   if(m.follow&&(m.lock==null||m.t>m.lock))m.follow(m);m.t-=dt;
   if(!m.fired){if(m.t<=0){m.fired=1;
@@ -84,7 +85,7 @@ function shapePath(m,k){ctx.beginPath();k=k==null?1:k;switch(m.k){
  case 'rect':ctx.rect(m.x0,m.y0,m.x1-m.x0,m.y1-m.y0);break;}}
 function drawMarks(){if(!BMK.length)return;ctx.save();worldXf();ctx.lineWidth=1.2;
  // fake walls (the fox's illusions) look real until a torii gate reveals them
- for(const m0 of BMK){if(m0.survival&&m0.src.EV!==m0.survival)continue;if(m0.hidden&&!(m0.reveal&&m0.reveal(m0)))continue;const m=m0.fake&&!(revealed())?Object.assign({},m0,{fake:false}):m0;if(m.thin){ctx.globalAlpha=.55+.3*Math.sin(time*9);ctx.strokeStyle=m.col;ctx.lineWidth=.8;shapePath(Object.assign({},m,{w:.5}));ctx.stroke();ctx.lineWidth=1.2;continue;}
+ for(const m0 of BMK){if(m0.dead)continue;if(m0.survival&&m0.src.EV!==m0.survival)continue;if(m0.hidden&&!(m0.reveal&&m0.reveal(m0)))continue;const m=m0.fake&&!(revealed())?Object.assign({},m0,{fake:false}):m0;if(m.thin){ctx.globalAlpha=.55+.3*Math.sin(time*9);ctx.strokeStyle=m.col;ctx.lineWidth=.8;shapePath(Object.assign({},m,{w:.5}));ctx.stroke();ctx.lineWidth=1.2;continue;}
   const k=m.fired?1:clamp(1-m.t/m.dur,0,1),bl=Math.floor(time*14)%2;
   if(m.fired){ctx.globalAlpha=m.fake?.12:.35+.15*Math.sin(time*20);ctx.fillStyle=m.col;shapePath(m);ctx.fill();if(!m.fake){ctx.globalAlpha=.8;ctx.strokeStyle='#fff';ctx.stroke();}continue;}
   ctx.globalAlpha=m.fake?.06:.14;ctx.fillStyle=m.col;shapePath(m);ctx.fill();
@@ -1156,8 +1157,7 @@ BKIT['TAMAMO, THE ILLUSIONIST']={director:bossDirector,pref:110,gap:.75,halfName
 
 // ================================================================ XI. LORD KUROGANE, THE BLACK HORSE GENERAL - big-space positioning
 // Mounted, he never stands still: long gallops round the court and lance passes straight through it. Two standard-bearers
-// ride with him and while either lives he takes half damage. At half health his horse Yamikaze falls; he fights on foot,
-// slower but every blow heavier, and the horse's body stays as cover.
+// ride with him and while either lives he takes half damage. At half health he dismounts and Yamikaze charges alone.
 BART['LORD KUROGANE']=Object.assign(p=>{const {R,E,L,f,atk}=p,b=f===1?1:0,H0='#1a1a22',H1='#2e2e3a',G='#c0a040';
  // the black warhorse in lacquered barding
  const lg=atk?[[20,8],[28,4],[52,-6],[60,-8]]:[[20,0],[28,f?2:0],[52,f?0:2],[60,0]];for(const [x,dy] of lg){R(x,40+Math.min(0,dy),4,16+Math.max(0,dy)-Math.max(0,-dy)*0,H0);R(x-1,54,6,2,'#3a3a40');}
@@ -1175,15 +1175,14 @@ BART['KUROGANE ON FOOT']=Object.assign(p=>{const {R,E,L,b,atk}=p;const h=bWarrio
  const hx=h.cx,hy=h.ty-12;bFace(p,hx,hy,'#c8a080');R(hx-5,hy+6,11,4,'#1e1e28');R(hx-7,hy-2,15,5,'#1e1e28');L(hx-8,hy-4,hx,hy,'#c0a040',2);L(hx+8,hy-4,hx,hy,'#c0a040',2);
  // a long tachi; the war fan hangs at his belt
  if(atk){L(h.hx-10,h.hy+6,h.hx+18,h.hy-10,'#e8eef6',2);}else{L(h.hx+1,h.hy,h.hx+3,h.hy-26,'#e8eef6',2);}R(h.cx-15,h.ty+18,6,4,'#c0a040');R(h.cx-14,h.ty+19,4,1,'#801818');},{sc:1.12});
-const KUR={bearers:e=>(e.bearers||[]).filter(m=>!m.dead),
- corpseBlock(e,dt){const c=e.corpse;if(!c)return;for(const q of projs)if(Math.hypot(q.x-c.x,q.y-c.y)<c.r){q.dead=true;spark(q.x,q.y,'#3a3a48',2,30);}
-  const d=Math.hypot(P.x-c.x,P.y-c.y);if(d<c.r+3&&d>0){const a=Math.atan2(P.y-c.y,P.x-c.x);P.x=c.x+Math.cos(a)*(c.r+3);P.y=c.y+Math.sin(a)*(c.r+3);}}};
-BKIT['LORD KUROGANE']={director:bossDirector,pref:0,gap:.8,halfName:'YAMIKAZE FALLS - HE FIGHTS ON FOOT',keepSpr:1,
+const KUR={bearers:e=>(e.bearers||[]).filter(m=>!m.dead)};
+BKIT['LORD KUROGANE']={director:bossDirector,pref:0,gap:.8,halfName:'DISMOUNTED - DEFEAT KUROGANE AND YAMIKAZE',keepSpr:1,
+ introFocus:[.57,.525], // centre of the rider, spear and horse in the mounted idle frames
  style:{c:'#c0a040',t:['CAVALRY','CAVALRY WING','ON FOOT'],ph:[[],[],[]]},
- guide:['SKILL: BIG-SPACE POSITIONING. MOUNTED, HE NEVER STOPS','TWO STANDARD-BEARERS RIDE WITH HIM: HALF DAMAGE WHILE EITHER LIVES','STAY AHEAD OF HIS PATH: HIS ARROWS FALL BEHIND IT','ON FOOT: STOP SHOOTING WHILE HIS WAR FAN IS OPEN'],
+ guide:['SKILL: BIG-SPACE POSITIONING. MOUNTED, HE NEVER STOPS','TWO STANDARD-BEARERS RIDE WITH HIM: HALF DAMAGE WHILE EITHER LIVES','STAY AHEAD OF HIS PATH: HIS ARROWS FALL BEHIND IT','ON FOOT: DODGE YAMIKAZE\'S CHARGE, THEN STRIKE AS HE RECOVERS','DEFEAT BOTH. STOP SHOOTING AT KUROGANE WHILE HIS WAR FAN IS OPEN'],
  init(e){e.mounted=1;e.loopA=0;e.bearers=[0,1].map(i=>{const m=bMin(e,'samurai',e.x,e.y);m.t=Object.assign({},ET.samurai,{ai:'dummy'});m.sprOv=Object.assign({},foeSprite('samurai',basePal('#1e1e28','#0a0a12','#c0a040','#801818')),{sc:1.1});m.label='BEARER';m.labelC='#c0a040';m.hp=m.maxhp=m.maxhp*2.2;m.slot=i;return m;});
   e.onHurt=b=>{if(b.fan>0){KUR.reflect(b);return false;}return KUR.bearers(b).length&&b.mounted?.5:1;};},
- tick(e,dt,d,inEv){KUR.corpseBlock(e,dt);if(e.fan>0)e.fan-=dt;
+ tick(e,dt,d,inEv){if(e.riderDown)return true;if(e.fan>0)e.fan-=dt;
   // the bearers ride in his wake, firing arrows to the side
   if(e.mounted)KUR.bearers(e).forEach((m,i)=>{const lag=.3+i*.28,tx=e.trail?e.trail[Math.min(e.trail.length-1,Math.floor(lag*40))]:null;if(tx){m.x+=(tx.x-m.x)*Math.min(1,dt*8);m.y+=(tx.y-m.y)*Math.min(1,dt*8);}
    m.at=(m.at||rnd(1,2))-dt;if(m.at<=0){m.at=rnd(1.6,2.4);bfan(m,m.x,m.y,aimAt(m),3,.4,95,8,{spr:'arrow',col:BC.aim,r:2});}});
@@ -1195,11 +1194,18 @@ BKIT['LORD KUROGANE']={director:bossDirector,pref:0,gap:.8,halfName:'YAMIKAZE FA
   e.hat=(e.hat||0)-dt;if(e.hat<=0){e.hat=.28;bsh(e,e.x,e.y,da+Math.PI+rnd(-.35,.35),36,8,{spr:'arrow',col:BC.fix,r:2,life:3.2});}
   // yari sweep as he passes close
   if(d<70&&!(e.ysw>0)){e.ysw=2.5;mark({k:'cone',x:e.x,y:e.y,a:a,r:60,arc:Math.PI,t:.35,col:BC.aim});bfan(e,e.x,e.y,a,9,Math.PI,85,9,{spr:'spear',col:'#c8ccd8',r:2});}if(e.ysw>0)e.ysw-=dt;},
- floor(e){if(e.corpse){const c=e.corpse;ctx.save();worldXf();ctx.fillStyle='#14141e';ctx.beginPath();ctx.ellipse(c.x,c.y,c.r,c.r*.7,.4,0,TAU);ctx.fill();ctx.fillStyle='#801818';ctx.fillRect(c.x-8,c.y-3,16,4);ctx.restore();}},
  drawAfter(e){if(e.fan>0){const X=sx(e.x,e.y),Y=sy(e.x,e.y)-40;ctx.fillStyle='#c0a040';for(let i=-3;i<=3;i++)ctx.fillRect(X+i*2,Y-Math.abs(i),2,5);txt('FAN',X-6,Y-10,'#ffd040');}},
- hud:e=>e.mounted?(KUR.bearers(e).length?'STANDARD-BEARERS RIDE WITH HIM: HE TAKES HALF DAMAGE':'THE BEARERS ARE DOWN - FULL DAMAGE'):e.fan>0?'WAR FAN OPEN - STOP SHOOTING!':'THE HORSE GIVES COVER FROM HIS SHOTS',
- onHalf(e){e.mounted=0;e.r=8;e.spd=36;e.dm*=1.25;e.corpse={x:e.x,y:e.y,r:16};e.sprOv=KUR.foot||(KUR.foot=bossArt('KUROGANE ON FOOT'));const p=freeSpot(e,e.x+30,e.y+30,e.r);e.x=p.x;e.y=p.y;
-  for(const m of KUR.bearers(e)){m.t=Object.assign({},ET.samurai);m.label=null;}setToast('YAMIKAZE IS SLAIN','#c0a040',2.5);},
+ hud:e=>e.phx?'KUROGANE DISMOUNTS':e.mounted?(KUR.bearers(e).length?'STANDARD-BEARERS RIDE WITH HIM: HE TAKES HALF DAMAGE':'THE BEARERS ARE DOWN - FULL DAMAGE'):
+  e.riderDown?'KUROGANE IS DOWN - DEFEAT YAMIKAZE':e.fan>0?'WAR FAN OPEN - STOP SHOOTING!':
+  e.yamikaze&&!e.yamikaze.dead?'LEAVE THE CHARGE LANE AND STRIKE DURING RECOVERY':'YAMIKAZE IS DOWN - DEFEAT KUROGANE',
+ onHalf(e){
+  e.mounted=0;e.r=8;e.spd=36;e.dm*=1.25;
+  e.sprOv=kuroFootSpr();
+  e.dismount||=kuroDismount(e);e.yamikaze=KUR.spawnHorse(e);
+  e.x=e.dismount.land.x;e.y=e.dismount.land.y;e.dismount=null;
+  for(const m of KUR.bearers(e))m.dead=true;
+ },
+ reset(e){e.riderDown=false;e.yamikaze=null;e.dismount=null;e.trail=[];},
  atks:[
   // lance pass: the horse rears, a red line across the court, then a gallop straight through leaving a wake of shards
   {n:'lance',wt:4,half:0,gap:1.8,run(e,A,dt){if(!A.go){A.go=1;A.ph=0;e.tele=2;sfx('boss');A.a=aimAt(e);A.m=mark({k:'l',x:e.x,y:e.y,a:A.a,len:rayLen(e.x,e.y,A.a,600),w:e.r*2+10,t:.85,lock:.25,col:BC.aim,follow:m=>{m.x=e.x;m.y=e.y;m.a=A.a=aimAt(e);m.len=rayLen(e.x,e.y,m.a,600);}});}
@@ -1524,7 +1530,7 @@ BART['THE NINE-TAILED KITSUNE']=Object.assign(p=>{const {R,E,L,b,atk,f}=p,two=AR
   ph1:[{pat:'orbitring',cnt:10,ow:3,orv:32,col:'#8080ff'},{cnt:5,spread:1,sp:60,st:'seek',turn:1.4,seekT:1.6,spr:'wisp',col:'#8080ff'},{pat:'spiral',arms:6,spin:.4,sp:60,st:'wave',col:'#c080ff',burst:7,gap:.1},{pat:'gapring',cnt:26,gw:.42,sp:55,col:'#ff9040',burst:2,gap:.35}],
   half:[{pat:'orbitring',cnt:12,ow:-3.2,orv:36,col:'#8080ff'},{cnt:7,spread:1.4,sp:64,st:'seek',turn:1.6,seekT:1.8,spr:'wisp',col:'#8080ff'},{pat:'spiral',arms:9,spin:.45,sp:64,st:'wave',col:'#c080ff',burst:9,gap:.09},{pat:'lance',cnt:5,spread:.6,sp:230,col:'#ffd060'},{pat:'gapring',cnt:32,gw:.38,sp:60,col:'#ff9040',burst:3,gap:.3}]},
   {at:.7,dur:9,name:'FOX-FIRE STORM',rate:.38});
- set('LORD KUROGANE',{rate:[.66,.46],during:'all',
+ set('LORD KUROGANE',{rate:[.66,.64],during:'all',
   ph1:[{pat:'wall',cnt:13,sp:75,col:BC.aim},{cnt:5,spread:.5,sp:110,col:BC.aim,burst:3,gap:.15},{pat:'flower',cnt:20,sp:52,col:'#c8b890'},{pat:'gapring',cnt:24,gw:.42,sp:56,col:'#c0a040',burst:2,gap:.35}],
   half:[{pat:'wall',cnt:15,sp:82,col:BC.aim,burst:2,gap:.4},{pat:'lance',cnt:5,spread:.9,sp:240,spr:'spear',col:'#e8eef6'},{pat:'cross',dirs:6,cnt:4,sp:74,col:'#c0a040',rot:.25},{pat:'gapring',cnt:30,gw:.38,sp:60,col:'#c0a040',burst:3,gap:.3},{pat:'curtain',cnt:11,sp:88,col:BC.aim2}]},
   {at:.3,dur:9,name:'THE GENERAL\'S FURY',rate:.38});
