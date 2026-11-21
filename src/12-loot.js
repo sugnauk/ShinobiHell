@@ -173,7 +173,8 @@ function bagContents(tier,boss){
 }
 // bag tiers: 0 sack, 1 pack (green), 2 satchel (blue), 3 pouch (purple), 4 royal bag (gold)
 const BAGCOL=['#c8995a','#6ac85a','#5aa0f0','#b070f0','#fff4c0','#5ad8c8','#e05060','#c8d0e0','#e05040','#6ad89a','#f8c060','#9a7ad0'],
- BAGN=['SACK','PACK','SATCHEL','POUCH','ROYAL BAG','ENCHANTER POUCH','SCHOLAR CASE','WAR CHEST',"SHOGUN'S TROPHY",'JADE CASKET',"MONK'S BUNDLE",'ASSASSIN KIT'],GOLDBAG=4,TROPHY=8;
+ BAGN=['SACK','PACK','SATCHEL','POUCH','ROYAL BAG','ENCHANTER POUCH','SCHOLAR CASE','WAR CHEST',"SHOGUN'S TROPHY",'JADE CASKET',"MONK'S BUNDLE",'ASSASSIN KIT'],GOLDBAG=4,WAR_CHEST=7,TROPHY=8;
+const minibossBag=()=>Math.random()<.10?GOLDBAG:WAR_CHEST;
 // a random "good" bag (epics, enchants, scrolls, relics). The white royal bag is NOT in this pool: it is super rare.
 // the scholar case (a guaranteed legendary scroll) is the rarest of these
 const goodBag=()=>wpick([{t:3,wt:5},{t:5,wt:2},{t:6,wt:.15},{t:7,wt:2},{t:9,wt:2},{t:10,wt:2},{t:11,wt:2}]).t;

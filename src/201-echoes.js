@@ -5,10 +5,10 @@
 //  - its own bullet patterns (phase one of its fight, then phase two once it is down to half and its second form shows)
 //  - its own way of moving: circling, dashing along a warned line, or blinking about the room
 //  - health and damage set by the stage you are on, not the stage it came from, so it is a fair fight anywhere
-//  - it drops a royal bag (its contents follow the current stage) and score; no relic, no phase events, no survival
+//  - it drops an epic war chest or, on a 10% roll, a legendary royal bag
 // One echo at most per dungeon, in about 3 runs of 5 once you have beaten a guardian; never in its own stage, in a
 // prologue, in training or in the boss rush. The room glows violet and its name shows as you come near.
-ET.echo={n:'GUARDIAN GECHO',desc:'A REMNANT OF A GUARDIAN YOU HAVE BEATEN. IT FIGHTS WITH A SHADOW OF ITS OLD STRENGTH, AND DROPS A ROYAL BAG',hp:400,spd:42,pos:600,r:9,ai:'dummy',rng:0,wl:0,atks:[]};
+ET.echo={n:'GUARDIAN GECHO',desc:'A REMNANT OF A GUARDIAN YOU HAVE BEATEN. IT DROPS EPIC GEAR OR A ROYAL BAG (10% CHANCE)',hp:400,spd:42,pos:600,r:9,ai:'dummy',rng:0,wl:0,atks:[]};
 const GECHO={chance:.6,hpMul:13,tall:30,e:null,force:null,
  // the reduced portrait: the boss's full sheet scaled down whole (nearest pixel), every frame, built once
  mini:{},sprite(i,half){const b=BOSS[i],key=i+'|'+(b&&b.name)+'|'+(half?1:0);if(GECHO.mini[key])return GECHO.mini[key];
@@ -55,7 +55,7 @@ const GECHO={chance:.6,hpMul:13,tall:30,e:null,force:null,
 // its health bar while you fight it
 {const _h=drawHUD;drawHUD=function(){_h.apply(this,arguments);const e=GECHO.e;if(!e||e.dead||!e.echo||!e.echo.met||!GECHO.inRoom(e)||(boss&&boss.awake))return;const w=120,x=Math.round((W-w)/2),s='ECHO OF '+GECHO.short(e.echo.name);
  txt(s,x+Math.round((w-txtW(s))/2),14,'#c8a0ff');bar(x,21,w,4,e.hp/e.maxhp,'#9a6ad0','#20102a');};}
-// its end: a royal bag of this stage's loot, score, and a record of it
+// its end: stage-scaled loot, score, and a record of the win
 {const _k=killE;killE=function(e){const was=e&&e.echo&&!e.dead;_k.apply(this,arguments);if(was&&e.dead){const X=e.echo;for(const q of projs)if(q.own===e)q.dead=true;
-  dropBag(e.x+10,e.y+10,GOLDBAG,false);if(Math.random()<.3)dropBag(e.x-10,e.y+12,3,false);addScore(1800,e.x,e.y,'#c8a0ff');
+  dropBag(e.x+10,e.y+10,minibossBag(),false);addScore(1800,e.x,e.y,'#c8a0ff');
   setToast('THE ECHO OF '+GECHO.short(X.name)+' FADES','#c8a0ff',3);fxRing(e.x,e.y,50,'#c8a0ff',.6);meta.echoes=(meta.echoes||0)+1;saveMeta();GECHO.e=null;}};}

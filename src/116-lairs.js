@@ -2,7 +2,7 @@
 // ===== LAIRS: optional challenge bosses behind locked doors =====
 // The twelve guardians on the story path are all people. The old monsters still live in the dungeons, each sealed in a
 // side room off the main path: the Earth Spider in the tunnels of stage III. Their doors open with a LAIR KEY, sold by the trader in the stages before. Fighting one is optional and
-// hard; beating it drops a royal bag (a legendary) and a war trophy.
+// hard; beating it drops an epic war chest or, on a 10% roll, a legendary royal bag.
 const LAIRS=[
  {stage:2,art:'TSUCHIGUMO, EARTH SPIDER',name:'TSUCHIGUMO, THE EARTH SPIDER',title:"THE EARTH SPIDER'S DEN",col:'#c89040',et:'lairspider',hp:.5,ai:'spider',half:'IT SHEDS ITS SHELL'},
  {stage:5,art:'THE HITOBASHIRA',name:'THE HITOBASHIRA, MAIDEN OF THE WALL',title:'THE SEALED FOUNDATION',col:'#7af0d0',et:'lairghost',hp:.5,ai:'ghost',half:'THE PILLAR BREAKS',unique:'pillar'}];
@@ -127,8 +127,10 @@ const LAIRAI={
 // a lair boss's death: the rare rewards, and the lair stays beaten for the rest of the run
 {const _k=killE;killE=function(e){const L=e.lairBoss,was=L&&!e.dead;_k(e);
  if(was&&e.dead){if(L.onDeath)L.onDeath(e);for(const q of projs)if(q.own===e)q.dead=true;for(const c of e.clones||[])if(!c.dead)c.dead=true;for(const o of enemies)if(!o.dead&&o.type==='spiderling'&&o.room===e.room)o.dead=true;
-  (R.lairDone??={})[L.stage]=1;if(L.unique&&ITEMBY[L.unique]){applyItem(L.unique);fxRing(P.x,P.y,40,L.col,.6);}dropBag(e.x-10,e.y+10,GOLDBAG,true);dropBag(e.x+12,e.y+12,TROPHY,true);for(let i=0;i<8;i++)dropPickup(e.x,e.y,'sen',Math.round(rnd(8,14)*(1+R.di*.3)*S.sen));
-  addScore(6000,e.x,e.y,L.col);setToast(L.unique?'GUARANTEED BONUS: '+ITEMBY[L.unique].name+' - '+ITEMBY[L.unique].d:L.name+' IS SLAIN. ITS HOARD IS YOURS','#ffd040',5);shake=Math.max(shake,8);fxRing(e.x,e.y,80,L.col,.7);}};}
+  (R.lairDone??={})[L.stage]=1;const tier=minibossBag(),unique=tier===GOLDBAG&&ITEMBY[L.unique];
+  dropBag(e.x-10,e.y+10,tier,true);if(unique){applyItem(unique.id);fxRing(P.x,P.y,40,L.col,.6);}
+  for(let i=0;i<8;i++)dropPickup(e.x,e.y,'sen',Math.round(rnd(8,14)*(1+R.di*.3)*S.sen));
+  addScore(6000,e.x,e.y,L.col);setToast(unique?unique.name+' - '+unique.d:L.name+' IS SLAIN. ITS HOARD IS YOURS','#ffd040',5);shake=Math.max(shake,8);fxRing(e.x,e.y,80,L.col,.7);}};}
 // its health bar across the top while you are in the lair
 {const _h=drawHUD;drawHUD=function(){_h();for(const e of enemies){const L=e.lairBoss;if(!L||e.dead||!e.awake||!inRoomR(e.room,P.x,P.y))continue;
   const w=140,x=Math.round((W-w)/2);txt(L.name,x+Math.round((w-txtW(L.name))/2),14,L.col);bar(x,21,w,4,e.hp/e.maxhp,L.col,'#2a1020');break;}
@@ -136,7 +138,7 @@ const LAIRAI={
 
 // a reflection struck down is only an illusion
 {const _k2=killE;killE=function(e){const was=e.lairClone&&!e.dead;_k2(e);if(was&&e.dead){spark(e.x,e.y,'#7af0d0',12,60);txtFx(e.x,e.y,'ONLY A REFLECTION','#a8e8dc',1);}};}
-// ---- the Pillar Stone: the hitobashira's guaranteed bonus, found nowhere else
+// ---- the Pillar Stone: the hitobashira's bonus on a royal bag roll, found nowhere else
 ITEMS.push({id:'pillar',name:'PILLAR STONE',d:'+1 REVIVE AND +30 MAX HP',g:'P',r:3,bossRelic:1});ITEMBY.pillar=ITEMS[ITEMS.length-1];FXK.pillar='guard';RELICMO.pillar='shield';
 {const _ai=applyItem;applyItem=function(id){if(id==='pillar')P.rez=(P.rez||0)+1;return _ai.apply(this,arguments);};}
 {const _cs=calcStats;calcStats=function(){const s=_cs();if(R&&R.inv&&R.inv.pillar){s.maxhp+=30*R.inv.pillar;}return s;};}

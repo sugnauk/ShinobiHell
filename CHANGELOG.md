@@ -13,6 +13,7 @@
 - The Wizard can move during ultimate wind-ups.
 - Reduced cooldown bonuses from the skill tree, relics, gear, scrolls, shrines, and Daily pacts. Stacked bonuses can lower ability cooldowns by up to 25%. Grazes, perfect dodges, Echo Mind, and kills refund less time.
 - Smoothed camera scrolling while walking diagonally on keyboard and touch.
+- Guardian Echoes, lair minibosses, and the Moth Queen have a 10% chance to drop legendary loot. Otherwise, they drop a war chest with two epic items.
 - Documented attack patterns for the rest of Chapter II and recorded the keyboard and touch playtest results.
 
 ## 0.8.12: The fork beneath Still Water and mobile fullscreen
