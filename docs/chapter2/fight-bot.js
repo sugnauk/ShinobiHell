@@ -23,7 +23,7 @@ const out=await p.evaluate(([heroes,stages,touch,seed])=>{meta.trained=true;meta
   while(t<300&&!e.dead){let dx=0,dy=0;
    // Headless updates skip renderPlay, which normally moves the camera for the touch targeting check.
    cam.x=Math.round(isoX(P.x,P.y)-W/2);cam.y=Math.round(isoY(P.x,P.y)-(H/2+6));
-   for(const m of BMK){if(m.fired)continue;if(!seen.has(m)){seen.add(m);if(m.k==='l'&&(m.glassLine||m.ferryCheck)){
+   for(const m of BMK){if(m.fired)continue;if(!seen.has(m)){seen.add(m);if(m.k==='l'&&(m.glassLine||m.ferryCheck||m.lateCheck)){
      const dx=Math.cos(m.a),dy=Math.sin(m.a),pad=m.w/2;
      for(let j=0;j<=12;j++){
       const x=m.x+dx*m.len*j/12,y=m.y+dy*m.len*j/12;
@@ -32,14 +32,14 @@ const out=await p.evaluate(([heroes,stages,touch,seed])=>{meta.trained=true;meta
      minEsc=Math.min(minEsc,m.dur-(pad+4)/(78*(CLS().spd||1)));
     }
     if(m.k==='c'){
-     // The approach can have its own panes. Only warnings cast by the guardian must fit the boss room.
-     const approachPane=m.glassPlate&&!m.src;
-     if(!approachPane&&(m.x-m.r<A.x0-2||m.x+m.r>A.x1+2||m.y-m.r<A.y0-2||m.y+m.r>A.y1+2))warnOut++;
-     if(m.lacquer||m.glassPlate||m.ferryCheck)for(let i=0;i<16;i++){
+     // Approach panes and vents are room hazards and can fire outside the boss arena.
+     const approachHazard=!m.src&&(m.glassPlate||m.neb);
+     if(!approachHazard&&(m.x-m.r<A.x0-2||m.x+m.r>A.x1+2||m.y-m.r<A.y0-2||m.y+m.r>A.y1+2))warnOut++;
+     if(m.lacquer||m.glassPlate||m.ferryCheck||m.lateCheck||m.neb&&m.src)for(let i=0;i<16;i++){
       const a=i/16*TAU;
       if(solid(m.x+Math.cos(a)*m.r,m.y+Math.sin(a)*m.r)){warnOut++;break;}
      }
-     const fullSpeed=m.lacquer||m.glassPlate||m.ferryCheck;
+     const fullSpeed=m.lacquer||m.glassPlate||m.ferryCheck||m.lateCheck;
      const mg=m.t-(m.lacquer?.24:0)-(m.r+(fullSpeed?4:0))/((fullSpeed?78*(CLS().spd||1):90)*(m.neb?.55:1));
      if(m.t>m.dur-.05&&mg<minEsc){minEsc=mg;window.WORST={r:m.r,t:+m.t.toFixed(2),neb:!!m.neb,dmg:m.dmg,col:m.col,inSilt:typeof nebSoftAt!=="undefined"&&nebSoftAt(P.x,P.y)};}
     }}

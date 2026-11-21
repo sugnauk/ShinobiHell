@@ -182,16 +182,17 @@ function survivalPressure(e,E,dt){
  E.edgeTime=far||nearWall?(E.edgeTime||0)+dt:0;
  if(E.edgeTime<.65)return;
  E.edgeTime=0;E.edgeCd=1.7;
- const col=BC.aim,t=.95;
- mark({k:'c',x,y,r:24,t,col,dmg:13*e.dm,src:e,survival:E,quiet:true,on:()=>{
-  fxRing(x,y,26,col,.32);sfx('beat');
+ const col=BC.aim,t=.95,late=e.di>CAMPAIGN_END;
+ const {x:tx,y:ty}=late?latePoint(A,x,y,24):{x,y};
+ mark({k:'c',x:tx,y:ty,r:24,t,col,dmg:13*e.dm,src:e,survival:E,quiet:true,lateCheck:late,on:()=>{
+  fxRing(tx,ty,26,col,.32);sfx('beat');
   if(eShots()>210*BHK())return;
   // Aim from a nearby clear lane so a pillar cannot absorb the whole volley.
-  const toward=aimAt({x,y},A.cx,A.cy);
+  const toward=aimAt({x:tx,y:ty},A.cx,A.cy);
   for(const offset of [0,1,-1,2,-2]){
-   const a=toward+offset*.65,ox=x+Math.cos(a)*92,oy=y+Math.sin(a)*92;
-   if(ox<A.x0||ox>A.x1||oy<A.y0||oy>A.y1||blocked(ox,oy,4)||!los(ox,oy,x,y))continue;
-   bfan(e,ox,oy,Math.atan2(y-oy,x-ox),3,.38,108,8,{r:2,col,life:1.7});break;
+   const a=toward+offset*.65,ox=tx+Math.cos(a)*92,oy=ty+Math.sin(a)*92;
+   if(ox<A.x0||ox>A.x1||oy<A.y0||oy>A.y1||blocked(ox,oy,4)||!los(ox,oy,tx,ty))continue;
+   bfan(e,ox,oy,Math.atan2(ty-oy,tx-ox),3,.38,108,8,{r:2,col,life:1.7});break;
   }
  }});
 }

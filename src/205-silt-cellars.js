@@ -44,7 +44,7 @@ function nebBloomMark(x,y,r,t,dmg,src,o){o=o||{};sfx('tool');
   for(let i=0;i<14;i++){const a=i/14*TAU;particles.push({x:x+Math.cos(a)*r*.5,y:y+Math.sin(a)*r*.5,vx:Math.cos(a)*50,vy:Math.sin(a)*50-20,t:.45,col:i%3?NEB.tar:NEB.amber});}
   if(o.on)o.on(p);}});}
 // keep a circle inside the arena so its whole warning is visible and reachable
-function nebClamp(A,x,y,r){return {x:clamp(x,A.x0+r+4,A.x1-r-4),y:clamp(y,A.y0+r+4,A.y1-r-4)};}
+const nebClamp=latePoint;
 
 // ---------------------------------------------------------------- the floor: silt pools, stone mounds, vents, bubbles
 {const _bf=drawBossFloor;drawBossFloor=function(){_bf.apply(this,arguments);if(!NEB.pools.length&&!NEB.vents.length&&!BMK.some(m=>m.neb))return;
@@ -82,7 +82,7 @@ const NEB_I=lateAdd({base:FERRY_STAGE,remix:false,indoor:true,
   ROMAN:'XVI',STAGEDECO:[['silttorch',5],['mooring',4],['sunkjar',4],['deadreed',5],['offering',1]],
   DECO_GROUPS:[[['mooring',-14,0],['silttorch',0,-6],['mooring',14,0]],[['sunkjar',0,0],['sunkjar',10,6],['deadreed',-10,6]]],
   FLOORART:nebFloor,MOOD:['#120c06',.42],PSTAGE:['insen',47,64],BMUSIC:{s:'insen',r:40,b:132,w:'square'},
-  TRAILS:{n:'SILT',c:NEB.c,c2:'#5a4c36'},BOSS_HPT:9,POOLADD:[],PMAP:[.97,.04],
+  TRAILS:{n:'SILT',c:NEB.c,c2:'#5a4c36'},BOSS_HPT:19,POOLADD:[],PMAP:[.97,.04],
   MASTER_LINES:'THE SILT LIES STILL AND THE MIRE WARDEN SLEEPS IN IT. BELOW THE CELLARS THE WATER RUNS CLEAR AGAIN, BLUE AS GLASS. SOMETHING SHINES DOWN THERE. TAKE THE ROAD DOWN, OR RETURN WITH YOUR STORY.',
   BOSSRELIC:{id:'mirelantern',name:'MIRE LANTERN',d:'ENEMIES THAT TOUCH YOU ARE MIRED: SLOWED FOR 2 SECONDS (ONCE PER FOE EVERY 4 SECONDS)',g:'L',fx:'control',mo:'vortex'},
   BOSS:{name:NEB.name,hp:2900,hat:'kasa',pref:90,spd:40,r:12,k1:[],k2:[],pal:basePal('#2a2420','#1e1a18','#d89848','#120e0c')},
@@ -129,31 +129,41 @@ hiPoses(NEB.name,[[[25,30],[20,40],[22,49]],[[47,30],[53,39],[52,47]]]);
 // ---------------------------------------------------------------- his fight
 // mired: caught in his own tar after a bloom; he cannot move or attack, and takes more posture damage
 function nebMire(e,t){e.mireT=Math.max(e.mireT||0,t);e.gapT=Math.max(e.gapT||0,t+.2);txtFx(e.x,e.y-22,'MIRED!',NEB.amber,1.2);nebPool(e.x,e.y+2,16,{life:t+.4});}
+function cancelNebWarn(m){if(m&&!m.fired){const i=BMK.indexOf(m);if(i>=0)BMK.splice(i,1);}}
 {const _h=hurtE;hurtE=function(e,dmg,pd,o){if(e&&e.boss&&e.mireT>0&&e.name===NEB.name){dmg*=1.2;pd=(pd||0)*1.6;}return _h.call(this,e,dmg,pd,o);};}
 const NEB_ATKS=[
  // the signature: TAR BLOOM. Tell: the ring spreads where he aims (he raises the ladle); response: walk out; opening:
  // the splash mires him for 1.6s
  {n:'TAR BLOOM',wt:3,gap:.5,run(e,A){const A0=arenaOf(e);
   if(at(A,0)){e.tele=1;const c=nebClamp(A0,P.x+(P.vx||0)*.15,P.y+(P.vy||0)*.15,NEB.R.bloom);A.c=c;
-   nebBloomMark(c.x,c.y,NEB.R.bloom,NEB.R.tele,14,e,{life:e.half?20:8,set:e.half?1.4:-1});}
+   A.bloom=nebBloomMark(c.x,c.y,NEB.R.bloom,NEB.R.tele,14,e,{life:e.half?20:8,set:e.half?1.4:-1});}
   if(at(A,NEB.R.tele)){e.tele=0;nebMire(e,NEB.R.mire);shake=Math.max(shake,5);}
-  return A.t>NEB.R.tele+.15;}},
+  return A.t>NEB.R.tele+.15;},end(e,A){cancelNebWarn(A.bloom);}},
  // close in: the ladle swept through a wide arc in front of him (1s warning: a hero standing in silt beside him still
  // clears the 56px arc with time to spare)
  {n:'LADLE SWEEP',wt:1.5,gap:1,ok:(e,d)=>d<90,run(e,A){
-  if(at(A,0)){e.tele=2;const a=aimAt(e);mark({k:'cone',x:e.x,y:e.y,a,r:56,arc:1.9,t:1,dmg:15*e.dm,col:NEB.c,src:e});sfx('tool');}
-  if(at(A,1)){e.tele=0;sfx('spearSteel');}return A.t>1.3;}},
+  if(at(A,0)){e.tele=2;const a=aimAt(e),B=arenaOf(e),arc=1.9;
+   const r=Math.min(...[-.95,-.7,-.45,-.2,0,.2,.45,.7,.95].map(o=>lateLine(B,e.x,e.y,a+o,4,56)));
+   if(r>=12)A.sweep=mark({k:'cone',x:e.x,y:e.y,a,r,arc,t:1.1,dmg:15*e.dm,col:NEB.c,src:e});sfx('tool');}
+  if(at(A,1.1)){e.tele=0;sfx('spearSteel');}return A.t>1.4;},end(e,A){cancelNebWarn(A.sweep);}},
  // phase one: a fan of slow tar globs that grip you if they touch (they slow, and hurt only a little)
  {n:'SILT SPRAY',wt:2,half:0,gap:.9,ok:(e,d)=>d>55,run(e,A){
-  if(at(A,0))e.tele=1;
-  if(at(A,.5)){e.tele=0;const a=aimAt(e);for(let i=-2;i<=2;i++)bsh(e,e.x,e.y,a+i*.22,72,6,{r:4,spr:'bgrain',col:NEB.c,slowP:.9,life:3.4});sfx('shoot');}
-  return A.t>.9;}},
- // phase two: aimed mud volleys. Tell: his ladle levels and a thin line shows the aim; response: put a stone mound
- // between you, or sidestep; opening: he reloads the ladle after the third burst
- {n:'MUD VOLLEY',wt:3,half:1,gap:1.3,run(e,A){
-  if(at(A,0)){e.tele=2;A.a=aimAt(e);A.m=mark({k:'l',x:e.x,y:e.y,a:A.a,len:300,w:6,t:.75,col:NEB.amber,src:e,quiet:true});sfx('tool');}
-  for(const [k,tt] of [[1,.75],[2,1],[3,1.25]])if(at(A,tt)){if(k===1)e.tele=0;const a=A.a+(Math.random()-.5)*.06;for(const o of [-.07,0,.07])bsh(e,e.x,e.y,a+o,170,9,{r:3,spr:'bgrain',col:NEB.amber,life:2.6});sfx('shoot');}
-  return A.t>1.45;}}];
+  if(at(A,0)){e.tele=1;A.a=aimAt(e);snd('tool');}
+  if(at(A,.6))lateFan(e,{a:A.a-.07,n:9,step:.18,gap:.24,sp:52,col:NEB.amber});
+  if(at(A,1.45)){lateFan(e,{a:A.a+.07,n:9,step:.18,gap:.24,sp:58,col:NEB.amber});e.tele=0;}
+  return A.t>1.75;}},
+ {n:'MUD VOLLEY',wt:3,half:1,gap:1.55,run(e,A){
+  if(at(A,0)){
+   e.tele=2;A.a=aimAt(e);
+   const len=lateLine(arenaOf(e),e.x,e.y,A.a,8);
+   if(len>8)A.m=mark({k:'l',x:e.x,y:e.y,a:A.a,len,w:8,t:1.05,col:NEB.amber,src:e,quiet:true,lateCheck:true});
+   snd('tool');
+  }
+  for(const t of [1.05,1.33,1.61])if(at(A,t)){
+   e.tele=0;lateFan(e,{a:A.a,n:3,step:.085,gap:0,sp:110,col:NEB.amber,life:1.9,dmg:8});
+  }
+  return A.t>1.85;
+ },end(e,A){cancelNebWarn(A.m);}}];
 BKIT[NEB.name]={director:bossDirector,noContact:true,pref:90,gap:.8,halfName:'THE SILT SETS',
  guide:['THE MIRE WARDEN DREDGED THE SILT CELLARS FOR THE EMPEROR.','TAR BLOOM: A DARK RING SPREADS WHERE HE AIMS. WALK OUT OF IT; THE SPLASH MIRES HIM - STRIKE THEN.','THE SILT SETS: AT HALF HEALTH HIS POOLS HARDEN INTO STONE THAT STOPS SHOTS. HIDE BEHIND IT FROM HIS MUD VOLLEYS.'],
  atks:NEB_ATKS,
@@ -161,13 +171,24 @@ BKIT[NEB.name]={director:bossDirector,noContact:true,pref:90,gap:.8,halfName:'TH
   // and cover is always there: four mounds round the middle of the room
   for(let i=0;i<4;i++){const a=i/4*TAU+.4,s=nebClamp(A,A.cx+Math.cos(a)*A.R*.42,A.cy+Math.sin(a)*A.R*.42,20);nebPool(s.x,s.y,20,{life:20,setAt:.3+i*.08});}},
  events:[{at:.28,dur:11,name:'THE DRAINING',hint:'THE LAKEBED BLOOMS - HIDE BEHIND THE STONE',survival:true,storm:1,
-  start(e,E){const A=E.A=arenaOf(e);E.home=freeSpot(e,A.cx,A.cy,e.r);E.bt=.6;E.vt=1.8;},
-  tick(e,dt,E){e.x+=(E.home.x-e.x)*Math.min(1,dt*3);e.y+=(E.home.y-e.y)*Math.min(1,dt*3);
-   E.bt-=dt;if(E.bt<=0){E.bt=.85;const a=Math.random()*TAU,rr=rnd(20,60),c=nebClamp(E.A,P.x+Math.cos(a)*rr,P.y+Math.sin(a)*rr,28);nebBloomMark(c.x,c.y,28,NEB.R.tele,12,e,{life:12,set:1.2});}
-   E.vt-=dt;if(E.vt<=0){E.vt=2.2;const a=aimAt(e);mark({k:'l',x:e.x,y:e.y,a,len:300,w:6,t:.75,col:NEB.amber,src:e,quiet:true,on(){for(const o of [-.1,0,.1])bsh(e,e.x,e.y,a+o,150,9,{r:3,spr:'bgrain',col:NEB.amber,life:2.6});sfx('shoot');}});}},
-  end(e,E){e.gapT=1.6;}}],
+  start(e,E){E.A=arenaOf(e);E.home=freeSpot(e,E.A.cx,E.A.cy,e.r);},
+  tick(e,dt,E){
+   e.x+=(E.home.x-e.x)*Math.min(1,dt*3);e.y+=(E.home.y-e.y)*Math.min(1,dt*3);
+   if(at(E,.75)){E.angle=aimAt(e);snd('tool');fxRing(e.x,e.y,30,NEB.amber,.7);}
+   for(const t of [1.65,2.55])if(at(E,t))lateFan(e,{a:E.angle,n:11,step:.18,gap:.28,sp:54,col:NEB.amber});
+   if(at(E,4.1)){
+    const a=aimAt(e),len=lateLine(E.A,e.x,e.y,a,8);
+    if(len>8)mark({k:'l',x:e.x,y:e.y,a,len,w:8,t:1.05,col:NEB.amber,src:e,survival:E,quiet:true,lateCheck:true,
+     on(){lateFan(e,{a,n:5,step:.1,gap:0,sp:108,col:NEB.amber});}});
+   }
+   for(const [i,t] of [6.6,8.6].entries())if(at(E,t)){
+    const a=aimAt(e)+(.55*(i?-1:1)),c=nebClamp(E.A,P.x+Math.cos(a)*24,P.y+Math.sin(a)*24,28);
+    nebBloomMark(c.x,c.y,28,NEB.R.tele,12,e,{life:12,set:1.2});
+   }
+  },
+  end(e){nebMire(e,1.6);}}],
  reset(e){e.mireT=0;},
- move(e,dt,d,a){if(e.mireT>0){e.mireT-=dt;if(Math.random()<dt*10)spark(e.x+rnd(-6,6),e.y+2,NEB.amber,1,20);return;}defaultMove(e,dt,d,a,BKIT[NEB.name]);},
+ move(e,dt,d,a){if(e.mireT>0){e.mireT-=dt;e.gapT=Math.max(e.gapT,e.mireT+.05);if(Math.random()<dt*10)spark(e.x+rnd(-6,6),e.y+2,NEB.amber,1,20);return;}defaultMove(e,dt,d,a,BKIT[NEB.name]);},
  floor(e){if(!(e.mireT>0))return;ctx.save();worldXf();ctx.globalAlpha=.9;ctx.fillStyle=NEB.silt;ctx.beginPath();ctx.arc(e.x,e.y,20,0,TAU);ctx.fill();
   // the opening, made plain: a pulsing amber ring round the tar that holds him
   ctx.globalAlpha=.75+.25*Math.sin(time*14);ctx.strokeStyle=NEB.amber;ctx.lineWidth=2.5;ctx.beginPath();ctx.arc(e.x,e.y,22+Math.sin(time*12)*1.5,0,TAU);ctx.stroke();ctx.restore();ctx.globalAlpha=1;},

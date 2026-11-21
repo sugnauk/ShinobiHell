@@ -1,9 +1,11 @@
 # Changelog
 
-## 0.8.13: Sazanami’s Last Crossing
+## 0.8.13: Late-game guardian fights
 
 - Reworked the Stage XV fight with telegraphed bullet rows, visible safe lanes, a red-lantern reversal, and a three-part finale.
 - Added clipped Mooring Cut warnings and a stationary attack window when Sazanami lowers his lantern.
+- Hoshiyomi and Getsurei open each attack cycle with a signature, layer supporting patterns, and give players a stationary recovery window. Their Abyss versions keep their modifiers.
+- Both Nebari and Ruri variants now combine staged volleys with their arena rules. Their low-health sequences build in distinct beats. The optional Shardsmith gains a follow-up volley when her panes link.
 - Documented attack patterns for the rest of Chapter II and recorded the keyboard and touch playtest results.
 
 ## 0.8.12: The fork beneath Still Water and mobile fullscreen

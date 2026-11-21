@@ -109,3 +109,27 @@ All eight fights reached the finale and cleared. Peak simultaneous row bullets r
 node docs/chapter2/fight-bot.js samurai,archer,sumo,gunner FERRY_STAGE
 node docs/chapter2/fight-bot.js samurai,archer,sumo,gunner FERRY_STAGE touch
 ```
+
+## Playable late-game pass
+
+This pass covers the existing XIII–XVII fights, the Side Furnace, and the Observatory and Eclipse encounters reused by the Abyss.
+
+| Encounter | Field and phase change | Punish window |
+|---|---|---|
+| XIII Hoshiyomi | Signature-first cycles. Learn the constellation, then read the Orrery and later chart fields. New phases clear the old field. Constellation anchors and lines fit the usable room. | 1.55 seconds between field cycles. The finale ends with a separate recovery. |
+| XIV Getsurei | Returning crescents lead the fight. Later cycles start with the moving Eclipse, with low-health coverage built around Total Eclipse. Corona rays clip to the room. | 1.65 seconds between field cycles. The finale ends with a separate recovery. |
+| XV Sazanami | Alternating banks, narrowing lanes, Mooring Cut, and a one-bank final sweep. | 1.6 seconds after the regular sequence, with a second opening after the finale. |
+| XVI Mire Warden | Two slow silt fans give way to a locked three-packet volley and stone cover. The Draining moves from slow fans to a volley and then two deliberate blooms. | The bloom and finale mire him and keep his attack timer paused. |
+| XVI Lacquer Master | A marked stroke sets first, then a staggered splatter travels through the room. Flash-cured strips give phase two cover from the faster volley. The finale alternates the stroke axis. | The tool sticks after the follow-up instead of during its wind-up. |
+| XVII Glass Warden | Two shard layers include a bank shot off a live pillar. Broken Light staggers the wall-reflected lances and one slow ring with an open sector. | The recoil follows the last segment, with a final recharge after Broken Light. |
+| XVII Furnace Warden | Two slow fans, paired panes, and a delayed shard packet after the linked breaks. The finale changes which axis the player clears before the final shard fan. | The shards retract after the linked-pane follow-up. |
+| Optional Shardsmith | Shorter variation of the linked-pane sequence with a narrower follow-up fan in the side lair. | Her tongs reset after the last pane and shot sequence. |
+
+Abyss modifiers still affect the first two encounters. Swift and Relentless multiply once per attack interval, so the latter no longer compresses the interval again every frame. The first retest showed XVI and XVII clearing well below the existing target with the revised openings. The Mire Warden uses `BOSS_HPT` 19, the Lacquer Master 24, and each Ruri form 29. The earlier three guardians retain their existing health. XVIII–XX are new encounters and remain in the design section above.
+
+Four-hero keyboard and touch sweeps cleared all seven main encounters. Edge regressions were retested on Getsurei and the Mire Warden with no sampled warnings outside the arena. Browser smoke checks covered both routes, checkpoint migration, Test Mode, Boss Rush, New Game+, the two Abyss remixes, and the Side Furnace on 24 layouts. Several test builds still cleared below the original XVI–XVII duration target. Getsurei's ranged bot runs often needed health top-ups, so their clears are timing and behavior checks. Human difficulty and whole-pattern walking routes still need playtesting.
+
+```sh
+node docs/chapter2/fight-bot.js samurai,archer,sumo,gunner OBS_I,ECL_I,FERRY_STAGE
+node docs/chapter2/fight-bot.js samurai,archer,sumo,gunner NEB_I:nebariA,NEB_I:nebariB,RURI_I:ruriA,RURI_I:ruriB touch
+```

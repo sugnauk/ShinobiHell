@@ -40,11 +40,11 @@ function glassStage({name,dungeon,palette,accent,prop,relic,hp,tale,tags}){
   }};
 }
 const CISTERN_STAGE=glassStage({name:GLASS.name,dungeon:'THE LAPIS CISTERN',palette:['#253342','#324757','#42637b','#142132'],
- accent:GLASS.blue,prop:'glassplinth',relic:LAPIS_RELIC,hp:22,
+ accent:GLASS.blue,prop:'glassplinth',relic:LAPIS_RELIC,hp:29,
  tale:'THE PALACE STORED ITS CLEAN WATER BEHIND LAPIS MIRRORS. RURI STILL KEEPS LIGHT TURNING IN THE CISTERN.',
  tags:['FOLLOW THE REFLECTION','THE MIRRORS BREAK','BROKEN LIGHT']});
 const KILN_STAGE=glassStage({name:KILN.name,dungeon:'THE SHARD KILN',palette:['#3d2929','#523832','#805447','#21151c'],
- accent:KILN.amber,prop:'kilnstack',relic:KILN_RELIC,hp:22,
+ accent:KILN.amber,prop:'kilnstack',relic:KILN_RELIC,hp:29,
  tale:'THE KILN FIRES THE CISTERN MIRRORS. HERE THE HEAT TURNS RURI AMBER. THE SHARDSMITH TENDS A SIDE FURNACE.',
  tags:['WATCH THE GLASS UNDERFOOT','LINKED FRACTURES','KILN RELEASE']});
 const RURI_I=lateAdd(CISTERN_STAGE);
@@ -169,14 +169,23 @@ function prismLance(e,target,delay,damage,survival){
 function removeGlassMarks(marks){
  for(const m of marks??[]){const i=BMK.indexOf(m);if(i>=0&&!m.fired)BMK.splice(i,1);}
 }
-function glassFan(name,col){
- return {n:name,wt:2,gap:1.1,run(b,A){
-  if(at(A,0)){b.tele=1;A.angle=aimAt(b);}
-  if(at(A,.67)||b.half&&at(A,.94)){b.tele=0;bfan(b,b.x,b.y,A.angle,5,.85,122,8,{r:3,col,spr:'bshard',life:3});sfx('shoot');}
-  return A.t>1.2;
+function glassFan(name,col,mirror=false){
+ return {n:name,wt:2,gap:1.1,run(e,A){
+  if(at(A,0)){
+   e.tele=1;A.angle=aimAt(e);snd('bell');
+   if(mirror&&!e.half){
+    const pillar=liveMirrors().filter(m=>m.room===e.room).sort((x,y)=>dist(x,e)-dist(y,e))[0];
+    if(pillar)A.bank=angTo(e,pillar);
+   }
+  }
+  if(at(A,.68))lateFan(e,{a:A.angle,n:9,step:.14,gap:.17,sp:56,col,life:2.4});
+  if(at(A,1.43)){
+   e.tele=0;lateFan(e,{a:A.bank??A.angle+.09,n:7,step:.13,gap:A.bank==null?.17:0,sp:64,col,life:2.1});
+  }
+  return A.t>1.65;
  }};
 }
-const mirrorFan=glassFan('LAPIS SHARDS',GLASS.blue);
+const mirrorFan=glassFan('LAPIS SHARDS',GLASS.blue,true);
 BKIT[GLASS.name]={director:bossDirector,noContact:true,pref:83,halfName:'THE MIRRORS SHATTER',
  guide:['THE BLUE PILLARS REFLECT SHOTS FROM EITHER SIDE.',
   'PRISM LANCE DRAWS ITS WHOLE PATH FIRST. STEP SIDEWAYS AND STRIKE WHILE RURI RECHARGES.',
@@ -187,10 +196,14 @@ BKIT[GLASS.name]={director:bossDirector,noContact:true,pref:83,halfName:'THE MIR
   return A.t>1.55;
  },end(e,A){removeGlassMarks(A.path);}},mirrorFan],
  onHalf(e){for(const m of GLASS.pillars)if(m.room===e.room)m.broken=true;},
- move(e,dt,d,a){if(e.glassOpen>0){e.glassOpen-=dt;return;}defaultMove(e,dt,d,a,BKIT[GLASS.name]);},
+ move(e,dt,d,a){if(e.glassOpen>0){e.glassOpen-=dt;e.gapT=Math.max(e.gapT,e.glassOpen+.03);return;}defaultMove(e,dt,d,a,BKIT[GLASS.name]);},
  dmgMod:e=>e.glassOpen>0?1.22:1,
  events:[{at:.27,dur:12,name:'BROKEN LIGHT',hint:'READ THE WALL BOUNCES',survival:true,storm:1,ownPressure:true,
-  tick(e,dt,E){for(const t of [.6,3.4,6.2,9])if(at(E,t))prismLance(e,P,1.18,12*e.dm,E);}}],
+  tick(e,dt,E){
+   for(const t of [.6,3.65,8.2])if(at(E,t))prismLance(e,P,1.18,12*e.dm,E);
+   if(at(E,6.5)){E.angle=aimAt(e);fxRing(e.x,e.y,27,GLASS.violet,.72);snd('bell');}
+   if(at(E,7.35))lateFan(e,{a:E.angle,n:15,step:.4,gap:.65,sp:48,col:GLASS.violet,life:2.1});
+  },end(e){e.glassOpen=1.65;}}],
  reset(e){e.glassOpen=0;for(const m of GLASS.pillars)if(m.room===e.room)m.broken=false;}
 };
 
@@ -232,11 +245,14 @@ function clearKilnPanes(e){
 }
 const kilnFan=glassFan('FURNACE FAN',KILN.amber);
 const kilnRelease={n:'KILN RELEASE',wt:5,gap:1.8,run(e,A){
- if(at(A,0)){e.tele=1;A.panels=kilnPair(e,P.x,P.y,e.sdir>0?'x':'y',1.12);snd('bell');}
- if(at(A,1.14)){e.tele=0;e.glassOpen=1.75;sfx('spearSteel');}
- return A.t>1.55;
+ if(at(A,0)){e.tele=1;A.panels=kilnPair(e,P.x,P.y,e.sdir>0?'x':'y',1.12);A.angle=aimAt(e);snd('bell');}
+ if(at(A,1.14)){e.tele=0;sfx('spearSteel');}
+ if(e.half&&at(A,1.8))lateFan(e,{a:A.angle+(e.sdir>0?.2:-.2),n:e.lairBoss?7:11,step:.18,gap:.33,sp:54,col:KILN.amber,life:1.45});
+ const open=e.half?2.25:1.55;
+ if(at(A,open))e.glassOpen=1.75;
+ return A.t>open+.08;
 },end(e,A){
- if(A.t>=1.55)return;
+ if(A.t>=(e.half?2.25:1.55))return;
  for(const p of A.panels??[]){removeGlassMarks([p.mark]);p.spent=true;}
 }};
 BKIT[KILN.name]={director:bossDirector,noContact:true,pref:76,halfName:'THE PANES LINK',
@@ -244,11 +260,14 @@ BKIT[KILN.name]={director:bossDirector,noContact:true,pref:76,halfName:'THE PANE
   'KILN RELEASE: RURI LIGHTS THE FIRST PANE. STEP ASIDE, THEN STRIKE WHILE HER SHARDS DRAW BACK.',
   'FORM TWO: A LIT PANE PRIMES ITS LINKED NEIGHBOR. THE GOLD LINE SHOWS THE LINK.'],
  atks:[kilnRelease,kilnFan],
- move(e,dt,d,a){if(e.glassOpen>0){e.glassOpen-=dt;return;}defaultMove(e,dt,d,a,BKIT[KILN.name]);},
+ move(e,dt,d,a){if(e.glassOpen>0){e.glassOpen-=dt;e.gapT=Math.max(e.gapT,e.glassOpen+.03);return;}defaultMove(e,dt,d,a,BKIT[KILN.name]);},
  dmgMod:e=>e.glassOpen>0?1.22:1,
  events:[{at:.28,dur:12,name:'KILN RELEASE',hint:'FOLLOW THE LINKS AND KEEP MOVING',survival:true,storm:1,ownPressure:true,
-  tick(e,dt,E){[.6,3.4,6.2,9].forEach((t,i)=>{if(at(E,t))kilnPair(e,P.x,P.y,i%2?'x':'y',1.18);});},
-  end:clearKilnPanes}],
+  tick(e,dt,E){
+   [.6,3.65,7.2].forEach((t,i)=>{if(at(E,t)){E.angle=aimAt(e);kilnPair(e,P.x,P.y,i%2?'x':'y',1.18);}});
+   if(at(E,9))lateFan(e,{a:E.angle,n:11,step:.2,gap:.34,sp:54,col:KILN.amber,life:1.6});
+  },
+  end(e){clearKilnPanes(e);e.glassOpen=1.75;}}],
  onHalf:clearKilnPanes,
  reset(e){e.glassOpen=0;clearKilnPanes(e);},
  onDeath:clearKilnPanes
@@ -328,11 +347,11 @@ function drawGlassWarden(p,Q,heated=false){
 const crystalPoses={idle0:{},idle1:{b:2},wind:{swing:-.24},atk:{swing:1},recover:{swing:.32}};
 const glassPoseTiming=[['wind','atk','recover','idle0'],[0,1.02,1.3,1.65]];
 humBoss(GLASS.name,drawGlassWarden,crystalPoses,{fw:112,fh:98,sc:.98,anim:{
- 'PRISM LANCE':glassPoseTiming,'LAPIS SHARDS':[['wind','atk','recover','idle0'],[0,.6,.88,1.1]]
+ 'PRISM LANCE':glassPoseTiming,'LAPIS SHARDS':[['wind','atk','wind','atk','recover'],[0,.68,.92,1.43,1.58]]
 }});
 humBoss(KILN.name,(p,Q)=>drawGlassWarden(p,Q,true),crystalPoses,{fw:112,fh:98,sc:.98,anim:{
  'KILN RELEASE':[['wind','atk','recover','idle0'],[0,1.02,1.14,1.55]],
- 'FURNACE FAN':[['wind','atk','recover','idle0'],[0,.62,.88,1.15]]
+ 'FURNACE FAN':[['wind','atk','wind','atk','recover'],[0,.68,.92,1.43,1.58]]
 }});
 
 const kilnArms=[[[26,28],[22,38],[25,45]],[[46,28],[51,38],[49,46]]];
@@ -384,14 +403,14 @@ Object.assign(kilnPoses.poses.follow,{near:[[46,28],[51,36],[53,43]],ta:.6,tl:15
 const kilnIdlePose=kilnPoses.pick;
 kilnPoses.pick=(e,indices)=>e.A&&!e.phx?null:kilnIdlePose(e,indices);
 kilnPoses.anim['KILN RELEASE']=[['wind','atk','follow','idle0'],[0,1.02,1.2,1.5]];
-kilnPoses.anim['FURNACE FAN']=[['wind','atk','follow','idle0'],[0,.62,.88,1.15]];
+kilnPoses.anim['FURNACE FAN']=[['wind','atk','wind','atk','follow'],[0,.68,.92,1.43,1.58]];
 
 ET.shardsmith={n:SHARDSMITH,desc:'THE KILN KEEPER',hp:400,spd:34,pos:900,r:11,ai:'dummy',rng:0,wl:0,atks:[]};
-function finishSmithAttack(e){cancelAtk(e);clearKilnPanes(e);}
+function finishSmithAttack(e){cancelAtk(e);clearKilnPanes(e);for(const q of projs)if(q.own===e)q.dead=true;}
 LAIRS.push({stage:RURI_I,art:SHARDSMITH,name:SHARDSMITH,title:'THE SIDE FURNACE',col:KILN.amber,
  et:'shardsmith',hp:.36,ai:'shardsmith',half:'THE PANES LINK',free:true,
  when:()=>BOSS[RURI_I].name===KILN.name&&!R?.test&&!R?.rush,
- onHalf:finishSmithAttack,onDeath:finishSmithAttack,onLeave:finishSmithAttack});
+ onHalf(e){finishSmithAttack(e);e.lastA=null;e.at=.8;},onDeath:finishSmithAttack,onLeave:finishSmithAttack});
 LAIRAI.shardsmith=(e,dt)=>{
  if(e.A){e.A.t+=dt;if(e.A.run(e,e.A)){e.A.end?.(e,e.A);e.A=null;e.tele=0;}return;}
  if((e.glassOpen||0)>0)e.glassOpen-=dt;

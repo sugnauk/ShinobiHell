@@ -125,11 +125,12 @@ humBoss('HOSHIYOMI, THE STAR READER',hosDraw,{idle0:{},idle1:{b:1,spin:.6},
 // stars burst into small rings. The lanes between the lines are where you stay.
 BHP.constellation={fam:'sig',tags:['arena','zone'],cost:p=>2.5+.5*(p.n-4),def:{n:5,tele:1.2,stay:1.1,w:6,dur:3.4,col:'#c8a0ff',ring:6,rot:0},
  tick(I,dt){if(I.st.go)return;I.st.go=1;const p=I.p,A=I.A,pts=[],n=p.n;
-  for(let k=0;k<40&&pts.length<n;k++){const x=A.x0+12+Math.random()*(A.x1-A.x0-24),y=A.y0+12+Math.random()*(A.y1-A.y0-24);if(Math.hypot(x-P.x,y-P.y)<34)continue;if(pts.some(q=>Math.hypot(q[0]-x,q[1]-y)<42))continue;pts.push([x,y]);}
+  for(let k=0;k<40&&pts.length<n;k++){const x=A.x0+12+Math.random()*(A.x1-A.x0-24),y=A.y0+12+Math.random()*(A.y1-A.y0-24);if(blocked(x,y,8)||Math.hypot(x-P.x,y-P.y)<34)continue;if(pts.some(q=>Math.hypot(q[0]-x,q[1]-y)<42))continue;pts.push([x,y]);}
   // order them into a path (nearest neighbour), so the lines form a figure rather than a tangle
+  if(!pts.length)return;
   const path=[pts.shift()];while(pts.length){const l=path[path.length-1];pts.sort((a,b)=>Math.hypot(a[0]-l[0],a[1]-l[1])-Math.hypot(b[0]-l[0],b[1]-l[1]));path.push(pts.shift());}
   for(const [x,y] of path)bhFire(I,x,y,0,0,{bst:'burst',tb:p.tele+p.stay,bn:p.ring,bv:40,r:4,spr:'borb',life:p.tele+p.stay+.2,col:p.col,bcol:'#ffffff'});
-  for(let i=0;i<path.length-1;i++){const [x0,y0]=path[i],[x1,y1]=path[i+1];bhLaser({x:x0,y:y0,a:Math.atan2(y1-y0,x1-x0),len:Math.hypot(x1-x0,y1-y0),fixedLen:1,w:p.w,tele:p.tele,stay:p.stay,col:p.col,dmg:(p.dmg||12)*((I.own&&I.own.dm)||1),own:I.own});}}};
+  for(let i=0;i<path.length-1;i++){const [x0,y0]=path[i],[x1,y1]=path[i+1];const a=Math.atan2(y1-y0,x1-x0),len=Math.min(Math.hypot(x1-x0,y1-y0),lateLine(A,x0,y0,a,p.w));if(len<8)continue;bhLaser({x:x0,y:y0,a,len,fixedLen:1,w:p.w,tele:p.tele,stay:p.stay,col:p.col,dmg:(p.dmg||12)*((I.own&&I.own.dm)||1),own:I.own});}}};
 // signature 2: THE ORRERY - shells of stars orbit him like planets at different speeds, then each shell is released
 // along its orbit in turn, inner first, unwinding into spiral arms
 BHP.orrery={fam:'sig',tags:['radial','field'],cost:p=>3+.5*(p.shells-2),def:{shells:3,per:7,sp:44,dur:4.2,col:'#ffe8a0'},
@@ -154,7 +155,7 @@ const HOS_POOL={
  4:t=>[{n:'constellation',w:1.5,sig:1,gap:.9,p:()=>({n:8,tele:.95,stay:1.4})},{n:'orrery',w:1.5,sig:1,gap:.9,p:()=>({shells:4,per:9,sp:56})},{n:'dyn',w:1,p:()=>({mode:'turn',n:5,sp:78,iv:.75,dur:3.6})},{n:'aimed',w:1,p:()=>({mode:'predict',n:3,sp:108,iv:.42,vol:6})},{n:'arena',w:.8,p:()=>({mode:'rotlasers',n:3,om:.55,tele:1,stay:2.6,w:6,dur:4})},{n:'ring',w:.8,p:()=>({cnt:24,sp:50,waves:5,gapW:.6,gapRot:.7,conc:[1,.8]})}]};
 // the abyss modifiers act on any late guardian: faster, echoing, a closing arena, a twin shade, shorter pauses, wards
 function lateBossMods(e,D,dt){const M=e.mods||[];if(!M.length)return;
- if(M.includes('swift'))D.gapK=.8;if(M.includes('relentless'))D.gapK=(D.gapK||1)*.75;
+ D.gapK=(M.includes('swift')?.8:1)*(M.includes('relentless')?.75:1);
  if(M.includes('echo')){if(D.last&&D.k!==D.echoK){D.echoK=D.k;D.echoQ={t:.7,E:D.last};}
   if(D.echoQ&&(D.echoQ.t-=dt)<=0){const E=D.echoQ.E;D.echoQ=null;const J=bhStart(e,E.n,Object.assign(E.p?E.p(D.tier,D.k):{},{dir:-1}));if(J&&J.st)J.st.a=(J.st.a||0)+Math.PI;}}
  if(M.includes('shroud')){e.shT=(e.shT==null?8:e.shT)-dt;if(e.shT<=0){e.shT=11;bhStart(e,'arena',{mode:'narrow',sp:46,iv:.5,dur:3.2});}}
@@ -175,19 +176,22 @@ function lateBossMods(e,D,dt){const M=e.mods||[];if(!M.length)return;
 // SIGNATURE CLIMAX (THE FALLING HEAVENS, then everything at once). Two survival phases mark the turns.
 function hosPhase(e){const f=e.hp/e.maxhp;return f>.7?1:f>.45?2:f>.2?3:4;}
 BKIT['HOSHIYOMI, THE STAR READER']={director:bossDirector,guide:['THE EMPEROR\'S ASTROLOGER. HE READS THE SKY AND THE SKY ANSWERS.','CONSTELLATIONS: STARS APPEAR, WARN, AND ARE JOINED BY LINES OF LIGHT. LIVE IN THE LANES BETWEEN.','THE ORRERY: SHELLS OF STARS ORBIT HIM, THEN UNWIND ONE BY ONE.','FROM HALF HEALTH HE BLINKS BETWEEN STARS. AT THE END THE HEAVENS FALL.'],pref:100,gap:1,halfName:'THE HOOD FALLS - THE STARS TURN RED',noContact:true,
- events:[lateSurvival({at:.55,dur:18,name:'THE TURNING HEAVENS',tier:3}),
+ events:[lateSurvival({at:.55,dur:14,name:'THE TURNING HEAVENS',tier:3,start:lateClear}),
   {at:.2,dur:17,name:'THE FALLING HEAVENS',hint:'THE SKY FALLS - KEEP MOVING',survival:true,storm:1,
-   start(e,E){const A=arenaOf(e);E.home=freeSpot(e,A.cx,A.cy,e.r);bhStart(e,'heavens',{dur:16.5});},
+   start(e,E){lateClear(e);const A=arenaOf(e);E.home=freeSpot(e,A.cx,A.cy,e.r);bhStart(e,'heavens',{dur:16.5});},
    tick(e,dt,E){e.x+=(E.home.x-e.x)*Math.min(1,dt*3);e.y+=(E.home.y-e.y)*Math.min(1,dt*3);},
-   end(e,E){bhStop(e);}}],
+   end(e,E){lateClear(e);e.chartRest=1.8;}}],
  tick(e,dt,d,inEv){if(phaseGate(e,BKIT[e.name],dt))return true;const ph=hosPhase(e);
-  if(!e.D||e.Dph!==ph){if(e.D)ldirStop(e.D);e.Dph=ph;const t=(e.lateTier||3)+(ph>=3?1:0);e.D=ldirNew(e,t,HOS_POOL[ph](t),{maxLayers:ph===1?2:ph===2?2:3});
+  if(e.chartRest>0){e.chartRest-=dt;return true;}
+  if(!e.D||e.Dph!==ph){lateClear(e);e.Dph=ph;const t=(e.lateTier||3)+(ph>=3?1:0);e.D=ldirNew(e,t,HOS_POOL[ph](t),{maxLayers:ph===1?2:ph===2?2:3});
    if(ph>1){const c=OBS.c;txtFx(e.x,e.y-20,['','','THE ORRERY TURNS','THE STAR CHART','THE LAST LIGHT'][ph],c,1.6);sfx('boss');}}
+  if(e.D.rest>0){e.D.rest-=dt;return true;}
+  if(lateSignatureCycle(e,dt,e.D.pool[ph===2?1:0],8.2,1.55))return true;
   ldirTick(e.D,dt);lateBossMods(e,e.D,dt);
   // he keeps his distance; from phase 3 he blinks between points of the sky
   const a=Math.atan2(P.y-e.y,P.x-e.x);if(ph>=3){e.blT=(e.blT==null?4:e.blT)-dt;if(e.blT<=0){e.blT=4.5;const A=arenaOf(e);const s=freeSpot(e,A.x0+30+Math.random()*(A.x1-A.x0-60),A.y0+30+Math.random()*(A.y1-A.y0-60),e.r);if(Math.hypot(s.x-P.x,s.y-P.y)>60){fxRing(e.x,e.y,16,OBS.c,.3);e.x=s.x;e.y=s.y;fxRing(e.x,e.y,16,OBS.c,.3);}}}
   defaultMove(e,dt,d,a,BKIT[e.name]);return true;},
- onDeath(e){bhStop(e);if(e.D)ldirStop(e.D);}};
+ onHalf:lateClear,reset:lateClear,onDeath:lateClear};
 {const _ob=onBossDead;onBossDead=function(e){if(e&&BKIT[e.name]&&e.D){ldirStop(e.D);bhStop(e);if(e.twin&&e.twin.D)ldirStop(e.twin.D);}return _ob.apply(this,arguments);};}
 // the orrery charm: three star wards circle you; each breaks one shot, then re-forms 8s later
 {const _u=updPlay;updPlay=function(dt){const r=_u.apply(this,arguments);if(!P||!R||!R.inv||!R.inv.orrery)return r;R.orw=R.orw||[0,0,0];
