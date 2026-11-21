@@ -67,7 +67,7 @@ const PWRELIC=[{id:'embersandal',name:'EMBER SANDALS',pw:'firetrail',g:'E',mo:'f
 for(const r of PWRELIC){ITEMS.push({id:r.id,name:r.name,d:GPW[r.pw].d(1),g:r.g,r:2,pwRelic:r.pw});ITEMBY[r.id]=ITEMS[ITEMS.length-1];FXK[r.id]=r.fx;RELICMO[r.id]=r.mo;}
 // equipped ability levels
 function PWL(k){if(!R)return 0;let n=0;if(R.eq)for(const s of ['wpn','arm','ring']){const g=R.eq[s];if(g&&g.pw)for(const p of g.pw)if(p.k===k)n+=p.l;}
- if(R.inv)for(const r of PWRELIC)if(r.pw===k&&R.inv[r.id])n+=R.inv[r.id];return n;}
+ if(R.inv)for(const r of PWRELIC)if(r.pw===k&&R.inv[r.id])n+=relicPower(r.id);return n;}
 
 // ---------------------------------------------------------------- the abilities at work
 const GPS={hits:0,meteorT:0,lastHit:-9,novaT:0,guardT:0,trailT:0,orbA:0,orbs:[],echoQ:[],lastChain:0};

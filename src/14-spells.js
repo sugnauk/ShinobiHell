@@ -76,7 +76,7 @@ function castHeavy(){
 }
 // E - support spell
 function castWard(){
- const p=P;if(!p||p.ab.rmb>0||p.stag>0)return;const v=p.lo.w,seal=R.inv.parry||0;
+ const p=P;if(!p||p.ab.rmb>0||p.stag>0)return;const v=p.lo.w,seal=relicPower('parry');
  if(v===0){if(p.ward>0)return;p.wardRef=0;p.ward=S.wardDur*(1+.05*RK());p.ab.rmb=spellCd('w')+p.ward;sfx('tool');fxRing(p.x,p.y,24,'#8cf',.3);}
  else if(v===1){p.hot=3;p.hotAmt=S.maxhp*(.25+.05*seal+.015*RK())/3;p.haste=3+.5*seal;p.ab.rmb=spellCd('w');sfx('heal');fxRing(p.x,p.y,20,'#6f6',.4);spark(p.x,p.y,'#6f6',12,50);}
  else if(v===3){const r=90*AZ();p.aegis=2.5*(1+.05*RK());p.iv=Math.max(p.iv,p.aegis);p.hp=Math.min(S.maxhp,p.hp+S.maxhp*.2);p.ab.rmb=spellCd('w');

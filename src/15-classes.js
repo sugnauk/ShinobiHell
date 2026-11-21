@@ -65,7 +65,7 @@ const CLS=()=>CLASSES[(R&&R.testCls!=null)?R.testCls:((meta&&meta.cls)||0)]; // 
 // class stat modifiers + the deathblow item effect, layered on top of the base stat calculation
 {const cs0=calcStats;calcStats=function(){const s=cs0(),c=CLS();s.maxhp=Math.round(s.maxhp*c.hp);s.atk*=c.pw||1;s.spd*=c.spd;s.dashCd*=c.dash;s.def+=c.def;
  // skill tree nodes (temple)
- s.crit+=.03*upLv('crit');s.atk*=1+.1*upLv('wrath');s.def+=upLv('iron');s.spd*=1+.03*upLv('swift');s.dashCd*=Math.pow(1-COOLDOWN.dashRank,upLv('dashm'));s.dblow=(R&&R.inv?(R.inv.dblow||0):0)+(R&&R.eq?(gearStats().fx.dblow||0):0);return s;};}
+ s.crit+=.03*upLv('crit');s.atk*=1+.1*upLv('wrath');s.def+=upLv('iron');s.spd*=1+.03*upLv('swift');s.dashCd*=Math.pow(1-COOLDOWN.dashRank,upLv('dashm'));s.dblow=relicPower('dblow')+(R&&R.eq?(gearStats().fx.dblow||0):0);return s;};}
 // ten evolution names and looks per class
 const EVONAMES={samurai:['RONIN','FOOTMAN','ASHIGARU','SWORDSMAN','HATAMOTO','SAMURAI','KENSHI','WARLORD','SHOGUN BLADE','KENSEI'],
  archer:['HUNTER','SCOUT','BOWMAN','MARKSMAN','RANGER','SHARPSHOOTER','HAWKEYE','WINDSTRIDER','STORM ARCHER','MASTER ARCHER'],

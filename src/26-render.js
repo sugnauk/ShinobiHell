@@ -472,7 +472,7 @@ function spellInfo(k){
   L.push('FORMULA  POWER '+r(A)+' X '+m+' X '+qm.toFixed(2));}
  else if(k==='w'){
   if(v===0)L.push('LASTS '+(S.wardDur*(1+.05*RK())).toFixed(1)+'S. REFLECTS 6 SHOTS AT 60% + '+r(A*.8));
-  else if(v===1)L.push('HEALS '+r(S.maxhp*(.25+.05*(R.inv.parry||0)+.015*RK()))+' HP OVER 3S. +30% SPEED');
+  else if(v===1)L.push('HEALS '+r(S.maxhp*(.25+.05*relicPower('parry')+.015*RK()))+' HP OVER 3S. +30% SPEED');
   else L.push('DAMAGE '+r(A*.3*ap)+' EVERY 0.35S FOR 4S','SLOWS 65% AND CHILLS');}
  else if(k==='f'){
   if(v===0)L.push('DAMAGE '+r(A*1.6*ap)+' IN RADIUS '+r(66*AZ()),'APPLIES 3 CHILL = FREEZE');
@@ -588,7 +588,7 @@ function drawHUD(){
    if(it)ctxt(FXNAME[fxStyle(it.id)]+' RELIC '+ROM[it.r]+': '+it.d,H-36,fxCol(it.id));
    else if(np.gear)ctxt(gearLines(np.gear).slice(1,3).join('  '),H-36,QUAL[np.gear.q].c);
    else if(np.ench){const E=ENCH.find(x=>x.k===np.ench.k);ctxt('ENCHANT: '+E.d,H-36,E.c);}
-   else if(np.reroll)ctxt('SWAPS THE 3 RELICS FOR NEW ONES. PRICE RISES EACH TIME',H-36,'#ffd040');
+   else if(np.reroll)ctxt('REROLL THE RELIC. ONE PURCHASE PER STAGE',H-36,'#ffd040');
    else ctxt('HP POTION: DRINK WITH C TO HEAL 35%',H-36,'#50e060');}}
  drawMinimap();
  if(toast.t>0){ctx.globalAlpha=Math.min(1,toast.t);ctxt(toast.s,24,toast.c,1);ctx.globalAlpha=1;}

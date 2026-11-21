@@ -7,7 +7,7 @@ let props=[],traps=[],hz=[],dh=[],zones=[],freezeT=0,evOpts=null,evProp=null;
 const keys={},mouse={x:W/2,y:H/2,down:false,rdown:false};
 
 function calcStats(){
- const u=meta.up,inv=R.inv,G=gearStats(),n=id=>(inv[id]||0)+(G.fx[id]||0);
+ const u=meta.up,G=gearStats(),n=id=>relicPower(id)+(G.fx[id]||0);
  const cu=R.curse||0,ms=(typeof heroRunStats==='function'?heroRunStats():{}),st=k=>(ms[k]||0)+(G.st[k]||0),cz=R.cz||{},bl=R.bless||{};
  return {pierce:n('pierce'),frost:n('frost'),shock:n('shock'),qpow:n('qpow'),epow:n('epow'),ecd:n('ecd'),vamp:n('vamp'),echo:n('echo'),phoenix:n('phoenix'),flare:n('flare'),storm:n('storm'),
   st:{att:st('att'),def:st('def'),spd:st('spd'),dex:st('dex'),vit:st('vit'),wis:st('wis')},def:st('def')+G.def,

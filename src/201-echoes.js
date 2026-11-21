@@ -1,14 +1,14 @@
 'use strict';
 // SHINOBIDUNGEONS - GUARDIAN ECHOES. A guardian you have beaten (in any run) can return in later dungeons as an echo:
-// a mini-boss waiting in a side room, drawn as the little portrait from the boss rush page (the full boss art reduced,
+// a mini-boss among ordinary enemies, drawn as the little portrait from the boss rush page (the full boss art reduced,
 // which reads beautifully at this size). It fights with a shadow of its old self:
 //  - its own bullet patterns (phase one of its fight, then phase two once it is down to half and its second form shows)
 //  - its own way of moving: circling, dashing along a warned line, or blinking about the room
 //  - health and damage set by the stage you are on, not the stage it came from, so it is a fair fight anywhere
-//  - it drops an epic war chest or, on a 10% roll, a legendary royal bag
+//  - it drops one piece of gear, with 4% legendary and 12% epic overall
 // One echo at most per dungeon, in about 3 runs of 5 once you have beaten a guardian; never in its own stage, in a
 // prologue, in training or in the boss rush. The room glows violet and its name shows as you come near.
-ET.echo={n:'GUARDIAN GECHO',desc:'A REMNANT OF A GUARDIAN YOU HAVE BEATEN. IT DROPS EPIC GEAR OR A ROYAL BAG (10% CHANCE)',hp:400,spd:42,pos:600,r:9,ai:'dummy',rng:0,wl:0,atks:[]};
+ET.echo={n:'GUARDIAN ECHO',desc:'A REMNANT OF A GUARDIAN YOU HAVE BEATEN. IT FIGHTS ALONGSIDE OTHER FOES AND DROPS ONE PIECE OF GEAR',hp:400,spd:42,pos:600,r:9,ai:'dummy',rng:0,wl:0,atks:[]};
 const GECHO={chance:.6,hpMul:13,tall:30,e:null,force:null,
  // the reduced portrait: the boss's full sheet scaled down whole (nearest pixel), every frame, built once
  mini:{},sprite(i,half){const b=BOSS[i],key=i+'|'+(b&&b.name)+'|'+(half?1:0);if(GECHO.mini[key])return GECHO.mini[key];
@@ -16,20 +16,42 @@ const GECHO={chance:.6,hpMul:13,tall:30,e:null,force:null,
   const n=s.frames||Math.max(1,Math.round(s.c.width/s.fw)),sc=Math.min(1,GECHO.tall/s.fh,GECHO.tall/s.fw),fw=Math.max(1,Math.round(s.fw*sc)),fh=Math.max(1,Math.round(s.fh*sc));
   const c=mk(fw*n,fh,g=>{g.imageSmoothingEnabled=false;for(let f=0;f<n;f++)g.drawImage(s.c,f*s.fw,0,s.fw,s.fh,f*fw,0,fw,fh);});
   return GECHO.mini[key]={c,wc:whiteOf(c),fw,fh,frames:n,sc:1};},
- beaten(){const g=meta.guide&&meta.guide.e||{},top=typeof CAMPAIGN_END!=='undefined'?CAMPAIGN_END+(typeof LATE!=='undefined'?LATE.length:0):11;
-  const L=[];for(let i=0;i<=top;i++)if(g['boss'+i]&&BOSS[i]&&i!==R.di)L.push(i);return L;},
- pickRoom(){const st=map.startRoom,br=map.bossRoom,c=r=>({x:r.x+r.w/2,y:r.y+r.h/2}),a=c(st),avoid=typeof MOTH!=='undefined'&&MOTH.e?MOTH.e.room:null;
-  const L=map.rooms.filter(r=>r!==st&&r!==br&&r!==avoid&&r.k!=='boss'&&r.k!=='start'&&r.type!=='shop'&&!r.lair&&r.w>=9&&r.h>=9);if(!L.length)return null;
-  L.sort((p,q)=>Math.hypot(c(q).x-a.x,c(q).y-a.y)-Math.hypot(c(p).x-a.x,c(p).y-a.y));return L[Math.floor(Math.random()*Math.ceil(L.length/2))];},
- spawn(i){const r=GECHO.pickRoom();if(!r)return null;for(const e of enemies)if(e.room===r&&!e.prop&&!e.boss)e.dead=true;enemies=enemies.filter(e=>!e.dead);
-  const x=(r.x+r.w/2)*T,y=(r.y+r.h/2)*T,ref=mkEnemy('samurai',x,y,r,R.di),e=mkEnemy('echo',x,y,r,R.di);if(!e)return null;
+ beaten(){
+  const cleared=guardianClears(),top=Math.min(R.di,CAMPAIGN_END+1+LATE.length),result=[];
+  for(let i=0;i<top;i++)if(BOSS[i]&&cleared[i+':'+BOSS[i].name])result.push(i);
+  return result;
+ },
+ pickRoom(){
+  const avoid=MOTH.e?.room;
+  return pick(map.rooms.filter(r=>r.k==='room'&&r!==avoid&&['combat','elite'].includes(r.type)
+   &&r.w>=9&&r.h>=9&&enemies.some(e=>e.room===r&&!e.dead&&!e.prop&&!e.boss)));
+ },
+ spawn(i){
+  const r=GECHO.pickRoom();if(!r)return null;
+  let spot;for(let n=0;n<12;n++){const p=spotIn(r);if(!blocked(p.x,p.y,9)){spot=p;break;}}
+  if(!spot)return null;
+  const {x,y}=spot,ref=mkEnemy('samurai',x,y,r,R.di),e=mkEnemy('echo',x,y,r,R.di);if(!e)return null;
   const hp=Math.round((ref?ref.hp:400)*GECHO.hpMul*(R.ngp?1.25:1)),spr=GECHO.sprite(i,0);
   Object.assign(e,{hp,maxhp:hp,echo:{i,name:BOSS[i].name,modes:(BMODES[i]||['circle']).slice(),st:BSTYLE[i]||BSTYLE[0],k:0,bt:1.2,mt:2.5,met:0,half:0,ang:Math.random()*TAU},sprOv:spr,elite:null,label:null,r:9,awake:false});
   enemies.push(e);GECHO.e=e;return e;},
  inRoom(e){const r=e.room;return P.x>r.x*T&&P.x<(r.x+r.w)*T&&P.y>r.y*T&&P.y<(r.y+r.h)*T;},
  short:n=>n.split(',')[0]};
+// Stage I used to share its record with the prologues. Route variants also used to share stage numbers.
+function guardianClears(){
+ if(meta.guardianClears)return meta.guardianClears;
+ const cleared=meta.guardianClears={};
+ for(let i=1;i<=CAMPAIGN_END;i++)if(meta.ranks?.[i]!=null&&BOSS[i])cleared[i+':'+BOSS[i].name]=1;
+ saveMeta();return cleared;
+}
+{const base=onBossDead;onBossDead=function(e){
+ const result=base.apply(this,arguments);
+ if(!e.pro&&R&&!R.pro&&!prologueLoot()&&!R.training&&!R.test&&!R.rush&&e.di<=CAMPAIGN_END+LATE.length){
+  const cleared=guardianClears();cleared[e.di+':'+e.name]=1;saveMeta();
+ }
+ return result;
+};}
 {const _ld=loadDungeon;loadDungeon=function(di){const r=_ld.apply(this,arguments);GECHO.e=null;
- if(R&&!R.training&&!R.rush&&!(typeof PRO_ON!=='undefined'&&PRO_ON)&&map&&map.rooms){const L=GECHO.beaten();
+ if(R&&!R.training&&!R.rush&&!R.test&&!R.pro&&!prologueLoot()&&map&&map.rooms){const L=GECHO.beaten();
   if(L.length&&(GECHO.force!=null||Math.random()<GECHO.chance)){const i=GECHO.force!=null&&L.includes(GECHO.force)?GECHO.force:L[Math.floor(Math.random()*L.length)];GECHO.spawn(i);}}
  return r;};}
 // its fight
@@ -57,5 +79,5 @@ const GECHO={chance:.6,hpMul:13,tall:30,e:null,force:null,
  txt(s,x+Math.round((w-txtW(s))/2),14,'#c8a0ff');bar(x,21,w,4,e.hp/e.maxhp,'#9a6ad0','#20102a');};}
 // its end: stage-scaled loot, score, and a record of the win
 {const _k=killE;killE=function(e){const was=e&&e.echo&&!e.dead;_k.apply(this,arguments);if(was&&e.dead){const X=e.echo;for(const q of projs)if(q.own===e)q.dead=true;
-  dropBag(e.x+10,e.y+10,minibossBag(),false);addScore(1800,e.x,e.y,'#c8a0ff');
+  dropBag(e.x+10,e.y+10,ECHO_CACHE,false);addScore(1800,e.x,e.y,'#c8a0ff');
   setToast('THE ECHO OF '+GECHO.short(X.name)+' FADES','#c8a0ff',3);fxRing(e.x,e.y,50,'#c8a0ff',.6);meta.echoes=(meta.echoes||0)+1;saveMeta();GECHO.e=null;}};}

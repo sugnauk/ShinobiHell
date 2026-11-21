@@ -140,5 +140,4 @@ const LAIRAI={
 {const _k2=killE;killE=function(e){const was=e.lairClone&&!e.dead;_k2(e);if(was&&e.dead){spark(e.x,e.y,'#7af0d0',12,60);txtFx(e.x,e.y,'ONLY A REFLECTION','#a8e8dc',1);}};}
 // ---- the Pillar Stone: the hitobashira's bonus on a royal bag roll, found nowhere else
 ITEMS.push({id:'pillar',name:'PILLAR STONE',d:'+1 REVIVE AND +30 MAX HP',g:'P',r:3,bossRelic:1});ITEMBY.pillar=ITEMS[ITEMS.length-1];FXK.pillar='guard';RELICMO.pillar='shield';
-{const _ai=applyItem;applyItem=function(id){if(id==='pillar')P.rez=(P.rez||0)+1;return _ai.apply(this,arguments);};}
-{const _cs=calcStats;calcStats=function(){const s=_cs();if(R&&R.inv&&R.inv.pillar){s.maxhp+=30*R.inv.pillar;}return s;};}
+{const _cs=calcStats;calcStats=function(){const s=_cs();if(R&&R.inv&&R.inv.pillar){s.maxhp+=30*relicPower('pillar');}return s;};}

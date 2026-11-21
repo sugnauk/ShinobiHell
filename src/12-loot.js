@@ -143,37 +143,41 @@ function itemCol(it){if(it.t==='gear')return QUAL[it.q||0].c;if(it.t==='ench')re
 function bagContents(tier,boss){
  const pro=prologueLoot();
  if(pro)tier=Math.min(tier,1);
- const di=R.di,it=[],slot=()=>pick(['wpn','arm','ring']),gear=(b,q)=>mkGear(slot(),tierFor(di,b),false,q==null?rollQ(di,0):q);
+ const di=R.di,it=[],addRelic=chance=>{if(Math.random()<chance)it.push({t:'relic',id:randItem(['rez'],0,2).id});},slot=()=>pick(['wpn','arm','ring']),gear=(b,q)=>mkGear(slot(),tierFor(di,b),false,q==null?rollQ(di,0):q);
  if(tier===1||tier===2){ // green pack / blue satchel: a decent piece of gear plus extras
-  it.push(gear(0,boss&&pro?1:rollQ(di,tier-1)));if(Math.random()<.1)it.push({t:'hp'});if(tier===2&&Math.random()<.3)it.push(statSwap());if(!pro&&Math.random()<.1*tier)it.push(mkEnch());if(tier===2&&Math.random()<.14)it.push({t:'scroll',regular:true});}
+  it.push(gear(0,boss&&pro?1:rollQ(di,tier-1)));if(Math.random()<.1)it.push({t:'hp'});if(tier===2)addRelic(.04);if(!pro&&Math.random()<.1*tier)it.push(mkEnch());if(tier===2&&Math.random()<.14)it.push({t:'scroll',regular:true});}
  else if(tier===0){ // brown: 1-3 small things
   if(Math.random()<.08)it.push({t:'hp'});if(Math.random()<.45||!it.length)it.push(gear(-1,rollQ(di,-1)));if(!pro&&di>=1&&Math.random()<.08)it.push(mkEnch());}
  else if(tier===3){ // purple: 2-4 things, better gear
-  it.push(gear(0,rollQ(di,1)));if(Math.random()<.45)it.push(statSwap());if(Math.random()<.3)it.push(mkEnch());if(Math.random()<.2)it.push({t:'relic',id:randItem(['rez']).id});if(Math.random()<.15)it.push({t:'hp'});}
+  it.push(gear(0,rollQ(di,1)));addRelic(.08);if(Math.random()<.3)it.push(mkEnch());if(Math.random()<.15)it.push({t:'hp'});}
  else if(tier===5){ // enchanter pouch: two different enchants, sometimes a scroll
   const a=mkEnch();let b=mkEnch();for(let i=0;i<5&&b.k===a.k;i++)b=mkEnch();it.push(a,b);if(Math.random()<.04)it.push({t:'scroll'});}
- else if(tier===6){ // scholar case: a guaranteed legendary scroll and an elixir
-  it.push({t:'scroll'},statSwap());if(Math.random()<.3)it.push({t:'relic',id:randItem(['rez']).id});}
- else if(tier===7){ // war chest: two epic pieces, one of them a weapon
+ else if(tier===6){ // scholar case: a guaranteed legendary scroll and a small relic chance
+  it.push({t:'scroll'});addRelic(.12);}
+ else if(tier===WAR_CHEST){ // war chest: two epic pieces, one of them a weapon
   it.push(mkGear('wpn',tierFor(di,1),false,3),gear(1,3));}
- else if(tier===8){ // shogun's trophy (the usual boss bag): two epics, maybe a scroll and an enchant, an elixir
-  it.push(mkGear('wpn',tierFor(di,1),false,3),gear(1,3),statSwap());if(Math.random()<.07)it.unshift({t:'scroll'});if(Math.random()<.5)it.push(mkEnch());if(!it.some(o=>o.t==='scroll')&&Math.random()<.45)it.push({t:'scroll',regular:true});}
- else if(tier===9){ // jade casket: an epic ring and elixirs
-  it.push(mkGear('ring',tierFor(di,1),false,3),statSwap());if(Math.random()<.4)it.push(statSwap());}
- else if(tier===10){ // monk's bundle: relics, sometimes a potion
-  const a=randItem(['rez']);it.push({t:'relic',id:a.id});if(Math.random()<.5)it.push({t:'relic',id:randItem(['rez',a.id]).id});if(Math.random()<.3)it.push({t:'hp'});}
+ else if(tier===8){ // shogun's trophy (the usual boss bag): two epics, with chances for a scroll, enchant or relic
+  it.push(mkGear('wpn',tierFor(di,1),false,3),gear(1,3));addRelic(.12);if(Math.random()<.07)it.unshift({t:'scroll'});if(Math.random()<.5)it.push(mkEnch());if(!it.some(o=>o.t==='scroll')&&Math.random()<.45)it.push({t:'scroll',regular:true});}
+ else if(tier===9){ // jade casket: an epic ring and a small relic chance
+  it.push(mkGear('ring',tierFor(di,1),false,3));addRelic(.12);}
+ else if(tier===10){ // monk's bundle: a potion or a relic
+  addRelic(.25);if(!it.length)it.push({t:'hp'});}
  else if(tier===11){ // assassin kit: an epic weapon of ANY type (off-class finds) and an enchant
   const g=mkGear('wpn',tierFor(di,1),false,3);g.wt=pick(Object.keys(WTYPES));g.name=QUAL[3].n+' '+GEARN.wpn[g.tier]+' '+g.wt;it.push(g,mkEnch());}
+ else if(tier===ECHO_CACHE){
+  const roll=Math.random();
+  it.push(roll<.04?mkGear(null,tierFor(di,1),true):gear(0,roll<.16?3:roll<.62?2:1));
+ }
  else{ // royal bag (super rare, white): always a named legendary, plus extras
   it.push(mkGear(null,tierFor(di,1),true));
-  if(Math.random()<.5)it.push(statSwap());
+  addRelic(.12);
   if(Math.random()<(boss?.2:.08))it.unshift({t:'scroll'});
-  if(boss){it.push(mkGear('wpn',tierFor(di,1),false,Math.min(3,1+rollQ(di,0))),mkEnch(),{t:'hp'},statSwap());}}
+  if(boss){it.push(mkGear('wpn',tierFor(di,1),false,Math.min(3,1+rollQ(di,0))),mkEnch(),{t:'hp'});}}
  return it;
 }
 // bag tiers: 0 sack, 1 pack (green), 2 satchel (blue), 3 pouch (purple), 4 royal bag (gold)
 const BAGCOL=['#c8995a','#6ac85a','#5aa0f0','#b070f0','#fff4c0','#5ad8c8','#e05060','#c8d0e0','#e05040','#6ad89a','#f8c060','#9a7ad0'],
- BAGN=['SACK','PACK','SATCHEL','POUCH','ROYAL BAG','ENCHANTER POUCH','SCHOLAR CASE','WAR CHEST',"SHOGUN'S TROPHY",'JADE CASKET',"MONK'S BUNDLE",'ASSASSIN KIT'],GOLDBAG=4,WAR_CHEST=7,TROPHY=8;
+ BAGN=['SACK','PACK','SATCHEL','POUCH','ROYAL BAG','ENCHANTER POUCH','SCHOLAR CASE','WAR CHEST',"SHOGUN'S TROPHY",'JADE CASKET',"MONK'S BUNDLE",'ASSASSIN KIT'],GOLDBAG=4,WAR_CHEST=7,TROPHY=8,ECHO_CACHE=12;
 const minibossBag=()=>Math.random()<.10?GOLDBAG:WAR_CHEST;
 // a random "good" bag (epics, enchants, scrolls, relics). The white royal bag is NOT in this pool: it is super rare.
 // the scholar case (a guaranteed legendary scroll) is the rarest of these
@@ -188,7 +192,7 @@ function dropBag(x,y,tier,boss){const a=Math.random()*TAU,s=rnd(15,35);
 function bagLand(k){const c=BAGCOL[k.tier];spark(k.x,k.y,k.tier===0?'#8a7a60':c,k.tier===4?16:6,k.tier===4?70:40);
  if(k.tier===4){fxRing(k.x,k.y,22,'#ffd040',.4);fxRing(k.x,k.y,12,'#fff',.25);shake=Math.max(shake,3);sfx('coin');}}
 const nearBag=()=>{let best=null,bd=14;for(const k of pickups){if(k.k!=='bag'||k.dead)continue;const d=dist(k,P);if(d<bd){bd=d;best=k;}}return best;};
-function lootBag(b){ // potions, elixirs and empty gear slots are automatic; build choices wait for input
+function lootBag(b){ // potions and empty gear slots are automatic; build choices wait for input
  if(!b.opened){for(const it of b.items)if(it.t==='gear'&&it.rare)codexAdd('gear',it.name);b.opened=true;b.pop=.25;spark(b.x,b.y,BAGCOL[b.tier],b.tier===4?40:10,b.tier===4?140:60);
   if(b.tier===4){spark(b.x,b.y,'#fff',16,100);fxRing(b.x,b.y,34,'#ffd040',.5);fxRing(b.x,b.y,20,'#fff',.3);sfx('rare');hitstop=Math.max(hitstop,.06);}}
  for(let i=b.items.length-1;i>=0;i--){const it=b.items[i];let took=false;

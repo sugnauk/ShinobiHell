@@ -20,7 +20,7 @@ meta.syn=meta.syn||{};
  if(synOn('sunmoon'))s.crit+=.10;if(synOn('raijin'))s.crit+=.06;
  if(synOn('wraith')){s.dashCd*=1-COOLDOWN.wraith;s.dodge=(s.dodge||0)+.04;}
  if(synOn('bells'))s.cdr*=1-COOLDOWN.bells;
- if(synOn('balance')&&R.inv.glass)s.maxhp=Math.round(s.maxhp/Math.pow(.75,R.inv.glass));
+ if(synOn('balance')&&R.inv.glass)s.maxhp=Math.round(s.maxhp/Math.pow(.75,relicPower('glass')));
  if(synOn('needles')){s.pierce=(s.pierce||0)+1;s.aspd*=1.1;}
  if(synOn('aegis'))s.def+=3;
  if(synOn('merchant'))s.sen=(s.sen||1)*1.25;

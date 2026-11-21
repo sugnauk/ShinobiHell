@@ -21,14 +21,31 @@ const ITEMS=[
 ];
 const RCOL=['#9ab','#6c6','#c6f'],ITEMBY={};ITEMS.forEach(i=>ITEMBY[i.id]=i);
 const prologueLoot=()=>typeof PRO_ON!=='undefined'&&PRO_ON;
-function randItem(excl,minR=0){
- const cap=prologueLoot()?1:3,weights=[14,7,3,2.2],pool=[];
- // Registration marks boss rewards even when their road is absent from the active stage table.
- const allowed=ITEMS.filter(it=>!it.bossRelic&&it.r<=cap),available=allowed.filter(it=>!excl?.includes(it.id));
- const minimum=Math.min(minR,cap);
- for(const it of available)if(it.r>=minimum)for(let k=0;k<weights[it.r];k++)pool.push(it);
- return pick(pool.length?pool:available.length?available:allowed);
+const RELIC_STACK_POWER=[0,1,1.5,1.75];
+const SINGLE_RELICS=new Set(['wave','pierce','dblow','flare','poison','gourd','rez','phoenix']);
+function relicLimit(id){
+ const it=ITEMBY[id];
+ return it?.bossRelic||it?.pwRelic||SINGLE_RELICS.has(id)?1:RELIC_STACK_POWER.length-1;
 }
+function relicPower(id,count=R?.inv?.[id]||0){return RELIC_STACK_POWER[Math.min(relicLimit(id),Math.max(0,count|0))];}
+const relicMaxed=id=>(R?.inv?.[id]||0)>=relicLimit(id);
+const relicSurplusGold=id=>10+5*ITEMBY[id].r;
+function relicPool(minR,maxR){
+ const cap=prologueLoot()?Math.min(1,maxR):maxR,minimum=Math.min(minR,cap);
+ return ITEMS.filter(it=>!it.bossRelic&&it.r>=minimum&&it.r<=cap);
+}
+const relicTradeAvailable=(minR,maxR,excl)=>relicPool(minR,maxR).some(it=>!excl.includes(it.id)&&!relicMaxed(it.id));
+function randItem(excl,minR=0,maxR=3){
+ const weights=[14,7,3,2];
+ // Registration marks boss rewards even when their road is absent from the active stage table.
+ const allowed=relicPool(minR,maxR);
+ const available=allowed.filter(it=>!excl?.includes(it.id));
+ const candidates=available.length?available:allowed;
+ const useful=candidates.filter(it=>!relicMaxed(it.id));
+ return wpick((useful.length?useful:candidates).map(it=>({it,wt:weights[it.r]}))).it;
+}
+const RELIC_CHEST_CHANCE=.25;
+const relicTradeDepth=()=>R.pro?'prologue-'+R.pro:R.di;
 
 // ---------- mage abilities ----------
 const ULT_CD=32,WARD_CD=7,CHAIN_CD=4.5;
