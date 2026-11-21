@@ -73,7 +73,7 @@ humBoss('GETSUREI, THE ECLIPSE PRIESTESS',getDraw,{idle0:{},idle1:{b:1,spin:.5},
 BHP.crescent={fam:'sig',tags:['wall','field'],cost:p=>2.5+.4*(p.waves-2),def:{waves:3,n:15,arc:1.6,sp:70,iv:1.15,t1:1.6,hold:.35,back:58,gapW:.32,dur:4.6,col:'#e8e8ff'},
  tick(I,dt){const p=I.p,A=I.A;if(!every(I,'w',dt,p.iv)||(I.st.k|0)>=p.waves)return;const k=I.st.k=(I.st.k|0)+1;
   const R0=Math.min(A.x1-A.x0,A.y1-A.y0)*.52,c=Math.atan2(P.y-A.cy,P.x-A.cx)+(k%2?.5:-.5)+(Math.random()-.5)*.4,gap=(Math.random()-.5)*p.arc*.6;
-  for(let i=0;i<p.n;i++){const off=(i/(p.n-1)-.5)*p.arc;if(Math.abs(off-gap)<p.gapW)continue;const a=c+off,x=A.cx+Math.cos(a)*R0,y=A.cy+Math.sin(a)*R0;
+  for(let i=0;i<p.n;i++){const off=(i/(p.n-1)-.5)*p.arc;if(Math.abs(off-gap)<p.gapW)continue;const a=c+off,x=A.cx+Math.cos(a)*R0,y=A.cy+Math.sin(a)*R0;if(blocked(x,y,6))continue;
    // turning back, each shot swings a little sideways so the returning crescent's opening moves
    bhFire(I,x,y,a+Math.PI,p.sp,{bst:'turn',sp0:p.sp,t1:p.t1,hold:p.hold,ta:Math.PI+(gap>0?-.25:.25),sp1:p.back,spr:'bshard',r:3,col:k%2?p.col:'#c8d0e0',life:p.t1+p.hold+4});}}};
 // signature 2: ECLIPSE - a black moon drifts toward you with a corona of short rotating beams round its rim; inside the
@@ -82,7 +82,7 @@ BHP.eclipse={fam:'sig',tags:['arena','zone'],cost:p=>3+.4*(p.rays-6),def:{rays:6
  tick(I,dt){const p=I.p,st=I.st;
   if(!st.go){st.go=1;st.x=bhOX(I);st.y=bhOY(I);st.m={x:st.x,y:st.y,I};ECLM.push(st.m);
    for(let i=0;i<p.rays;i++){const a0=i/p.rays*TAU;const L0=bhLaser({x:st.x,y:st.y,a:a0,len:p.ray,fixedLen:1,w:5,tele:p.tele,stay:p.dur-p.tele-.2,col:p.col,dmg:13*((I.own&&I.own.dm)||1),own:I.own});
-    L0.follow=(L,d)=>{const rot=(L.rot=(L.rot||0)+(L.t>L.tele?p.om*d:0));const a=a0+rot;L.a=a;L.x=st.x+Math.cos(a)*p.rim;L.y=st.y+Math.sin(a)*p.rim;L.om=0;};}}
+    L0.follow=(L,d)=>{const rot=(L.rot=(L.rot||0)+(L.t>L.tele?p.om*d:0));const a=a0+rot;L.a=a;L.x=st.x+Math.cos(a)*p.rim;L.y=st.y+Math.sin(a)*p.rim;L.len=lateLine(A,L.x,L.y,a,L.w,p.ray);L.om=0;};}}
   // drift toward you, slower than you walk
   const dx=P.x-st.x,dy=P.y-st.y,l=Math.hypot(dx,dy);if(l>4){st.x+=dx/l*p.drift*dt;st.y+=dy/l*p.drift*dt;}st.m.x=st.x;st.m.y=st.y;
   if(I.t>=p.dur-.25&&!st.b){st.b=1;const off=Math.random()*TAU;for(let i=0;i<p.burst;i++)bhFire(I,st.x,st.y,off+i/p.burst*TAU,40,{r:2,spr:'bgrain',col:p.col,life:4});}}};
@@ -95,10 +95,10 @@ const ECLM=[];
 // washes in from every side, and at the last the dark closes to a ring and the mirror shatters into a final burst
 BHP.totality={fam:'sig',tags:['arena'],cost:()=>6,def:{dur:17,col:'#ff4060'},
  tick(I,dt){const p=I.p,A=I.A,t=I.t,st=I.st;
-  if(!st.c){st.c=1;const n=4;for(let i=0;i<n;i++){const a0=i/n*TAU;const L0=bhLaser({x:A.cx,y:A.cy,a:a0,len:300,w:7,tele:1.6,stay:13,col:p.col,dmg:15*((I.own&&I.own.dm)||1),own:I.own});L0.free=1;
-    L0.follow=(L,d)=>{const r=(L.rot=(L.rot||0)+(L.t>L.tele?(.32+.1*Math.min(1,Math.max(0,L.t-6)/4))*d:0));L.a=a0+r;L.x=A.cx+Math.cos(L.a)*16;L.y=A.cy+Math.sin(L.a)*16;L.om=0;};}}
-  if(t>1.8&&t<15&&every(I,'tide',dt,2.3))bhStart(I.own,'crescent',{waves:2,n:13,iv:.5,sp:66,t1:1.5,dur:1.4,col:'#ff8090'});
-  if(t>6&&t<14&&every(I,'sp',dt,.2)){const a=(st.a=(st.a||0)-.21);for(let i=0;i<2;i++)bhFire(I,A.cx,A.cy,a+i*Math.PI,34,{spr:'bstar',r:3,col:'#e8e8ff',life:6});}
+  if(!st.c){st.c=1;const n=3;for(let i=0;i<n;i++){const a0=i/n*TAU;const L0=bhLaser({x:A.cx,y:A.cy,a:a0,len:300,w:7,tele:1.6,stay:8.8,col:p.col,dmg:15*((I.own&&I.own.dm)||1),own:I.own});L0.free=1;
+    L0.follow=(L,d)=>{const r=(L.rot=(L.rot||0)+(L.t>L.tele?(.28+.08*Math.min(1,Math.max(0,L.t-6)/4))*d:0));L.a=a0+r;L.x=A.cx+Math.cos(L.a)*16;L.y=A.cy+Math.sin(L.a)*16;L.fixedLen=1;L.len=lateLine(A,L.x,L.y,L.a,L.w);L.om=0;};}}
+  if(t>3.6&&t<12.4&&every(I,'tide',dt,2.3))bhStart(I.own,'crescent',{waves:2,n:13,iv:.5,sp:66,t1:1.5,dur:1.4,col:'#ff8090'});
+  if(t>10.5&&t<14&&every(I,'sp',dt,.2)){const a=(st.a=(st.a||0)-.21);for(let i=0;i<2;i++)bhFire(I,A.cx,A.cy,a+i*Math.PI,34,{spr:'bstar',r:3,col:'#e8e8ff',life:6});}
   if(t>=15.5&&!st.f){st.f=1;const off=Math.random()*TAU,g=Math.atan2(P.y-A.cy,P.x-A.cx);for(let w=0;w<2;w++)for(let i=0;i<30;i++){const a=off+i/30*TAU;if(Math.abs(angDiff(a,g+w*.6))<.35)continue;bhFire(I,A.cx,A.cy,a,44+w*12,{spr:'bshard',r:3,col:'#ff4060',life:6});}}}};
 const GET_POOL={
  1:t=>[{n:'crescent',w:2.5,sig:1,gap:1.1,p:()=>({waves:3,n:15})},{n:'spiral',w:1,p:()=>({arms:4,spin:.24,rate:.11,sp:46,interlock:1,col:'#c8d0e0',dur:5})},{n:'aimed',w:1,p:()=>({mode:'predict',n:3,sp:100,iv:.5,vol:4,col:'#ff8090'})}],
@@ -110,18 +110,21 @@ const GET_POOL={
 // reversing spirals; she blinks between the moon's phases), SIGNATURE CLIMAX (TOTAL ECLIPSE, then everything).
 const getPhase=e=>{const f=e.hp/e.maxhp;return f>.72?1:f>.46?2:f>.2?3:4;};
 BKIT['GETSUREI, THE ECLIPSE PRIESTESS']={director:bossDirector,guide:['PRIESTESS OF THE BLACK MOON. SHE KEEPS THE SUN IN A MIRROR.','THE TIDE: CRESCENTS WASH IN, STOP, AND PULL BACK OUT. STAND WHERE THE WAVE HAS BEEN.','ECLIPSE: A BLACK MOON FOLLOWS YOU WITH A CORONA OF TURNING BEAMS. INSIDE THE BEAMS IS SAFE.','AT THE LAST, TOTAL ECLIPSE: THE CORONA FILLS THE ARENA.'],pref:100,gap:1,halfName:'THE MIRROR CRACKS - THE CORONA BLEEDS',noContact:true,
- events:[lateSurvival({at:.55,dur:18,name:'THE TIDE OF NIGHT',tier:4}),
+ events:[lateSurvival({at:.55,dur:14,name:'THE TIDE OF NIGHT',tier:4,start:lateClear}),
   {at:.2,dur:18,name:'TOTAL ECLIPSE',hint:'THE SUN GOES OUT - FOLLOW THE TIDE',survival:true,storm:1,
-   start(e,E){const A=arenaOf(e);E.home=freeSpot(e,A.cx,A.cy-30,e.r);bhStart(e,'totality',{dur:17.5});},
+   start(e,E){lateClear(e);const A=arenaOf(e);E.home=freeSpot(e,A.cx,A.cy-30,e.r);bhStart(e,'totality',{dur:17.5});},
    tick(e,dt,E){e.x+=(E.home.x-e.x)*Math.min(1,dt*3);e.y+=(E.home.y-e.y)*Math.min(1,dt*3);},
-   end(e,E){bhStop(e);}}],
+   end(e,E){lateClear(e);e.chartRest=1.8;}}],
  tick(e,dt,d,inEv){if(phaseGate(e,BKIT[e.name],dt))return true;const ph=getPhase(e);
-  if(!e.D||e.Dph!==ph){if(e.D)ldirStop(e.D);e.Dph=ph;const t=(e.lateTier||4)+(ph>=3?1:0);e.D=ldirNew(e,t,GET_POOL[ph](t),{maxLayers:ph<=2?2:3});
+  if(e.chartRest>0){e.chartRest-=dt;return true;}
+  if(!e.D||e.Dph!==ph){lateClear(e);e.Dph=ph;const t=(e.lateTier||4)+(ph>=3?1:0);e.D=ldirNew(e,t,GET_POOL[ph](t),{maxLayers:2});
    if(ph>1){txtFx(e.x,e.y-20,['','','THE ECLIPSE','THE TURNING TIDE','THE LAST NIGHT'][ph],ECL.c,1.6);sfx('boss');}}
+  if(e.D.rest>0){e.D.rest-=dt;return true;}
+  if(lateSignatureCycle(e,dt,e.D.pool[ph===1?0:1],8.8,1.65))return true;
   ldirTick(e.D,dt);lateBossMods(e,e.D,dt);
   const a=Math.atan2(P.y-e.y,P.x-e.x);if(ph>=3){e.blT=(e.blT==null?3.6:e.blT)-dt;if(e.blT<=0){e.blT=4;const A=arenaOf(e);const s=freeSpot(e,A.x0+30+Math.random()*(A.x1-A.x0-60),A.y0+30+Math.random()*(A.y1-A.y0-60),e.r);if(Math.hypot(s.x-P.x,s.y-P.y)>60){fxRing(e.x,e.y,16,ECL.c,.3);e.x=s.x;e.y=s.y;fxRing(e.x,e.y,16,ECL.c,.3);}}}
   defaultMove(e,dt,d,a,BKIT[e.name]);return true;},
- onDeath(e){bhStop(e);if(e.D)ldirStop(e.D);}};
+ onHalf:lateClear,reset:lateClear,onDeath:lateClear};
 // the eclipse mirror: a perfect dodge (a dash through a shot) returns the nearest enemy shot as a moon-bolt
 {const _u=updPlay;updPlay=function(dt){const r=_u.apply(this,arguments);if(!P||!R||!R.inv||!R.inv.eclipsemirror)return r;R.emT=Math.max(0,(R.emT||0)-dt);
  if(P.dash>0&&R.emT<=0){let best=null,bd=18;for(const q of projs){if(q.from!=='e'||q.dead)continue;const d=Math.hypot(q.x-P.x,q.y-P.y);if(d<bd){bd=d;best=q;}}

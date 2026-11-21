@@ -71,8 +71,9 @@ function drawRelicTab(){invRows=[];const ids=Object.keys(R.inv||{}).filter(k=>R.
  if(sr)cornerBox(sr.x-1,sr.y-1,18,18,'#ffd070');
  const x=IX+214,y=IY+14,w=IW-218,h=IH-16;ipanel(x,y,w,h);
  if(sr){const it=ITEMBY[sr.k],c=fxCol(sr.k);ctx.fillStyle=c;ctx.fillRect(x,y,w,1);relicBox(x+5,y+6,sr.k,13);wrapTxt(it.name,Math.floor((w-26)/4)).slice(0,2).forEach((l,i)=>txt(l,x+23,y+6+i*7,c));
-  txt(['COMMON','UNCOMMON','RARE','EPIC'][it.r||0]+' RELIC',x+5,y+24,'#998');let yy=y+34;for(const p of wrapTxt(it.d,Math.floor((w-10)/4))){txt(p,x+5,yy,'#ddd');yy+=7;}
-  txt('HELD '+R.inv[sr.k]+(R.inv[sr.k]>1?', STACKED':''),x+5,y+h-11,'#887');}
+  txt(['COMMON','UNCOMMON','RARE','LEGENDARY'][it.r||0]+' RELIC',x+5,y+24,'#998');let yy=y+34;for(const p of wrapTxt(it.d,Math.floor((w-10)/4))){txt(p,x+5,yy,'#ddd');yy+=7;}
+  txt('HELD '+R.inv[sr.k]+' | EFFECT '+cdPct(relicPower(sr.k)),x+5,y+h-19,'#aaa');
+  txt(relicLimit(sr.k)===1?'SINGLE COPY':'STACKS: 100% / 150% / 175%',x+5,y+h-10,'#887');}
  else txt('POINT AT A RELIC',x+5,y+5,'#666');
  return 'ARROWS MOVE';}
 // ---- the SPELLS tab: abilities with their scrolls, and the weapon's enchants

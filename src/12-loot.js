@@ -4,13 +4,13 @@
 // the six stats: a hero's base stats (balance) plus bonuses from relics, enchants and rings (see 177-stats.js).
 // The old stat potions (elixirs) are gone.
 const STATS=[{k:'att',n:'ATTACK',c:'#f55',d:'+1 SPELL POWER'},{k:'def',n:'DEFENSE',c:'#ccc',d:'-1 DAMAGE TAKEN'},{k:'spd',n:'SPEED',c:'#6cf',d:'+1% MOVE SPEED'},
- {k:'dex',n:'DEXTERITY',c:'#f9c',d:'+2% CAST SPEED'},{k:'vit',n:'VITALITY',c:'#f84',d:'+5 MAX HP'},{k:'wis',n:'WISDOM',c:'#a8f',d:'-1% COOLDOWNS'}],STATMAX=20;
+ {k:'dex',n:'DEXTERITY',c:'#f9c',d:'+2% CAST SPEED'},{k:'vit',n:'VITALITY',c:'#f84',d:'+5 MAX HP'},{k:'wis',n:'WISDOM',c:'#a8f',d:'-'+cdPct(COOLDOWN.wisdom)+' COOLDOWNS'}],STATMAX=20;
 // 15 material tiers per slot; quality (common..legendary) multiplies the base stats and adds affixes
 const GEARN={wpn:['BAMBOO','WILLOW','OAK','CEDAR','IRON','STEEL','SPIRIT','JADE','CORAL','MOON','STORM','PHOENIX','DRAGON','DIVINE','HEAVEN'],
  arm:['LINEN','HEMP','COTTON','SILK','PRIEST','MONK','ONMYO','SPIRIT','JADE','MOON','STORM','PHOENIX','DRAGON','DIVINE','CELESTIAL'],
  ring:['COPPER','TIN','BRONZE','SILVER','GOLD','JADE','PEARL','CORAL','OPAL','MOON','STORM','PHOENIX','DRAGON','DIVINE','HEAVEN']},TMAX=14;
 const QUAL=[{n:'COMMON',c:'#c8c8c8',m:1},{n:'UNCOMMON',c:'#5fd35f',m:1.15},{n:'RARE',c:'#4aa0ff',m:1.3},{n:'EPIC',c:'#c060ff',m:1.5},{n:'LEGENDARY',c:'#ffb020',m:1.7}];
-const AFX=[{k:'crit',d:'+8% CRIT'},{k:'aspd',d:'+12% CAST SPEED'},{k:'emb',d:'-10% COOLDOWNS'},{k:'vamp',d:'LIFESTEAL 2%'},{k:'qpow',d:'+30% Q POWER'},{k:'epow',d:'+25% R POWER'},{k:'iron',d:'-8% DAMAGE TAKEN'},{k:'ghost',d:'+6% DODGE'},{k:'magnet',d:'+15% GOLD'},{k:'shadow',d:'FASTER DASH'}];
+const AFX=[{k:'crit',d:'+8% CRIT'},{k:'aspd',d:'+12% CAST SPEED'},{k:'emb',d:'-'+cdPct(COOLDOWN.charm)+' COOLDOWNS'},{k:'vamp',d:'LIFESTEAL 2%'},{k:'qpow',d:'+30% Q POWER'},{k:'epow',d:'+25% R POWER'},{k:'iron',d:'-8% DAMAGE TAKEN'},{k:'ghost',d:'+6% DODGE'},{k:'magnet',d:'+15% GOLD'},{k:'shadow',d:'FASTER DASH'}];
 // enchants are run-wide boosts for the abilities (RMB Q E F R) - never the LMB, which comes from your weapon
 // ===== HOW THE POWER SYSTEMS DIFFER =====
 // WEAPON   decides HOW your LMB attacks (its shape).          GEAR (armour/ring) = plain numbers.
@@ -28,7 +28,7 @@ const FXK={fire:'fire',burn:'fire',frost:'frost',chill:'frost',shock:'storm',sto
  vamp:'heal',leech:'heal',blood:'heal',gourd:'heal',rez:'heal',phoenix:'heal',hunger:'heal',hp:'heal',
  aspd:'speed',cd:'speed',emb:'speed',spd:'speed',shadow:'speed',ecd:'speed',mikiri:'speed',
  iron:'guard',ghost:'guard',pos:'guard',parry:'guard',thorn:'guard',def:'guard',gale:'control',magnet:'wealth'};
-const fxStyle=k=>FXK[k]||'dmg',fxCol=k=>FXCOL[fxStyle(k)];
+const fxStyle=k=>Object.hasOwn(FXCOL,FXK[k])?FXK[k]:'dmg',fxCol=k=>FXCOL[fxStyle(k)];
 const ENCH=[{k:'fire',n:'FLAME',d:'ABILITY HITS MAY BURN'},{k:'frost',n:'FROST',d:'ABILITY HITS MAY CHILL'},{k:'shock',n:'STORM',d:'ABILITY HITS MAY SHOCK + ARC'},
  {k:'poison',n:'VENOM',d:'ABILITY HITS POISON'},{k:'blast',n:'BLAST',d:'ABILITY HITS SPLASH 30% AROUND'},{k:'leech',n:'LEECH',d:'ABILITY HITS HEAL 2% OF DAMAGE'},
  {k:'gale',n:'GALE',d:'ABILITY HITS SHOVE + 50% STUN'}];
@@ -41,7 +41,7 @@ function abFx(k){const a=(R&&R.addon&&R.addon[k])||{};
  return {burn:.35*enchN('fire')+(a.burn?1:0),chill:.3*enchN('frost')+(a.chill?1:0),shock:.2*enchN('shock')+(a.shock?1:0),poison:enchN('poison')||a.poison?1:0,
   blast:enchN('blast'),leech:enchN('leech'),gale:enchN('gale'),crit:.25*(a.crit||0)+(a.edge?.08:0),pierce:2*(a.pierce||0),cd:a.cd?1:0};}
 // rarity is gated by depth: epics from dungeon III, legendaries (named) only in gold bags
-function rollQ(di,bias){const w=[Math.max(12,60-6*di),28,8+2.5*di,2+2*di];let r=Math.random()*w.reduce((a,b)=>a+b,0),q=0;for(;q<3;q++){if((r-=w[q])<0)break;}q=clamp(q+(bias||0),0,3);if(di<2)q=Math.min(q,2);if(di<1&&!bias)q=Math.min(q,1);return q;}
+function rollQ(di,bias){const w=[Math.max(12,60-6*di),28,8+2.5*di,2+2*di];let r=Math.random()*w.reduce((a,b)=>a+b,0),q=0;for(;q<3;q++){if((r-=w[q])<0)break;}q=clamp(q+(bias||0),0,3);if(di<2)q=Math.min(q,2);if(di<1&&!bias||prologueLoot())q=Math.min(q,1);return q;}
 const tierFor=(di,b)=>clamp(Math.floor(di*1.35)+ri(0,1)+(b||0),0,TMAX);
 function gearVals(g){const t=g.tier,m=QUAL[g.q||0].m;return g.slot==='wpn'?{atk:Math.round((2+t*.9)*m)}:g.slot==='arm'?{hp:Math.round((6+t*4)*m),def:Math.round((1+t*.4)*m)}:{sv:Math.round((2+t*.5)*m)};}
 function gearLines(g){const v=gearVals(g),L=['T'+(g.tier+1)+' '+QUAL[g.q||0].n+' '+(g.slot==='wpn'?wtName(g):SLOTNAME[g.slot])];
@@ -54,12 +54,15 @@ const RARE=[
  {slot:'wpn',wt:'STAFF',n:'KESTREL ROD',fx:{crit:3},d:'+24% CRIT CHANCE'},{slot:'wpn',wt:'STAFF',n:'VOIDGLASS STAFF',fx:{flare:1,glass:1},d:'CRITS EXPLODE. +40% POWER, -25% HP'},
  {slot:'wpn',wt:'KATANA',n:'CRIMSON MOON KATANA',fx:{crit:2,vamp:1},d:'+16% CRIT. HITS HEAL 2%'},{slot:'wpn',wt:'NAGINATA',n:'THUNDERCLAP NAGINATA',fx:{shock:1,storm:1},d:'HITS SHOCK. +DMG VS SHOCKED'},
  {slot:'arm',n:'SHINOBI GARB',fx:{shadow:2,ghost:2},d:'FASTER DASH, 12% DODGE'},{slot:'arm',n:'CRANE CASTLE ARMOUR',fx:{iron:3},d:'-22% DAMAGE TAKEN'},
- {slot:'arm',n:'HIGH PRIEST VESTMENT',fx:{emb:2},d:'-19% COOLDOWNS'},{slot:'arm',n:'BLOOD ROBE',fx:{vamp:2},d:'SPELLS HEAL 4% OF DAMAGE'},
+ {slot:'arm',n:'HIGH PRIEST VESTMENT',fx:{emb:2},d:'-'+cdPct(1-Math.pow(1-COOLDOWN.charm,2))+' COOLDOWNS'},{slot:'arm',n:'BLOOD ROBE',fx:{vamp:2},d:'SPELLS HEAL 4% OF DAMAGE'},
  {slot:'ring',n:'RING OF ECHOES',fx:{echo:1},d:'SPELLS MAY CAST TWICE'},{slot:'ring',n:'FROSTBOUND BAND',fx:{frost:1,pierce:1},d:'SPELLS CHILL AND PIERCE'},
  {slot:'ring',n:'STORM SIGNET',fx:{shock:1,storm:1},d:'SPELLS SHOCK. ARC LIGHTNING'},{slot:'ring',n:'RING OF GREED',fx:{magnet:3,blood:1},d:'+GOLD, HEAL ON KILL'},
 ];
 const SLOTNAME={wpn:'STAFF',arm:'ROBE',ring:'RING'},GEARG={wpn:'/',arm:'V',ring:'O'};
 function mkGear(slot,tier,rare,q){
+ if(prologueLoot()){
+  slot=slot||pick(Object.keys(GEARN));q=Math.min(q??(rare?1:rollQ(R?R.di:0,0)),1);rare=false;
+ }
  tier=clamp(tier,0,TMAX);const g={t:'gear',slot,tier,rare:!!rare,q:rare?4:(q==null?rollQ(R?R.di:0,0):q),aff:[],ench:[]};
  if(rare){const opts=RARE.filter(x=>!slot||x.slot===slot),r=pick(opts);Object.assign(g,{slot:r.slot,name:r.n,fx:r.fx,rd:r.d});g.tier=Math.min(TMAX,tier+1);}
  if(g.slot==='wpn')g.wt=rare&&RARE.find(x=>x.n===g.name).wt||rollWT(); // weapon type: decides the LMB attack
@@ -138,37 +141,44 @@ function itemName(it){return it.t==='ench'?'ENCHANT '+ENCH.find(x=>x.k===it.k).n
 function itemCol(it){if(it.t==='gear')return QUAL[it.q||0].c;if(it.t==='ench')return ENCH.find(x=>x.k===it.k).c;return it.t==='scroll'?(it.regular?'#93d6de':Math.floor(time*4)%2?'#ffe060':'#fff'):it.t==='hp'?'#e33':it.t==='stat'?STATS.find(s=>s.k===it.s).c:it.t==='relic'?RCOL[ITEMBY[it.id].r]:it.rare?'#fd4':'#ddd';}
 // bag tiers: 0 brown (common), 1 purple (potions/gear), 2 gold (rare gear)
 function bagContents(tier,boss){
- const di=R.di,it=[],slot=()=>pick(['wpn','arm','ring']),gear=(b,q)=>mkGear(slot(),tierFor(di,b),false,q==null?rollQ(di,0):q);
+ const pro=prologueLoot();
+ if(pro)tier=Math.min(tier,1);
+ const di=R.di,it=[],addRelic=chance=>{if(Math.random()<chance)it.push({t:'relic',id:randItem(['rez'],0,2).id});},slot=()=>pick(['wpn','arm','ring']),gear=(b,q)=>mkGear(slot(),tierFor(di,b),false,q==null?rollQ(di,0):q);
  if(tier===1||tier===2){ // green pack / blue satchel: a decent piece of gear plus extras
-  it.push(gear(0,rollQ(di,tier-1)));if(Math.random()<.1)it.push({t:'hp'});if(tier===2&&Math.random()<.3)it.push(statSwap());if(Math.random()<.1*tier)it.push(mkEnch());if(tier===2&&Math.random()<.14)it.push({t:'scroll',regular:true});}
+  it.push(gear(0,boss&&pro?1:rollQ(di,tier-1)));if(Math.random()<.1)it.push({t:'hp'});if(tier===2)addRelic(.04);if(!pro&&Math.random()<.1*tier)it.push(mkEnch());if(tier===2&&Math.random()<.14)it.push({t:'scroll',regular:true});}
  else if(tier===0){ // brown: 1-3 small things
-  if(Math.random()<.08)it.push({t:'hp'});if(Math.random()<.45||!it.length)it.push(gear(-1,rollQ(di,-1)));if(di>=1&&Math.random()<.08)it.push(mkEnch());}
+  if(Math.random()<.08)it.push({t:'hp'});if(Math.random()<.45||!it.length)it.push(gear(-1,rollQ(di,-1)));if(!pro&&di>=1&&Math.random()<.08)it.push(mkEnch());}
  else if(tier===3){ // purple: 2-4 things, better gear
-  it.push(gear(0,rollQ(di,1)));if(Math.random()<.45)it.push(statSwap());if(Math.random()<.3)it.push(mkEnch());if(Math.random()<.2)it.push({t:'relic',id:randItem(['rez']).id});if(Math.random()<.15)it.push({t:'hp'});}
+  it.push(gear(0,rollQ(di,1)));addRelic(.08);if(Math.random()<.3)it.push(mkEnch());if(Math.random()<.15)it.push({t:'hp'});}
  else if(tier===5){ // enchanter pouch: two different enchants, sometimes a scroll
   const a=mkEnch();let b=mkEnch();for(let i=0;i<5&&b.k===a.k;i++)b=mkEnch();it.push(a,b);if(Math.random()<.04)it.push({t:'scroll'});}
- else if(tier===6){ // scholar case: a guaranteed legendary scroll and an elixir
-  it.push({t:'scroll'},statSwap());if(Math.random()<.3)it.push({t:'relic',id:randItem(['rez']).id});}
- else if(tier===7){ // war chest: two epic pieces, one of them a weapon
+ else if(tier===6){ // scholar case: a guaranteed legendary scroll and a small relic chance
+  it.push({t:'scroll'});addRelic(.12);}
+ else if(tier===WAR_CHEST){ // war chest: two epic pieces, one of them a weapon
   it.push(mkGear('wpn',tierFor(di,1),false,3),gear(1,3));}
- else if(tier===8){ // shogun's trophy (the usual boss bag): two epics, maybe a scroll and an enchant, an elixir
-  it.push(mkGear('wpn',tierFor(di,1),false,3),gear(1,3),statSwap());if(Math.random()<.07)it.unshift({t:'scroll'});if(Math.random()<.5)it.push(mkEnch());if(!it.some(o=>o.t==='scroll')&&Math.random()<.45)it.push({t:'scroll',regular:true});}
- else if(tier===9){ // jade casket: an epic ring and elixirs
-  it.push(mkGear('ring',tierFor(di,1),false,3),statSwap());if(Math.random()<.4)it.push(statSwap());}
- else if(tier===10){ // monk's bundle: relics, sometimes a potion
-  const a=randItem(['rez']);it.push({t:'relic',id:a.id});if(Math.random()<.5)it.push({t:'relic',id:randItem(['rez',a.id]).id});if(Math.random()<.3)it.push({t:'hp'});}
+ else if(tier===8){ // shogun's trophy (the usual boss bag): two epics, with chances for a scroll, enchant or relic
+  it.push(mkGear('wpn',tierFor(di,1),false,3),gear(1,3));addRelic(.12);if(Math.random()<.07)it.unshift({t:'scroll'});if(Math.random()<.5)it.push(mkEnch());if(!it.some(o=>o.t==='scroll')&&Math.random()<.45)it.push({t:'scroll',regular:true});}
+ else if(tier===9){ // jade casket: an epic ring and a small relic chance
+  it.push(mkGear('ring',tierFor(di,1),false,3));addRelic(.12);}
+ else if(tier===10){ // monk's bundle: a potion or a relic
+  addRelic(.25);if(!it.length)it.push({t:'hp'});}
  else if(tier===11){ // assassin kit: an epic weapon of ANY type (off-class finds) and an enchant
   const g=mkGear('wpn',tierFor(di,1),false,3);g.wt=pick(Object.keys(WTYPES));g.name=QUAL[3].n+' '+GEARN.wpn[g.tier]+' '+g.wt;it.push(g,mkEnch());}
+ else if(tier===ECHO_CACHE){
+  const roll=Math.random();
+  it.push(roll<.04?mkGear(null,tierFor(di,1),true):gear(0,roll<.16?3:roll<.62?2:1));
+ }
  else{ // royal bag (super rare, white): always a named legendary, plus extras
   it.push(mkGear(null,tierFor(di,1),true));
-  if(Math.random()<.5)it.push(statSwap());
+  addRelic(.12);
   if(Math.random()<(boss?.2:.08))it.unshift({t:'scroll'});
-  if(boss){it.push(mkGear('wpn',tierFor(di,1),false,Math.min(3,1+rollQ(di,0))),mkEnch(),{t:'hp'},statSwap());}}
+  if(boss){it.push(mkGear('wpn',tierFor(di,1),false,Math.min(3,1+rollQ(di,0))),mkEnch(),{t:'hp'});}}
  return it;
 }
 // bag tiers: 0 sack, 1 pack (green), 2 satchel (blue), 3 pouch (purple), 4 royal bag (gold)
 const BAGCOL=['#c8995a','#6ac85a','#5aa0f0','#b070f0','#fff4c0','#5ad8c8','#e05060','#c8d0e0','#e05040','#6ad89a','#f8c060','#9a7ad0'],
- BAGN=['SACK','PACK','SATCHEL','POUCH','ROYAL BAG','ENCHANTER POUCH','SCHOLAR CASE','WAR CHEST',"SHOGUN'S TROPHY",'JADE CASKET',"MONK'S BUNDLE",'ASSASSIN KIT'],GOLDBAG=4,TROPHY=8;
+ BAGN=['SACK','PACK','SATCHEL','POUCH','ROYAL BAG','ENCHANTER POUCH','SCHOLAR CASE','WAR CHEST',"SHOGUN'S TROPHY",'JADE CASKET',"MONK'S BUNDLE",'ASSASSIN KIT'],GOLDBAG=4,WAR_CHEST=7,TROPHY=8,ECHO_CACHE=12;
+const minibossBag=()=>Math.random()<.10?GOLDBAG:WAR_CHEST;
 // a random "good" bag (epics, enchants, scrolls, relics). The white royal bag is NOT in this pool: it is super rare.
 // the scholar case (a guaranteed legendary scroll) is the rarest of these
 const goodBag=()=>wpick([{t:3,wt:5},{t:5,wt:2},{t:6,wt:.15},{t:7,wt:2},{t:9,wt:2},{t:10,wt:2},{t:11,wt:2}]).t;
@@ -182,7 +192,7 @@ function dropBag(x,y,tier,boss){const a=Math.random()*TAU,s=rnd(15,35);
 function bagLand(k){const c=BAGCOL[k.tier];spark(k.x,k.y,k.tier===0?'#8a7a60':c,k.tier===4?16:6,k.tier===4?70:40);
  if(k.tier===4){fxRing(k.x,k.y,22,'#ffd040',.4);fxRing(k.x,k.y,12,'#fff',.25);shake=Math.max(shake,3);sfx('coin');}}
 const nearBag=()=>{let best=null,bd=14;for(const k of pickups){if(k.k!=='bag'||k.dead)continue;const d=dist(k,P);if(d<bd){bd=d;best=k;}}return best;};
-function lootBag(b){ // potions, elixirs and empty gear slots are automatic; build choices wait for input
+function lootBag(b){ // potions and empty gear slots are automatic; build choices wait for input
  if(!b.opened){for(const it of b.items)if(it.t==='gear'&&it.rare)codexAdd('gear',it.name);b.opened=true;b.pop=.25;spark(b.x,b.y,BAGCOL[b.tier],b.tier===4?40:10,b.tier===4?140:60);
   if(b.tier===4){spark(b.x,b.y,'#fff',16,100);fxRing(b.x,b.y,34,'#ffd040',.5);fxRing(b.x,b.y,20,'#fff',.3);sfx('rare');hitstop=Math.max(hitstop,.06);}}
  for(let i=b.items.length-1;i>=0;i--){const it=b.items[i];let took=false;
@@ -281,10 +291,10 @@ function renderLootConfirm(){
 // ---- legendary scrolls: choose 1 of 3. REPLACE swaps a slot's whole spell; ADD-ON keeps it and stacks an effect on top ----
 // scroll add-ons are guaranteed and only for the chosen slot (unlike enchants, which are chances on every ability)
 const ADDONS=[{k:'burn',n:'ALWAYS BURNS',tier:3},{k:'chill',n:'ALWAYS CHILLS',tier:3},{k:'shock',n:'ALWAYS SHOCKS + ARCS',tier:3},{k:'poison',n:'ALWAYS POISONS',tier:3},
- {k:'crit',n:'+25% CRIT CHANCE',tier:3},{k:'pierce',n:'SHOTS PIERCE +2',tier:2},{k:'cd',n:'COOLDOWN -40%',tier:3},{k:'emp',n:'EMPOWERED: +60% POWER -30% COOLDOWN',tier:4}];
+ {k:'crit',n:'+25% CRIT CHANCE',tier:3},{k:'pierce',n:'SHOTS PIERCE +2',tier:2},{k:'cd',n:'COOLDOWN -'+cdPct(COOLDOWN.scroll),tier:3},{k:'emp',n:'EMPOWERED: +60% POWER -'+cdPct(COOLDOWN.empowered)+' COOLDOWN',tier:4}];
 const TECHNIQUES=[
  {k:'focus',n:'+10% ABILITY POWER',tier:1,c:'#93d6de'},
- {k:'tempo',n:'12% SHORTER COOLDOWN',tier:1,c:'#93d6de'},
+ {k:'tempo',n:cdPct(COOLDOWN.tempo)+' SHORTER COOLDOWN',tier:1,c:'#93d6de'},
  {k:'edge',n:'+8% CRIT CHANCE',tier:1,c:'#93d6de'}
 ];
 ADDONS.forEach(a=>a.c=fxCol(a.k));
@@ -412,7 +422,7 @@ function drawInv(){
 // rare gear sets: wear 2 or 3 pieces of one set for extra powers
 const SETS={
  INFERNO:{c:'#f84',items:['PLAGUE LOTUS STAFF','BLOOD ROBE','STORM SIGNET'],b2:{qpow:1},d2:'+30% Q POWER',b3:{flare:1,storm:1},d3:'CRITS EXPLODE, +20% VS BURN/SHOCK'},
- MOON:{c:'#8cf',items:['MOONLIT WAND','HIGH PRIEST VESTMENT','RING OF ECHOES'],b2:{emb:1},d2:'-10% COOLDOWNS',b3:{echo:2},d3:'SPELLS ECHO FAR MORE OFTEN'},
+ MOON:{c:'#8cf',items:['MOONLIT WAND','HIGH PRIEST VESTMENT','RING OF ECHOES'],b2:{emb:1},d2:'-'+cdPct(COOLDOWN.charm)+' COOLDOWNS',b3:{echo:2},d3:'SPELLS ECHO FAR MORE OFTEN'},
  SHINOBI:{c:'#c8f',items:['KESTREL ROD','SHINOBI GARB','FROSTBOUND BAND'],b2:{shadow:1},d2:'FASTER DASH',b3:{crit:2,ghost:1},d3:'+16% CRIT, +6% DODGE'},
  CRANE:{c:'#fd4',items:['VOIDGLASS STAFF','CRANE CASTLE ARMOUR','RING OF GREED'],b2:{iron:1},d2:'-8% DAMAGE TAKEN',b3:{vamp:2,blood:1},d3:'LIFESTEAL, HEAL ON KILL'}};
 const setOf=g=>g&&g.rare?Object.keys(SETS).find(k=>SETS[k].items.includes(g.name)):null;

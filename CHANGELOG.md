@@ -1,5 +1,24 @@
 # Changelog
 
+## 0.8.13: Late-game guardian fights
+
+- Reworked the Stage XV fight with telegraphed bullet rows, visible safe lanes, a red-lantern reversal, and a three-part finale.
+- Added clipped Mooring Cut warnings and a stationary attack window when Sazanami lowers his lantern.
+- Hoshiyomi and Getsurei open each attack cycle with a signature, layer supporting patterns, and give players a stationary recovery window. Their Abyss versions keep their modifiers.
+- Both Nebari and Ruri variants now combine staged volleys with their arena rules. Their low-health sequences build in distinct beats. The optional Shardsmith gains a follow-up volley when her panes link.
+- Fixed the Lacquer Seal icon and a reward-screen drawing error that could enlarge the dungeon and HUD over the reward cards. Boss-exclusive relics stay out of random loot.
+- Hero unlock banners wait until after the player chooses a boss reward.
+- The three prologues now award common and uncommon loot. Players keep their inventory into Stage I.
+- Prologue III has one prisoner rescue with a potion reward. The healer restores 25% max HP at campfires, and the peddler gives 30 gold and a 10% shop discount.
+- The Wizard can move during ultimate wind-ups.
+- Reduced cooldown bonuses from the skill tree, relics, gear, scrolls, shrines, and Daily pacts. Stacked bonuses can lower ability cooldowns by up to 25%. Grazes, perfect dodges, Echo Mind, and kills refund less time.
+- Smoothed camera scrolling while walking diagonally on keyboard and touch.
+- Gave Master Kaito a dedicated sprite in camp and training, and reduced Genji’s campfire size.
+- Lair minibosses and the Moth Queen have a 10% chance to drop legendary loot. Otherwise, they drop a war chest with two epic items.
+- Guardian Echoes can recur among regular enemies in later dungeons after their guardian is beaten. Echoes award 4% Legendary and 12% Epic loot.
+- Reduced relics from random bags and chests. Shops and shrines each offer at most one relic trade per stage. Duplicate relic effects scale to 150% and 175%, with single-copy limits on special relics.
+- Documented attack patterns for the rest of Chapter II and recorded the keyboard and touch playtest results.
+
 ## 0.8.12: The fork beneath Still Water and mobile fullscreen
 
 - The campfire after XV offers two roads into XVI, with keyboard and touch controls. Checkpoints retain the chosen road.

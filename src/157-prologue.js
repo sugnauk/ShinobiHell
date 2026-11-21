@@ -46,7 +46,15 @@ const proToast=()=>setToast('PROLOGUE '+PROROMAN[PROCUR.n-1]+' - '+PROCUR.dun.na
 {const _cr=continueRun;continueRun=function(){const s=savedRun();if(s&&s.R&&s.R.pro)PROQ=s.R.pro|0||1;const r=_cr.apply(this,arguments);PROQ=false;return r;};}
 // the campfire after each prologue's boss leads on to the next prologue, and after the last one to stage I
 {const _om=openMaster;openMaster=function(){if(!(R&&R.pro))return _om.apply(this,arguments);proOff();const r=_om.apply(this,arguments);if(CS){CS.next=0;CS.line=PROCUR.master;CS.pro=R.pro;}if(R.pro<PROS.length)R.proNext=R.pro+1;return r;};}
-{const _ld=loadDungeon;loadDungeon=function(di){if(R&&R.pro&&!PRO_ON){if(R.proNext&&!di){const n=R.proNext;R.proNext=0;proOn(n);R.pro=n;const r=_ld.apply(this,arguments);proToast();return r;}R.pro=0;R.proNext=0;R.proDone=1;}return _ld.apply(this,arguments);};}
+{const _ld=loadDungeon;loadDungeon=function(di){
+ if(R&&R.pro&&!PRO_ON){
+  if(R.proNext&&!di){const n=R.proNext;R.proNext=0;proOn(n);R.pro=n;const r=_ld.apply(this,arguments);proToast();return r;}
+  R.pro=0;R.proNext=0;R.proDone=1;
+ }
+ // The dungeon loader saves the checkpoint before startRun returns.
+ if(R&&PRO_ON)R.pro=PROCUR.n;
+ return _ld.apply(this,arguments);
+};}
 // only the last prologue's guardian makes you grow, so you still reach stage I one form up
 {const _ob=onBossDead;onBossDead=function(e){const r=_ob.apply(this,arguments);if(R&&R.pro&&R.pro<PROS.length)R.evoPending=false;return r;};}
 {const _rm=renderMaster;renderMaster=function(){_rm.apply(this,arguments);if(!CS||!CS.pro)return;ctx.fillStyle='#100d18';ctx.fillRect(0,4,W*.6,10);txt('PROLOGUE '+PROROMAN[(CS.pro||1)-1]+'. '+PROS[(CS.pro||1)-1].dun.name,11,6,'#d5b48f');};}

@@ -18,11 +18,12 @@ const out=await p.evaluate(([heroes,stages,touch,seed])=>{meta.trained=true;meta
   for(let i=0;i<300;i++)update(1/60);const e=boss;const r={stage:ROMAN[di]+' '+(e?e.name:'?'),hero:hk};if(!e){res.push(r);continue;}
   const SRC={};const _hp=hitPlayer;hitPlayer=function(raw,x,y,o){const h0=P.hp;const r=_hp.apply(this,arguments);const d=h0-P.hp;if(d>0){const k=o&&o.bullet?'bullets':(o&&o.peril)?'warning shapes':'contact/other';const m=BMK.find(m=>m.fired&&m.t>-.05&&inShape(m,P.x,P.y));const kk=m?(m.neb?'bloom':m.k==='cone'?'sweep':m.k):k;SRC[kk]=(SRC[kk]||0)+Math.round(d/S.maxhp*100);}return r;};
   const A=arenaOf(e);let t=0,taken=0,lowest=1,mires=0,warnOut=0,minEsc=9,half=-1,ev=-1;const seen=new Set();
+  const ferry=e.name===FERRY.name?{peakRowShots:0,cueCount:0}:null,seenCues=new Set();
   const melee=['samurai','sumo','lancer','kagura','bellwarden','shinobi'].includes(hk);
   while(t<300&&!e.dead){let dx=0,dy=0;
    // Headless updates skip renderPlay, which normally moves the camera for the touch targeting check.
    cam.x=Math.round(isoX(P.x,P.y)-W/2);cam.y=Math.round(isoY(P.x,P.y)-(H/2+6));
-   for(const m of BMK){if(m.fired)continue;if(!seen.has(m)){seen.add(m);if(m.glassLine){
+   for(const m of BMK){if(m.fired)continue;if(!seen.has(m)){seen.add(m);if(m.k==='l'&&(m.glassLine||m.ferryCheck||m.lateCheck)){
      const dx=Math.cos(m.a),dy=Math.sin(m.a),pad=m.w/2;
      for(let j=0;j<=12;j++){
       const x=m.x+dx*m.len*j/12,y=m.y+dy*m.len*j/12;
@@ -31,14 +32,15 @@ const out=await p.evaluate(([heroes,stages,touch,seed])=>{meta.trained=true;meta
      minEsc=Math.min(minEsc,m.dur-(pad+4)/(78*(CLS().spd||1)));
     }
     if(m.k==='c'){
-     // The approach can have its own panes. Only warnings cast by the guardian must fit the boss room.
-     const approachPane=m.glassPlate&&!m.src;
-     if(!approachPane&&(m.x-m.r<A.x0-2||m.x+m.r>A.x1+2||m.y-m.r<A.y0-2||m.y+m.r>A.y1+2))warnOut++;
-     if(m.lacquer||m.glassPlate)for(let i=0;i<16;i++){
+     // Approach panes and vents are room hazards and can fire outside the boss arena.
+     const approachHazard=!m.src&&(m.glassPlate||m.neb);
+     if(!approachHazard&&(m.x-m.r<A.x0-2||m.x+m.r>A.x1+2||m.y-m.r<A.y0-2||m.y+m.r>A.y1+2))warnOut++;
+     if(m.lacquer||m.glassPlate||m.ferryCheck||m.lateCheck||m.neb&&m.src)for(let i=0;i<16;i++){
       const a=i/16*TAU;
       if(solid(m.x+Math.cos(a)*m.r,m.y+Math.sin(a)*m.r)){warnOut++;break;}
      }
-     const mg=m.t-(m.lacquer?.24:0)-(m.r+(m.lacquer||m.glassPlate?4:0))/((m.lacquer||m.glassPlate?78*(CLS().spd||1):90)*(m.neb?.55:1));
+     const fullSpeed=m.lacquer||m.glassPlate||m.ferryCheck||m.lateCheck;
+     const mg=m.t-(m.lacquer?.24:0)-(m.r+(fullSpeed?4:0))/((fullSpeed?78*(CLS().spd||1):90)*(m.neb?.55:1));
      if(m.t>m.dur-.05&&mg<minEsc){minEsc=mg;window.WORST={r:m.r,t:+m.t.toFixed(2),neb:!!m.neb,dmg:m.dmg,col:m.col,inSilt:typeof nebSoftAt!=="undefined"&&nebSoftAt(P.x,P.y)};}
     }}
     const near=inShape(m,P.x,P.y)||(m.k==='c'&&Math.hypot(P.x-m.x,P.y-m.y)<m.r+10)||(m.k==='cone'&&inShape(Object.assign({},m,{r:m.r+10,arc:m.arc+.4}),P.x,P.y));
@@ -57,6 +59,14 @@ const out=await p.evaluate(([heroes,stages,touch,seed])=>{meta.trained=true;meta
     }
     if(typeof NEB!=='undefined'&&e.name===NEB.name&&e.half&&!melee&&BMK.some(m=>m.k==='l'&&!m.fired)){const mound=NEB.pools.filter(q=>q.hard).sort((a,b)=>Math.hypot(a.x-P.x,a.y-P.y)-Math.hypot(b.x-P.x,b.y-P.y))[0];
      if(mound){const ux=mound.x-e.x,uy=mound.y-e.y,l=Math.hypot(ux,uy)||1;dx=mound.x+ux/l*20-P.x;dy=mound.y+uy/l*20-P.y;}}}
+   if(ferry){
+    const cue=(e.EV||e.A)?.cue;
+    if(cue){
+     if(!seenCues.has(cue)){seenCues.add(cue);ferry.cueCount++;}
+     if(Math.abs(P.y-cue.y)>cue.gap/2-9){dx*=.25;dy+=Math.sign(cue.y-P.y)*2;}
+    }
+    ferry.peakRowShots=Math.max(ferry.peakRowShots,projs.filter(q=>q.own===e&&q.ferryRow&&!q.dead).length);
+   }
    // stay inside the arena
    if(P.x<A.x0+12)dx+=1;if(P.x>A.x1-12)dx-=1;if(P.y<A.y0+12)dy+=1;if(P.y>A.y1-12)dy-=1;
    if(e.di===RURI_I&&(P.x<A.x0||P.x>A.x1||P.y<A.y0||P.y>A.y1)){dx=A.cx-P.x;dy=A.cy-P.y;}
@@ -70,6 +80,7 @@ const out=await p.evaluate(([heroes,stages,touch,seed])=>{meta.trained=true;meta
    const hp0=P.hp;update(1/60);t+=1/60;if(P.hp<hp0)taken+=hp0-P.hp;lowest=Math.min(lowest,P.hp/S.maxhp);if(P.hp<S.maxhp*.25)P.hp=S.maxhp;
    if(e.mireT>0&&!e._m){e._m=1;mires++;}if(!(e.mireT>0))e._m=0;if(e.half&&half<0)half=Math.round(t);if(e.EV&&ev<0)ev=Math.round(t);}
   hitPlayer=_hp;r.bySource=SRC;stop();mouse.down=false;TOUCH=false;
+  if(ferry)r.ferry=ferry;
   Object.assign(r,{touch,bossHpLeft:Math.round(Math.max(0,e.hp)/e.maxhp*100)+"%",won:!!e.dead,secs:Math.round(t),dmgTaken:Math.round(taken/S.maxhp*100)+'% max hp',deaths:Math.floor(taken/S.maxhp),half,ev,mires,warnOut,minEscapeMargin:+minEsc.toFixed(2),worst:window.WORST});window.WORST=null;res.push(r);}
  Math.random=random;return res;},[heroes,stages,touch,seed]);
 for(const r of out)console.log(JSON.stringify(r));console.log(errs.slice(0,5).join('\n')||'no errors');await b.close();})();

@@ -23,9 +23,9 @@ const TREE=[
   {k:'iron',n:'IRON SKIN',d:'+1 DEFENCE PER RANK',base:70,max:5,req:['pos',3]},
   {k:'res',n:'SECOND WIND',d:'+1 RESURRECTION PER RANK',base:300,max:2,req:['iron',2]}]},
  {n:'SPIRIT',c:'#40c0ff',nodes:[
-  {k:'emb',n:'FOCUS',d:'-4% COOLDOWNS PER RANK',base:35,max:8},
+  {k:'emb',n:'FOCUS',d:'-'+cdPct(COOLDOWN.focusRank)+' COOLDOWNS PER RANK',base:35,max:8},
   {k:'swift',n:'SWIFT FEET',d:'+3% MOVE SPEED PER RANK',base:50,max:5,req:['emb',2]},
-  {k:'dashm',n:'DASH MASTERY',d:'-8% DASH COOLDOWN PER RANK',base:110,max:3,req:['swift',2]},
+  {k:'dashm',n:'DASH MASTERY',d:'-'+cdPct(COOLDOWN.dashRank)+' DASH COOLDOWN PER RANK',base:110,max:3,req:['swift',2]},
   {k:'flow',n:'PERFECT FORM',d:'PERFECT DODGES HEAL 3% HP PER RANK',base:280,max:2,req:['dashm',2]}]},
  {n:'FORTUNE',c:'#ffd040',nodes:[
   {k:'sen',n:'GREED',d:'+10% GOLD PER RANK',base:50,max:8},
@@ -233,7 +233,7 @@ function masterCamp(t,accent){
   ctx.fillStyle=i%2?'#f4a854':'#ffde98';ctx.fillRect(x,y,1,1);
  }
  shadow(91,134,29);shadow(226,134,29);
- drawSpr({...heroSpr('wizard',9),sc:2},91,134,false,WIZ.idle[Math.floor(time*2.5)%2],false);
+ drawKaito(91,134,2);
  const elapsed=time-CS.pageAt,change=CS.step===1,form=change&&elapsed<.32?CS.from:P.evo||0;
  const hero={...heroSpr(CLS().k,form),sc:2},frame=WIZ.idle[Math.floor(time*2.5)%2];
  drawSpr(hero,226,134,false,frame,true);
@@ -286,7 +286,7 @@ const BAGDESC=['A COMMON ITEM OR TWO','A DECENT PIECE OF GEAR','GEAR, MAYBE A RE
 const TERMS=[['FOCUS (SHIFT)','HOLD SHIFT TO MOVE SLOWLY. YOUR HITBOX SHRINKS','AND SHOWS AS A DOT. USE IT TO THREAD TIGHT BULLETS'],
  ['HITBOX','ONLY THE SMALL DOT AT YOUR CHEST CAN BE HIT.','YOUR HAT, WEAPON AND ROBE NEVER COUNT'],
  ['DASH (SPACE)','A QUICK SIDESTEP. YOU CANNOT BE HIT WHILE','DASHING. IT RECHARGES IN UNDER A SECOND'],
- ['PERFECT DODGE','DASH THROUGH A SHOT JUST AS IT HITS: NEARBY','BULLETS SHATTER. REFUNDS UP TO 0.15S ON DASH AND 0.2S ON ABILITIES','AND YOUR NEXT ATTACK IS EMPOWERED'],
+ ['PERFECT DODGE','DASH THROUGH A SHOT JUST AS IT HITS: NEARBY','BULLETS SHATTER. REFUNDS UP TO 0.08S ON DASH AND 0.10S ON ABILITIES','AND YOUR NEXT ATTACK IS EMPOWERED'],
  ['GRAZE','BULLETS THAT BRUSH PAST YOU CUT YOUR COOLDOWNS'],
  ['STUN','THE YELLOW BAR UNDER A FOE. HITS FILL IT. A FULL','BAR STUNS THEM: STUNNED FOES TAKE +50% DAMAGE'],
  ['DEATHBLOW','WITH THE EXECUTIONER MARK RELIC, HITTING A','STUNNED FOE KILLS IT (BOSSES LOSE 3% HP)'],
@@ -294,7 +294,7 @@ const TERMS=[['FOCUS (SHIFT)','HOLD SHIFT TO MOVE SLOWLY. YOUR HITBOX SHRINKS','
  ['SURVIVAL PHASE','WHEN A BOSS CHANGES PHASE IT TURNS INVULNERABLE,','HOLDS STILL AND FIRES EVERYTHING. JUST SURVIVE'],
  ['RED CIRCLES','TELEGRAPHED STRIKES. THEY CANNOT BE WARDED.','GET OUT BEFORE THEY BURST'],
  ['CURSE','TAKE +25% DAMAGE, DEAL +30%, PER CURSE, ALL RUN.','YOUR NEXT KILL DROPS A RARE BAG'],
- ['EMPOWERED','+60% POWER AND -30% COOLDOWN FOR ONE SLOT'],
+ ['EMPOWERED','+60% POWER AND -'+cdPct(COOLDOWN.empowered)+' COOLDOWN FOR ONE SLOT'],
  ['SIGNATURE WEAPON','YOUR CLASS WEAPON TYPE: +25% LMB DAMAGE'],
  ['EFFECT COLOURS','RED DAMAGE, GREEN HEAL, ORANGE FIRE, ICE FROST,','YELLOW STORM, LIME POISON, CYAN SPEED, STEEL GUARD'],
  ['STRENGTH I - IV','I IS A CHANCE OR SMALL. IV IS HUGE'],
@@ -314,7 +314,7 @@ const TERMS=[['FOCUS (SHIFT)','HOLD SHIFT TO MOVE SLOWLY. YOUR HITBOX SHRINKS','
  ['CAST SPEED','HOW FAST YOU ATTACK. +12% CAST SPEED MEANS YOUR LMB FIRES 12% MORE OFTEN AND YOUR RMB HEAVY RECHARGES 12% FASTER. IT DOES NOT CHANGE Q, E, F OR R: FOR THOSE SEE COOLDOWNS'],
  ['CAST TWICE / ECHO','A CHANCE FOR A SPELL OR HIT TO GO OFF A SECOND TIME FOR FREE'],
  ['CHILL','SLOWS A FOE FOR 3 SECONDS, MORE WITH EACH STACK. 3 CHILLS = FREEZE'],
- ['COOLDOWNS','THE WAIT BEFORE Q, E, F AND R CAN BE USED AGAIN. -10% COOLDOWNS MAKES THAT WAIT 10% SHORTER'],
+ ['COOLDOWNS','THE WAIT BEFORE Q, E, F AND R CAN BE USED AGAIN. STACKED BONUSES CAN CUT UP TO 25% FROM THAT WAIT'],
  ['CRIT','CRITICAL HIT: A CHANCE FOR A HIT TO DEAL DOUBLE DAMAGE. CRITS FLASH YELLOW'],
  ['DAMAGE TAKEN','-8% DAMAGE TAKEN CUTS EVERY HIT YOU TAKE BY 8%. DEFENSE TAKES A FLAT 1 OFF PER POINT. LIMITS: DEFENSE NEVER CUTS A HIT BELOW 60%, AND ALL YOUR CUTS TOGETHER STOP AT -45%'],
  ['DODGE','UP TO 30% CHANCE TO IGNORE A HIT. RED CIRCLES BYPASS THIS CHANCE'],
@@ -352,7 +352,7 @@ function guideEntries(tab){const g=meta.guide||{},has=(c,k)=>!!(g[c]&&g[c][k]);
   ...BAGN.map((nm,t)=>{const u=has('b',t);return {n:nm,u,col:BAGCOL[t],bag:t,L:u?[BAGDESC[t]||'']:['OPEN ONE TO LEARN WHAT IT HOLDS']};})];
  if(tab===4)return [...ENCH.map(E=>{const u=has('n',E.k);return {n:'ENCHANT '+E.n,u,col:E.c,L:u?[E.d,'A CHANCE ON EVERY ABILITY HIT (RMB Q E F R)','BOUND TO YOUR WEAPON: SWAP WEAPONS AND THEY STAY','ON THE OLD ONE. STACKS (II, III...), UP TO 5']:['FIND THIS ENCHANT TO LEARN ABOUT IT']};}),
   {n:'TECHNIQUE SCROLL',u:has('s','technique'),col:'#93d6de',L:has('s','technique')?['ADD A SMALL POWER, COOLDOWN OR CRIT BONUS','TO ONE ABILITY FOR THE REST OF THE RUN']:['FIND A TECHNIQUE SCROLL TO LEARN MORE']},
-  {n:'LEGENDARY SCROLL',u:has('s','scroll'),col:'#ffe060',L:has('s','scroll')?['PICK 1 OF 3: ADD A GUARANTEED EFFECT TO AN ABILITY.','EVERY PICK ALSO EMPOWERS THAT SLOT (+60% POWER, -30% COOLDOWN).','RARELY, ONE CARD OFFERS AN ABILITY\'S LEGENDARY FORM: IT CHANGES','THE WHOLE ABILITY AND ADDS ANOTHER +30% POWER']:['FIND A SCROLL TO LEARN ABOUT IT']},
+  {n:'LEGENDARY SCROLL',u:has('s','scroll'),col:'#ffe060',L:has('s','scroll')?['PICK 1 OF 3: ADD A GUARANTEED EFFECT TO AN ABILITY.','EVERY PICK ALSO EMPOWERS THAT SLOT (+60% POWER, -'+cdPct(COOLDOWN.empowered)+' COOLDOWN).','RARELY, ONE CARD OFFERS AN ABILITY\'S LEGENDARY FORM: IT CHANGES','THE WHOLE ABILITY AND ADDS ANOTHER +30% POWER']:['FIND A SCROLL TO LEARN ABOUT IT']},
   ...Object.keys(CURSES).map(k=>{const C=CURSES[k],u=has('c',k);return {n:'CURSE: '+C.n,u,col:C.c,L:u?C.L.map(l=>l.s).concat(['STACKS. LASTS THE RUN. A CRANE SHRINE CAN LIFT IT']):['ACCEPT THIS CURSE AT A CURSED ALTAR TO LEARN IT']};}),
   ...Object.keys(GODS).map(k=>{const D=GODS[k],u=has('g',k);return {n:D.n,u,col:D.c,L:u?[D.sub].concat(D.O.map(o=>o.t+': '+o.d)):['VISIT THIS SHRINE TO LEARN ITS OFFERINGS']};})];
  if(tab===5)return STATS.map(s=>{const u=true;return {n:s.n,u,col:s.c,L:u?[s.d+' PER POINT','EVERY HERO STARTS WITH SOME. RAISED BY RELICS, ENCHANTS AND RINGS']:['EVERY HERO STARTS WITH SOME. RELICS, ENCHANTS AND RINGS RAISE IT']};});
@@ -419,16 +419,21 @@ function renderChoose(){
  const cw=92,gap=8,x0=Math.round((W-(3*cw+2*gap))/2);
  chooseOpts.forEach((it,i)=>{const x=x0+i*(cw+gap),y=44,h=92,hov=mouse.x>=x&&mouse.x<=x+cw&&mouse.y>=y&&mouse.y<=y+h;
   ctx.fillStyle=hov?'#2a1a30':'#160e1a';ctx.fillRect(x,y,cw,h);ctx.fillStyle=RCOL[it.r];ctx.fillRect(x,y,cw,1);ctx.fillRect(x,y+h-1,cw,1);ctx.fillRect(x,y,1,h);ctx.fillRect(x+cw-1,y,1,h);
-  ctx.save();ctx.translate(x+cw/2-13,y+12);ctx.scale(2,2);relicBox(0,0,it.id);ctx.restore();
+  ctx.save();
+  try{ctx.translate(x+cw/2-13,y+12);ctx.scale(2,2);relicBox(0,0,it.id);}
+  finally{ctx.restore();}
   txt('['+(i+1)+']',x+cw/2-6,y+4,'#aaa');
-  const nm=fxLabel(it.name,it.r+1);ctxt2(nm.length>22?nm.slice(0,22):nm,x,cw,y+44,fxCol(it.id));wrapTxt(it.d,22).slice(0,2).forEach((l,j)=>ctxt2(l,x,cw,y+56+j*8,'#ddd'));ctxt2(FXNAME[fxStyle(it.id)]+' RELIC',x,cw,y+74,fxCol(it.id));ctxt2(['COMMON','UNCOMMON','RARE','LEGENDARY'][it.r],x,cw,y+82,'#777');});
+  const nm=fxLabel(it.name,it.r+1);ctxt2(nm.length>22?nm.slice(0,22):nm,x,cw,y+44,fxCol(it.id));wrapTxt(relicMaxed(it.id)?'MAXED. +'+relicSurplusGold(it.id)+' GOLD':it.d,22).slice(0,2).forEach((l,j)=>ctxt2(l,x,cw,y+56+j*8,'#ddd'));ctxt2(FXNAME[fxStyle(it.id)]+' RELIC',x,cw,y+74,fxCol(it.id));ctxt2(['COMMON','UNCOMMON','RARE','LEGENDARY'][it.r],x,cw,y+82,'#777');});
 }
 function ctxt2(s,x,w,y,c){txt(s,Math.round(x+(w-txtW(s))/2),y,c);}
 function render(){
- setView(mode==='play'||mode==='choose'||mode==='scroll'||mode==='lootConfirm'||mode==='event');
+ const world=mode==='play'||mode==='choose'||mode==='scroll'||mode==='lootConfirm'||mode==='event';
+ setView(world,world?WORLD_SCALE:1);
  ctx.imageSmoothingEnabled=false;
- if(mode==='title')renderTitle();else if(mode==='options')renderOptions();else if(mode==='guide')renderGuide();else if(mode==='master')renderMaster();else if(mode==='select')renderSelect();else if(mode==='tut')renderTut();else if(mode==='hub')renderHub();else if(mode==='play')renderPlay();else if(mode==='choose')renderChoose();else if(mode==='scroll')renderScroll();else if(mode==='lootConfirm')renderLootConfirm();else if(mode==='event')renderEvent();else renderEnd();
- drawDbg();drawCursor();
+ drawInView(()=>{
+  if(mode==='title')renderTitle();else if(mode==='options')renderOptions();else if(mode==='guide')renderGuide();else if(mode==='master')renderMaster();else if(mode==='select')renderSelect();else if(mode==='tut')renderTut();else if(mode==='hub')renderHub();else if(mode==='play')renderPlay();else if(mode==='choose')renderChoose();else if(mode==='scroll')renderScroll();else if(mode==='lootConfirm')renderLootConfirm();else if(mode==='event')renderEvent();else renderEnd();
+  drawDbg();drawCursor();
+ });
 }
 // one cursor for every screen: crosshair while fighting, an arrow on menus, pause and the backpack
 function drawCursor(){const mx=Math.round(mouse.x),my=Math.round(mouse.y);
@@ -456,7 +461,7 @@ const OPTROWS=()=>[
  {n:'SUGGESTIONS',v:()=>OPT().sugg===0?'OFF':'ON',info:()=>'A STAR MARKS A GOOD PICK FOR YOUR HERO ON REWARD CARDS AND IN THE SHOP',ch:()=>{OPT().sugg=OPT().sugg===0?1:0;}},
  {n:'DANGER WARNINGS',v:()=>OPT().bold?'BOLD':'NORMAL',info:()=>'BOLD: A PULSING RING SHOWS EACH FOE ATTACK AS IT WINDS UP, AND GROUND DANGERS ARE EASIER TO SEE',ch:()=>{OPT().bold=OPT().bold?0:1;}},
  {n:'FULLSCREEN',v:()=>OPT().fs===0?'OFF':'ON',info:()=>'FILL THE WHOLE SCREEN (ESC OR F11 LEAVES IT FOR NOW)',ch:()=>{OPT().fs=OPT().fs===0?1:0;goFullscreen(OPT().fs!==0);}},
- {n:'VIEW ZOOM',v:()=>['NEAR','NORMAL','FAR'][OPT().zoom==null?1:OPT().zoom],info:()=>'HOW MUCH OF THE DUNGEON YOU SEE AROUND YOU',ch:d=>{OPT().zoom=clamp((OPT().zoom==null?1:OPT().zoom)+d,0,2);W=0;setView(VIEWWIDE);}},
+ {n:'VIEW ZOOM',v:()=>['NEAR','NORMAL','FAR'][OPT().zoom==null?1:OPT().zoom],info:()=>'HOW MUCH OF THE DUNGEON YOU SEE AROUND YOU',ch:d=>{OPT().zoom=clamp((OPT().zoom==null?1:OPT().zoom)+d,0,2);W=0;setView(VIEWWIDE,viewScale);}},
  {n:'SCREEN SHAKE',v:()=>OPT().shake?'ON':'OFF',ch:()=>{OPT().shake^=1;}},
  {n:'SCREEN FLASHES',v:()=>OPT().flash?'ON':'OFF',ch:()=>{OPT().flash^=1;}},
  {n:'BULLET CONTRAST',v:()=>OPT().bcon?'ON':'OFF',info:()=>'ENEMY BULLETS GET A DARK RIM AND A BRIGHT CORE SO THEY STAND OUT ON BUSY FLOORS',ch:()=>{OPT().bcon^=1;}},
@@ -525,7 +530,7 @@ const TUT=[
  {t:'EFFECT COLOURS',c:'#ff5050',l:[{s:'RED      DAMAGE - CRIT, POWER, PIERCE, BLAST',c:'#ff5050'},{s:'GREEN    HEAL - LEECH, LIFESTEAL, REVIVES',c:'#50e060'},{s:'ORANGE   FIRE - BURNS',c:'#ff8a30'},
   {s:'ICE      FROST - CHILLS, 3 CHILLS FREEZE',c:'#80d0ff'},{s:'YELLOW   STORM - SHOCKS AND ARCS',c:'#ffe040'},{s:'LIME     POISON',c:'#a0ff40'},{s:'CYAN     SPEED - COOLDOWNS, DASH, MOVE',c:'#40e0e0'},
   {s:'STEEL    GUARD - DEFENCE, DODGE, STUN RESIST',c:'#b0b8d0'},{s:'I - IV   STRENGTH: I IS A CHANCE, IV IS HUGE',c:'#fff'}]},
- {t:'FIVE KINDS OF POWER',c:'#ffe060',l:['WEAPON   SETS HOW YOUR LMB ATTACKS','         (SWEEP, BEAM, VOLLEY, BELL...)','GEAR     ARMOUR AND RINGS: NUMBERS ONLY','ENCHANT  ON-HIT EFFECT FOR EVERY ABILITY','         (RMB Q E F R) - A CHANCE, MAX 3','SCROLL   REWRITES ONE ABILITY: REPLACE IT,','         OR A GUARANTEED ADD-ON','RELIC    A RULE FOR THE WHOLE RUN','         (BOSS REWARDS, SHOPS, SHRINES)']},{t:'DODGING',c:'#8cf',l:['EVERY PATTERN HAS A GAP - FIND IT','SHIFT IN COMBAT: FOCUS - SLOW, TINY HITBOX','DASH 3 TIMES IN A ROW OUT OF COMBAT: SPEED BOOST','DASH THROUGH A SHOT AS IT HITS:','  PERFECT DODGE - NEARBY BULLETS SHATTER','  DASH REFUNDS UP TO 0.15S. NEXT ATTACK EMPOWERED','GRAZING SHOTS CUTS COOLDOWNS','MINES BLINK BEFORE THEY BURST','SPIRALS AND RINGS ROTATE - MOVE WITH THEM']},
+ {t:'FIVE KINDS OF POWER',c:'#ffe060',l:['WEAPON   SETS HOW YOUR LMB ATTACKS','         (SWEEP, BEAM, VOLLEY, BELL...)','GEAR     ARMOUR AND RINGS: NUMBERS ONLY','ENCHANT  ON-HIT EFFECT FOR EVERY ABILITY','         (RMB Q E F R) - A CHANCE, MAX 3','SCROLL   REWRITES ONE ABILITY: REPLACE IT,','         OR A GUARANTEED ADD-ON','RELIC    A RULE FOR THE WHOLE RUN','         (BOSS REWARDS, SHOPS, SHRINES)']},{t:'DODGING',c:'#8cf',l:['EVERY PATTERN HAS A GAP - FIND IT','SHIFT IN COMBAT: FOCUS - SLOW, TINY HITBOX','DASH 3 TIMES IN A ROW OUT OF COMBAT: SPEED BOOST','DASH THROUGH A SHOT AS IT HITS:','  PERFECT DODGE - NEARBY BULLETS SHATTER','  DASH REFUNDS UP TO 0.08S. NEXT ATTACK EMPOWERED','GRAZING SHOTS CUTS COOLDOWNS','MINES BLINK BEFORE THEY BURST','SPIRALS AND RINGS ROTATE - MOVE WITH THEM']},
  {t:'STUN',c:'#fd4',l:['EVERY HIT FILLS THE YELLOW STUN BAR','A FULL BAR STUNS THE ENEMY','','STUNNED ENEMIES TAKE +50% DAMAGE','THE EXECUTIONER MARK RELIC TURNS HITS','INTO DEATHBLOWS (BOSSES LOSE 3% HP)','','SHIELD BEARERS BLOCK SHOTS FROM THE FRONT.','STUN THEM, FLANK THEM OR USE LIGHTNING']},
  {t:'ELEMENTS',c:'#f80',l:['BURN, POISON, CHILL AND SHOCK STACK ON FOES','','BURN + SHOCK = OVERLOAD: AN EXPLOSION','BURN + POISON = BOTH DEAL 50% MORE','3 CHILLS = FROZEN. HIT A FROZEN FOE TO','SHATTER IT FOR 50% BONUS DAMAGE','','FLAME WAVE BURNS. CHAIN LIGHTNING SHOCKS.','ITEMS CAN ADD ELEMENTS TO EVERY SPELL']},
  {t:'ROOMS AND EVENTS',c:'#c6f',l:['GOLD    TREASURE CHEST (BEWARE AMBUSHES)','BLUE    SHOP - RELICS AND A PRICEY POTION','PURPLE  SHRINE - RISKY OFFERINGS','GREEN   SPRING - A RARE CHANCE TO HEAL','ORANGE  ELITE - A TOUGH FOE WITH A MODIFIER','RED     SPIKE TRAPS - WATCH THE FLOOR','','ROOMS APPEAR ON THE MINIMAP ONCE SEEN']},

@@ -78,14 +78,14 @@ const LZ=[];
 function bhLaser(o){const L=Object.assign({x:0,y:0,a:0,len:400,max0:420,w:6,tele:.8,stay:1.2,om:0,col:'#80d0ff',dmg:12,t:0,own:null,follow:null},o);L.len=L.len||400;LZ.push(L);return L;}
 function lzEnd(L){return [L.x+Math.cos(L.a)*L.len,L.y+Math.sin(L.a)*L.len];}
 function lzHits(L,x,y,pad){const dx=x-L.x,dy=y-L.y,c=Math.cos(L.a),s=Math.sin(L.a),u=dx*c+dy*s,v=-dx*s+dy*c;return u>=0&&u<=L.len&&Math.abs(v)<=L.w/2+(pad||0);}
-function lzTick(dt){for(const L of LZ){L.t+=dt;if(L.own&&L.own.dead&&!L.free){L.dead=1;continue;}if(L.follow)L.follow(L,dt);
+function lzTick(dt){for(const L of LZ){if(L.dead)continue;L.t+=dt;if(L.own&&L.own.dead&&!L.free){L.dead=1;continue;}if(L.follow)L.follow(L,dt);
   // the beam stops at walls
   if(!L.fixedLen){let d=8;const c=Math.cos(L.a),s=Math.sin(L.a);while(d<L.max0&&!solid(L.x+c*d,L.y+s*d))d+=6;L.len=d;}
   const live=L.t>=L.tele;if(live)L.a+=L.om*dt;
-  if(live&&L.t<L.tele+L.stay&&P&&P.hp>0&&!(P.dying>0)&&P.dash<=0&&P.iv<=0&&lzHits(L,P.x,P.y,1.5))hitPlayer(L.dmg,P.x,P.y,{src:L.own,pd:12,bullet:true});
+  if(live&&L.len>0&&L.t<L.tele+L.stay&&P&&P.hp>0&&!(P.dying>0)&&P.dash<=0&&P.iv<=0&&lzHits(L,P.x,P.y,1.5))hitPlayer(L.dmg,P.x,P.y,{src:L.own,pd:12,bullet:true});
   if(L.t>=L.tele+L.stay+.15)L.dead=1;}
  for(let i=LZ.length-1;i>=0;i--)if(LZ[i].dead)LZ.splice(i,1);}
-function lzDraw(){for(const L of LZ){const [ex,ey]=lzEnd(L),X0=sx(L.x,L.y),Y0=sy(L.x,L.y)-6,X1=sx(ex,ey),Y1=sy(ex,ey)-6;
+function lzDraw(){for(const L of LZ){if(L.dead||L.len<=0)continue;const [ex,ey]=lzEnd(L),X0=sx(L.x,L.y),Y0=sy(L.x,L.y)-6,X1=sx(ex,ey),Y1=sy(ex,ey)-6;
  if(L.t<L.tele){const k=L.t/L.tele;ctx.globalAlpha=(Math.floor(time*(10+k*20))%2?.85:.35);ctx.strokeStyle=L.col;ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(X0,Y0);ctx.lineTo(X1,Y1);ctx.stroke();
   // the warning widens to the beam's width as it gets ready
   ctx.globalAlpha=.18*k;ctx.lineWidth=Math.max(1,L.w*k);ctx.beginPath();ctx.moveTo(X0,Y0);ctx.lineTo(X1,Y1);ctx.stroke();}
@@ -142,7 +142,10 @@ BHP.radialaim={fam:'radial',tags:['radial','aimed'],cost:()=>3,def:{cnt:18,sp:42
 BHP.aimed={fam:'aimed',tags:['aimed'],cost:p=>({direct:1,predict:1.5,successive:2,fan:1.5,trap:2}[p.mode]||1.5),def:{mode:'direct',n:3,sp:96,spread:.1,iv:.55,vol:4,dur:3,col:'#fff0c0',spr:'bcomet',r:2,delay:.9},
  tick(I,dt){const p=I.p,x=bhOX(I),y=bhOY(I);
   if(p.mode==='trap'){if(!every(I,'e',dt,p.iv))return;// the spot you are on now erupts a moment later: keep moving
-   const tx=P.x,ty=P.y;mark({k:'c',x:tx,y:ty,r:12,t:p.delay,dmg:0,col:p.col,quiet:1,on(){for(let i=0;i<8;i++){const a=i/8*TAU;projs.push(bhNew(tx,ty,a,52,(p.dmg||10)*((I.own&&I.own.dm)||1),{r:2,col:p.col,spr:'bgrain',own:I.own,life:3}));}}});return;}
+   const {x:tx,y:ty}=latePoint(I.A,P.x,P.y,12);mark({k:'c',x:tx,y:ty,r:12,t:p.delay,dmg:0,col:p.col,quiet:1,src:I.own,lateCheck:true,on(){
+    for(let i=0;i<8;i++)bhFire(I,tx,ty,i/8*TAU,52,{r:2,col:p.col,spr:'bgrain',life:3});
+    bhCommit(I);
+   }});return;}
   if(!every(I,'e',dt,p.iv))return;if((I.st.v=(I.st.v||0)+1)>p.vol)return;
   let pa=paim(x,y);
   if(p.mode==='predict'){const V=BHT.pv,d=Math.hypot(P.x-x,P.y-y),tt=d/p.sp;pa=Math.atan2(P.y+V.vy*tt*.8-y,P.x+V.vx*tt*.8-x);}
@@ -186,8 +189,9 @@ BHP.arena={fam:'arena',tags:p=>({laser:['arena'],rotlasers:['arena'],wall:['zone
    if(!every(I,'e',dt,p.iv))return;for(let s=0;s<2;s++){const side=(Math.random()*4)|0,f=.1+Math.random()*.8;const pts=[[A.x0+f*(A.x1-A.x0),A.y0,Math.PI/2],[A.x0+f*(A.x1-A.x0),A.y1,-Math.PI/2],[A.x0,A.y0+f*(A.y1-A.y0),0],[A.x1,A.y0+f*(A.y1-A.y0),Math.PI]][side];
     for(const o of [-.1,0,.1])bhFire(I,pts[0],pts[1],pts[2]+o,p.sp,{spr:'bshard'});}return;}
   if(p.mode==='sequence'){// hazard circles erupt one after another along a path, herding you across the room
-   if(!every(I,'e',dt,p.iv*1.6))return;const k=(I.st.k=(I.st.k||0)+1),a=I.st.a=(I.st.a==null?Math.random()*TAU:I.st.a+.9),d=40+k%3*18,tx=clamp(P.x+Math.cos(a)*10,A.x0+10,A.x1-10),ty=clamp(P.y+Math.sin(a)*10,A.y0+10,A.y1-10);
-   mark({k:'c',x:tx,y:ty,r:22,t:1.1,dmg:(p.dmg||12)*((I.own&&I.own.dm)||1),col:p.col,src:I.own});return;}}};
+   if(!every(I,'e',dt,p.iv*1.6))return;const a=I.st.a=(I.st.a==null?Math.random()*TAU:I.st.a+.9);
+   const {x:tx,y:ty}=latePoint(A,P.x+Math.cos(a)*10,P.y+Math.sin(a)*10,22);
+   mark({k:'c',x:tx,y:ty,r:22,t:1.1,dmg:(p.dmg||12)*((I.own&&I.own.dm)||1),col:p.col,src:I.own,lateCheck:true});return;}}};
 // the runner ticks with the game, and lasers draw above the sprites and below the bullets
 // it runs on game time (inside updPlay), so slow motion, hitstop, pauses and freezes all apply to it
 {const _up=updPlay;updPlay=function(dt){const r=_up.apply(this,arguments);try{if(P&&!(P.dying>0)&&freezeT<=0)bhTick(dt);}catch(err){console.error(err);}return r;};}

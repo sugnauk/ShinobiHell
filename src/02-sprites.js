@@ -321,6 +321,54 @@ function buildHero(EV,star,back){const stage=star?9:0;
  return {c:sheet,wc:whiteOf(sheet),fw:FW,fh:FH,frames:N,sc:1,ok:true};
 }
 const WIZSPR=WIZEVO.map((_,i)=>buildWiz(i));
+// Master Kaito wears a rust haori and carries a wooden practice sword. Two idle frames.
+const KAITO_SPR=(()=>{
+ const fw=28,fh=30,c=mk(fw*2,fh,()=>{}),sheet=c.getContext('2d');
+ for(let frame=0;frame<2;frame++){
+  const hi=mk(fw*2,fh*2,g=>{
+   g.scale(2,2);
+   const rect=(col,x,y,w,h)=>{g.fillStyle=col;g.fillRect(x,y,w,h);};
+   const poly=(col,points)=>{
+    g.fillStyle=col;g.beginPath();g.moveTo(...points[0]);
+    for(const point of points.slice(1))g.lineTo(...point);
+    g.closePath();g.fill();
+   };
+   const b=frame;
+   // Sandals and the pleats of his hakama.
+   rect('#472e26',7,26,6,2);rect('#694336',15,26,6,2);
+   rect('#c5a17e',8,26,3,1);rect('#d4ad83',18,26,2,1);
+   poly('#252936',[[8,18],[18,18],[20,26],[15,27],[13,23],[12,27],[6,26]]);
+   poly('#454858',[[9,20],[11,20],[10,25],[8,26]]);
+   poly('#5d5460',[[15,19],[17,20],[18,25],[17,26]]);
+   // Worn haori, wrapped collar and tucked sleeves.
+   poly('#733331',[[8,11+b],[12,10+b],[17,11+b],[20,14+b],[18,20],[7,20],[5,16+b]]);
+   poly('#a9523e',[[8,12+b],[12,11+b],[14,15],[11,19],[7,19],[6,16+b]]);
+   poly('#bc6b4b',[[17,12+b],[19,13+b],[21,16+b],[18,18],[16,16]]);
+   poly('#ddd0ae',[[11,11+b],[13,12+b],[16,16],[17,13+b],[18,14+b],[16,18],[14,17]]);
+   rect('#c8945d',8,19,10,1);rect('#593b38',13,19,2,2);
+   rect('#d28b61',8,15+b,1,2);rect('#e1a272',7,16+b,1,1);
+   // The wooden sword leans forward as his grip shifts.
+   poly('#573724',[[20,26],[19,25],[23,7+b],[25,7+b],[25,9+b],[22,20]]);
+   poly('#b27b48',[[20,24],[23.5,8+b],[24.5,8+b],[23,15+b],[21,24]]);
+   rect('#493533',20,16+b,3,2);rect('#cb8e64',19,16+b,2,2);
+   rect('#edbf8c',19,16+b,1,1);
+   // Silver hair swept into a knot, strong brows and a short moustache.
+   rect('#4c4a55',8,3+b,4,4);rect('#b4b4ad',9,2+b,3,3);rect('#e3ddd0',10,2+b,2,1);
+   poly('#756b70',[[9,5+b],[12,3+b],[16,4+b],[18,6+b],[17,10+b],[11,11+b],[9,8+b]]);
+   poly('#d9d3c6',[[10,5+b],[13,4+b],[16,5+b],[17,6+b],[13,6+b],[11,8+b],[10,8+b]]);
+   poly('#c68e69',[[12,7+b],[17,6+b],[17,8+b],[18,9+b],[17,11+b],[15,13+b],[12,11+b]]);
+   rect('#efd1a0',14,7+b,3,1);rect('#423036',15,8+b,2,1);
+   rect('#934f47',17,9+b,1,1);rect('#e8dfc8',14,10+b,3,1);rect('#875f55',15,11+b,2,1);
+   rect('#959097',10,7+b,2,3);rect('#8d5e51',11,9+b,1,2);
+  });
+  const frameArt=mk(fw,fh,g=>{g.imageSmoothingEnabled=false;g.drawImage(hi,0,0,fw,fh);});
+  sheet.drawImage(outlined(frameArt),frame*fw,0);
+ }
+ return {c,wc:whiteOf(c),fw,fh,frames:2,sc:1,ok:true};
+})();
+function drawKaito(x,y,scale,flip=false){
+ drawSpr({...KAITO_SPR,sc:scale},x,y,false,Math.floor(time*2.5)%2,flip);
+}
 // power from everything you've picked up this run; the wizard evolves at each threshold
 // one evolution after every boss
 function evolve(){const st=Math.min(WIZEVO.length-1,(P.evo||0)+1);if(st===(P.evo||0))return;P.evo=st;P.evoT=1.2;P.hp=Math.min(S.maxhp,P.hp+S.maxhp*.25);

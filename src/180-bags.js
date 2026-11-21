@@ -11,7 +11,7 @@ const BAGNAMES=['COMMON BAG','UNCOMMON BAG','RARE BAG','EPIC BAG','LEGENDARY BAG
 // the rarity of one item, 0 common .. 4 legendary
 function itemRarity(it){if(!it)return 0;
  if(it.t==='gear')return it.rare?4:Math.max(0,Math.min(4,it.q|0));
- if(it.t==='relic'){const r=ITEMBY[it.id];return r?Math.min(4,(r.r|0)+1):1;}
+ if(it.t==='relic'){const r=ITEMBY[it.id];return r?(prologueLoot()&&r.r<2?r.r:Math.min(4,(r.r|0)+1)):1;}
  if(it.t==='scroll')return it.regular?2:4;
  if(it.t==='ench')return 2;
  return 0;}

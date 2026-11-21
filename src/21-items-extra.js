@@ -8,7 +8,7 @@ ITEMS.push(
  {id:'shock',name:'STATIC SEAL',d:'EVERY HIT MAY SHOCK AND ARC',g:'Q',r:1},
  {id:'qpow',name:'ARCANE FOCUS',d:'+30% Q DAMAGE',g:'1',r:0},
  {id:'epow',name:'DRAGON SCALE',d:'+25% ULTIMATE POWER',g:'2',r:1},
- {id:'ecd',name:'SOUL EATER',d:'KILLS CHARGE ULT MORE',g:'3',r:1},
+ {id:'ecd',name:'SOUL EATER',d:'+'+(COOLDOWN.kill*COOLDOWN.soulEater).toFixed(1)+'S ULT REFUND PER KILL, UP TO 3 STACKS',g:'3',r:1},
  {id:'vamp',name:'BLOOD PACT',d:'EVERY HIT HEALS 2% OF DAMAGE',g:'4',r:1},
  {id:'glass',name:'GLASS CANNON',d:'+40% POWER, -25% HP',g:'5',r:2},
  {id:'storm',name:'THUNDER DRUM',d:'+20% DMG TO BURNING/SHOCKED',g:'9',r:2},

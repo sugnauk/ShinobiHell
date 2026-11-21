@@ -16,7 +16,7 @@ function loop(now){
   while(gap>0){const step=Math.min(MAX_STEP,gap);gap-=step;update(step/1000);}
   if(lastDraw!==null&&lastDraw<now&&meta.opt.dbg)DBG.fps=DBG.fps*.95+(1000/(now-lastDraw))*.05;
   lastDraw=now;render();
- }catch(e){console.error(e);ctx.fillStyle='#000';ctx.fillRect(0,0,W,H);txt('ERROR: '+e.message,4,4,'#f55');}
+ }catch(e){console.error(e);drawInView(()=>{ctx.fillStyle='#000';ctx.fillRect(0,0,W,H);txt('ERROR: '+e.message,4,4,'#f55');});}
 }
 requestAnimationFrame(loop);
 // debug hook for testing

@@ -75,7 +75,7 @@ function tickMarks(dt){for(const m of BMK){
   else{m.stay-=dt;if(m.sdmg&&P.hp>0&&P.dash<=0&&inShape(m,P.x,P.y))hitPlayer(m.sdmg,P.x,P.y,{peril:true,src:m.src});if(m.stay<=0)m.dead=1;}}
  for(let i=BMK.length-1;i>=0;i--)if(BMK[i].dead)BMK.splice(i,1);}
 // draw in world space: the iso projection is affine, so canvas paths can be drawn straight in world coordinates
-function worldXf(){ctx.setTransform(RA-RD,ISOK*(RA+RD),RB-RE,ISOK*(RB+RE),RC-RF+VOFF-cam.x,ISOK*(RC+RF)-cam.y);}
+function worldXf(){ctx.transform(RA-RD,ISOK*(RA+RD),RB-RE,ISOK*(RB+RE),RC-RF+VOFF-cam.x,ISOK*(RC+RF)-cam.y);}
 function shapePath(m,k){ctx.beginPath();k=k==null?1:k;switch(m.k){
  case 'c':ctx.arc(m.x,m.y,Math.max(.1,m.r*k),0,TAU);break;
  case 'l':{const c=Math.cos(m.a),s=Math.sin(m.a),L=m.len*k,w=m.w/2;ctx.moveTo(m.x-s*w,m.y+c*w);ctx.lineTo(m.x-s*w+c*L,m.y+c*w+s*L);ctx.lineTo(m.x+s*w+c*L,m.y-c*w+s*L);ctx.lineTo(m.x+s*w,m.y-c*w);ctx.closePath();break;}
@@ -182,16 +182,17 @@ function survivalPressure(e,E,dt){
  E.edgeTime=far||nearWall?(E.edgeTime||0)+dt:0;
  if(E.edgeTime<.65)return;
  E.edgeTime=0;E.edgeCd=1.7;
- const col=BC.aim,t=.95;
- mark({k:'c',x,y,r:24,t,col,dmg:13*e.dm,src:e,survival:E,quiet:true,on:()=>{
-  fxRing(x,y,26,col,.32);sfx('beat');
+ const col=BC.aim,t=.95,late=e.di>CAMPAIGN_END;
+ const {x:tx,y:ty}=late?latePoint(A,x,y,24):{x,y};
+ mark({k:'c',x:tx,y:ty,r:24,t,col,dmg:13*e.dm,src:e,survival:E,quiet:true,lateCheck:late,on:()=>{
+  fxRing(tx,ty,26,col,.32);sfx('beat');
   if(eShots()>210*BHK())return;
   // Aim from a nearby clear lane so a pillar cannot absorb the whole volley.
-  const toward=aimAt({x,y},A.cx,A.cy);
+  const toward=aimAt({x:tx,y:ty},A.cx,A.cy);
   for(const offset of [0,1,-1,2,-2]){
-   const a=toward+offset*.65,ox=x+Math.cos(a)*92,oy=y+Math.sin(a)*92;
-   if(ox<A.x0||ox>A.x1||oy<A.y0||oy>A.y1||blocked(ox,oy,4)||!los(ox,oy,x,y))continue;
-   bfan(e,ox,oy,Math.atan2(y-oy,x-ox),3,.38,108,8,{r:2,col,life:1.7});break;
+   const a=toward+offset*.65,ox=tx+Math.cos(a)*92,oy=ty+Math.sin(a)*92;
+   if(ox<A.x0||ox>A.x1||oy<A.y0||oy>A.y1||blocked(ox,oy,4)||!los(ox,oy,tx,ty))continue;
+   bfan(e,ox,oy,Math.atan2(ty-oy,tx-ox),3,.38,108,8,{r:2,col,life:1.7});break;
   }
  }});
 }

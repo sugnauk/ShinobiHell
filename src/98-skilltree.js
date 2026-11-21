@@ -6,19 +6,19 @@
 const STB=[
  {n:'WAR',c:'#ff5050',old:['atk','crit','bossd','wrath'],st:[{pow:.03},{crit:.02},{boss:.04}],ks:[['BERSERKER','+25% DAMAGE WHILE BELOW HALF HEALTH'],['EXECUTIONER','+40% DAMAGE TO FOES BELOW 25% HEALTH']]},
  {n:'BLADE',c:'#e8eef6',st:[{near:.05},{aspd:.03},{def:1}],ks:[['IAIDO MASTER','+25% DAMAGE TO FOES CLOSE TO YOU. BLADES CUT 3 MORE BULLETS A SECOND'],['BLADE DANCE','YOUR DASH SLASHES EVERYTHING AROUND YOU']]},
- {n:'SPIRIT',c:'#40c0ff',old:['emb','swift','dashm','flow'],st:[{cdr:.025},{spd:.025},{dash:.05}],ks:[['MOMENTUM','UNHIT FOR 2S: +20% DAMAGE AND +10% SPEED'],['TIME WEAVER','-20% COOLDOWNS, BUT +25% DASH COOLDOWN']]},
- {n:'ARCANE',c:'#c080ff',st:[{abil:.05},{cdr:.02},{range:.06}],ks:[['OVERCHANNEL','+30% ABILITY DAMAGE, -10% BASIC ATTACK DAMAGE'],['ECHO MIND','ABILITIES HAVE A 20% CHANCE TO REFUND HALF THEIR COOLDOWN']]},
+ {n:'SPIRIT',c:'#40c0ff',old:['emb','swift','dashm','flow'],st:[{cdr:.0125},{spd:.025},{dash:.025}],ks:[['MOMENTUM','UNHIT FOR 2S: +20% DAMAGE AND +10% SPEED'],['TIME WEAVER','-'+cdPct(COOLDOWN.timeWeaver)+' COOLDOWNS, BUT +25% DASH COOLDOWN']]},
+ {n:'ARCANE',c:'#c080ff',st:[{abil:.05},{cdr:.01},{range:.06}],ks:[['OVERCHANNEL','+30% ABILITY DAMAGE, -10% BASIC ATTACK DAMAGE'],['ECHO MIND','ABILITIES HAVE A '+cdPct(COOLDOWN.echoChance)+' CHANCE TO REFUND '+cdPct(COOLDOWN.echoRefund)+' OF THEIR COOLDOWN']]},
  {n:'BODY',c:'#50e060',old:['vit','pos','iron','res'],st:[{hp:.04},{def:1},{regen:.002}],ks:[['COLOSSUS','+30% MAX HP, -8% MOVE SPEED'],['UNDYING','ONCE PER STAGE A KILLING BLOW LEAVES YOU AT 1 HP']]},
- {n:'SHADOW',c:'#9a7aff',st:[{dodge:.012},{spd:.02},{graze:1}],ks:[['GHOST STEP','+10% DODGE, -15% DASH COOLDOWN'],['GRAZE MASTER','EVERY GRAZE HEALS 0.4% HP']]},
+ {n:'SHADOW',c:'#9a7aff',st:[{dodge:.012},{spd:.02},{graze:1}],ks:[['GHOST STEP','+10% DODGE, -'+cdPct(COOLDOWN.ghostStep)+' DASH COOLDOWN'],['GRAZE MASTER','EVERY GRAZE HEALS 0.4% HP']]},
  {n:'FORTUNE',c:'#ffd040',old:['sen','purse','belt','heir'],st:[{gold:.06},{pot:.05},{luck:1}],ks:[['MIDAS','+40% GOLD'],['TREASURE HUNTER','GEAR DROPS ROLL ONE QUALITY HIGHER 15% OF THE TIME']]},
  {n:'HUNT',c:'#80ff80',st:[{range:.06},{crit:.02},{pow:.02}],ks:[['EAGLE EYE','+25% RANGE, +8% CRIT'],['MARKED PREY','YOUR FIRST HIT ON EACH FOE DEALS DOUBLE DAMAGE']]}];
 const STAT_TXT={pow:v=>'+'+Math.round(v*100)+'% POWER',crit:v=>'+'+Math.round(v*100)+'% CRIT',boss:v=>'+'+Math.round(v*100)+'% DAMAGE TO BOSSES AND ELITES',near:v=>'+'+Math.round(v*100)+'% DAMAGE TO FOES CLOSE TO YOU',
- aspd:v=>'+'+Math.round(v*100)+'% ATTACK SPEED',def:v=>'+'+v+' DEFENCE',cdr:v=>'-'+(v*100).toFixed(1).replace('.0','')+'% COOLDOWNS',spd:v=>'+'+(v*100).toFixed(1).replace('.0','')+'% MOVE SPEED',dash:v=>'-'+Math.round(v*100)+'% DASH COOLDOWN',
+ aspd:v=>'+'+Math.round(v*100)+'% ATTACK SPEED',def:v=>'+'+v+' DEFENCE',cdr:v=>'-'+cdPct(v)+' COOLDOWNS',spd:v=>'+'+(v*100).toFixed(1).replace('.0','')+'% MOVE SPEED',dash:v=>'-'+cdPct(v)+' DASH COOLDOWN',
  abil:v=>'+'+Math.round(v*100)+'% ABILITY DAMAGE',range:v=>'+'+Math.round(v*100)+'% RANGE',hp:v=>'+'+Math.round(v*100)+'% MAX HP',regen:v=>'REGENERATE '+(v*100).toFixed(1)+'% HP/S',dodge:v=>'+'+(v*100).toFixed(1).replace('.0','')+'% DODGE',
- graze:v=>'GRAZES COOL ABILITIES '+(.05*v).toFixed(2)+'S MORE',gold:v=>'+'+Math.round(v*100)+'% GOLD',pot:v=>'POTIONS HEAL +'+Math.round(v*100)+'%',luck:v=>'+'+4*v+'% CHANCE OF BETTER GEAR'};
+ graze:v=>'GRAZES COOL ABILITIES '+(COOLDOWN.grazeNode*Math.min(3,v)).toFixed(2)+'S MORE',gold:v=>'+'+Math.round(v*100)+'% GOLD',pot:v=>'POTIONS HEAL +'+Math.round(v*100)+'%',luck:v=>'+'+4*v+'% CHANCE OF BETTER GEAR'};
 // Keystones are the only nodes with ranks (I-III). Ranks II and III each add this bonus on top of the keystone itself.
-const KSRANK={'BERSERKER':{pow:.05},'EXECUTIONER':{crit:.04},'IAIDO MASTER':{near:.08},'BLADE DANCE':{aspd:.05},'MOMENTUM':{spd:.04},'TIME WEAVER':{cdr:.04},
- 'OVERCHANNEL':{abil:.08},'ECHO MIND':{cdr:.03},'COLOSSUS':{hp:.06},'UNDYING':{def:1},'GHOST STEP':{dodge:.02},'GRAZE MASTER':{graze:1},
+const KSRANK={'BERSERKER':{pow:.05},'EXECUTIONER':{crit:.04},'IAIDO MASTER':{near:.08},'BLADE DANCE':{aspd:.05},'MOMENTUM':{spd:.04},'TIME WEAVER':{cdr:.02},
+ 'OVERCHANNEL':{abil:.08},'ECHO MIND':{cdr:.015},'COLOSSUS':{hp:.06},'UNDYING':{def:1},'GHOST STEP':{dodge:.02},'GRAZE MASTER':{graze:1},
  'MIDAS':{gold:.10},'TREASURE HUNTER':{luck:1},'EAGLE EYE':{range:.06},'MARKED PREY':{crit:.03}};
 const SKT={nodes:[],byK:{},adj:{},cam:{x:0,y:0},sel:'root'};
 // THE GRID: an oval of cells around the temple gate. Each cell belongs to the branch its direction points at, so the eight
@@ -86,9 +86,10 @@ const KS=nm=>!!stTot()['ks:'+nm];
 // ---------------------------------------------------------------- effects
 {const _cs=calcStats;calcStats=function(){const s=_cs(),t=stTot();
   s.atk*=1+(t.pow||0);s.crit+=t.crit||0;s.aspd*=1+(t.aspd||0);s.cdr*=Math.max(.4,1-(t.cdr||0));s.spd*=1+(t.spd||0);s.dashCd*=Math.max(.4,1-(t.dash||0));s.rangeM+=t.range||0;s.maxhp=Math.round(s.maxhp*(1+(t.hp||0)));s.def+=t.def||0;s.dodge=(s.dodge||0)+(t.dodge||0);s.sen*=1+(t.gold||0);
-  if(KS('COLOSSUS')){s.maxhp=Math.round(s.maxhp*1.3);s.spd*=.92;}if(KS('TIME WEAVER')){s.cdr*=.8;s.dashCd*=1.25;}if(KS('GHOST STEP')){s.dodge+=.1;s.dashCd*=.85;}if(KS('MIDAS'))s.sen*=1.4;if(KS('EAGLE EYE')){s.rangeM+=.25;s.crit+=.08;}
+  if(KS('COLOSSUS')){s.maxhp=Math.round(s.maxhp*1.3);s.spd*=.92;}if(KS('TIME WEAVER')){s.cdr*=1-COOLDOWN.timeWeaver;s.dashCd*=1.25;}if(KS('GHOST STEP')){s.dodge+=.1;s.dashCd*=1-COOLDOWN.ghostStep;}if(KS('MIDAS'))s.sen*=1.4;if(KS('EAGLE EYE')){s.rangeM+=.25;s.crit+=.08;}
+  s.grazeRefund=COOLDOWN.graze+COOLDOWN.grazeNode*Math.min(3,t.graze||0);
   if(KS('MOMENTUM')&&R&&R.time-(STS.lastHit||0)>2)s.spd*=1.1;return s;};}
-const STS={lastHit:-9,cds:{}};
+const STS={lastHit:-9};
 {const _he=hurtE;hurtE=function(e,dmg,pd,o){if(e&&P&&R&&!e.prop&&!e.dead){const t=stTot();o=o||{};
   if(e.boss||e.elite)dmg*=1+(t.boss||0);const close=Math.hypot(e.x-P.x,e.y-P.y)<60;if(close)dmg*=1+(t.near||0)+(KS('IAIDO MASTER')?.25:0);
   const ability=castSrc&&castSrc!=='m';if(ability)dmg*=1+(t.abil||0)+(KS('OVERCHANNEL')?.3:0);else if(castSrc==='m'&&KS('OVERCHANNEL'))dmg*=.9;
@@ -97,13 +98,16 @@ const STS={lastHit:-9,cds:{}};
 {const _hp=hitPlayer;hitPlayer=function(raw,a,b,o){const r=_hp(raw,a,b,o);if(r==='hit'&&R){if(STS.lastHit!==R.time&&KS('MOMENTUM'))S=calcStats();STS.lastHit=R.time;}return r;};}
 // undying: once a stage, the blow that would kill you leaves you at 1 HP
 {const _die=die;die=function(){if(P&&R&&KS('UNDYING')&&R.undying!==R.di&&!(P.dying>0)){R.undying=R.di;P.hp=1;P.iv=1.5;setToast('UNDYING','#50e060',2);fxRing(P.x,P.y,50,'#50e060',.5);sfx('heal');return;}return _die();};}
-{const _g=graze;graze=function(q){_g(q);const t=stTot();if(t.graze)for(const k of ['q','f','e','rmb'])if(P.ab[k]>0)P.ab[k]=Math.max(0,P.ab[k]-.05*t.graze);if(KS('GRAZE MASTER'))P.hp=Math.min(S.maxhp,P.hp+S.maxhp*.004);};}
+{const _g=graze;graze=function(q){_g(q);if(KS('GRAZE MASTER'))P.hp=Math.min(S.maxhp,P.hp+S.maxhp*.004);};}
 {const _ug=useGourd;useGourd=function(){const n=R.pots;_ug();const t=stTot();if(t.pot&&R.pots<n)P.hp=Math.min(S.maxhp,P.hp+S.maxhp*t.pot);};}
 {const _td=tryDash;tryDash=function(){const was=P.dash>0;_td();if(!was&&P.dash>0&&KS('BLADE DANCE')){fx.push({k:'slash',x:P.x,y:P.y,a:P.aim,arc:TAU,r:45,t:.2,dur:.2,col:'#e8eef6'});for(const e of enemies)if(!e.dead&&!e.air&&!e.prop&&Math.hypot(e.x-P.x,e.y-P.y)<45+e.r)hurtE(e,S.atk*1.5,25,{slash:true});sfx('slash');}};}
 {const _mg=mkGear;mkGear=function(slot,tier,rare,q){if(!rare&&q==null&&R){const t=stTot(),up=.04*(t.luck||0)+(KS('TREASURE HUNTER')?.15:0);if(up&&Math.random()<up)q=Math.min(3,rollQ(R.di,0)+1);}return _mg(slot,tier,rare,q);};}
 {const _uw=updWorld;updWorld=function(dt){_uw(dt);if(!P||!R||mode!=='play')return;const t=stTot();if(t.regen)P.hp=Math.min(S.maxhp,P.hp+S.maxhp*t.regen*dt);
-  // echo mind: when an ability goes on cooldown there is a 20% chance half of it comes straight back
-  if(KS('ECHO MIND'))for(const k of ['q','f','e','rmb','h']){const v=P.ab[k]||0,pv=STS.cds[k]||0;if(v>pv+.5&&Math.random()<.2){P.ab[k]=v/2;txtFx(P.x,P.y-12,'ECHO','#c080ff');}STS.cds[k]=P.ab[k];}
+  // Echo Mind refunds a fraction when a new ability cooldown starts.
+  if(KS('ECHO MIND')){
+   const cds=P.echoCds??={};
+   for(const k of ['q','f','e','rmb','h']){const v=P.ab[k]||0,pv=cds[k]||0;if(v>pv+.5&&Math.random()<COOLDOWN.echoChance){P.ab[k]=v*(1-COOLDOWN.echoRefund);txtFx(P.x,P.y-12,'ECHO','#c080ff');}cds[k]=P.ab[k];}
+  }
   if(KS('MOMENTUM')&&R.time-STS.lastHit>2&&!STS.mom){STS.mom=1;S=calcStats();}else if(STS.mom&&R.time-STS.lastHit<=2){STS.mom=0;S=calcStats();}};}
 
 // ---------------------------------------------------------------- the tree screen

@@ -1,7 +1,7 @@
 'use strict';
 // HELL OF THE EMPEROR - THE MOTH QUEEN, a mini-boss. She haunts one room in the middle of the Burning Castle Town (stage IV):
 // a court lady with atlas-moth wings who fills the room with wing dust. Half her health gone, her wings blaze and she speeds
-// up. She drops a royal bag. Her art lives in 90-bosses.js (BART['THE MOTH QUEEN']).
+// up. Her hoard has a 10% chance to contain legendary gear. Her art lives in 90-bosses.js (BART['THE MOTH QUEEN']).
 ET.mothqueen={n:'THE MOTH QUEEN',desc:'A MINI-BOSS OF THE BURNING TOWN. HER WINGS SHED BURNING DUST',hp:400,spd:46,pos:520,r:9,ai:'dummy',rng:0,wl:0,fly:true,atks:[]};
 const MOTH={stage:3,
  spr:half=>{const k=half?'h':'n';if(!MOTH[k]){ARTHURT=!!half;try{MOTH[k]=bossArt('THE MOTH QUEEN');}finally{ARTHURT=false;}}return MOTH[k];},
@@ -30,7 +30,7 @@ const MOTH={stage:3,
    if(n==='swarm'){for(let i=0;i<(e.half?8:6);i++)bsh(e,e.x,e.y,a+(i-2.5)*.4,70,9,{spr:'wisp',st:'seek',turn:1.3,seekT:1.8,col:'#f0e0ff',r:3,life:5});sfx('tool');}
    if(n==='scales'){for(let i=0;i<(e.half?8:6);i++){const an=i/6*TAU+Math.random(),r=i?rnd(25,70):0;mark({k:'c',x:P.x+Math.cos(an)*r,y:P.y+Math.sin(an)*r,r:15,t:.9+i*.1,dmg:12*e.dm,col:'#ff9040',src:e});}}}
   if(Math.random()<dt*10)particles.push({x:e.x+rnd(-14,14),y:e.y+rnd(-6,6),vx:rnd(-10,10),vy:-20,t:.6,col:e.half?'#ffb040':'#f0d0f0'});};}
-// her death: a royal bag and a score bonus
-{const _k=killE;killE=function(e){const was=e.mini&&!e.dead;_k(e);if(was&&e.dead){for(const q of projs)if(q.own===e)q.dead=true;dropBag(e.x+12,e.y+12,TROPHY,true);addScore(2500,e.x,e.y,'#ff9040');setToast('THE MOTH QUEEN FALLS','#ff9040',3);MOTH.e=null;}};}
+// her death: a miniboss bag and a score bonus
+{const _k=killE;killE=function(e){const was=e.mini&&!e.dead;_k(e);if(was&&e.dead){for(const q of projs)if(q.own===e)q.dead=true;dropBag(e.x+12,e.y+12,minibossBag(),true);addScore(2500,e.x,e.y,'#ff9040');setToast('THE MOTH QUEEN FALLS','#ff9040',3);MOTH.e=null;}};}
 // a health bar across the top while you fight her
 {const _h=drawHUD;drawHUD=function(){_h();const e=MOTH.e;if(!e||e.dead||!e.awake||!MOTH.inRoom(e))return;const w=120,x=Math.round((W-w)/2);txt('THE MOTH QUEEN',x+Math.round((w-txtW('THE MOTH QUEEN'))/2),14,'#ff9040');bar(x,21,w,4,e.hp/e.maxhp,'#c84a90','#2a1030');};}

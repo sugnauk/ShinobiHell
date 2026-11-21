@@ -5,7 +5,7 @@
 //  RELICS    every relic also grants a few points of the stat that fits it (more for rarer relics)
 //  ENCHANTS  every enchant stack grants 2 points of its stat
 //  RINGS     rings keep the stats they already rolled
-// Bags that used to hold an elixir hold a relic or an enchant instead. Points from old elixirs are refunded as jade.
+// Points from old elixirs are refunded as jade.
 const HERO_ST={wizard:{att:3,wis:3},archer:{dex:3,spd:3},samurai:{def:3,vit:3},shinobi:{spd:3,dex:2,att:1},
  onmyoji:{wis:3,vit:3},gunner:{att:4,def:2},lancer:{att:2,def:2,vit:2}};
 // relic stat: chosen by id where it reads naturally, else by the relic's effect style; amount by rarity
@@ -21,10 +21,8 @@ for(const it of ITEMS){const b=relicSt(it.id);if(b&&!it.stD){it.stD=1;it.d=it.d+
 for(const e of ENCH){const k=ENCH_ST[e.k];if(k&&!e.stD){e.stD=1;e.d=e.d+'. +'+ENCH_ST_AMT+' '+STSHORT(k);}}
 function heroBaseSt(){const c=typeof CLS==='function'&&meta?CLS():null;return Object.assign({att:0,def:0,spd:0,dex:0,vit:0,wis:0},c&&HERO_ST[c.k]||{});}
 function heroRunStats(){const s=heroBaseSt();if(!R)return s;
- for(const id in (R.inv||{})){const b=relicSt(id);if(b)s[b.k]+=b.n*(R.inv[id]|0);}
+ for(const id in (R.inv||{})){const b=relicSt(id);if(b)s[b.k]+=b.n*relicPower(id);}
  for(const k of (R.ench||[])){const st=ENCH_ST[k];if(st)s[st]+=ENCH_ST_AMT;}return s;}
-// a bag that would have held an elixir holds a relic (60%) or an enchant
-function statSwap(){return Math.random()<.6?{t:'relic',id:randItem(['rez']).id}:mkEnch();}
 // old saves: elixir points become jade, once
 const ELIXIR_JADE=25;
 {const ms=meta.stats||{};let pts=0;for(const k in ms)pts+=ms[k]|0;

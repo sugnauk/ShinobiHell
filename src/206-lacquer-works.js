@@ -1,7 +1,7 @@
 'use strict';
 // Stage XVI alternate. Wet lacquer carries movement. Once cured, the raised strips stop shots.
 const LAC={name:'NEBARI, THE LACQUER MASTER',warm:'#ffd095',red:'#c3483c',trails:[],presses:[],teach:null};
-const LAC_RELIC={id:'lacquerseal',name:'LACQUER SEAL',d:'PERFECT DODGE: HEAVY HITS DEAL +25% DAMAGE FOR 4 SECONDS',g:'L',fx:'power',mo:'vortex'};
+const LAC_RELIC={id:'lacquerseal',name:'LACQUER SEAL',d:'PERFECT DODGE: HEAVY HITS DEAL +25% DAMAGE FOR 4 SECONDS',g:'L',fx:'dmg',mo:'vortex'};
 function lacquerTrail(x,y,r,wet,life,room){
  const t={x,y,r,wet,life,room};
  LAC.trails.push(t);
@@ -133,7 +133,7 @@ const LAC_STAGE={base:FERRY_STAGE,remix:false,indoor:true,
   ROMAN:'XVI',STAGEDECO:[['lacquerstand',6],['sunkjar',5],['offering',1]],
   DECO_GROUPS:[[['lacquerstand',-13,0],['sunkjar',0,4],['lacquerstand',13,0]]],
   FLOORART:lacquerFloor,MOOD:['#1b0e17',.32],PSTAGE:['insen',46,64],BMUSIC:{s:'insen',r:46,b:128,w:'triangle'},
-  TRAILS:{n:'RED LACQUER',c:LAC.red,c2:LAC.warm},BOSS_HPT:19,POOLADD:[],PMAP:[.97,.04],
+  TRAILS:{n:'RED LACQUER',c:LAC.red,c2:LAC.warm},BOSS_HPT:24,POOLADD:[],PMAP:[.97,.04],
   MASTER_LINES:'THE FINAL COAT SETS. BEYOND THE WORKS, A BLUE LIGHT SHINES THROUGH THE WATER.',
   BOSSRELIC:LAC_RELIC,
   BOSS:{name:LAC.name,hp:2700,hat:'kasa',pref:74,spd:39,r:11,k1:[],k2:[],pal:basePal('#7c343b','#27212d',LAC.warm,'#190f19')},
@@ -198,12 +198,14 @@ function lacquerSweep(axis){
   if(at(A,0)){
    e.tele=1;sfx('tool');
    A.marks=lacquerStroke(e,arenaOf(e),P.x,P.y,axis,3,1.24,18,14*e.dm);
+   A.aim=aimAt(e)+(axis==='x'?.24:-.24);
   }
   if(at(A,1.24)){
-   e.tele=0;sfx('spearSteel');e.lacOpen=1.7;
-   txtFx(e.x,e.y-18,'TOOL STUCK',LAC.warm,1.25);
+   e.tele=0;sfx('spearSteel');
   }
-  return A.t>1.4;
+  if(at(A,1.85))lateFan(e,{a:A.aim,n:9,step:.17,gap:.27,sp:e.half?86:55,col:LAC.warm,life:1.4});
+  if(at(A,2.28)){e.lacOpen=1.7;txtFx(e.x,e.y-18,'TOOL STUCK',LAC.warm,1.25);}
+  return A.t>2.4;
  },end(e,A){for(const m of A.marks??[]){const i=BMK.indexOf(m);if(i>=0&&!m.fired)BMK.splice(i,1);}}};
 }
 const lacquerPicks=BART[LAC.name].posed;
@@ -211,7 +213,7 @@ const lacquerIdlePose=lacquerPicks.pick;
 lacquerPicks.pick=(e,indices)=>e.A&&!e.phx?null:lacquerIdlePose(e,indices);
 BKIT[LAC.name]={director:bossDirector,noContact:true,pref:74,gap:1.1,halfName:'THE COAT SETS ON CONTACT',
  guide:['WET LACQUER CARRIES YOUR MOMENTUM. CURED LACQUER STOPS BOTH SIDES’ SHOTS.',
-  'LACQUER SWEEP: LEAVE THE ROW SIDEWAYS, THEN STRIKE WHILE HE FREES HIS TOOL.',
+  'LACQUER SWEEP: LEAVE THE ROW SIDEWAYS. READ THE SPLATTER, THEN STRIKE WHILE HE FREES HIS TOOL.',
   'FORM TWO: THE SWEEP CURES ON IMPACT. LEAD IT AWAY FROM YOUR FIRING LANE.'],
  atks:[lacquerSweep('x'),Object.assign(lacquerSweep('y'),{half:1}),
   {n:'BRUSH SPLATTER',wt:2,gap:1.1,run(e,A){
@@ -227,15 +229,19 @@ BKIT[LAC.name]={director:bossDirector,noContact:true,pref:74,gap:1.1,halfName:'T
    if(at(A,1.15))e.tele=0;return A.t>1.4;
   },end(e,A){for(const m of A.marks??[]){const i=BMK.indexOf(m);if(i>=0&&!m.fired)BMK.splice(i,1);}}}],
  onHalf(e){for(const t of LAC.trails)if(t.room===e.room)t.wet=0;},
- move(e,dt,d,a){if(e.lacOpen>0){e.lacOpen-=dt;return;}defaultMove(e,dt,d,a,BKIT[LAC.name]);},
+ move(e,dt,d,a){if(e.lacOpen>0){e.lacOpen-=dt;e.gapT=Math.max(e.gapT,e.lacOpen+.03);return;}defaultMove(e,dt,d,a,BKIT[LAC.name]);},
  dmgMod(e){return e.lacOpen>0?1.2:1;},
  events:[{at:.27,dur:10,name:'FINAL COAT',hint:'STEP OFF EACH MARKED ROW',survival:true,storm:1,ownPressure:true,
-  tick(e,dt,E){for(const [i,t] of [0.6,2.8,5,7.2].entries())if(at(E,t))lacquerStroke(e,arenaOf(e),P.x,P.y,i%2?'y':'x',3,1.24,18,12*e.dm);}}],
+  tick(e,dt,E){for(const [i,t] of [.6,3.35,6.4].entries()){
+   if(at(E,t)){E.aim=aimAt(e);lacquerStroke(e,arenaOf(e),P.x,P.y,i%2?'y':'x',3,1.24,18,12*e.dm);}
+   if(at(E,t+1.85))lateFan(e,{a:E.aim,n:9,step:.18,gap:.3,sp:60,col:LAC.warm});
+  }},
+  end(e){e.lacOpen=1.7;}}],
  reset(e){e.lacOpen=0;for(let i=LAC.trails.length-1;i>=0;i--)if(LAC.trails[i].room===e.room)LAC.trails.splice(i,1);},
  onDeath(e){LAC.trails.length=0;LAC.presses.length=0;}
 };
 for(const attack of BKIT[LAC.name].atks){
- lacquerPicks.anim[attack.n]=[['wind','atk','follow'],[0,attack.n==='BRUSH SPLATTER'?.64:1.15,1.35]];
+ lacquerPicks.anim[attack.n]=[['wind','atk','follow'],[0,attack.n==='BRUSH SPLATTER'?.64:1.24,attack.n==='EDGE COAT'?1.35:2.28]];
 }
 {const base=perfectDodge;perfectDodge=function(){
  const before=R?.pdodge,r=base.apply(this,arguments);

@@ -60,8 +60,6 @@ const BOSSRELIC=[
  {id:'foxmask',name:'FOX MASK',d:'ILLUSIONS AND FAKE WALLS ALWAYS SHIMMER',g:'F',fx:'control',mo:'mirror'},
  {id:'stirrup',name:'BLACK STIRRUP',d:'+15% MOVE SPEED',g:'T',fx:'speed',mo:'dash'}];
 for(const b of BOSSRELIC){ITEMS.push({id:b.id,name:b.name,d:b.d,g:b.g,r:3,bossRelic:1});ITEMBY[b.id]=ITEMS[ITEMS.length-1];FXK[b.id]=b.fx;RELICMO[b.id]=b.mo;}
-// boss relics only come from their boss, never from chests, shops or bags
-{const _ri=randItem;randItem=function(excl,minR){return _ri((excl||[]).concat(BOSSRELIC.filter(Boolean).map(b=>b.id)),minR);};}
 {const _cs=calcStats;calcStats=function(){const s=_cs();if(R&&R.inv&&R.inv.stirrup)s.spd*=1.15;return s;};}
 // spirit trails: one per guardian, won by beating it without being hit
 const TRAILS=[['CRIMSON BANNER','#e04030','#ffd040'],['WHITE STALKER','#e8f4ff','#a8d8ff'],['SILK THREAD','#e8e8f0','#c89040'],['LANTERN FIRE','#ff8030','#ffe080'],
@@ -79,7 +77,7 @@ function cycleTrail(d){const own=[-1].concat(trailOwned());if(own.length<2)retur
    meta.ranks=meta.ranks||{};if(meta.ranks[di]==null||ri<meta.ranks[di])meta.ranks[di]=ri;
    let msg='RANK '+Rk.r+'  +'+Math.round(pts);if(hits===0){meta.cos=meta.cos||{};if(!meta.cos[di]){meta.cos[di]=1;msg+='  NO HIT! TRAIL WON: '+TRAILS[di].n;}else msg+='  NO HIT!';}
    saveMeta();setToast(msg,Rk.c,4);bossRankFx={r:Rk.r,c:Rk.c,t:2.5,hits,secs};
-   const rel=BOSSRELIC[di];if(rel&&!R.inv[rel.id])dropPickup(e.x-22,e.y+8,'item',0,rel.id);}return res;};}
+   const rel=prologueLoot()?null:BOSSRELIC[di];if(rel&&!R.inv[rel.id])dropPickup(e.x-22,e.y+8,'item',0,rel.id);}return res;};}
 let bossRankFx=null;
 {const _rp=renderPlay;renderPlay=function(){_rp();if(bossRankFx&&mode==='play'){const f=bossRankFx;f.t-=RDT;if(f.t<=0){bossRankFx=null;return;}ctx.globalAlpha=Math.min(1,f.t*2);txt(f.r,Math.round(W/2-txtW(f.r,6)/2),46,f.c,6);ctxt(f.hits?f.hits+' HITS - '+Math.floor(f.secs)+'S':'NO HIT - '+Math.floor(f.secs)+'S',86,'#fff');ctx.globalAlpha=1;}};}
 

@@ -21,7 +21,7 @@ function fairBullet(occ,cx0,cy0,q){const rad=(q.r||3)+2,still=q.bst==='orbitrel'
 function fairField(cx0,cy0){const occ=FAIR.base;occ.fill(0);const reach=FAIR.VG*FAIR.VC*.5+140;
  for(const q of projs){if(q.from!=='e'||q.dead)continue;if(Math.abs(q.x-cx0)>reach||Math.abs(q.y-cy0)>reach)continue;fairBullet(occ,cx0,cy0,q);}
  // lasers that are firing (or will be) during the window
- for(const L of LZ){for(let s=0;s<FAIR.TS.length;s++){const t=L.t+FAIR.TS[s];if(t<L.tele||t>L.tele+L.stay)continue;const a=L.a+(t>L.tele?L.om*(t-Math.max(L.tele,L.t)):0),c=Math.cos(a),sn=Math.sin(a);
+ for(const L of LZ){if(L.dead||L.len<=0)continue;for(let s=0;s<FAIR.TS.length;s++){const t=L.t+FAIR.TS[s];if(t<L.tele||t>L.tele+L.stay)continue;const a=L.a+(t>L.tele?L.om*(t-Math.max(L.tele,L.t)):0),c=Math.cos(a),sn=Math.sin(a);
   for(let d=0;d<L.len;d+=FAIR.VC*.8)fairMark(occ,cx0,cy0,L.x+c*d,L.y+sn*d,L.w/2+3,s);}}
  // hazard circles about to erupt
  if(typeof BMK!=='undefined')for(const m of BMK){if(m.k!=='c'||!m.dmg||m.fired)continue;for(let s=0;s<FAIR.TS.length;s++)if(Math.abs(m.t-FAIR.TS[s])<.2)fairMark(occ,cx0,cy0,m.x,m.y,m.r+3,s);}}
@@ -74,6 +74,54 @@ function ldirTick(D,dt){D.layers=D.layers.filter(I=>!I.dead);D.cd-=dt;const cap=
  if(!C.length){D.cd=.4;return;}let r=Math.random()*C.reduce((s,c)=>s+c[0],0);let pick=C[0];for(const c of C){if((r-=c[0])<0){pick=c;break;}}
  const [,E,p,fam]=pick;const I=bhStart(D.own,E.n,p);if(!I){D.cd=.4;return;}D.layers.push(I);D.hist.push(fam);if(D.hist.length>8)D.hist.shift();D.k++;D.cd=(E.gap||cap.gap)*(D.gapK||1);D.last=E;}
 function ldirStop(D){for(const I of D.layers)I.dead=1;D.layers.length=0;}
+// Authored volleys use the same batch screening as the pattern library.
+function lateFan(e,{x=e.x,y=e.y,a,n=7,step=.14,sp=55,gap=.16,col,life=2,dmg=6,r=2}){
+ if(blocked(x,y,r+2))return;
+ for(let i=0;i<n;i++){
+  const offset=(i-(n-1)/2)*step;
+  if(Math.abs(offset)<gap)continue;
+  BHSTAGE.push(bhNew(x,y,a+offset,sp,dmg*e.dm,{own:e,r,col,life,spr:'bshard'}));
+ }
+ bhCommit(null);sfx('shoot');
+}
+function lateLine(A,x,y,a,w,max=Infinity){
+ const c=Math.cos(a),s=Math.sin(a),pad=w/2+2;
+ const fits=(u,v)=>u>=A.x0+pad&&u<=A.x1-pad&&v>=A.y0+pad&&v<=A.y1-pad&&!blocked(u,v,pad);
+ if(!fits(x,y))return 0;
+ let len=0;
+ for(let d=2;d<=max&&fits(x+c*d,y+s*d);d+=2)len=d;
+ return len;
+}
+function latePoint(A,x,y,r){
+ x=clamp(x,A.x0+r+4,A.x1-r-4);y=clamp(y,A.y0+r+4,A.y1-r-4);
+ for(let i=0;i<10&&blocked(x,y,r+2);i++){x=A.cx+(x-A.cx)*.8;y=A.cy+(y-A.cy)*.8;}
+ return {x,y};
+}
+function lateClear(e){
+ if(e.D){ldirStop(e.D);e.D=null;}
+ if(e.twin?.D){ldirStop(e.twin.D);bhStop(e.twin.own);e.twin.D=null;}
+ bhStop(e);
+ for(const q of projs)if(q.own===e||(e.twin&&q._I?.own===e.twin.own))q.dead=true;
+ for(let i=BMK.length-1;i>=0;i--)if(BMK[i].src===e)BMK.splice(i,1);
+ e.chartRest=0;
+}
+// Start each director phase with its own signature, then run compatible layers in bounded cycles.
+function lateSignatureCycle(e,dt,first,period,opening){
+ const D=e.D;
+ if(D.cycle==null){
+  const I=bhStart(e,first.n,first.p(D.tier,D.k));
+  if(I)D.layers.push(I);
+  D.cd=2;D.hist=[first.n];D.last=first;D.echoQ=null;D.k++;D.cycle=0;
+ }
+ D.cycle+=dt;
+ // End the field before the caller holds the boss still for the attack window.
+ if(D.cycle>=period){
+  lateClear(e);e.D=D;D.cycle=null;D.rest=opening;
+  txtFx(e.x,e.y-19,'STRIKE NOW',bsty(e).c,opening);
+  fxRing(e.x,e.y,24,bsty(e).c,.44);return true;
+ }
+ return false;
+}
 // ---------------- tier-scaled pattern pools (used by late stages, survival phases and late foes) ----------------
 // Sophistication grows with the tier: 3 = advanced, 4 = endgame, 5+ = the endless depths.
 const TSC=t=>Math.max(0,t-3); // 0,1,2,...

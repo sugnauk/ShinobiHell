@@ -56,7 +56,7 @@ masterCamp=function(t,accent){
  ctx.fillStyle='#1c1520';ctx.fillRect(0,126,W,13);ctx.fillStyle='#241a28';for(let x=0;x<W;x+=7)ctx.fillRect(x+(x*13)%5,127+((x*7)%9),3,1);
  const flick=campFire(t);
  shadow(91,134,29);shadow(226,134,29);
- drawSpr({...heroSpr('wizard',9),sc:2},91,134,false,WIZ.idle[Math.floor(time*2.5)%2],false);
+ drawKaito(91,134,2);
  const elapsed=time-CS.pageAt,change=CS.step===1,form=change&&elapsed<.32?CS.from:P.evo||0;
  const hero={...heroSpr(CLS().k,form),sc:2},frame=WIZ.idle[Math.floor(time*2.5)%2];
  drawSpr(hero,226,134,false,frame,true);

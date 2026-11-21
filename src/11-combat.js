@@ -129,7 +129,7 @@ function killE(e){
  if(e.elite||e.boss){slowT=Math.max(slowT,e.boss?.6:.25);hitstop=Math.max(hitstop,.06);}
  if(R.training){trainEv('kill');spark(e.x,e.y,'#d8b860',14,70);return;}deathFx(e);sfx('kill');spark(e.x,e.y,e.boss?'#fd4':'#c33',e.boss?40:12,e.boss?140:80);
  if(S.kills)P.hp=Math.min(S.maxhp,P.hp+S.kills);
- if(!e.boss)P.ab.e=Math.max(0,P.ab.e-1.2*(1+S.ecd));
+ if(!e.boss)P.ab.e=Math.max(0,P.ab.e-COOLDOWN.kill*(1+COOLDOWN.soulEater*Math.min(S.ecd,3)));
  if(e.elite==='volatile'){dh.push({x:e.x,y:e.y,r:34,t:.9,dur:.9,dmg:20*e.dm,col:'#f64'});txtFx(e.x,e.y,'VOLATILE!','#f64');}
  dropLoot(e);
  if(e.boss)onBossDead(e);
@@ -141,6 +141,7 @@ function dropLoot(e){
  if(e.boss){dropBag(e.x+20,e.y+24,Math.random()<.14?GOLDBAG:TROPHY,true);return;} // the white royal bag is a rare boss prize
  // a promised bag (from a curse) drops from the next foe you kill
  if(R.bonusBag!=null){dropBag(e.x,e.y,R.bonusBag);R.bonusBag=null;}
+ if(e.echo)return; // its dedicated cache is rolled by the Echo defeat handler
  if(e.dropBag!=null)dropBag(e.x+8,e.y,e.dropBag);
  const LT=LOOT[lootKind(e)],lk=1/(1+.15*(R.asc||0));
  for(let i=0;i<LT.gold;i++)dropPickup(e.x,e.y,'sen',base);
@@ -166,7 +167,15 @@ function onBossDead(e){
 function pickChoice(i){if(!chooseOpts||!chooseOpts[i])return;applyItem(chooseOpts[i].id);chooseOpts=null;portal.pending=false;mode='play';sfx('pickup');setToast('PORTAL OPEN','#8cf',3);}
 function clickChoose(){if(!chooseOpts)return;const cw=92,gap=8,x0=Math.round((W-(3*cw+2*gap))/2);for(let i=0;i<3;i++){const x=x0+i*(cw+gap);if(mouse.x>=x&&mouse.x<=x+cw&&mouse.y>=44&&mouse.y<=136){pickChoice(i);return;}}}
 function applyItem(id){
- R.inv[id]=(R.inv[id]||0)+1;G('r',id);const old=S;S=calcStats();
- if(id==='hp')P.hp+=20;if(id==='gourd')R.pots=Math.min(POTMAX,R.pots+1);if(id==='rez'||id==='phoenix')P.rez++;
- P.hp=Math.min(P.hp,S.maxhp);setToast(fxLabel(ITEMBY[id].name,ITEMBY[id].r+1)+': '+ITEMBY[id].d,fxCol(id),2.5);
+ const it=ITEMBY[id],copies=R.inv[id]||0;
+ if(relicMaxed(id)){
+  const gold=relicSurplusGold(id);R.sen+=gold;setToast(it.name+' MAXED - +'+gold+' GOLD','#ffd040',2.5);return;
+ }
+ R.inv[id]=copies+1;G('r',id);S=calcStats();
+ if(id==='hp')P.hp+=20*(relicPower(id)-relicPower(id,copies));
+ if(id==='gourd')R.pots=Math.min(POTMAX,R.pots+1);
+ if(id==='rez'||id==='phoenix'||id==='pillar')P.rez++;
+ P.hp=Math.min(P.hp,S.maxhp);
+ const gain=relicPower(id)-relicPower(id,copies);
+ setToast(copies?it.name+' STACK '+R.inv[id]+': +'+cdPct(gain)+' EFFECT':fxLabel(it.name,it.r+1)+': '+it.d,fxCol(id),2.5);
 }

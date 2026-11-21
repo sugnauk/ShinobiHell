@@ -52,11 +52,17 @@ function inCombat(){if(!P)return false;if(P.combatT>0)return true;if(boss&&boss.
 function perfectDodge(){let hit=false;for(const q of projs){if(q.from!=='e'||q.dead)continue;const dx=P.x-q.x,dy=P.y-q.y,d=Math.hypot(dx,dy);if(d<q.r+16&&(q.vx*dx+q.vy*dy>0||d<q.r+7)){hit=true;break;}}
  if(!hit)return;trainEv('dodge');trainEv('perfect');
  if(upLv('flow')){P.hp=Math.min(S.maxhp,P.hp+S.maxhp*.03*upLv('flow'));txtFx(P.x,P.y-8,'+HP','#50e060');} // PERFECT FORM (skill tree)
- P.dashCd=Math.max(0,P.dashCd-.15);P.mik=1.5;R.pdodge=(R.pdodge||0)+1; // reward timing without extending invulnerability
+ P.dashCd=Math.max(0,P.dashCd-COOLDOWN.dodgeDash);P.mik=1.5;R.pdodge=(R.pdodge||0)+1; // reward timing without extending invulnerability
  for(const q of projs)if(q.from==='e'&&!q.peril&&Math.hypot(q.x-P.x,q.y-P.y)<30){q.dead=true;spark(q.x,q.y,'#cef',3,40);}
- for(const k of ['q','f','rmb'])if(P.ab[k]>0)P.ab[k]=Math.max(0,P.ab[k]-.2);
+ for(const k of ['q','f','rmb'])if(P.ab[k]>0)P.ab[k]=Math.max(0,P.ab[k]-COOLDOWN.dodge);
  txtFx(P.x,P.y,'PERFECT DODGE','#cef');fxRing(P.x,P.y,30,'#cef',.35);flashT=Math.max(flashT,.08);flashCol='#cef';sfx('deflect');}
-function graze(q){R.grazes=(R.grazes||0)+1;for(const k of ['q','f','e','rmb'])if(P.ab[k]>0)P.ab[k]=Math.max(0,P.ab[k]-.15);if(R.grazes%5===0)R.sen+=1;
+function graze(q){R.grazes=(R.grazes||0)+1;
+ if(R.time>=(P.grazeRefundAt??0)){
+  const refund=S.grazeRefund??COOLDOWN.graze;
+  P.grazeRefundAt=R.time+COOLDOWN.grazeInterval;
+  for(const k of ['q','f','e','rmb'])if(P.ab[k]>0)P.ab[k]=Math.max(0,P.ab[k]-refund);
+ }
+ if(R.grazes%5===0)R.sen+=1;
  particles.push({x:(q.x+P.x)/2,y:(q.y+P.y)/2,vx:0,vy:-20,t:.3,col:'#fff'});if(grazeCd<=0){grazeCd=.08;sfx('graze');}if(R.grazes%25===0)txtFx(P.x,P.y,'GRAZE X'+R.grazes,'#cef');}
 function splitShot(q){for(let i=0;i<6;i++){const a=i/6*TAU+Math.random()*.5;projs.push(mkProj('e',q.x,q.y,a,62,q.dmg*.6,{own:q.own,col:q.col,r:2,pd:6,st:'star'}));}spark(q.x,q.y,q.col,6,50);}
 function stepStyle(q,dt){
