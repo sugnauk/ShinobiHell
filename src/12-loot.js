@@ -4,13 +4,13 @@
 // the six stats: a hero's base stats (balance) plus bonuses from relics, enchants and rings (see 177-stats.js).
 // The old stat potions (elixirs) are gone.
 const STATS=[{k:'att',n:'ATTACK',c:'#f55',d:'+1 SPELL POWER'},{k:'def',n:'DEFENSE',c:'#ccc',d:'-1 DAMAGE TAKEN'},{k:'spd',n:'SPEED',c:'#6cf',d:'+1% MOVE SPEED'},
- {k:'dex',n:'DEXTERITY',c:'#f9c',d:'+2% CAST SPEED'},{k:'vit',n:'VITALITY',c:'#f84',d:'+5 MAX HP'},{k:'wis',n:'WISDOM',c:'#a8f',d:'-1% COOLDOWNS'}],STATMAX=20;
+ {k:'dex',n:'DEXTERITY',c:'#f9c',d:'+2% CAST SPEED'},{k:'vit',n:'VITALITY',c:'#f84',d:'+5 MAX HP'},{k:'wis',n:'WISDOM',c:'#a8f',d:'-'+cdPct(COOLDOWN.wisdom)+' COOLDOWNS'}],STATMAX=20;
 // 15 material tiers per slot; quality (common..legendary) multiplies the base stats and adds affixes
 const GEARN={wpn:['BAMBOO','WILLOW','OAK','CEDAR','IRON','STEEL','SPIRIT','JADE','CORAL','MOON','STORM','PHOENIX','DRAGON','DIVINE','HEAVEN'],
  arm:['LINEN','HEMP','COTTON','SILK','PRIEST','MONK','ONMYO','SPIRIT','JADE','MOON','STORM','PHOENIX','DRAGON','DIVINE','CELESTIAL'],
  ring:['COPPER','TIN','BRONZE','SILVER','GOLD','JADE','PEARL','CORAL','OPAL','MOON','STORM','PHOENIX','DRAGON','DIVINE','HEAVEN']},TMAX=14;
 const QUAL=[{n:'COMMON',c:'#c8c8c8',m:1},{n:'UNCOMMON',c:'#5fd35f',m:1.15},{n:'RARE',c:'#4aa0ff',m:1.3},{n:'EPIC',c:'#c060ff',m:1.5},{n:'LEGENDARY',c:'#ffb020',m:1.7}];
-const AFX=[{k:'crit',d:'+8% CRIT'},{k:'aspd',d:'+12% CAST SPEED'},{k:'emb',d:'-10% COOLDOWNS'},{k:'vamp',d:'LIFESTEAL 2%'},{k:'qpow',d:'+30% Q POWER'},{k:'epow',d:'+25% R POWER'},{k:'iron',d:'-8% DAMAGE TAKEN'},{k:'ghost',d:'+6% DODGE'},{k:'magnet',d:'+15% GOLD'},{k:'shadow',d:'FASTER DASH'}];
+const AFX=[{k:'crit',d:'+8% CRIT'},{k:'aspd',d:'+12% CAST SPEED'},{k:'emb',d:'-'+cdPct(COOLDOWN.charm)+' COOLDOWNS'},{k:'vamp',d:'LIFESTEAL 2%'},{k:'qpow',d:'+30% Q POWER'},{k:'epow',d:'+25% R POWER'},{k:'iron',d:'-8% DAMAGE TAKEN'},{k:'ghost',d:'+6% DODGE'},{k:'magnet',d:'+15% GOLD'},{k:'shadow',d:'FASTER DASH'}];
 // enchants are run-wide boosts for the abilities (RMB Q E F R) - never the LMB, which comes from your weapon
 // ===== HOW THE POWER SYSTEMS DIFFER =====
 // WEAPON   decides HOW your LMB attacks (its shape).          GEAR (armour/ring) = plain numbers.
@@ -54,7 +54,7 @@ const RARE=[
  {slot:'wpn',wt:'STAFF',n:'KESTREL ROD',fx:{crit:3},d:'+24% CRIT CHANCE'},{slot:'wpn',wt:'STAFF',n:'VOIDGLASS STAFF',fx:{flare:1,glass:1},d:'CRITS EXPLODE. +40% POWER, -25% HP'},
  {slot:'wpn',wt:'KATANA',n:'CRIMSON MOON KATANA',fx:{crit:2,vamp:1},d:'+16% CRIT. HITS HEAL 2%'},{slot:'wpn',wt:'NAGINATA',n:'THUNDERCLAP NAGINATA',fx:{shock:1,storm:1},d:'HITS SHOCK. +DMG VS SHOCKED'},
  {slot:'arm',n:'SHINOBI GARB',fx:{shadow:2,ghost:2},d:'FASTER DASH, 12% DODGE'},{slot:'arm',n:'CRANE CASTLE ARMOUR',fx:{iron:3},d:'-22% DAMAGE TAKEN'},
- {slot:'arm',n:'HIGH PRIEST VESTMENT',fx:{emb:2},d:'-19% COOLDOWNS'},{slot:'arm',n:'BLOOD ROBE',fx:{vamp:2},d:'SPELLS HEAL 4% OF DAMAGE'},
+ {slot:'arm',n:'HIGH PRIEST VESTMENT',fx:{emb:2},d:'-'+cdPct(1-Math.pow(1-COOLDOWN.charm,2))+' COOLDOWNS'},{slot:'arm',n:'BLOOD ROBE',fx:{vamp:2},d:'SPELLS HEAL 4% OF DAMAGE'},
  {slot:'ring',n:'RING OF ECHOES',fx:{echo:1},d:'SPELLS MAY CAST TWICE'},{slot:'ring',n:'FROSTBOUND BAND',fx:{frost:1,pierce:1},d:'SPELLS CHILL AND PIERCE'},
  {slot:'ring',n:'STORM SIGNET',fx:{shock:1,storm:1},d:'SPELLS SHOCK. ARC LIGHTNING'},{slot:'ring',n:'RING OF GREED',fx:{magnet:3,blood:1},d:'+GOLD, HEAL ON KILL'},
 ];
@@ -286,10 +286,10 @@ function renderLootConfirm(){
 // ---- legendary scrolls: choose 1 of 3. REPLACE swaps a slot's whole spell; ADD-ON keeps it and stacks an effect on top ----
 // scroll add-ons are guaranteed and only for the chosen slot (unlike enchants, which are chances on every ability)
 const ADDONS=[{k:'burn',n:'ALWAYS BURNS',tier:3},{k:'chill',n:'ALWAYS CHILLS',tier:3},{k:'shock',n:'ALWAYS SHOCKS + ARCS',tier:3},{k:'poison',n:'ALWAYS POISONS',tier:3},
- {k:'crit',n:'+25% CRIT CHANCE',tier:3},{k:'pierce',n:'SHOTS PIERCE +2',tier:2},{k:'cd',n:'COOLDOWN -40%',tier:3},{k:'emp',n:'EMPOWERED: +60% POWER -30% COOLDOWN',tier:4}];
+ {k:'crit',n:'+25% CRIT CHANCE',tier:3},{k:'pierce',n:'SHOTS PIERCE +2',tier:2},{k:'cd',n:'COOLDOWN -'+cdPct(COOLDOWN.scroll),tier:3},{k:'emp',n:'EMPOWERED: +60% POWER -'+cdPct(COOLDOWN.empowered)+' COOLDOWN',tier:4}];
 const TECHNIQUES=[
  {k:'focus',n:'+10% ABILITY POWER',tier:1,c:'#93d6de'},
- {k:'tempo',n:'12% SHORTER COOLDOWN',tier:1,c:'#93d6de'},
+ {k:'tempo',n:cdPct(COOLDOWN.tempo)+' SHORTER COOLDOWN',tier:1,c:'#93d6de'},
  {k:'edge',n:'+8% CRIT CHANCE',tier:1,c:'#93d6de'}
 ];
 ADDONS.forEach(a=>a.c=fxCol(a.k));
@@ -417,7 +417,7 @@ function drawInv(){
 // rare gear sets: wear 2 or 3 pieces of one set for extra powers
 const SETS={
  INFERNO:{c:'#f84',items:['PLAGUE LOTUS STAFF','BLOOD ROBE','STORM SIGNET'],b2:{qpow:1},d2:'+30% Q POWER',b3:{flare:1,storm:1},d3:'CRITS EXPLODE, +20% VS BURN/SHOCK'},
- MOON:{c:'#8cf',items:['MOONLIT WAND','HIGH PRIEST VESTMENT','RING OF ECHOES'],b2:{emb:1},d2:'-10% COOLDOWNS',b3:{echo:2},d3:'SPELLS ECHO FAR MORE OFTEN'},
+ MOON:{c:'#8cf',items:['MOONLIT WAND','HIGH PRIEST VESTMENT','RING OF ECHOES'],b2:{emb:1},d2:'-'+cdPct(COOLDOWN.charm)+' COOLDOWNS',b3:{echo:2},d3:'SPELLS ECHO FAR MORE OFTEN'},
  SHINOBI:{c:'#c8f',items:['KESTREL ROD','SHINOBI GARB','FROSTBOUND BAND'],b2:{shadow:1},d2:'FASTER DASH',b3:{crit:2,ghost:1},d3:'+16% CRIT, +6% DODGE'},
  CRANE:{c:'#fd4',items:['VOIDGLASS STAFF','CRANE CASTLE ARMOUR','RING OF GREED'],b2:{iron:1},d2:'-8% DAMAGE TAKEN',b3:{vamp:2,blood:1},d3:'LIFESTEAL, HEAL ON KILL'}};
 const setOf=g=>g&&g.rare?Object.keys(SETS).find(k=>SETS[k].items.includes(g.name)):null;

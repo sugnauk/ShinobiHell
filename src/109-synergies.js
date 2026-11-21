@@ -6,8 +6,8 @@ const SYN=[
  {k:'permafrost',n:'PERMAFROST',a:'frost',b:'frostlocket',d:'FROST CHARM + FROST LOCKET: FROZEN FOES TAKE +40% DAMAGE'},
  {k:'sunmoon',n:'SUN AND MOON',a:'crit',b:'flare',d:'CRITICAL EYE + AMATERASU EYE: +10% CRIT'},
  {k:'sanguine',n:'SANGUINE',a:'blood',b:'vamp',d:'BLOOD MIST + BLOOD PACT: EVERY HIT HEALS 2% MORE OF ITS DAMAGE'},
- {k:'wraith',n:'WRAITHWALK',a:'shadow',b:'ghost',d:'SHADOW STEP + PHANTOM: -20% DASH COOLDOWN, +4% DODGE'},
- {k:'bells',n:'THOUSAND BELLS',a:'templebell',b:'echobell',d:'TEMPLE BELL + ECHO BELL: -10% COOLDOWNS'},
+ {k:'wraith',n:'WRAITHWALK',a:'shadow',b:'ghost',d:'SHADOW STEP + PHANTOM: -'+cdPct(COOLDOWN.wraith)+' DASH COOLDOWN, +4% DODGE'},
+ {k:'bells',n:'THOUSAND BELLS',a:'templebell',b:'echobell',d:'TEMPLE BELL + ECHO BELL: -'+cdPct(COOLDOWN.bells)+' COOLDOWNS'},
  {k:'balance',n:'BALANCED BLADE',a:'glass',b:'iron',d:'GLASS CANNON + IRON BODY: GLASS CANNON NO LONGER COSTS HEALTH'},
  {k:'needles',n:'NEEDLE STORM',a:'wave',b:'pierce',d:'TWIN TALISMAN + PIERCING SEAL: +1 PIERCE, +10% CAST SPEED'},
  {k:'aegis',n:'AEGIS',a:'orbpearl',b:'guardseal',d:'ORBITING PEARL + GUARDIAN SEAL: +3 DEFENCE'},
@@ -18,8 +18,8 @@ const synOn=k=>{const s=SYN.find(x=>x.k===k);return !!(s&&R&&R.inv&&R.inv[s.a]&&
 meta.syn=meta.syn||{};
 {const _cs=calcStats;calcStats=function(){const s=_cs();if(!R||!R.inv)return s;
  if(synOn('sunmoon'))s.crit+=.10;if(synOn('raijin'))s.crit+=.06;
- if(synOn('wraith')){s.dashCd*=.8;s.dodge=(s.dodge||0)+.04;}
- if(synOn('bells'))s.cdr*=.9;
+ if(synOn('wraith')){s.dashCd*=1-COOLDOWN.wraith;s.dodge=(s.dodge||0)+.04;}
+ if(synOn('bells'))s.cdr*=1-COOLDOWN.bells;
  if(synOn('balance')&&R.inv.glass)s.maxhp=Math.round(s.maxhp/Math.pow(.75,R.inv.glass));
  if(synOn('needles')){s.pierce=(s.pierce||0)+1;s.aspd*=1.1;}
  if(synOn('aegis'))s.def+=3;

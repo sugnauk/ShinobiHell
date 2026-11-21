@@ -12,7 +12,7 @@ const GPW={
  quick:{n:'QUICKSILVER',t:0,slot:'arm ring',d:l=>'KILLS GIVE '+(1.5*l)+'S OF HASTE'},
  grazer:{n:'GRAZE HUNGER',t:0,slot:'ring',d:l=>'EVERY 8 GRAZES HEAL '+2*l+'%'},
  bounty:{n:'BOUNTY',t:0,slot:'ring',d:l=>'+'+2*l+' GOLD PER KILL'},
- focus:{n:'FOCUS',t:0,slot:'ring',d:l=>'-'+10*l+'% COOLDOWNS'},
+ focus:{n:'FOCUS',t:0,slot:'ring',d:l=>'-'+cdPct(1-Math.pow(1-COOLDOWN.gearFocus,l))+' COOLDOWNS'},
  ward:{n:'WARDING',t:0,slot:'arm',d:l=>10*l+'% CHANCE TO SHRUG OFF A BULLET'},
  // ---- major (epic and up) ----
  firetrail:{n:'FIRE TRAIL',t:1,slot:'arm',d:l=>'WALKING LEAVES A TRAIL OF FIRE'+(l>1?' (HOTTER)':'')},
@@ -40,7 +40,7 @@ RARE.push(
  {slot:'arm',n:'GLACIER LAMELLAR',fx:{iron:2},d:'-16% DAMAGE TAKEN',pw:[['frostnova',2],['ward',1]]},
  {slot:'arm',n:'SPIRIT SHROUD',fx:{ghost:2},d:'12% DODGE',pw:[['guardian',2]]},
  {slot:'arm',n:'THORNED HAORI',fx:{thorn:1},d:'WARD SHOCKWAVE',pw:[['thorns',2],['miasma',2]]},
- {slot:'ring',n:'RING OF NINE MOONS',fx:{emb:1},d:'-10% COOLDOWNS',pw:[['orbits',2]]},
+ {slot:'ring',n:'RING OF NINE MOONS',fx:{emb:1},d:'-'+cdPct(COOLDOWN.charm)+' COOLDOWNS',pw:[['orbits',2]]},
  {slot:'ring',n:'MIRROR OF YATA',fx:{pierce:1},d:'SPELLS PIERCE',pw:[['mirror',2],['grazer',1]]},
  {slot:'ring',n:'BLOODMOON RING',fx:{vamp:1},d:'LIFESTEAL',pw:[['vamp',2],['bounty',1]]},
  {slot:'ring',n:'THUNDER EYE',fx:{shock:1},d:'SPELLS SHOCK',pw:[['blink',2],['quick',1]]});
@@ -71,7 +71,7 @@ function PWL(k){if(!R)return 0;let n=0;if(R.eq)for(const s of ['wpn','arm','ring
 
 // ---------------------------------------------------------------- the abilities at work
 const GPS={hits:0,meteorT:0,lastHit:-9,novaT:0,guardT:0,trailT:0,orbA:0,orbs:[],echoQ:[],lastChain:0};
-{const _cs=calcStats;calcStats=function(){const s=_cs();if(R){s.rangeM+=.2*PWL('reach');s.cdr*=Math.pow(.9,PWL('focus'));}return s;};}
+{const _cs=calcStats;calcStats=function(){const s=_cs();if(R){s.rangeM+=.2*PWL('reach');s.cdr*=Math.pow(1-COOLDOWN.gearFocus,PWL('focus'));}return s;};}
 // on hit
 {const _he=hurtE;hurtE=function(e,dmg,pd,o){const alive=e&&!e.dead,h0=e?e.hp:0;const r=_he(e,dmg,pd,o);o=o||{};
   if(!R||!P||!alive||o.gp||e.prop||e.hp>=h0)return r;GPS.hits++;

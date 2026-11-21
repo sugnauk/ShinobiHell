@@ -30,7 +30,7 @@ const tClear=keep=>{for(const e of enemies)if(!(keep&&e.type===keep))e.dead=true
 const LESSONS=[
  {t:'MOVE AND ATTACK',l:()=>[[kN('up'),kN('left'),kN('down'),kN('right')].join('')+' TO WALK, THE MOUSE TO AIM.','LMB: '+spName('m')+'. DESTROY THE 3 DUMMIES.'],unlock:['m'],go:()=>{tSpawn('dummy',.5,.38);tSpawn('dummy',.56,.5);tSpawn('dummy',.5,.62);},need:3,ev:'kill'},
  {t:'HEAVY ATTACK AND STUN',l:()=>['HOLD RMB TO CHARGE '+spName('h')+', RELEASE TO STRIKE.','EVERY HIT FILLS A FOE\'S YELLOW STUN BAR. A FULL BAR STUNS','THEM: +50% DAMAGE. STUN THE ARMOURED DUMMY.'],unlock:['h'],go:()=>{tClear();tSpawn('dummy',.55,.5,{hp:99999,maxhp:99999,maxPosture:60,r:8});},need:1,ev:'break'},
- {t:'DASH AND PERFECT DODGE',l:()=>[kN('dash')+' DASHES. YOU CANNOT BE HIT WHILE DASHING.','DASH JUST AS A SHOT REACHES YOU FOR A PERFECT DODGE: NEARBY','BULLETS SHATTER. REFUNDS UP TO 0.15S ON DASH AND 0.2S ON Q, E AND F.','YOUR NEXT ATTACK IS EMPOWERED. DO ONE PERFECT DODGE.'],unlock:['d'],
+ {t:'DASH AND PERFECT DODGE',l:()=>[kN('dash')+' DASHES. YOU CANNOT BE HIT WHILE DASHING.','DASH JUST AS A SHOT REACHES YOU FOR A PERFECT DODGE: NEARBY','BULLETS SHATTER. REFUNDS UP TO 0.08S ON DASH AND 0.10S ON Q, E AND F.','YOUR NEXT ATTACK IS EMPOWERED. DO ONE PERFECT DODGE.'],unlock:['d'],
   go:()=>{tClear();tTurret(.75,{cnt:1,spread:.12,sp:70,dmg:3,pd:2,col:'#fd4'});},need:1,ev:'perfect',
   // keep the turret in range, whatever you do
   tick:(dt,T)=>{const t=enemies.find(e=>e.type==='turret'&&!e.dead);if(t&&Math.hypot(t.x-P.x,t.y-P.y)>170)tTurret(.75,t.tPat);}},

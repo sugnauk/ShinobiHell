@@ -320,4 +320,4 @@ function heroTechniqueDisplay(){
 
 // Last stats wrapper: class, gear, Temple, synergies and Daily have all applied.
 {const _cs=calcStats;calcStats=function(){const s=_cs.apply(this,arguments);
- s.dashCd=Math.max(s.dashCd,s.dashIv*2.5);s.dodge=Math.min(.30,s.dodge||0);return s;};}
+ s.cdr=Math.max(s.cdr,COOLDOWN.minSpell);s.dashCd=Math.max(s.dashCd,COOLDOWN.minDash,s.dashIv*2.5);s.dodge=Math.min(.30,s.dodge||0);return s;};}

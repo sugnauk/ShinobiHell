@@ -18,10 +18,10 @@ const DPACTS=[
  {k:'gold',n:'GOLD RUSH',good:'DOUBLE GOLD',bad:'FOES HAVE 25% MORE HEALTH',fx:{gold:2,foeHp:1.25}},
  {k:'vamp',n:'BLOOD THIRST',good:'EVERY KILL HEALS 3% HEALTH',bad:'NO POTIONS',fx:{}},
  {k:'blood',n:'BLOOD PRICE',good:'START WITH 2 RELICS',bad:'25% LESS MAX HEALTH',fx:{maxhp:.75}},
- {k:'quick',n:'QUICK HANDS',good:'ABILITIES RECHARGE 30% FASTER',bad:'FOES HIT 20% HARDER',fx:{cdr:.7,taken:1.2}},
+ {k:'quick',n:'QUICK HANDS',good:'15% SHORTER ABILITY COOLDOWNS',bad:'FOES HIT 20% HARDER',fx:{cdr:.85,taken:1.2}},
  {k:'iron',n:'IRON SKIN',good:'YOU TAKE 25% LESS DAMAGE',bad:'YOU DEAL 20% LESS DAMAGE',fx:{taken:.75,deal:.8}},
  {k:'big',n:'BIG GAME',bad:'FOES HAVE 40% MORE HEALTH',good:'+40% JADE',fx:{foeHp:1.4,jade:1.4}},
- {k:'shadow',n:'SHADOW STEP',good:'YOUR DASH RECHARGES 40% FASTER',bad:'YOU TAKE 15% MORE DAMAGE',fx:{dash:.6,taken:1.15}},
+ {k:'shadow',n:'SHADOW STEP',good:'20% SHORTER DASH COOLDOWN',bad:'YOU TAKE 15% MORE DAMAGE',fx:{dash:.8,taken:1.15}},
  {k:'moon',n:'MOONLIT MARCH',good:'EVERY STAGE MAP IS REVEALED',bad:'FOES MOVE 15% FASTER',fx:{foeSpd:1.15}}];
 const DBASE={foeHp:1.15,taken:1.15,jade:1.25};
 // kept so an old save's single modifier still reads

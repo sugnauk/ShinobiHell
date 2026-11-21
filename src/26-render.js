@@ -451,7 +451,7 @@ function spellInfo(k){
  const v=P.lo[k],r=Math.round,ap=AP(),bp=BP(),qm=(1+.3*S.qpow)*ap,ep=(1+.25*S.epow),cd=k==='m'?null:spellCd(k)/(k==='h'?S.aspd:1),L=[];
  const A=S.atk;
  if(v>=4){const sp=SPELLS[k][v],em=EMP(k),base=sp.db==='b'?bp:sp.db==='q'?qm:sp.db==='e'?ep*ap*(1+.06*RK()):ap;
-  if(em>1)L.push('EMPOWERED: +60% POWER, -30% COOLDOWN');if(sp.dm)L.push('DAMAGE '+r(A*sp.dm*base*em)+(sp.dx||''));if(sp.x)L.push(sp.x);if(k==='h')L.push('HOLD RMB 0.6S FOR A FULL CHARGE');
+  if(em>1)L.push('EMPOWERED: +60% POWER, -'+cdPct(COOLDOWN.empowered)+' COOLDOWN');if(sp.dm)L.push('DAMAGE '+r(A*sp.dm*base*em)+(sp.dx||''));if(sp.x)L.push(sp.x);if(k==='h')L.push('HOLD RMB 0.6S FOR A FULL CHARGE');
   if(sp.dm)L.push('FORMULA  POWER '+r(A)+' X '+sp.dm+' X '+(base*em).toFixed(2));if(k==='m')L.push((1/((LMBRATE[v]||.3)/S.aspd)).toFixed(1)+' CASTS/S');
   L.push((cd?'COOLDOWN '+cd.toFixed(1)+'S   ':'')+'CRIT '+r(S.crit*100)+'%');return L;}
  if(v===3)L.push('RARE SCROLL - LASTS THIS RUN');

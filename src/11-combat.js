@@ -129,7 +129,7 @@ function killE(e){
  if(e.elite||e.boss){slowT=Math.max(slowT,e.boss?.6:.25);hitstop=Math.max(hitstop,.06);}
  if(R.training){trainEv('kill');spark(e.x,e.y,'#d8b860',14,70);return;}deathFx(e);sfx('kill');spark(e.x,e.y,e.boss?'#fd4':'#c33',e.boss?40:12,e.boss?140:80);
  if(S.kills)P.hp=Math.min(S.maxhp,P.hp+S.kills);
- if(!e.boss)P.ab.e=Math.max(0,P.ab.e-1.2*(1+S.ecd));
+ if(!e.boss)P.ab.e=Math.max(0,P.ab.e-COOLDOWN.kill*(1+COOLDOWN.soulEater*Math.min(S.ecd,3)));
  if(e.elite==='volatile'){dh.push({x:e.x,y:e.y,r:34,t:.9,dur:.9,dmg:20*e.dm,col:'#f64'});txtFx(e.x,e.y,'VOLATILE!','#f64');}
  dropLoot(e);
  if(e.boss)onBossDead(e);

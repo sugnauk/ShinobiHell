@@ -10,6 +10,7 @@
 - Hero unlock banners wait until after the player chooses a boss reward.
 - The three prologues now award common and uncommon loot. Players keep their inventory into Stage I.
 - The Wizard can move during ultimate wind-ups.
+- Reduced cooldown bonuses from the skill tree, relics, gear, scrolls, shrines, and Daily pacts. Stacked bonuses can lower ability cooldowns by up to 25%. Grazes, perfect dodges, Echo Mind, and kills refund less time.
 - Documented attack patterns for the rest of Chapter II and recorded the keyboard and touch playtest results.
 
 ## 0.8.12: The fork beneath Still Water and mobile fullscreen

@@ -105,7 +105,7 @@ const GODS={
   {t:'OFFER A REVIVE',d:'LOSE 1 REVIVE. GAIN A LEGENDARY RELIC',ok:()=>P.rez>0,fn:()=>{P.rez--;applyItem(randItem(['rez','phoenix'],3).id);}}]},
  moon:{n:'SHRINE OF THE MOON HARE',sub:'IT SEES ALL PATHS',c:'#90b0ff',O:[
   {t:'MOONLIT PATHS',d:'REVEAL THE WHOLE MAP OF THIS STAGE',ok:()=>R.fog!==R.di,fn:()=>{for(let i=0;i<map.expl.length;i++)if(map.t[i])map.expl[i]=1;setToast('THE MOON SHOWS YOU THE WAY','#90b0ff',2.5);}},
-  {t:'STILL WATER',d:'-8% ABILITY COOLDOWNS FOR THE RUN. COSTS 50 GOLD',ok:()=>R.sen>=50,fn:()=>{R.sen-=50;bless('cdr',1);setToast('YOUR MIND GROWS STILL','#90b0ff',2.5);}},
+  {t:'STILL WATER',d:'-'+cdPct(COOLDOWN.stillWater)+' ABILITY COOLDOWNS FOR THE RUN. COSTS 50 GOLD',ok:()=>R.sen>=50,fn:()=>{R.sen-=50;bless('cdr',1);setToast('YOUR MIND GROWS STILL','#90b0ff',2.5);}},
   {t:'RICE CAKE',d:'REFILL YOUR POTIONS. COSTS 60 GOLD',ok:()=>R.sen>=60&&R.pots<POTMAX,fn:()=>{R.sen-=60;R.pots=POTMAX;setToast('POTIONS REFILLED','#6f6',2);}}]},
 };
 // ---- room events: cursed altar, sealed ambush, timed gong challenge ----
@@ -121,7 +121,7 @@ const CURSES={
   fn:p=>{R.cz.greed=(R.cz.greed||0)+1;for(let i=0;i<8;i++)dropPickup(p.x,p.y,'sen',Math.round(rnd(5,9)*(1+R.di*.3)));}},
  fog:{n:'BLINDING FOG',c:'#b8b0c8',sk:'#6a6478',L:[{s:'YOUR MAP IS LOST FOR THIS STAGE',c:'#ff5050'},{s:'AN EPIC BAG DROPS RIGHT NOW',c:'#ffd040'},{s:'THE FOG LIFTS AT THE NEXT STAGE',c:'#aaa'}],
   fn:p=>{R.fog=R.di;R.cz.fog=(R.cz.fog||0)+1;dropBag(p.x,p.y+14,goodBag());}},
- frenzy:{n:'RESTLESS FRENZY',c:'#40e0e0',sk:'#208080',L:[{s:'DASH RECHARGES 40% SLOWER',c:'#ff5050'},{s:'+25% ATTACK SPEED',c:'#40e0e0'},{s:'-15% ABILITY COOLDOWNS',c:'#40e0e0'}],
+ frenzy:{n:'RESTLESS FRENZY',c:'#40e0e0',sk:'#208080',L:[{s:'DASH RECHARGES 40% SLOWER',c:'#ff5050'},{s:'+25% ATTACK SPEED',c:'#40e0e0'},{s:'-'+cdPct(COOLDOWN.frenzy)+' ABILITY COOLDOWNS',c:'#40e0e0'}],
   fn:p=>{R.cz.frenzy=(R.cz.frenzy||0)+1;}},
  hunted:{n:'THE HUNTED',c:'#c070ff',sk:'#6a2a9a',L:[{s:'AN ELITE STALKER WAKES IN THIS ROOM',c:'#ff5050'},{s:'IT DROPS A ROYAL-GRADE BAG',c:'#ffd040'},{s:'+10% DAMAGE FOR THE REST OF THE RUN',c:'#ff8a30'}],
   fn:p=>{R.cz.hunted=(R.cz.hunted||0)+1;const pool=DUN[R.di].pool,e=mkElite(pick(pool),p.x,p.y-40,p.room,R.di);e.hp*=1.5;e.maxhp*=1.5;e.dm*=1.15;e.awake=true;e.dropBag=rewardBag();enemies.push(e);spark(e.x,e.y,'#c070ff',20,90);}},

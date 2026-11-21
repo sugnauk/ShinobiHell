@@ -8,10 +8,10 @@ const MASTERY_AT=[6,14,24];
 const MASTERY=[
  [['VETERAN',{pow:.05}],['BLOODED',{crit:.05}],['WARMASTER',{boss:.15,pow:.05}]],
  [['STEADY HAND',{near:.08}],['SWORDSAINT',{aspd:.06,def:1}],['EDGE OF HEAVEN',{near:.12,aspd:.06}]],
- [['STILL WATER',{cdr:.05}],['QUICKSILVER',{spd:.05,dash:.08}],['THE VOID',{cdr:.10}]],
- [['SCHOLAR',{abil:.08}],['FAR CASTER',{range:.10}],['ARCHMAGE',{abil:.15,cdr:.04}]],
+ [['STILL WATER',{cdr:.025}],['QUICKSILVER',{spd:.05,dash:.04}],['THE VOID',{cdr:.05}]],
+ [['SCHOLAR',{abil:.08}],['FAR CASTER',{range:.10}],['ARCHMAGE',{abil:.15,cdr:.02}]],
  [['HARDY',{hp:.08}],['IRONHIDE',{def:2}],['MOUNTAIN HEART',{hp:.12,regen:.003}]],
- [['SHADE',{dodge:.03}],['SWIFT SHADOW',{spd:.05,graze:1}],['PHANTOM',{dodge:.05,dash:.08}]],
+ [['SHADE',{dodge:.03}],['SWIFT SHADOW',{spd:.05,graze:1}],['PHANTOM',{dodge:.05,dash:.04}]],
  [['THRIFTY',{gold:.10}],['FORTUNATE',{luck:1}],['DRAGON HOARD',{gold:.20,pot:.10}]],
  [['STALKER',{range:.08}],['KEEN EYE',{crit:.04}],['APEX HUNTER',{pow:.08,crit:.04}]]];
 const stBranchOwned=b=>SKT.nodes.filter(n=>n.b===b&&stLv(n.k)>0).length;
