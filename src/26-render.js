@@ -585,10 +585,13 @@ function drawHUD(){
   if(np.curse){const C=CURSES[np.ck||'frail'],Ls=C.L.concat([{s:'LASTS ALL RUN AND STACKS',c:'#888'}]),w=196,h=Ls.length*9+18,x=Math.round((W-w)/2),y=H-50-h;ctx.fillStyle='rgba(20,8,12,.94)';ctx.fillRect(x,y,w,h);ctx.fillStyle=C.c;ctx.fillRect(x,y,w,1);ctx.fillRect(x,y+h-1,w,1);
    txt(C.n,x+4,y+4,C.c);{const s2='YOU CARRY '+curseCount();txt(s2,x+w-4-txtW(s2),y+4,'#c6f');}Ls.forEach((l,i)=>txt(l.s,x+4,y+14+i*9,l.c));}
   else if(np.k==='altar'&&np.god){const D=GODS[np.god];ctxt(D.n+' - '+D.sub,H-54,D.c);}if(np.k==='pedestal'){const it=np.item?ITEMBY[np.item]:null;
-   if(it)ctxt(FXNAME[fxStyle(it.id)]+' RELIC '+ROM[it.r]+': '+it.d,H-36,fxCol(it.id));
+   if(it){
+    if(np.relicStand)ctxt('ONE RELIC PURCHASE PER STAGE',H-52,'#ffd040');
+    ctxt(FXNAME[fxStyle(it.id)]+' RELIC '+ROM[it.r]+': '+it.d,H-36,fxCol(it.id));
+   }
    else if(np.gear)ctxt(gearLines(np.gear).slice(1,3).join('  '),H-36,QUAL[np.gear.q].c);
    else if(np.ench){const E=ENCH.find(x=>x.k===np.ench.k);ctxt('ENCHANT: '+E.d,H-36,E.c);}
-   else if(np.reroll)ctxt('REROLL THE RELIC. ONE PURCHASE PER STAGE',H-36,'#ffd040');
+   else if(np.reroll)ctxt('REFRESHES THE RELIC SELECTION. PRICE RISES EACH TIME',H-36,'#ffd040');
    else ctxt('HP POTION: DRINK WITH C TO HEAL 35%',H-36,'#50e060');}}
  drawMinimap();
  if(toast.t>0){ctx.globalAlpha=Math.min(1,toast.t);ctxt(toast.s,24,toast.c,1);ctx.globalAlpha=1;}
