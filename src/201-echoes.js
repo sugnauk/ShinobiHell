@@ -9,7 +9,7 @@
 // One echo at most per dungeon, in about 3 runs of 5 once you have beaten a guardian; never in its own stage, in a
 // prologue, in training or in the boss rush. The room glows violet and its name shows as you come near.
 ET.echo={n:'GUARDIAN ECHO',desc:'A REMNANT OF A GUARDIAN YOU HAVE BEATEN. IT FIGHTS ALONGSIDE OTHER FOES AND DROPS ONE PIECE OF GEAR',hp:400,spd:42,pos:600,r:9,ai:'dummy',rng:0,wl:0,atks:[]};
-const GECHO={chance:.6,hpMul:13,tall:30,e:null,force:null,
+const GECHO={chance:.6,hpMul:18,tall:30,e:null,force:null,
  // the reduced portrait: the boss's full sheet scaled down whole (nearest pixel), every frame, built once
  mini:{},sprite(i,half){const b=BOSS[i],key=i+'|'+(b&&b.name)+'|'+(half?1:0);if(GECHO.mini[key])return GECHO.mini[key];
   let s;try{s=half?bossHurtSpr(i):bossSheet(i);}catch(_){s=null;}if(!s||!s.c)return null;

@@ -63,8 +63,9 @@ function hurtE(e,dmg,pd,o){
  // which slot did this hit come from? abilities (not LMB) also carry enchants + scroll add-ons
  const src=o.src!==undefined?o.src:castSrc,AF=src&&src!=='m'&&!o.chain&&R?abFx(src):null;
  if(src==='m'&&!o.chain&&P&&P.sig)dmg*=SIGBONUS; // signature weapon bonus
- // deathblows need the Mortal Edge item; without it, staggered foes just take +50% damage
- if(e.stag>0&&o.slash&&S.dblow){deathblow(e);return;}if(e.stag>0)dmg*=1.5;
+ const finishing=e.stag>0&&o.slash&&S.dblow;
+ if(finishing&&!bossDeathblowTarget(e)){deathblow(e);return;}
+ if(e.stag>0)dmg*=1.5;
  let crit=false;if(o.slash&&Math.random()<S.crit+(AF?AF.crit:0)){dmg*=2;crit=true;}
  if(crit&&src==='m'&&!o.chain&&CLS().k==='shinobi')e.shadowMark=R.time+4;
  if(freezeT>0)dmg*=1.4;
@@ -76,7 +77,9 @@ function hurtE(e,dmg,pd,o){
  if(P&&P.rage>0)dmg*=1.3;
  const ironPower=R&&P&&P.ironBellyUntil>R.time&&!o.foe?1+P.ironBellyPower:1;
  const preIronDamage=dmg;
- dmg*=ironPower;e.hp-=dmg;
+ dmg*=ironPower;
+ if(finishing){deathblow(e,dmg);return;}
+ e.hp-=dmg;
  // run stats: damage per source slot (m h q w f e), everything else (relics, procs, reflects) is 'x'
  if(R){R.dmg=R.dmg||{};const sk=src&&'mhqwfe'.includes(src)?src:'x';R.dmg[sk]=(R.dmg[sk]||0)+Math.max(0,dmg);}e.posture+=pd;e.pdelay=1.8;e.flash=.12;wake(e);
  const big=dmg>=S.atk*1.8;
@@ -112,11 +115,16 @@ function hurtE(e,dmg,pd,o){
  if(e.hp<=0){killE(e);return;}
  checkBreak(e);
 }
-function deathblow(e){
+const BOSS_DEATHBLOW_SHARE=.01;
+function bossDeathblowTarget(e){
+ const owner=e.bossOwned;
+ return e.boss||e.mini||e.lairBoss||e.echo||e.horse||owner?.r7?.includes(e)||owner?.guards?.includes(e);
+}
+function deathblow(e,hitDamage=0){
  hitstop=.18;shake=Math.max(shake,8);sfx('break');R.deathblows++;
  txtFx(e.x,e.y,'DEATHBLOW','#f33');spark(e.x,e.y,'#f33',24,110);fxRing(e.x,e.y,30,'#f33',.3);
  if(S.dbHeal)P.hp=Math.min(S.maxhp,P.hp+S.maxhp*S.dbHeal);
- if(e.boss&&!(e.iv>0)){e.hp-=e.maxhp*.03;e.stag=0;e.posture=0;e.pdelay=2.5;e.cd=1.3;if(e.hp<=0)killE(e);}
+ if(bossDeathblowTarget(e)){e.hp-=Math.max(hitDamage,e.maxhp*BOSS_DEATHBLOW_SHARE);e.stag=0;e.posture=0;e.pdelay=2.5;e.cd=1.3;if(e.hp<=0)killE(e);}
  else killE(e);
 }
 function killE(e){

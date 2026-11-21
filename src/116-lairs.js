@@ -56,7 +56,7 @@ function unlockLair(){const Z=map&&map.lair;if(!Z||!Z.locked)return;Z.locked=fal
 // ---------- the door and the boss, placed when the stage loads ----------
 {const _pr=populateRoom;populateRoom=function(r,di){if(r.type!=='lair')return _pr.apply(this,arguments);
  const L=r.lair,Z=map.lair;props.push({k:'lairdoor',lairDoor:true,x:Z.px,y:Z.py,room:Z.parent,L});
- const c=roomCenter(r),e=mkEnemy(L.et,c.x,c.y,r,di),hp=BOSS[L.stage].hp*BOSSHP*L.hp*DF().hp*(R.ngp?1.25:1);
+ const c=roomCenter(r),e=mkEnemy(L.et,c.x,c.y,r,di),hp=BOSS[L.stage].hp*BOSSHP*MINIBOSS_HEALTH*L.hp*DF().hp*(R.ngp?1.25:1);
  Object.assign(e,{hp,maxhp:hp,lairBoss:L,sprOv:lairSpr(L,0),phase:1,label:null,elite:null,at:2.5,bt:1.2,k:0,ang:0,dm:1+.2*di,brq:[]});enemies.push(e);};}
 const LAIRSPR={};
 function lairSpr(L,half){const k=L.art+(half?'h':'n');if(!LAIRSPR[k]){ARTHURT=!!half;try{LAIRSPR[k]=bossArt(L.art);}finally{ARTHURT=false;}}return LAIRSPR[k];}

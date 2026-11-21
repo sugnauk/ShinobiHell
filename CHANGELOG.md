@@ -2,6 +2,9 @@
 
 ## 0.8.14: The First Flame
 
+- Raised guardian HP by 50% in the prologues, 85% in stages I–IV, 100% in V–XII and 60% from XIII onward. Enrage timers scale with the added health. Lair bosses, the Moth Queen and guardian echoes also have more HP.
+- Narrowed the damage gap across all 13 heroes while keeping a close-range damage advantage. Test Mode now equips the selected hero’s own starter weapon when switching characters.
+- Executioner’s Mark deathblows deal 1% of a guardian’s max HP or the hit’s damage, whichever is greater.
 - Added the Temple of the First Flame after Ruri. Master Kaito alternates palm, bow and sword forms, then links them after his braziers go out. His guardian artwork also appears at campfires and in training.
 - Shops stock up to three different relics. Each stage allows one relic purchase.
 - Sumo’s Salt Throw heals for 25% of damage dealt, up to 20% max HP per throw.
