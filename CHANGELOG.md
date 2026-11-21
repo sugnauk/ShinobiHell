@@ -2,6 +2,7 @@
 
 ## 0.8.14: The First Flame
 
+- Start with Wizard, Samurai, Archer and Sumo. Recruit three heroes for each of the first three lifetime guardian clears. Prologue clears and past wins count.
 - Fit mobile play and menus inside the phone’s safe area. Give Pause, Bag, Swap and Fullscreen a dedicated row above the map, and keep gold and revives beside equipped gear.
 - Raised guardian HP by 50% in the prologues, 85% in stages I–IV, 100% in V–XII and 60% from XIII onward. Enrage timers scale with the added health. Lair bosses, the Moth Queen and guardian echoes also have more HP.
 - Narrowed the damage gap across all 13 heroes while keeping a close-range damage advantage. Test Mode now equips the selected hero’s own starter weapon when switching characters.
