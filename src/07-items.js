@@ -1,8 +1,8 @@
 'use strict';
 // HELL OF THE EMPEROR - items, abilities, meta progression (part of the former game.js; files load in numeric order, see index.html)
 // ---------- items & tools ----------
-const COOLDOWN={charm:.05,focusRank:.005,wisdom:.005,frenzy:.08,stillWater:.04,
- rank:.01,maxRank:12,empowered:.15,scroll:.20,tempo:.06,timeWeaver:.02,gearFocus:.05,bells:.05,
+const COOLDOWN={charm:.05,focusRank:.01,wisdom:.005,frenzy:.08,stillWater:.04,
+ rank:.01,maxRank:12,empowered:.15,scroll:.20,tempo:.06,timeWeaver:.07,gearFocus:.05,bells:.05,
  minSpell:.75,minDash:.55,shadow:.08,dashRank:.01,ghostStep:.02,wraith:.10,
  graze:.04,grazeNode:.0007,grazeInterval:.35,dodge:.10,dodgeDash:.08,kill:.6,soulEater:.5,echoChance:.05,echoRefund:.05};
 const cdPct=f=>Math.round(f*10000)/100+'%';
@@ -51,7 +51,7 @@ const relicTradeDepth=()=>R.pro?'prologue-'+R.pro:R.di;
 const ULT_CD=32,WARD_CD=7,CHAIN_CD=4.5;
 
 // ---------- meta progression ----------
-const TEMPLE_LEGACY={atk:.5,vit:3,pos:3,sen:.025,res:.05,crit:.0075,bossd:.02,wrath:.025,
+const TEMPLE_LEGACY={atk:.5,vit:5,pos:3,sen:.025,res:.05,crit:.005,bossd:.02,wrath:.025,
  iron:.25,swift:.0075,flow:.0075,purse:10,belt:.03,heir:5};
 const UPG=[
  {k:'vit',name:'VITALITY',d:'+'+TEMPLE_LEGACY.vit+' MAX HP',base:30,max:10},

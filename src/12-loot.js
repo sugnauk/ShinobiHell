@@ -143,7 +143,9 @@ function itemCol(it){if(it.t==='gear')return QUAL[it.q||0].c;if(it.t==='ench')re
 function bagContents(tier,boss){
  const pro=prologueLoot();
  if(pro)tier=Math.min(tier,1);
- const di=R.di,it=[],addRelic=chance=>{if(Math.random()<chance)it.push({t:'relic',id:randItem(['rez'],0,2).id});},slot=()=>pick(['wpn','arm','ring']),gear=(b,q)=>mkGear(slot(),tierFor(di,b),false,q==null?rollQ(di,0):q);
+ const di=R.di,it=[],addRelic=chance=>{if(Math.random()<chance)it.push({t:'relic',id:randItem(['rez'],0,2).id});};
+ const gear=(b,q)=>mkGear(pick(['wpn','arm','ring']),tierFor(di,b),false,
+  tier<=3?templeLootQuality(q,pro?1:di<2?2:3):q);
  if(tier===1||tier===2){ // green pack / blue satchel: a decent piece of gear plus extras
   it.push(gear(0,boss&&pro?1:rollQ(di,tier-1)));if(Math.random()<.1)it.push({t:'hp'});if(tier===2)addRelic(.04);if(!pro&&Math.random()<.1*tier)it.push(mkEnch());if(tier===2&&Math.random()<.14)it.push({t:'scroll',regular:true});}
  else if(tier===0){ // brown: 1-3 small things

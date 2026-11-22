@@ -4,8 +4,8 @@
 // sixteen KEYSTONES (big nodes that change how you play) can each be reached from several sides. You can buy any node next
 // to one you own. The original sixteen ranked nodes keep their keys (meta.up), so ranks already bought carry over.
 const TEMPLE_KEYSTONE={berserker:.06,executioner:.10,iaido:.06,momentumPower:.05,momentumSpeed:.025,
- timeDash:.05,overchannel:.075,overchannelBasic:.025,colossus:.075,colossusSpeed:.02,ghostDodge:.025,
- grazeHeal:.001,midas:.10,treasure:.04,eagleRange:.06,eagleCrit:.02,marked:.20};
+ timeDash:.05,overchannel:.11,overchannelBasic:.025,colossus:.20,colossusSpeed:.02,ghostDodge:.025,
+ grazeHeal:.001,midas:.10,treasure:.11,eagleRange:.06,eagleCrit:.01,marked:.20};
 const TEMPLE_LUCK=.01;
 const STB=[
  {n:'WAR',c:'#ff5050',old:['atk','crit','bossd','wrath'],st:[{pow:.0075},{crit:.005},{boss:.01}],ks:[
@@ -19,22 +19,22 @@ const STB=[
  {n:'ARCANE',c:'#c080ff',st:[{abil:.0125},{cdr:.002},{range:.015}],ks:[
   ['OVERCHANNEL','+'+cdPct(TEMPLE_KEYSTONE.overchannel)+' ABILITY DAMAGE, -'+cdPct(TEMPLE_KEYSTONE.overchannelBasic)+' BASIC ATTACK DAMAGE'],
   ['ECHO MIND','ABILITIES HAVE A '+cdPct(COOLDOWN.echoChance)+' CHANCE TO REFUND '+cdPct(COOLDOWN.echoRefund)+' OF THEIR COOLDOWN']]},
- {n:'BODY',c:'#50e060',old:['vit','pos','iron','res'],st:[{hp:.01},{def:.25},{regen:.0004}],ks:[
+ {n:'BODY',c:'#50e060',old:['vit','pos','iron','res'],st:[{hp:.0175},{def:.25},{regen:.0004}],ks:[
   ['COLOSSUS','+'+cdPct(TEMPLE_KEYSTONE.colossus)+' MAX HP, -'+cdPct(TEMPLE_KEYSTONE.colossusSpeed)+' MOVE SPEED'],
-  ['UNDYING','ONCE PER RUN A KILLING BLOW LEAVES YOU AT 1 HP']]},
+  ['UNDYING','START EACH RUN WITH ONE EXTRA REVIVE']]},
  {n:'SHADOW',c:'#9a7aff',st:[{dodge:.003},{spd:.005},{graze:1}],ks:[
   ['GHOST STEP','+'+cdPct(TEMPLE_KEYSTONE.ghostDodge)+' DODGE, -'+cdPct(COOLDOWN.ghostStep)+' DASH COOLDOWN'],
   ['GRAZE MASTER','EVERY GRAZE HEALS '+cdPct(TEMPLE_KEYSTONE.grazeHeal)+' MAX HP']]},
  {n:'FORTUNE',c:'#ffd040',old:['sen','purse','belt','heir'],st:[{gold:.015},{pot:.01},{luck:1}],ks:[
   ['MIDAS','+'+cdPct(TEMPLE_KEYSTONE.midas)+' GOLD'],
-  ['TREASURE HUNTER','+'+cdPct(TEMPLE_KEYSTONE.treasure)+' CHANCE TO RAISE GEAR QUALITY BY ONE TIER, UP TO EPIC']]},
+  ['TREASURE HUNTER','+'+cdPct(TEMPLE_KEYSTONE.treasure)+' CHANCE TO UPGRADE GEAR IN ORDINARY LOOT BAGS BY ONE QUALITY TIER']]},
  {n:'HUNT',c:'#80ff80',st:[{range:.015},{crit:.005},{pow:.005}],ks:[
   ['EAGLE EYE','+'+cdPct(TEMPLE_KEYSTONE.eagleRange)+' RANGE, +'+cdPct(TEMPLE_KEYSTONE.eagleCrit)+' CRIT'],
   ['MARKED PREY','YOUR FIRST HIT ON EACH FOE DEALS +'+cdPct(TEMPLE_KEYSTONE.marked)+' DAMAGE']]}];
 const STAT_TXT={pow:v=>'+'+cdPct(v)+' POWER',crit:v=>'+'+cdPct(v)+' CRIT',boss:v=>'+'+cdPct(v)+' DAMAGE TO BOSSES AND ELITES',near:v=>'+'+cdPct(v)+' DAMAGE TO FOES CLOSE TO YOU',
  aspd:v=>'+'+cdPct(v)+' ATTACK SPEED',def:v=>'+'+v+' DEFENCE',cdr:v=>'-'+cdPct(v)+' COOLDOWNS',spd:v=>'+'+cdPct(v)+' MOVE SPEED',dash:v=>'-'+cdPct(v)+' DASH COOLDOWN',
  abil:v=>'+'+cdPct(v)+' ABILITY DAMAGE',range:v=>'+'+cdPct(v)+' RANGE',hp:v=>'+'+cdPct(v)+' MAX HP',regen:v=>'REGENERATE '+cdPct(v)+' HP/S',dodge:v=>'+'+cdPct(v)+' DODGE',
- graze:v=>'GRAZES COOL ABILITIES '+Math.round(COOLDOWN.grazeNode*v*10000)/10+'MS MORE',gold:v=>'+'+cdPct(v)+' GOLD',pot:v=>'POTIONS RESTORE '+cdPct(v)+' MORE MAX HP',luck:v=>'+'+cdPct(TEMPLE_LUCK*v)+' CHANCE OF BETTER GEAR'};
+ graze:v=>'GRAZES COOL ABILITIES '+Math.round(COOLDOWN.grazeNode*v*10000)/10+'MS MORE',gold:v=>'+'+cdPct(v)+' GOLD',pot:v=>'POTIONS RESTORE '+cdPct(v)+' MORE MAX HP',luck:v=>'+'+cdPct(TEMPLE_LUCK*v)+' CHANCE OF BETTER GEAR IN ORDINARY LOOT BAGS'};
 // Keystones are the only nodes with ranks (I-III). Ranks II and III each add this bonus on top of the keystone itself.
 const KSRANK={'BERSERKER':{pow:.0125},'EXECUTIONER':{crit:.01},'IAIDO MASTER':{near:.02},'BLADE DANCE':{aspd:.0125},'MOMENTUM':{spd:.01},'TIME WEAVER':{cdr:.004},
  'OVERCHANNEL':{abil:.02},'ECHO MIND':{cdr:.003},'COLOSSUS':{hp:.015},'UNDYING':{def:.25},'GHOST STEP':{dodge:.005},'GRAZE MASTER':{graze:1},
@@ -101,6 +101,11 @@ function stBuy(n){
 let STOT=null,STOTkey='';
 function stTot(){const key=JSON.stringify(meta.up);if(STOT&&key===STOTkey)return STOT;const t={};for(const n of SKT.nodes){if(!n.eff)continue;const lv=stLv(n.k);if(!lv)continue;for(const k in n.eff)t[k]=(t[k]||0)+n.eff[k]*lv;if(n.rk&&lv>1)for(const k in n.rk)t[k]=(t[k]||0)+n.rk[k]*(lv-1);}STOTkey=key;return STOT=t;}
 const KS=nm=>!!stTot()['ks:'+nm];
+function templeLootQuality(quality,maxQuality){
+ if(quality>=maxQuality)return quality;
+ const chance=TEMPLE_LUCK*(stTot().luck||0)+(KS('TREASURE HUNTER')?TEMPLE_KEYSTONE.treasure:0);
+ return chance>0&&Math.random()<chance?quality+1:quality;
+}
 
 // ---------------------------------------------------------------- effects
 {const _cs=calcStats;calcStats=function(){const s=_cs(),t=stTot();
@@ -134,7 +139,6 @@ const STS={lastHit:-9};
   fx.push({k:'slash',x:P.x,y:P.y,a:P.aim,arc:TAU,r,t:.2,dur:.2,col:'#e8eef6'});
   for(const e of enemies)if(!e.dead&&!e.air&&!e.prop&&Math.hypot(e.x-P.x,e.y-P.y)<r+e.r)hurtE(e,S.atk*.5,8,{slash:true});
   sfx('slash');}};}
-{const _mg=mkGear;mkGear=function(slot,tier,rare,q){if(!rare&&q==null&&R){const t=stTot(),up=TEMPLE_LUCK*(t.luck||0)+(KS('TREASURE HUNTER')?TEMPLE_KEYSTONE.treasure:0);if(up&&Math.random()<up)q=Math.min(3,rollQ(R.di,0)+1);}return _mg(slot,tier,rare,q);};}
 {const _uw=updWorld;updWorld=function(dt){_uw(dt);if(!P||!R||mode!=='play')return;const t=stTot();if(t.regen)P.hp=Math.min(S.maxhp,P.hp+S.maxhp*t.regen*dt);
   // Echo Mind refunds a fraction when a new ability cooldown starts.
   if(KS('ECHO MIND')){

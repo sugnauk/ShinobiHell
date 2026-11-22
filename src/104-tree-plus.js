@@ -8,8 +8,8 @@ const MASTERY_AT=[6,14,24];
 const MASTERY=[
  [['VETERAN',{pow:.0125}],['BLOODED',{crit:.0125}],['WARMASTER',{boss:.0375,pow:.0125}]],
  [['STEADY HAND',{near:.02}],['SWORDSAINT',{aspd:.015,def:.25}],['EDGE OF HEAVEN',{near:.03,aspd:.015}]],
- [['STILL WATER',{cdr:.005}],['QUICKSILVER',{spd:.0125,dash:.01}],['THE VOID',{cdr:.01}]],
- [['SCHOLAR',{abil:.02}],['FAR CASTER',{range:.025}],['ARCHMAGE',{abil:.0375,cdr:.004}]],
+ [['STILL WATER',{cdr:.01}],['QUICKSILVER',{spd:.0125,dash:.01}],['THE VOID',{cdr:.025}]],
+ [['SCHOLAR',{abil:.02}],['FAR CASTER',{range:.025}],['ARCHMAGE',{abil:.0375,cdr:.01}]],
  [['HARDY',{hp:.02}],['IRONHIDE',{def:.5}],['MOUNTAIN HEART',{hp:.03,regen:.0006}]],
  [['SHADE',{dodge:.0075}],['SWIFT SHADOW',{spd:.0125,graze:1}],['PHANTOM',{dodge:.0125,dash:.01}]],
  [['THRIFTY',{gold:.025}],['FORTUNATE',{luck:1}],['DRAGON HOARD',{gold:.05,pot:.02}]],

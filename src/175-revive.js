@@ -5,11 +5,6 @@
 // moves again (with the revive's usual push-back and cleared bullets).
 const REV_DUR=1.7;let REV=null;const revNow=()=>performance.now()/1000;
 {const _die=die;die=function(){if(REV){if(P)P.hp=Math.max(P.hp,1);return;} // already coming back: nothing else happens
- // Older checkpoints record the stage of the Undying save, which can be zero.
- if(P&&R&&!(P.dying>0)&&R.undying==null&&KS('UNDYING')){
-  R.undying=true;P.hp=1;P.iv=1;
-  setToast('UNDYING','#50e060',2);fxRing(P.x,P.y,50,'#50e060',.5);sfx('heal');return;
- }
  if(P&&!(P.dying>0)&&P.rez>0&&!(R&&R.training)){
   REV={t0:revNow(),x:P.x,y:P.y,face:P.face||1,go:_die};P.hp=Math.max(P.hp,1);P.iv=Math.max(P.iv||0,REV_DUR+.5);
   if(typeof TIPHOLD!=='undefined')TIPHOLD=null;tone(110,.6,'sine',.08,-40);return;}
