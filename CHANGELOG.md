@@ -1,10 +1,11 @@
 # Changelog
 
-## 0.8.16: Mobile camera and controls
+## 0.8.16: Mobile controls and Temple balance
 
 - Bring the landscape phone camera 12% closer while retaining safe-area HUD and touch positions.
 - Extend dungeon lighting and cinematic effects to the screen edges so the safe-area seam disappears.
 - Show equipped ability sprites on touch buttons, with a cooldown badge and a heavy-attack charge ring. Dash and potion buttons have icons too.
+- Reduce permanent Temple bonuses across all eight branches, including keystone ranks and masteries. Undying triggers once per run. Second Wind, Potion Belt, and Heirloom grant better revive recovery, potion healing, and pickup reach instead of extra starting resources.
 
 ## 0.8.15: Mobile aim and Siegebreaker
 

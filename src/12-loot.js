@@ -474,7 +474,7 @@ function hitPlayer(raw,sx,sy,o){
 }
 function die(){
  if(P.dying>0)return;
- if(P.rez>0){P.rez--;P.hp=S.maxhp*.6;P.iv=2.5;P.stag=0;P.pos=0;sfx('heal');setToast('RESURRECTION','#fd4',2.5);fxRing(P.x,P.y,90,'#fd4',.5);shake=8;
+ if(P.rez>0){P.rez--;P.hp=S.maxhp*Math.min(1,.6+TEMPLE_LEGACY.res*upLv('res'));P.iv=2.5;P.stag=0;P.pos=0;sfx('heal');setToast('RESURRECTION','#fd4',2.5);fxRing(P.x,P.y,90,'#fd4',.5);shake=8;
   if(S.phoenix)shockwave(P.x,P.y,110,S.atk*6*S.phoenix);
   for(const e of enemies){if(e.dead||e.boss)continue;const d=dist(e,P);if(d<90){const a=angTo(P,e);e.kx+=Math.cos(a)*220;e.ky+=Math.sin(a)*220;e.act=null;e.stun=1.5;}}
   for(const q of projs)if(q.from==='e')q.dead=true;return;}

@@ -70,7 +70,7 @@ function drawTraining(){const T=R.training;if(!T)return;const L=LESSONS[T.i];if(
  txt('N: SKIP TRAINING',4,H-8,'#666');}
 function finishTraining(){R.training=null;P.lock=null;
  // training-only power (the practice scroll, enchant and shrine blessing) does not carry into the real run
- P.lo=Object.assign({},CLS().kit);P.emp={};R.addon={};R.bless={};R.cz={};R.curse=0;R.cnames=[];if(R.eq.wpn)R.eq.wpn.ench=[];syncLMB();S=calcStats();props=[];dh=[];meta.trained=true;saveMeta();P.hp=S.maxhp;R.pots=Math.min(POTMAX,1+upLv('belt'));R.eq.wpn=R.eq.wpn&&!R.eq.wpn.starter&&R.eq.wpn.tier<=1?R.eq.wpn:R.eq.wpn;loadDungeon(0);sfx('pickup');}
+ P.lo=Object.assign({},CLS().kit);P.emp={};R.addon={};R.bless={};R.cz={};R.curse=0;R.cnames=[];if(R.eq.wpn)R.eq.wpn.ench=[];syncLMB();S=calcStats();props=[];dh=[];meta.trained=true;saveMeta();P.hp=S.maxhp;R.pots=1;R.eq.wpn=R.eq.wpn&&!R.eq.wpn.starter&&R.eq.wpn.tier<=1?R.eq.wpn:R.eq.wpn;loadDungeon(0);sfx('pickup');}
 // no gourd: C drinks one of your (rare) HP potions
 const POTMAX=3,POTHEAL=.35;
 function useGourd(){const p=P;if(p.hp>=S.maxhp||p.stag>0)return;if(R.pots<=0){txtFx(p.x,p.y,'NO POTIONS','#888');return;}R.pots--;p.hp=Math.min(S.maxhp,p.hp+S.maxhp*POTHEAL);sfx('heal');txtFx(p.x,p.y,'+HP','#50e060');spark(p.x,p.y,'#50e060',10,50);}

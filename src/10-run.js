@@ -7,10 +7,9 @@ function startRun(start,resume){
  const signature=WSIG[CLASSES[meta.cls||0].k];
  R={di:start,inv:{},eq:{wpn:{t:'gear',slot:'wpn',tier:0,rare:false,wt:signature,name:'T0 '+signature,starter:true},arm:null,ring:null},pack:[],pots:1,asc:meta.asc||0,sen:0,kills:0,time:0,start,deathblows:0,perfect:0};
  S=calcStats();
- P={x:0,y:0,hp:S.maxhp,pos:0,pdelay:0,guard:false,ward:0,ab:{q:0,rmb:0,e:0,h:0,f:0},atkCd:0,dash:0,dashCd:0,dx:0,dy:0,iv:0,stag:0,flash:0,gourd:S.gourdMax,rez:1+meta.up.res,aim:0,mik:0,face:1,lo:Object.assign({},CLS().kit),emp:{},aegis:0,evo:0,evoT:0,storm:0,stormT:0,stormA:0,hot:0,hotAmt:0,haste:0};
+ P={x:0,y:0,hp:S.maxhp,pos:0,pdelay:0,guard:false,ward:0,ab:{q:0,rmb:0,e:0,h:0,f:0},atkCd:0,dash:0,dashCd:0,dx:0,dy:0,iv:0,stag:0,flash:0,gourd:S.gourdMax,rez:1,aim:0,mik:0,face:1,lo:Object.assign({},CLS().kit),emp:{},aegis:0,evo:0,evoT:0,storm:0,stormT:0,stormA:0,hot:0,hotAmt:0,haste:0};
  for(let i=0;i<start*2;i++){const it=randItem(['rez']);R.inv[it.id]=(R.inv[it.id]||0)+1;}
- // starting gifts from the skill tree: WAR CHEST gold, POTION BELT potions, HEIRLOOM relics
- R.sen+=40*upLv('purse');R.pots=Math.min(POTMAX,R.pots+upLv('belt'));for(let i=0;i<upLv('heir');i++){const it=randItem(['rez'],1);R.inv[it.id]=(R.inv[it.id]||0)+1;}
+ R.sen+=TEMPLE_LEGACY.purse*upLv('purse');
  S=calcStats();P.hp=S.maxhp;P.gourd=S.gourdMax;
  if(resume)return;
  if(start===0&&trainNext){trainNext=false;loadTraining();}else loadDungeon(start);mode='play';paused=false;
