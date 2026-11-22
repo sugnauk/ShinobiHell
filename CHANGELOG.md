@@ -1,9 +1,10 @@
 # Changelog
 
-## 0.8.16: Mobile camera and lighting
+## 0.8.16: Mobile camera and controls
 
 - Bring the landscape phone camera 12% closer while retaining safe-area HUD and touch positions.
 - Extend dungeon lighting and cinematic effects to the screen edges so the safe-area seam disappears.
+- Show equipped ability sprites on touch buttons, with a cooldown badge and a heavy-attack charge ring. Dash and potion buttons have icons too.
 
 ## 0.8.15: Mobile aim and Siegebreaker
 

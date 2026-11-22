@@ -3,7 +3,10 @@
 // they play (they pause the game). The very first card is the controls. The tutorial is still on the main menu (now
 // called TUTORIAL, marked NEW until you have played it), and the death screen points a new player to it.
 TIPACT.controls={k:['use'],hold:['use'],say:'PRESS {use} OR ENTER TO BEGIN'};
-{const _ld=loadDungeon;loadDungeon=function(){const r=_ld.apply(this,arguments);try{if(R&&R.tipStage&&!R.training)tip('controls',['THE CONTROLS',
+{const _ld=loadDungeon;loadDungeon=function(){const r=_ld.apply(this,arguments);try{if(R&&R.tipStage&&!R.training)tip('controls',TOUCH?['TOUCH CONTROLS',
+  'DRAG ON THE LEFT TO MOVE. BASIC ATTACKS FIRE AT NEARBY FOES.',
+  'HOLD THE ICON LEFT OF DASH TO CHARGE. TAP OTHER ABILITY ICONS TO CAST.',
+  'DOUBLE ARROW: DASH. POTION ICON: HEAL. USE: INTERACT.']:['THE CONTROLS',
   [KN('up'),KN('left'),KN('down'),KN('right')].join('')+': MOVE.  MOUSE: AIM.  LMB: ATTACK.  HOLD RMB: HEAVY ATTACK',
   KN('dash')+': DASH - NOTHING CAN HIT YOU MID-DASH.  '+[KN('q'),KN('w'),KN('f'),KN('e')].join(' ')+': ABILITIES',
   KN('heal')+': DRINK A POTION.  '+KN('use')+': INTERACT.  '+KN('pack')+': YOUR PACK.  K: THE GUIDE']);}catch(_){}return r;};}

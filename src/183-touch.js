@@ -3,8 +3,8 @@
 // otherwise: on a PC nothing here runs, draws or listens beyond a single flag check, so PC performance is untouched.
 // (A touchscreen laptop gets them only while you use touch; moving a real mouse hides them again.)
 //  LEFT SIDE     a floating stick: put a thumb down anywhere and drag to move (smooth, any direction)
-//  RIGHT SIDE    the buttons, large and spread over the whole right side: DASH (biggest, in the corner), then an inner
-//                arc of HEAVY (hold to charge, like RMB), Q, E, F and an outer arc of R (the ultimate), POTION and USE
+//  RIGHT SIDE    dash in the corner, an inner arc of heavy (hold to charge) and three abilities,
+//                and an outer arc of ultimate, potion and use. Ability sprites follow the equipped loadout.
 //  TOP RIGHT     PAUSE, BAG and SWAP weapon
 //  AUTO-AIM and AUTO-ATTACK  aim at a nearby foe or follow the last walking direction. Basics fire only at foes.
 //  TIPS          the buttons stay up during a tip; the ones it asks for pulse, and tapping one does it (tapping
@@ -29,13 +29,13 @@ function touchButtons(){const L=TOUCHLAY,cx=W+L.cx,cy=H+L.cy,ring=(ang,rad)=>[cx
  const at=(ang,rad,o)=>{const [x,y]=ring(ang,rad);return Object.assign({x,y},o);};
  const row=TOUCH_TOP,fullscreen=touchFullscreenSize(),right=W-row.right-(fullscreen?fullscreen+row.gap:0);
  const top=(i,id,l,key)=>({id,l,key,x:right-i*row.step,y:row.y,r:row.r,top:1,act:id});
- return [{id:'dash',l:'DASH',x:cx,y:cy,r:L.dash,key:()=>KB.dash,col:'#9cdfff',act:'dash'},
-  at(180,L.inR,{id:'heavy',l:'RMB',slot:'h',r:L.ab,hold:'rdown',col:'#ffd080'}),
-  at(214,L.inR,{id:'q',l:'Q',slot:'q',r:L.ab,key:()=>KB.q,act:'q'}),
-  at(248,L.inR,{id:'w',l:'E',slot:'w',r:L.ab,key:()=>KB.w,act:'w'}),
-  at(276,L.inR,{id:'f',l:'F',slot:'f',r:L.ab,key:()=>KB.f,act:'f'}),
-  at(190,L.outR,{id:'e',l:'R',slot:'e',r:L.ult,key:()=>KB.e,col:'#ffd040',act:'e'}),
-  at(224,L.outR,{id:'heal',l:'POT',r:L.small,key:()=>KB.heal,col:'#ff7070',act:'heal'}),
+ return [{id:'dash',x:cx,y:cy,r:L.dash,key:()=>KB.dash,col:'#9cdfff',act:'dash'},
+  at(180,L.inR,{id:'heavy',slot:'h',r:L.ab,hold:'rdown'}),
+  at(214,L.inR,{id:'q',slot:'q',r:L.ab,key:()=>KB.q,act:'q'}),
+  at(248,L.inR,{id:'w',slot:'w',r:L.ab,key:()=>KB.w,act:'w'}),
+  at(276,L.inR,{id:'f',slot:'f',r:L.ab,key:()=>KB.f,act:'f'}),
+  at(190,L.outR,{id:'e',slot:'e',r:L.ult,key:()=>KB.e,col:'#ffd040',act:'e'}),
+  at(224,L.outR,{id:'heal',r:L.small,key:()=>KB.heal,col:'#ff7070',act:'heal'}),
   at(254,L.outR,{id:'use',l:'USE',r:L.small,key:()=>KB.use,col:'#c8f0a0',act:'use'}),
   top(0,'pause','II',()=>'Escape'),top(1,'pack',invOpen?'X':'BAG',()=>KB.pack),top(2,'swap','SWAP',()=>KB.swap)];}
 const toCanvas=t=>{const r=safeViewRect;return {x:(t.clientX-r.left)/r.width*W,y:(t.clientY-r.top)/r.height*H};};
@@ -127,19 +127,32 @@ function touchTarget(range,edge=false){let best=null,bd=Infinity;const view=scen
  else if(TOUCH&&mode==='play')mouse.down=false;return _u.apply(this,arguments);};}
 {const _hs=hoverSlot;hoverSlot=function(){if(TOUCH)return null;return _hs.apply(this,arguments);};}
 // drawing: sticks and buttons, faint so they never hide the fight; a button dims and counts down while it recharges
+function touchBadge(b,label){
+ const w=txtW(label),x=Math.round(b.x+b.r*.72-w),y=Math.round(b.y+b.r*.48);
+ ctx.globalAlpha=1;ctx.fillStyle='#14101a';ctx.fillRect(x-2,y-2,w+4,9);txt(label,x,y,'#fff');
+}
 function touchDraw(){if(!TOUCH||mode!=='play'||!P)return;const top=paused||invOpen,ask=TIPHOLD&&TIPHOLD.A?TIPHOLD.A.k||[]:[];
  for(const b of touchButtons()){if(top&&!b.top)continue;
-  const cd=b.slot?slotCd(b.slot):b.id==='dash'?P.dashCd||0:0,held=[...TCH.btn.values()].some(t=>t.id===b.id)||(b.hold==='rdown'&&mouse.rdown),col=b.col||'#e8e8f0',asked=b.act&&ask.includes(b.act);
-  ctx.globalAlpha=held?.55:.32;ctx.fillStyle='#000';ctx.beginPath();ctx.arc(b.x,b.y,b.r,0,TAU);ctx.fill();
-  ctx.globalAlpha=cd>0?.4:held?1:.8;ctx.strokeStyle=col;ctx.lineWidth=held?2:1;ctx.beginPath();ctx.arc(b.x,b.y,b.r,0,TAU);ctx.stroke();ctx.lineWidth=1;
+  const dash=b.id==='dash',heal=b.id==='heal',spell=b.slot&&SPELLS[b.slot][P.lo[b.slot]],col=b.col||spell?.c||'#e8e8f0';
+  const cd=b.slot?slotCd(b.slot):dash?P.dashCd||0:0,locked=P.lock?.[dash?'d':b.slot],dim=locked||cd>0||(heal&&R.pots===0);
+  const held=[...TCH.btn.values()].some(t=>t.id===b.id)||(b.hold==='rdown'&&mouse.rdown),asked=b.act&&ask.includes(b.act);
+  ctx.globalAlpha=held?.65:.46;ctx.fillStyle='#000';ctx.beginPath();ctx.arc(b.x,b.y,b.r,0,TAU);ctx.fill();
+  ctx.globalAlpha=dim?.4:held?1:.8;ctx.strokeStyle=col;ctx.lineWidth=held?2:1;ctx.beginPath();ctx.arc(b.x,b.y,b.r,0,TAU);ctx.stroke();ctx.lineWidth=1;
   // the cooldown sweeps round the rim
-  if(cd>0&&b.slot){const mx=b.slot==='h'?spellCd('h'):spellCd(b.slot);ctx.globalAlpha=.85;ctx.strokeStyle=col;ctx.lineWidth=2;ctx.beginPath();ctx.arc(b.x,b.y,b.r-2,-Math.PI/2,-Math.PI/2+TAU*(1-Math.min(1,cd/(mx||1))));ctx.stroke();ctx.lineWidth=1;}
+  if(cd>0){const mx=dash?S.dashCd:spellCd(b.slot);ctx.globalAlpha=.85;ctx.strokeStyle=col;ctx.lineWidth=2;ctx.beginPath();ctx.arc(b.x,b.y,b.r-2,-Math.PI/2,-Math.PI/2+TAU*(1-Math.min(1,cd/(mx||1))));ctx.stroke();ctx.lineWidth=1;}
   if(b.slot==='h'&&P.hCh>0){ctx.globalAlpha=.9;ctx.strokeStyle='#ffd040';ctx.lineWidth=2;ctx.beginPath();ctx.arc(b.x,b.y,b.r-2,-Math.PI/2,-Math.PI/2+TAU*Math.min(1,P.hCh/HCHARGE));ctx.stroke();ctx.lineWidth=1;}
   if(asked){const pu=.5+.5*Math.sin(time*10);ctx.globalAlpha=.6+.4*pu;ctx.strokeStyle='#ffffff';ctx.lineWidth=2;ctx.beginPath();ctx.arc(b.x,b.y,b.r+3+2*pu,0,TAU);ctx.stroke();ctx.lineWidth=1;}
-  const pack=b.id==='pack'&&!invOpen,s=cd>.05&&b.slot?String(Math.ceil(cd)):b.l,big=b.r>=16&&s.length<=4;
-  ctx.globalAlpha=cd>0?.55:1;txt(s,Math.round(b.x-txtW(s,big?2:1)/2),Math.round(b.y-(big?6:pack?6:3)),cd>0?'#aaa':col,big?2:1);
-  if(pack){const count=R.pack.length+'/'+PACKMAX;txt(count,Math.round(b.x-txtW(count)/2),b.y+1,R.pack.length>=PACKMAX?'#f66':'#aaa');}
-  if(b.id==='heal'&&R)txt(String(R.pots),Math.round(b.x+b.r-6),Math.round(b.y+b.r-8),'#fff');}
+  const icon=spell?spellIcon(spell):dash?motifIcon('dash',col):heal?itemIcon({t:'hp'}):null;
+  if(icon){const scale=heal?1:2,w=icon.width*scale,h=icon.height*scale;
+   ctx.globalAlpha=dim?.5:1;ctx.drawImage(icon,Math.round(b.x-w/2),Math.round(b.y-h/2),w,h);
+   ctx.globalAlpha=1;
+   if(locked)padlock(Math.round(b.x+b.r*.45),Math.round(b.y+b.r*.35),'#aaa');
+   else if(heal)touchBadge(b,String(R.pots));
+   else if(cd>.05&&b.slot)touchBadge(b,String(Math.ceil(cd)));
+  }else if(b.l){const pack=b.id==='pack'&&!invOpen;
+   ctx.globalAlpha=1;txt(b.l,Math.round(b.x-txtW(b.l)/2),Math.round(b.y-(pack?6:3)),col);
+   if(pack){const count=R.pack.length+'/'+PACKMAX;txt(count,Math.round(b.x-txtW(count)/2),b.y+1,R.pack.length>=PACKMAX?'#f66':'#aaa');}
+  }}
  ctx.globalAlpha=1;if(top||TIPHOLD)return;
  const s=TCH.stick;if(s){ctx.globalAlpha=.3;ctx.strokeStyle='#ffffff';ctx.beginPath();ctx.arc(s.ox,s.oy,22,0,TAU);ctx.stroke();
   const dx=s.x-s.ox,dy=s.y-s.oy,l=Math.hypot(dx,dy)||1,m=Math.min(l,22);ctx.globalAlpha=.55;ctx.fillStyle='#ffffff';ctx.beginPath();ctx.arc(s.ox+dx/l*m,s.oy+dy/l*m,8,0,TAU);ctx.fill();}

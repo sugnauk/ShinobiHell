@@ -13,7 +13,7 @@
 const QS_DUMMY_HP=()=>Math.max(8,S.atk*1.4);
 LESSONS.length=0;
 LESSONS.push(
- {t:'AMBUSH!',l:()=>['WALK '+[kN('up'),kN('left'),kN('down'),kN('right')].join('')+', AIM WITH THE MOUSE, LMB ATTACKS.','CUT DOWN THE STRAW BANDITS!'],unlock:['m'],need:6,
+ {t:'AMBUSH!',l:()=>[TOUCH?'DRAG ON THE LEFT TO MOVE. BASIC ATTACKS FIRE AT NEARBY FOES.':'WALK '+[kN('up'),kN('left'),kN('down'),kN('right')].join('')+', AIM WITH THE MOUSE, LMB ATTACKS.','CUT DOWN THE STRAW BANDITS!'],unlock:['m'],need:6,
   say:'BANDITS! ...STRAW ONES. STILL - CUT THEM DOWN!',
   go:()=>{const T=R.training;T.hd=[];T.ht=.2;T.spawned=0;},
   tick:(dt,TR)=>{TR.c+=tKills(TR,'hd',e=>{TR.streak=(TR.streak||0)+1;txtFx(e.x,e.y-12,TR.streak>2?TR.streak+' IN A ROW!':'SHRED!','#ffb060',1);sfx('coin');shake=Math.max(shake,3);hitstop=Math.max(hitstop,.04);
@@ -22,12 +22,12 @@ LESSONS.push(
    if(TR.ht<=0&&alive<3&&TR.c+alive<6){TR.ht=.5;const r=tRoom(),side=TR.spawned%2,y=(r.y+3+Math.random()*(r.h-6))*T,x=(side?r.x+r.w-2:r.x+2)*T;TR.spawned++;
     const e=tTarget(x,y,{horde:1,hp:QS_DUMMY_HP(),maxhp:QS_DUMMY_HP()});TR.hd.push(e);}
    for(const e of TR.hd)if(!e.dead){const a=Math.atan2(P.y-e.y,P.x-e.x);if(Math.hypot(P.x-e.x,P.y-e.y)>16)move(e,Math.cos(a)*30*dt,Math.sin(a)*30*dt,5);}}},
- {t:'ARROW STORM',l:()=>[kN('dash')+' DASHES - NOTHING CAN TOUCH YOU MID-DASH.','DASH THROUGH 2 VOLLEYS. TIME IT AS THEY ARRIVE FOR A PERFECT DODGE!','PERFECT DODGE SHATTERS SHOTS AND REFUNDS UP TO 0.08S OF DASH COOLDOWN.'],unlock:['d'],need:2,ev:'dodge',
+ {t:'ARROW STORM',l:()=>[TOUCH?'TAP THE DOUBLE ARROW TO DASH THROUGH SHOTS.':kN('dash')+' DASHES - NOTHING CAN TOUCH YOU MID-DASH.','DASH THROUGH 2 VOLLEYS. TIME IT AS THEY ARRIVE FOR A PERFECT DODGE!','PERFECT DODGE SHATTERS SHOTS AND REFUNDS UP TO 0.08S OF DASH COOLDOWN.'],unlock:['d'],need:2,ev:'dodge',
   say:'ARCHERS! DO NOT RUN FROM THE ARROWS - DASH THROUGH THEM!',
   go:()=>{tClear();tTurret(1.2,{cnt:5,spread:.7,sp:64,dmg:3,pd:2,col:'#fd4'});},
   tick:(dt,T)=>{const t=enemies.find(e=>e.type==='turret'&&!e.dead);if(t&&Math.hypot(t.x-P.x,t.y-P.y)>170)tTurret(1.2,t.tPat);},
   done:T=>T.c>=2||!!(T.ev&&T.ev.perfect)},
- {t:'THE STRAW OGRE',l:()=>['HOLD RMB TO CHARGE A HEAVY BLOW.   '+[kN('q'),kN('w'),kN('f'),kN('e')].join(' ')+': YOUR ABILITIES.','THEY RECHARGE FAST HERE - UNLEASH EVERYTHING! RED CIRCLES: MOVE!'],unlock:['h','q','w','f','e'],need:1,
+ {t:'THE STRAW OGRE',l:()=>TOUCH?['HOLD THE ICON LEFT OF DASH TO CHARGE. RELEASE TO STRIKE.','TAP THE OTHER FOUR ABILITY ICONS TO CAST. AVOID RED CIRCLES!']:['HOLD RMB TO CHARGE A HEAVY BLOW.   '+[kN('q'),kN('w'),kN('f'),kN('e')].join(' ')+': YOUR ABILITIES.','THEY RECHARGE FAST HERE - UNLEASH EVERYTHING! RED CIRCLES: MOVE!'],unlock:['h','q','w','f','e'],need:1,
   say:'NOW THE BIG ONE. GIVE IT EVERYTHING YOU HAVE!',
   go:()=>{tClear();const T=R.training;T.slots=new Set();const p=tRandSpot(80,110),hp=Math.max(900,S.atk*190);
    const e=tTarget(p.x,p.y,{ogre:1,label:'STRAW OGRE',labelC:'#ffb060',hp,maxhp:hp,maxPosture:70,r:12});T.og=[e];T.slam=2.2;fxRing(p.x,p.y,50,'#ffb060',.6);sfx('boss');shake=Math.max(shake,6);},
@@ -40,7 +40,7 @@ LESSONS.push(
    if(d>22){const a=Math.atan2(P.y-e.y,P.x-e.x);move(e,Math.cos(a)*16*dt,Math.sin(a)*16*dt,10);}
    // the slam: red circles where you stand (harmless here, but you learn to step out of them)
    T.slam-=dt;if(T.slam<=0){T.slam=2.6;txtFx(e.x,e.y-26,'SLAM!','#ff6040');for(let i=0;i<3;i++){const a=Math.random()*TAU,r=i?rnd(14,30):0;dh.push({x:P.x+Math.cos(a)*r,y:P.y+Math.sin(a)*r,r:16,t:1.1,dur:1.1,dmg:3,col:'#f55'});}}}},
- {t:'THE ROAD AHEAD',l:()=>['STAND ON THE TREASURE BAG: '+kN('use')+' TAKES IT ALL.','THEN STEP INTO THE PORTAL AND PRESS '+kN('use')+'. THE MARCH BEGINS!'],
+ {t:'THE ROAD AHEAD',l:()=>TOUCH?['STAND ON THE TREASURE BAG AND TAP USE TO TAKE IT ALL.','THEN STEP INTO THE PORTAL AND TAP USE TO BEGIN.']:['STAND ON THE TREASURE BAG: '+kN('use')+' TAKES IT ALL.','THEN STEP INTO THE PORTAL AND PRESS '+kN('use')+'. THE MARCH BEGINS!'],
   say:'HA! NOT BAD AT ALL. NOW GO - THE EMPEROR WILL NOT WAIT.',
   go:()=>{const p=tRandSpot(70,100);portal={x:p.x,y:p.y,t:0,pending:false};tClear();dh=[];const T=R.training,sec=T.total||0;T.stars=sec<75?3:sec<120?2:1;
    if(!meta.trialsReward){meta.trialsReward=1;meta.sen=(meta.sen||0)+50;saveMeta();T.paid=1;}},done:()=>false});
