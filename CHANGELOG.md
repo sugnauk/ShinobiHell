@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.8.16: Mobile controls and Temple balance
+
+- Bring the landscape phone camera 12% closer while retaining safe-area HUD and touch positions.
+- Extend dungeon lighting and cinematic effects to the screen edges so the safe-area seam disappears.
+- Show equipped ability sprites on touch buttons, with a cooldown badge and a heavy-attack charge ring. Dash and potion buttons have icons too.
+- Rebalance all eight Temple branches. A maxed Wizard has 150 base HP, 30% crit, about 20% shorter passive cooldowns and twice the sustained ability damage against bosses and elites before crits and situational bonuses. Undying grants a second starting revive on standard difficulty.
+- Fortune upgrades give a maxed tree a 30% chance to raise eligible gear in ordinary loot bags by one quality tier. Prologue gear remains capped at uncommon.
+
 ## 0.8.15: Mobile aim and Siegebreaker
 
 - Draw the dungeon edge to edge on landscape phones while keeping the HUD and touch controls inside the safe area.

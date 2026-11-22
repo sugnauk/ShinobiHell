@@ -43,11 +43,13 @@ function tipRelease(){TIPHOLD=null;mouse.down=false;if(TIPQ.length){TIPHOLD=TIPQ
  return _ok.apply(this,arguments);};}
 // the card: at the top of the screen, out of the fight's way, with the action blinking
 {const _rp=renderPlay;renderPlay=function(){_rp.apply(this,arguments);const TH=TIPHOLD;if(!TH||mode!=='play'||paused)return;const k=tipNow()-TH.t0;
- const L=TH.lines,act=tipSay(TH.A.say||''),w=Math.min(W-20,Math.max(...L.map(l=>txtW(l)),txtW(act)+20,120)+20),h=L.length*9+26,x=Math.round((W-w)/2),y=40-Math.round(Math.max(0,1-k/.2)*14);
+ const L=TH.lines,act=TOUCH?(TH.A.k.length?'TAP A HIGHLIGHTED BUTTON':''):tipSay(TH.A.say||'');
+ const g=TOUCH?'TAP TO DISMISS':'ENTER: GOT IT';
+ const w=Math.min(W-20,Math.max(...L.map(l=>txtW(l)),txtW(act)+txtW(g)+26,120)+20),h=L.length*9+26,x=Math.round((W-w)/2),y=40-Math.round(Math.max(0,1-k/.2)*14);
  ctx.globalAlpha=Math.min(1,k/.15);ctx.fillStyle='rgba(12,8,20,.95)';ctx.fillRect(x,y,w,h);ctx.fillStyle='#ffd040';ctx.fillRect(x,y,w,1);ctx.fillRect(x,y+h-1,w,1);ctx.fillRect(x,y,2,h);
  txt('TIP - PAUSED',x+w-txtW('TIP - PAUSED')-5,y+3,'#ffd040');L.forEach((l,i)=>txt(l,x+8,y+6+i*9,i?'#ddd':'#fff'));
  const bl=Math.floor(k*3)%2,ay=y+h-11;if(act){ctx.fillStyle=bl?'#ffd040':'#c8a030';ctx.fillRect(x+6,ay-2,txtW(act)+8,10);txt(act,x+10,ay,'#14101a');}
- const g='ENTER: GOT IT';txt(g,x+w-txtW(g)-6,ay,'#888');ctx.globalAlpha=1;};}
+ txt(g,x+w-txtW(g)-6,ay,'#888');ctx.globalAlpha=1;};}
 // dying, leaving or a new stage clears anything still up
 {const _ld=loadDungeon;loadDungeon=function(){TIPHOLD=null;TIPQ.length=0;return _ld.apply(this,arguments);};}
 {const _fr=finishRun;finishRun=function(){TIPHOLD=null;TIPQ.length=0;return _fr.apply(this,arguments);};}

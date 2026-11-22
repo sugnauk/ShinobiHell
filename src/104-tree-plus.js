@@ -6,14 +6,14 @@
 // - BUILD (B): every bonus you own added up, plus your keystones and masteries, on one page.
 const MASTERY_AT=[6,14,24];
 const MASTERY=[
- [['VETERAN',{pow:.05}],['BLOODED',{crit:.05}],['WARMASTER',{boss:.15,pow:.05}]],
- [['STEADY HAND',{near:.08}],['SWORDSAINT',{aspd:.06,def:1}],['EDGE OF HEAVEN',{near:.12,aspd:.06}]],
- [['STILL WATER',{cdr:.025}],['QUICKSILVER',{spd:.05,dash:.04}],['THE VOID',{cdr:.05}]],
- [['SCHOLAR',{abil:.08}],['FAR CASTER',{range:.10}],['ARCHMAGE',{abil:.15,cdr:.02}]],
- [['HARDY',{hp:.08}],['IRONHIDE',{def:2}],['MOUNTAIN HEART',{hp:.12,regen:.003}]],
- [['SHADE',{dodge:.03}],['SWIFT SHADOW',{spd:.05,graze:1}],['PHANTOM',{dodge:.05,dash:.04}]],
- [['THRIFTY',{gold:.10}],['FORTUNATE',{luck:1}],['DRAGON HOARD',{gold:.20,pot:.10}]],
- [['STALKER',{range:.08}],['KEEN EYE',{crit:.04}],['APEX HUNTER',{pow:.08,crit:.04}]]];
+ [['VETERAN',{pow:.0125}],['BLOODED',{crit:.0125}],['WARMASTER',{boss:.0375,pow:.0125}]],
+ [['STEADY HAND',{near:.02}],['SWORDSAINT',{aspd:.015,def:.25}],['EDGE OF HEAVEN',{near:.03,aspd:.015}]],
+ [['STILL WATER',{cdr:.01}],['QUICKSILVER',{spd:.0125,dash:.01}],['THE VOID',{cdr:.025}]],
+ [['SCHOLAR',{abil:.02}],['FAR CASTER',{range:.025}],['ARCHMAGE',{abil:.0375,cdr:.01}]],
+ [['HARDY',{hp:.02}],['IRONHIDE',{def:.5}],['MOUNTAIN HEART',{hp:.03,regen:.0006}]],
+ [['SHADE',{dodge:.0075}],['SWIFT SHADOW',{spd:.0125,graze:1}],['PHANTOM',{dodge:.0125,dash:.01}]],
+ [['THRIFTY',{gold:.025}],['FORTUNATE',{luck:1}],['DRAGON HOARD',{gold:.05,pot:.02}]],
+ [['STALKER',{range:.02}],['KEEN EYE',{crit:.01}],['APEX HUNTER',{pow:.02,crit:.01}]]];
 const stBranchOwned=b=>SKT.nodes.filter(n=>n.b===b&&stLv(n.k)>0).length;
 const stBranchSize=b=>SKT.nodes.filter(n=>n.b===b).length;
 const stTier=b=>{const o=stBranchOwned(b);return MASTERY_AT.filter(t=>o>=t).length;};
@@ -41,7 +41,7 @@ function stDrawBuild(){
   for(let i=0;i<3;i++){const on=i<tier;ctx.fillStyle=on?stRGB[b]:'#2e2638';ctx.fillRect(X+44+i*7,y,5,5);}
   txt(o+'/'+stBranchSize(b),X+68,y,'#887');const nx=tier<3?MASTERY[b][tier][0]+' AT '+MASTERY_AT[tier]:'MASTERED';txt(nx.slice(0,25),X+92,y,tier<3?'#6a5e6a':stRGB[b]);});
  // totals and keystones
- const t=stTot(),lines=Object.keys(t).filter(k=>STAT_TXT[k]&&t[k]).map(k=>STAT_TXT[k](Math.round(t[k]*1000)/1000));
+ const t=stTot(),lines=Object.keys(t).filter(k=>STAT_TXT[k]&&t[k]).map(k=>STAT_TXT[k](t[k]));
  const ks=SKT.nodes.filter(n=>n.big&&!n.free&&stLv(n.k)>0).map(n=>n.n);
  const all=wrapTxt(lines.join('.  ')+(ks.length?'.  KEYSTONES: '+ks.join(', '):''),50),pages=Math.max(1,Math.ceil(all.length/2)),pg=Math.floor(time/3)%pages;
  txt('BONUSES',X+5,Y+90,'#e6bf73');if(pages>1)txt((pg+1)+'/'+pages,X+Wd-18,Y+90,'#776');
@@ -63,7 +63,7 @@ function stDrawBuild(){
 
 // ---------- what a node does to your totals: "POWER +19% > +22%" under its description ----------
 {const _sd=stDetails;stDetails=function(n,route){_sd(n,route);if(!n.eff||stLv(n.k)>=n.max)return;const t=stTot(),ks=Object.keys(n.eff).filter(k=>STAT_TXT[k]);if(!ks.length)return;
- const k=ks[0],now=t[k]||0,next=now+n.eff[k],fmt=v=>STAT_TXT[k](Math.round(v*1000)/1000);
+ const k=ks[0],now=t[k]||0,next=now+n.eff[k],fmt=STAT_TXT[k];
  const a=fmt(now).split(' ')[0],b=fmt(next).split(' ')[0],s='NOW '+(now?a:'0')+' > '+b;stCenter(s,221,92,119,'#8fd8a8');};}
 
 // keystone ranks: three pips under each keystone on the map

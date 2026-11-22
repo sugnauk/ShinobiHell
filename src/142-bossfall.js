@@ -17,7 +17,7 @@ function drawBossFall(){const B=BOSSFALL;if(!B)return;const k=time-B.t;if(k>2.2)
 {const _dp=drawPortal;drawPortal=function(){drawBossFall();return _dp.apply(this,arguments);};}
 // the banner across the letterbox
 {const _rp=renderPlay;renderPlay=function(){_rp.apply(this,arguments);const B=BOSSFALL;if(!B)return;const k=time-B.t;if(k<.3)return;
- const a=Math.min(1,(k-.3)/.25,(2.2-k)/.3),bar=Math.round(H*.1*a);ctx.fillStyle='#000';ctx.fillRect(0,0,W,bar);ctx.fillRect(0,H-bar,W,bar);
+ const a=Math.min(1,(k-.3)/.25,(2.2-k)/.3),bar=Math.round(H*.1*a);drawLetterbox(bar);
  if(a>.6){ctx.globalAlpha=(a-.6)/.4;const s1='GUARDIAN DEFEATED',s2=B.name||'';txt(s1,Math.round((W-txtW(s1,2))/2),H-bar+Math.round((bar-14)/2),'#ffd040',2);txt(s2,Math.round((W-txtW(s2))/2),Math.round(bar/2)-3,'#ddd');ctx.globalAlpha=1;}};}
 
 // let the fall play out before the reward cards cover the screen

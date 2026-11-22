@@ -29,7 +29,7 @@ function drawTip(){if(!TIP.cur&&TIP.q.length){TIP.cur=TIP.q.shift();TIP.t=time;s
  if(P.hp<S.maxhp*.35&&R.pots>0)tip('pot',['LOW ON HEALTH!','PRESS '+KN('heal')+' WHENEVER YOU WANT TO DRINK A POTION (+35% HEALTH).','YOU CARRY 3 AT MOST, SO CHOOSE YOUR MOMENT']);
  if(lastHp!=null&&P.hp<lastHp-.5)tip('hit',['YOU WERE HIT','ONLY THE SMALL WHITE DOT AT YOUR CENTRE CAN BE HIT.','DASH ('+KN('dash')+') THROUGH BULLETS: YOU ARE UNTOUCHABLE MID-DASH']);lastHp=P.hp;
  const fighting=enemies.some(e=>!e.dead&&e.awake&&!e.prop&&Math.hypot(e.x-P.x,e.y-P.y)<160);
- if(fighting){fightT+=dt;if(fightT>14&&P.ab&&['q','f','e'].every(k=>(P.ab[k]||0)<=0))tip('abil',['YOUR ABILITIES ARE READY','Q, '+KN('w')+', '+KN('f')+' AND '+KN('e')+' HIT HARD. USE THEM WHENEVER THEY ARE READY']);}else fightT=0;
+ if(fighting){fightT+=dt;if(fightT>14&&P.ab&&['q','f','e'].every(k=>(P.ab[k]||0)<=0))tip('abil',['YOUR ABILITIES ARE READY',TOUCH?'TAP A LIT ABILITY ICON TO CAST.':'Q, '+KN('w')+', '+KN('f')+' AND '+KN('e')+' HIT HARD. USE THEM WHENEVER THEY ARE READY']);}else fightT=0;
  if(boss&&boss.awake&&!boss.dead&&introT<=0)tip('boss',['A GUARDIAN!','A ! OVER IT MEANS AN ATTACK IS COMING. RED ON THE GROUND','MEANS DANGER. DASH OUT OF IT, OR THROUGH BULLETS']);
  if(enemies.some(e=>!e.dead&&e.elite&&e.awake&&Math.hypot(e.x-P.x,e.y-P.y)<140))tip('elite',['AN ELITE FOE','ITS NAME ABOVE IT SAYS WHAT EXTRA POWER IT HAS']);
  const b=nearBag();if(b&&b.items.length)tip('bag',['A LOOT BAG',KN('use')+' TAKES EVERYTHING. 1-6 TAKES ONE ITEM. '+KN('pack')+' OPENS YOUR PACK']);

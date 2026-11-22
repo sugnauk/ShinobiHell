@@ -13,25 +13,25 @@ function upRowAt(x,y){for(let i=0;i<UPG.length;i++){const ry=upRowY(i);if(x>=16&
 // the six original upgrades are nodes here (same keys in meta.up, so bought ranks carry over)
 const TREE=[
  {n:'WAR',c:'#ff5050',nodes:[
-  {k:'atk',n:'MIGHT',d:'+2 SPELL POWER PER RANK',base:40,max:10},
-  {k:'crit',n:'KEEN EDGE',d:'+3% CRIT CHANCE PER RANK',base:60,max:5,req:['atk',3]},
-  {k:'bossd',n:'SLAYER',d:'+8% DAMAGE TO BOSSES AND ELITES PER RANK',base:120,max:3,req:['crit',2]},
-  {k:'wrath',n:'WRATH',d:'+10% POWER PER RANK',base:350,max:2,req:['bossd',3]}]},
+  {k:'atk',n:'MIGHT',d:'+'+TEMPLE_LEGACY.atk+' SPELL POWER PER RANK',base:40,max:10},
+  {k:'crit',n:'KEEN EDGE',d:'+'+cdPct(TEMPLE_LEGACY.crit)+' CRIT CHANCE PER RANK',base:60,max:5,req:['atk',3]},
+  {k:'bossd',n:'SLAYER',d:'+'+cdPct(TEMPLE_LEGACY.bossd)+' DAMAGE TO BOSSES AND ELITES PER RANK',base:120,max:3,req:['crit',2]},
+  {k:'wrath',n:'WRATH',d:'+'+cdPct(TEMPLE_LEGACY.wrath)+' POWER PER RANK',base:350,max:2,req:['bossd',3]}]},
  {n:'BODY',c:'#50e060',nodes:[
-  {k:'vit',n:'VITALITY',d:'+12 MAX HP PER RANK',base:30,max:10},
-  {k:'pos',n:'RESOLVE',d:'+10 STUN RESIST PER RANK',base:30,max:10,req:['vit',2]},
-  {k:'iron',n:'IRON SKIN',d:'+1 DEFENCE PER RANK',base:70,max:5,req:['pos',3]},
-  {k:'res',n:'SECOND WIND',d:'+1 RESURRECTION PER RANK',base:300,max:2,req:['iron',2]}]},
+  {k:'vit',n:'VITALITY',d:'+'+TEMPLE_LEGACY.vit+' MAX HP PER RANK',base:30,max:10},
+  {k:'pos',n:'RESOLVE',d:'+'+TEMPLE_LEGACY.pos+' STUN RESIST PER RANK',base:30,max:10,req:['vit',2]},
+  {k:'iron',n:'IRON SKIN',d:'+'+TEMPLE_LEGACY.iron+' DEFENCE PER RANK',base:70,max:5,req:['pos',3]},
+  {k:'res',n:'SECOND WIND',d:'REVIVES RESTORE '+cdPct(TEMPLE_LEGACY.res)+' MORE MAX HP PER RANK',base:300,max:2,req:['iron',2]}]},
  {n:'SPIRIT',c:'#40c0ff',nodes:[
   {k:'emb',n:'FOCUS',d:'-'+cdPct(COOLDOWN.focusRank)+' COOLDOWNS PER RANK',base:35,max:8},
-  {k:'swift',n:'SWIFT FEET',d:'+3% MOVE SPEED PER RANK',base:50,max:5,req:['emb',2]},
+  {k:'swift',n:'SWIFT FEET',d:'+'+cdPct(TEMPLE_LEGACY.swift)+' MOVE SPEED PER RANK',base:50,max:5,req:['emb',2]},
   {k:'dashm',n:'DASH MASTERY',d:'-'+cdPct(COOLDOWN.dashRank)+' DASH COOLDOWN PER RANK',base:110,max:3,req:['swift',2]},
-  {k:'flow',n:'PERFECT FORM',d:'PERFECT DODGES HEAL 3% HP PER RANK',base:280,max:2,req:['dashm',2]}]},
+  {k:'flow',n:'PERFECT FORM',d:'PERFECT DODGES HEAL '+cdPct(TEMPLE_LEGACY.flow)+' MAX HP PER RANK',base:280,max:2,req:['dashm',2]}]},
  {n:'FORTUNE',c:'#ffd040',nodes:[
-  {k:'sen',n:'GREED',d:'+10% GOLD PER RANK',base:50,max:8},
-  {k:'purse',n:'WAR CHEST',d:'START EACH RUN WITH +40 GOLD PER RANK',base:80,max:3,req:['sen',2]},
-  {k:'belt',n:'POTION BELT',d:'START EACH RUN WITH +1 HP POTION PER RANK',base:200,max:2,req:['purse',2]},
-  {k:'heir',n:'HEIRLOOM',d:'START EACH RUN WITH A RANDOM RELIC PER RANK',base:400,max:2,req:['belt',1]}]}];
+  {k:'sen',n:'GREED',d:'+'+cdPct(TEMPLE_LEGACY.sen)+' GOLD PER RANK',base:50,max:8},
+  {k:'purse',n:'WAR CHEST',d:'START EACH RUN WITH +'+TEMPLE_LEGACY.purse+' GOLD PER RANK',base:80,max:3,req:['sen',2]},
+  {k:'belt',n:'POTION BELT',d:'POTIONS RESTORE '+cdPct(TEMPLE_LEGACY.belt)+' MORE MAX HP PER RANK',base:200,max:2,req:['purse',2]},
+  {k:'heir',n:'HEIRLOOM',d:'ATTRACT LOOSE PICKUPS FROM '+TEMPLE_LEGACY.heir+' PIXELS FARTHER AWAY PER RANK',base:400,max:2,req:['belt',1]}]}];
 const TNODE={};TREE.forEach((b,bi)=>b.nodes.forEach((n,ti)=>{TNODE[n.k]=Object.assign(n,{bi,ti});}));
 const upLv=k=>(meta.up&&meta.up[k])||0,tCost=n=>n.base*(upLv(n.k)+1),tOpen=n=>!n.req||upLv(n.req[0])>=n.req[1];
 let treeB=0,treeT=0,treeFrom='select';

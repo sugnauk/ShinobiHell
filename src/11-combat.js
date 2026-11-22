@@ -72,7 +72,7 @@ function hurtE(e,dmg,pd,o){
  if(S.storm&&e.st&&(e.st.shock>0||e.st.burn>0))dmg*=1+.2*S.storm;
  if(e.st&&e.st.frozen>0&&!o.nost){dmg*=1.5;e.st.frozen=0;txtFx(e.x,e.y,'SHATTER','#cff');spark(e.x,e.y,'#cff',10,80);}
  if(e.elite==='armored')dmg*=.8;
- if((e.boss||e.elite)&&upLv('bossd'))dmg*=1+.08*upLv('bossd'); // SLAYER (skill tree)
+ if(e.boss||e.elite)dmg*=1+TEMPLE_LEGACY.bossd*upLv('bossd'); // SLAYER (skill tree)
  if(e.boss&&BKIT[e.name]&&BKIT[e.name].dmgMod)dmg*=BKIT[e.name].dmgMod(e); // arena effects (war banners, dazzled by lanterns...)
  if(P&&P.rage>0)dmg*=1.3;
  const ironPower=R&&P&&P.ironBellyUntil>R.time&&!o.foe?1+P.ironBellyPower:1;

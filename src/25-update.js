@@ -58,7 +58,7 @@ function inCombat(){if(!P)return false;if(P.combatT>0)return true;if(boss&&boss.
  return map.rooms.some(r=>r.ev&&r.ev.state===1);}
 function perfectDodge(){let hit=false;for(const q of projs){if(q.from!=='e'||q.dead)continue;const dx=P.x-q.x,dy=P.y-q.y,d=Math.hypot(dx,dy);if(d<q.r+16&&(q.vx*dx+q.vy*dy>0||d<q.r+7)){hit=true;break;}}
  if(!hit)return;trainEv('dodge');trainEv('perfect');
- if(upLv('flow')){P.hp=Math.min(S.maxhp,P.hp+S.maxhp*.03*upLv('flow'));txtFx(P.x,P.y-8,'+HP','#50e060');} // PERFECT FORM (skill tree)
+ if(upLv('flow')){P.hp=Math.min(S.maxhp,P.hp+S.maxhp*TEMPLE_LEGACY.flow*upLv('flow'));txtFx(P.x,P.y-8,'+HP','#50e060');} // PERFECT FORM (skill tree)
  P.dashCd=Math.max(0,P.dashCd-COOLDOWN.dodgeDash);P.mik=1.5;R.pdodge=(R.pdodge||0)+1; // reward timing without extending invulnerability
  for(const q of projs)if(q.from==='e'&&!q.peril&&Math.hypot(q.x-P.x,q.y-P.y)<30){q.dead=true;spark(q.x,q.y,'#cef',3,40);}
  for(const k of ['q','f','rmb'])if(P.ab[k]>0)P.ab[k]=Math.max(0,P.ab[k]-COOLDOWN.dodge);

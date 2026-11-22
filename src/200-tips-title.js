@@ -10,7 +10,7 @@
 TIPACT.abil2=TIPACT.abil;
 {let fightT=0;const _u=update;update=function(dt){_u.apply(this,arguments);if(!R||R.training||R.rush||mode!=='play'||!P||meta.tips.abil2)return;
  const fighting=enemies.some(e=>!e.dead&&e.awake&&!e.prop&&Math.hypot(e.x-P.x,e.y-P.y)<170);
- if(fighting){fightT+=dt;if(fightT>3)tip('abil2',['USE YOUR ABILITIES - OFTEN','Q, '+KN('w')+', '+KN('f')+' AND '+KN('e')+' ARE YOUR STRONGEST ATTACKS AND RECHARGE QUICKLY. USE EACH ONE THE MOMENT IT IS READY: AN ABILITY WAITING ON THE BAR IS DAMAGE YOU ARE NOT DOING.']);}else fightT=0;};}
+ if(fighting){fightT+=dt;if(fightT>3)tip('abil2',['USE YOUR ABILITIES - OFTEN',TOUCH?'TAP A LIT ABILITY ICON TO CAST.':'Q, '+KN('w')+', '+KN('f')+' AND '+KN('e')+' ARE YOUR STRONGEST ATTACKS AND RECHARGE QUICKLY. USE EACH ONE THE MOMENT IT IS READY: AN ABILITY WAITING ON THE BAR IS DAMAGE YOU ARE NOT DOING.']);}else fightT=0;};}
 {const _si=spellInfo;spellInfo=function(k){const out=_si.apply(this,arguments);if('hqwfe'.includes(k))out.push({s:k==='e'?'USE IT IN EVERY BIG FIGHT: IT WILL BE READY AGAIN SOON.':'USE IT EVERY TIME IT IS READY. COOLDOWNS ARE SHORT.',c:'#ffd080'});return out;};}
 // ---- boss rush menu lag: build each guardian's sheet once ----
 const BSHEETC={};

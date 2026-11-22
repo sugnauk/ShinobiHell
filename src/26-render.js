@@ -262,7 +262,7 @@ const PSPR={
 };
 function drawProj(q){
  const X=sx(q.x,q.y),Y=sy(q.x,q.y)-7,pad=q.st==='lance'&&q.wait>0?144:32;
- const view=visibleView();
+ const view=sceneBounds;
  if(q.dead||X<view.left-pad||X>view.right+pad||Y<view.top-pad||Y>view.bottom+pad)return;
  ctx.fillStyle='rgba(0,0,0,.3)';ctx.fillRect(X-1,Y+7,3,1);
  if(q.spr&&PSPR[q.spr]){const [vx,vy]=q.vx||q.vy?scrVec(q.vx,q.vy):[1,0],l=Math.hypot(vx,vy)||1;
@@ -586,9 +586,9 @@ function drawHUD(){
   ctxt(boss.name,y-9,'#ffb7a4');bar(x,y,w,6,boss.hp/boss.maxhp,'#c73445','#351420');
   if(boss.members){let mx=x;for(const m of boss.members){txt(m.ronin,mx,y+9,m.dead?'#666':m.labelC);if(m.dead){ctx.fillStyle='#c22';ctx.fillRect(mx-1,y+11,txtW(m.ronin)+2,1);}mx+=txtW(m.ronin)+8;}}
   else bar(x,y+8,w,2,boss.posture/boss.maxPosture,'#fd4','#3a3010');}
- if(portal&&!portal.pending){const X=sx(portal.x,portal.y),Y=sy(portal.x,portal.y)-20;if(X<8||X>W-8||Y<8||Y>H-8){const a=Math.atan2(Y-H/2,X-W/2),ex=W/2+Math.cos(a)*Math.min(W/2-14,Math.abs((H/2-14)/(Math.sin(a)||1e-3))),ey=H/2+Math.sin(a)*Math.min(H/2-14,Math.abs((W/2-14)/(Math.cos(a)||1e-3)));const cx=clamp(ex,12,W-12),cy=clamp(ey,12,H-12),bl=Math.floor(time*4)%2;
+ if(portal&&!portal.pending){const [X,Y]=scenePoint(sx(portal.x,portal.y),sy(portal.x,portal.y)-20);if(X<8||X>W-8||Y<8||Y>H-8){const a=Math.atan2(Y-H/2,X-W/2),ex=W/2+Math.cos(a)*Math.min(W/2-14,Math.abs((H/2-14)/(Math.sin(a)||1e-3))),ey=H/2+Math.sin(a)*Math.min(H/2-14,Math.abs((W/2-14)/(Math.cos(a)||1e-3)));const cx=clamp(ex,12,W-12),cy=clamp(ey,12,H-12),bl=Math.floor(time*4)%2;
   ctx.fillStyle='#14101a';ctx.fillRect(cx-4,cy-4,9,9);ctx.fillStyle=bl?'#8cf':'#fff';ctx.fillRect(cx-3,cy-3,7,7);ctx.fillStyle='#14101a';ctx.fillRect(Math.round(cx+Math.cos(a)*2),Math.round(cy+Math.sin(a)*2),2,2);txt('PORTAL',clamp(cx-11,2,W-26),clamp(cy+7,2,H-8),'#8cf');}}
- for(const k of pickups){if(k.k!=='bag'||k.tier!==4||k.dead||k.opened)continue;const X=sx(k.x,k.y),Y=sy(k.x,k.y)-8;if(X>=8&&X<=W-8&&Y>=8&&Y<=H-8)continue;
+ for(const k of pickups){if(k.k!=='bag'||k.tier!==4||k.dead||k.opened)continue;const [X,Y]=scenePoint(sx(k.x,k.y),sy(k.x,k.y)-8);if(X>=8&&X<=W-8&&Y>=8&&Y<=H-8)continue;
   const a=Math.atan2(Y-H/2,X-W/2),ex=W/2+Math.cos(a)*Math.min(W/2-14,Math.abs((H/2-14)/(Math.sin(a)||1e-3))),ey=H/2+Math.sin(a)*Math.min(H/2-14,Math.abs((W/2-14)/(Math.cos(a)||1e-3)));
   const cx=Math.round(clamp(ex,12,W-12)),cy=Math.round(clamp(ey,12,H-12)),bl=Math.floor(time*5)%2;
   ctx.fillStyle='#14101a';ctx.fillRect(cx-4,cy-4,9,9);ctx.fillStyle=bl?'#ffd040':'#fff';ctx.fillRect(cx-3,cy-3,7,7);ctx.fillStyle='#14101a';ctx.fillRect(Math.round(cx+Math.cos(a)*2),Math.round(cy+Math.sin(a)*2),2,2);txt('RARE',clamp(cx-8,2,W-18),clamp(cy+7,2,H-8),'#ffd040');}
@@ -627,7 +627,7 @@ function sceneTiles(M){
  return M.scene={walls,liquids};
 }
 function visibleTileRows(rows,top,bottom,visit){
- const view=visibleView();
+ const view=sceneBounds;
  const first=Math.max(0,Math.ceil((cam.y+view.top-top)/HY)),end=Math.min(rows.length-1,Math.floor((cam.y+view.bottom+bottom)/HY));
  for(let i=first;i<=end;i++)if(rows[i])for(const o of rows[i])visit(o);
 }
@@ -651,7 +651,7 @@ function drawEntrance(p,X,Y){
 }
 function drawWall(o){ctx.drawImage(o.sprite,o.x-cam.x-16,o.y-cam.y-WH);}
 function drawLiquids(rows){
- const L=map.env.lc,lq0=map.env.liq,view=visibleView();
+ const L=map.env.lc,lq0=map.env.liq,view=sceneBounds;
  visibleTileRows(rows,20,4,({x,y,h})=>{
   const X=x-cam.x,Y=y-cam.y;if(X<view.left-20||X>view.right+20)return;
  const ph=time*(lq0===2?1.6:1.1)+h*TAU,s=Math.sin(ph);
@@ -675,14 +675,19 @@ function vignette(col,a){
  ctx.globalAlpha=1;
 }
 // boss name card with letterbox bars while the camera pans to the boss
-function drawIntro(){const el=INTRO-introT,bar=Math.round(22*Math.min(1,el/.3,introT/.3));ctx.fillStyle='#000';ctx.fillRect(0,0,W,bar);ctx.fillRect(0,H-bar,W,bar);
+function drawLetterbox(bar){
+ const {left,top,right,bottom}=visibleView();
+ ctx.fillStyle='#000';ctx.fillRect(left,top,right-left,bar-top);ctx.fillRect(left,H-bar,right-left,bottom-H+bar);
+}
+function drawIntro(){const el=INTRO-introT,bar=Math.round(22*Math.min(1,el/.3,introT/.3));drawLetterbox(bar);
  if(el>.4&&introT>.3){const a=Math.min(1,(el-.4)/.3,(introT-.3)/.3);ctx.globalAlpha=a;const nm=introE.name,sc=txtW(nm,2)>W-20?1:2;
   ctx.fillStyle='rgba(0,0,0,.55)';ctx.fillRect(0,H/2+18,W,30);txt(nm,Math.round((W-txtW(nm,sc))/2),H/2+22,'#f55',sc);
   const sub=ROMAN[R.di]+'. '+DUN[R.di].name+' - GUARDIAN';txt(sub,Math.round((W-txtW(sub))/2),H/2+38,'#ccc');
   const lw=Math.round(Math.min(1,(el-.4)/.5)*120);ctx.fillStyle='#d02030';ctx.fillRect(W/2-lw,H/2+33,lw*2,1);ctx.globalAlpha=1;}}
 function renderPlay(){
- const view=visibleView();
- ctx.fillStyle='#07060a';fillVisibleView();
+ const view=sceneBounds;
+ ctx.fillStyle=sceneZoom===1?'#07060a':mixC('#07060a',map.th.wf||'#2b2336',.3);
+ fillVisibleView();
  // screen shake is almost gone (at most a 1px nudge on the very biggest moments); power comes from recoil, bursts and freeze-frames instead
  const sk=shake>=10&&OPT().shake?1:0,shx=sk?Math.round(rnd(-1,1)):0;
  let fcx=P.x,fcy=P.y,introDX=0,introDY=0;
@@ -699,11 +704,12 @@ function renderPlay(){
  }
  // Keep pixel-art placement on the logical grid and scroll the whole scene in backing-pixel steps.
  const scrollX=isoX(fcx,fcy)-W/2+shx+introDX,scrollY=isoY(fcx,fcy)-(H/2+6)+introDY;
- const snap=v=>Math.round(v*viewScale)/viewScale,viewX=snap(scrollX),viewY=snap(scrollY);
+ const scale=viewScale*sceneZoom,snap=v=>Math.round(v*scale)/scale,viewX=snap(scrollX),viewY=snap(scrollY);
  cam.x=Math.round(scrollX);cam.y=Math.round(scrollY);
  const px=isoX(P.x,P.y),py=isoY(P.x,P.y),playerDX=snap(px)-Math.round(px),playerDY=snap(py)-Math.round(py);
  ctx.save();
  try{
+ scaleSceneLayer();
  ctx.translate(cam.x-viewX,cam.y-viewY);
  const M=mapCanvas;
  {const x0=Math.max(0,Math.floor(viewX+view.left)),y0=Math.max(0,Math.floor(viewY+view.top)),x1=Math.min(M.FW,Math.ceil(viewX+view.right)),y1=Math.min(M.FH,Math.ceil(viewY+view.bottom));if(x1>x0&&y1>y0)ctx.drawImage(M.floor,x0,y0,x1-x0,y1-y0,x0-cam.x,y0-cam.y,x1-x0,y1-y0);}
@@ -740,6 +746,7 @@ function renderPlay(){
  for(const q of particles){ctx.fillStyle=q.col;ctx.fillRect(sx(q.x,q.y),sy(q.x,q.y)-8,1,1);}
  drawAmbient();
  for(const t of texts){ctx.globalAlpha=Math.min(1,t.t*2);txt(t.s,sx(t.x,t.y)-Math.round(txtW(t.s,t.sc)/2),sy(t.x,t.y)-24-(t.sc>1?4:0)-(.9-t.t)*14|0,t.col,t.sc);ctx.globalAlpha=1;}
+ if(R.training)drawTrainingMarks();
  }finally{ctx.restore();}
  if(freezeT>0){ctx.fillStyle='rgba(120,160,255,.14)';fillVisibleView();}
  if(flashT>0&&OPT().flash){ctx.globalAlpha=Math.min(.35,flashT*3);ctx.fillStyle=flashCol;fillVisibleView();ctx.globalAlpha=1;}

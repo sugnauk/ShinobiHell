@@ -9,7 +9,7 @@ const THIN_ST=new Set(['accel','curve','boom','star','lance','seek','bounce','zi
 const THIN_SPR=new Set(['arrow','silk','spear','kunai','shuriken','charm','chainlink','blade','scale','petal','crane']);
 {const _dp=drawProj;drawProj=function(q){
   if(q.from!=='e'||q.dead)return _dp(q);
-  const X=sx(q.x,q.y),Y=sy(q.x,q.y)-7,view=visibleView();
+  const X=sx(q.x,q.y),Y=sy(q.x,q.y)-7,view=sceneBounds;
   if(X<view.left-40||X>view.right+40||Y<view.top-40||Y>view.bottom+40)return _dp(q);
   const thin=(q.st&&THIN_ST.has(q.st))||(q.spr&&THIN_SPR.has(q.spr))||q.arrow||q.crescent,waiting=q.st==='lance'&&q.wait>0;
   if(thin&&!waiting){ctx.save();ctx.translate(1,0);_dp(q);ctx.restore();ctx.save();ctx.translate(0,1);_dp(q);ctx.restore();}

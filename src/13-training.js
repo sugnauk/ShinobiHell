@@ -57,8 +57,10 @@ function updTraining(dt){const T=R.training;if(!T)return;const L=LESSONS[T.i];if
  if(T.wait>0){T.wait-=dt;if(T.wait<=0)nextLesson();return;}
  const ok=L.done?L.done(T):L.timer?T.t>=L.timer:T.c>=(L.need||1);
  if(ok){T.wait=1;T.good=1;txtFx(P.x,P.y-8,'GOOD!','#6f6',2);sfx('win');}}
-function drawTraining(){const T=R.training;if(!T)return;const L=LESSONS[T.i];if(!L)return;
+function drawTrainingMarks(){
  for(const m of trainMarks){const X=sx(m.x,m.y),Y=sy(m.x,m.y);ctx.globalAlpha=.4+.3*Math.sin(time*5);wdisc(m.x,m.y,10,'#ffe060');ctx.globalAlpha=1;wcirc(m.x,m.y,10+Math.sin(time*5)*2,'#fff');ctx.fillStyle='#ffe060';ctx.fillRect(X-1,Y-26+Math.round(Math.sin(time*6)*3),3,8);}
+}
+function drawTraining(){const T=R.training;if(!T)return;const L=LESSONS[T.i];if(!L)return;
  const lines=L.l(),w=Math.min(W-130,Math.max(150,...lines.map(s=>txtW(s)+10))),h=16+lines.length*8,x=4,y=(L.t==='LOOT'&&nearBag())?66:H-34-h;
  ctx.fillStyle='rgba(8,6,12,.88)';ctx.fillRect(x,y,w,h);ctx.fillStyle='#ffe060';ctx.fillRect(x,y,w,1);ctx.fillRect(x,y+h-1,w,1);
  txt('TRAINING '+(T.i+1)+'/'+LESSONS.length+'  '+L.t,x+5,y+4,'#ffe060');lines.forEach((s,i)=>txt(s,x+5,y+13+i*8,'#ddd'));
@@ -68,7 +70,7 @@ function drawTraining(){const T=R.training;if(!T)return;const L=LESSONS[T.i];if(
  txt('N: SKIP TRAINING',4,H-8,'#666');}
 function finishTraining(){R.training=null;P.lock=null;
  // training-only power (the practice scroll, enchant and shrine blessing) does not carry into the real run
- P.lo=Object.assign({},CLS().kit);P.emp={};R.addon={};R.bless={};R.cz={};R.curse=0;R.cnames=[];if(R.eq.wpn)R.eq.wpn.ench=[];syncLMB();S=calcStats();props=[];dh=[];meta.trained=true;saveMeta();P.hp=S.maxhp;R.pots=Math.min(POTMAX,1+upLv('belt'));R.eq.wpn=R.eq.wpn&&!R.eq.wpn.starter&&R.eq.wpn.tier<=1?R.eq.wpn:R.eq.wpn;loadDungeon(0);sfx('pickup');}
+ P.lo=Object.assign({},CLS().kit);P.emp={};R.addon={};R.bless={};R.cz={};R.curse=0;R.cnames=[];if(R.eq.wpn)R.eq.wpn.ench=[];syncLMB();S=calcStats();props=[];dh=[];meta.trained=true;saveMeta();P.hp=S.maxhp;R.pots=1;R.eq.wpn=R.eq.wpn&&!R.eq.wpn.starter&&R.eq.wpn.tier<=1?R.eq.wpn:R.eq.wpn;loadDungeon(0);sfx('pickup');}
 // no gourd: C drinks one of your (rare) HP potions
 const POTMAX=3,POTHEAL=.35;
 function useGourd(){const p=P;if(p.hp>=S.maxhp||p.stag>0)return;if(R.pots<=0){txtFx(p.x,p.y,'NO POTIONS','#888');return;}R.pots--;p.hp=Math.min(S.maxhp,p.hp+S.maxhp*POTHEAL);sfx('heal');txtFx(p.x,p.y,'+HP','#50e060');spark(p.x,p.y,'#50e060',10,50);}

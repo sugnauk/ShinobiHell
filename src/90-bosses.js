@@ -1087,7 +1087,7 @@ BKIT['KAGE, THE SHINOBI MASTER']={director:bossDirector,pref:105,gap:.75,halfNam
 // the night: a dark veil with holes of light at lit torches and around you; smoke closes your circle down
 let darkCv=null;
 function bossDark(e){const a=BX.dark||0;if(a<=0)return;
- const view=visibleView(),left=Math.floor(view.left),top=Math.floor(view.top),w=Math.ceil(view.right)-left,h=Math.ceil(view.bottom)-top;
+ const view=sceneBounds,left=Math.floor(view.left),top=Math.floor(view.top),w=Math.ceil(view.right)-left,h=Math.ceil(view.bottom)-top;
  if(!darkCv||darkCv.width!==w||darkCv.height!==h){darkCv=document.createElement('canvas');darkCv.width=w;darkCv.height=h;}
  const g=darkCv.getContext('2d');g.globalCompositeOperation='source-over';g.clearRect(0,0,w,h);g.fillStyle='rgba(6,6,20,'+a+')';g.fillRect(0,0,w,h);g.globalCompositeOperation='destination-out';
  const hole=(x,y,r,k)=>{const X=sx(x,y)-left,Y=sy(x,y)-top-6,gr=g.createRadialGradient(X,Y,r*.3,X,Y,r);gr.addColorStop(0,'rgba(0,0,0,'+(k||1)+')');gr.addColorStop(1,'rgba(0,0,0,0)');g.fillStyle=gr;g.fillRect(X-r,Y-r,r*2,r*2);};
@@ -1121,7 +1121,7 @@ BKIT['TAMAMO, THE ILLUSIONIST']={director:bossDirector,pref:110,gap:.75,halfName
   for(const c of KIT.clones(e)){c.x+=Math.cos(time*1.3+c.wob)*12*dt;c.y+=Math.sin(time*1.1+c.wob)*12*dt;}},
  floor(e){// moon-shadows: only real things cast one (not when clouds cover the moon)
   if(e.cloud<=0){ctx.save();worldXf();ctx.globalAlpha=.4;ctx.fillStyle='#0a0a20';ctx.beginPath();ctx.ellipse(e.x+10,e.y+14,e.r+3,e.r*1.7,.6,0,TAU);ctx.fill();ctx.restore();ctx.globalAlpha=1;}
-  else{ctx.globalAlpha=.25;ctx.fillStyle='#0a0a20';fillVisibleView();ctx.globalAlpha=1;}
+  else{ctx.globalAlpha=.25;ctx.fillStyle='#0a0a20';fillVisibleView(sceneBounds);ctx.globalAlpha=1;}
   for(const g of e.torii){const X=sx(g.x,g.y),Y=sy(g.x,g.y),c=g.cd>0?'#7a3040':'#d02838';ctx.fillStyle='#14101a';ctx.fillRect(X-12,Y-30,25,4);ctx.fillStyle=c;ctx.fillRect(X-11,Y-29,23,2);ctx.fillRect(X-9,Y-24,19,2);ctx.fillRect(X-8,Y-26,2,26);ctx.fillRect(X+7,Y-26,2,26);ctx.fillStyle='#14101a';ctx.fillRect(X-8,Y,2,1);ctx.fillRect(X+7,Y,2,1);}},
  hudExtra(e){const n=KIT.tails(e),{x,y}=bossBarBox(),left=x-66;txt('TAILS',left,y,'#c080ff');for(let i=0;i<9;i++){ctx.fillStyle=i<n?'#ff9040':'#3a2a40';ctx.fillRect(left+26+i*4,y,3,5);}},
  hud:e=>revealed()?'ILLUSIONS REVEALED':KIT.clones(e).length?'ONLY THE REAL FOX CASTS A SHADOW - TORII GATES REVEAL':null,hudC:'#c080ff',
