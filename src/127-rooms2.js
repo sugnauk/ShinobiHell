@@ -49,7 +49,8 @@ dressShopEntrance=function(r){const groups=roomOpenings(r);
 // ---------- boss intro: a real letterbox, drawn over the HUD so it frames the whole screen ----------
 {const _rp=renderPlay;let hold=0;renderPlay=function(){_rp.apply(this,arguments);
  const live=introT>0&&introE&&!introE.camOnly;if(live)hold=Math.min(1,(INTRO-introT)/.3,introT/.3);else hold=0;if(hold<=0)return;
- const bar=Math.round(H*.12*hold);ctx.fillStyle='#000';ctx.fillRect(0,0,W,bar);ctx.fillRect(0,H-bar,W,bar);
+ const bar=Math.round(H*.12*hold),{left,top,right,bottom}=visibleView();
+ ctx.fillStyle='#000';ctx.fillRect(left,top,right-left,bar-top);ctx.fillRect(left,H-bar,right-left,bottom-H+bar);
  const el=INTRO-introT;if(el>.4&&introT>.3){const a=Math.min(1,(el-.4)/.3,(introT-.3)/.3);ctx.globalAlpha=a;const nm=introE.name||'',sc=txtW(nm,2)>W-20?1:2;
   txt(nm,Math.round((W-txtW(nm,sc))/2),H-bar+Math.round((bar-7*sc)/2)-2,'#f55',sc);
   const sub=ROMAN[R.di]+'. '+DUN[R.di].name+' - GUARDIAN';txt(sub,Math.round((W-txtW(sub))/2),Math.round(bar/2)-3,'#ccc');ctx.globalAlpha=1;}};}

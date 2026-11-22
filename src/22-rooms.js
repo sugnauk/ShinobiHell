@@ -192,7 +192,7 @@ function openShrine(p){const gd=GODS[p.god]||GODS.crane;
 let evGod=null;
 function pickEvent(i){if(!evOpts)return;if(i>=3){mode='play';evOpts=null;return;}const o=evOpts[i];if(!o)return;if(!o.ok()){sfx('block');return;}o.fn();evProp.used=true;sfx('pickup');mode='play';evOpts=null;trainEv('offer');}
 function renderEvent(){
- renderPlay();ctx.fillStyle='rgba(0,0,0,.78)';ctx.fillRect(0,0,W,H);
+ renderPlay();ctx.fillStyle='rgba(0,0,0,.78)';fillVisibleView();
  const gd=evGod||GODS.crane,gc=gd.c;
  ctxt(gd.n,14,gc,2);ctxt(gd.sub,30,'#ccc');ctxt('ONE OFFERING ONLY - PRESS 1 2 3, OR 4 / ESC TO LEAVE',40,'#888');
  evOpts.forEach((o,i)=>{const y=54+i*30,ok=o.ok();ctx.fillStyle=ok?'#1a1420':'#100a14';ctx.fillRect(24,y,272,24);ctx.fillStyle=ok?gc:'#555';ctx.fillRect(24,y,2,24);ctx.fillRect(24,y,272,1);txt((i+1)+'. '+o.t,32,y+5,ok?'#fff':'#777');txt(o.d,32,y+14,ok?shade(gc,-.15):'#666');});

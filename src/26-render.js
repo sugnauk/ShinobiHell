@@ -262,7 +262,8 @@ const PSPR={
 };
 function drawProj(q){
  const X=sx(q.x,q.y),Y=sy(q.x,q.y)-7,pad=q.st==='lance'&&q.wait>0?144:32;
- if(q.dead||X<-pad||X>W+pad||Y<-pad||Y>H+pad)return;
+ const view=visibleView();
+ if(q.dead||X<view.left-pad||X>view.right+pad||Y<view.top-pad||Y>view.bottom+pad)return;
  ctx.fillStyle='rgba(0,0,0,.3)';ctx.fillRect(X-1,Y+7,3,1);
  if(q.spr&&PSPR[q.spr]){const [vx,vy]=q.vx||q.vy?scrVec(q.vx,q.vy):[1,0],l=Math.hypot(vx,vy)||1;
   if(q.st==='lance'&&q.wait>0){const lv=scrVec(q.lvx,q.lvy),ll=Math.hypot(lv[0],lv[1])||1;ctx.globalAlpha=Math.floor(time*16)%2?.55:.3;ctx.fillStyle=q.col;for(let r=4;r<140;r+=3)ctx.fillRect(Math.round(X+lv[0]/ll*r),Math.round(Y+lv[1]/ll*r),1,1);ctx.globalAlpha=1;PSPR[q.spr](X,Y,lv[0]/ll,lv[1]/ll,q);return;}
@@ -610,7 +611,6 @@ function drawHUD(){
    else ctxt('HP POTION: DRINK WITH C TO HEAL 35%',H-36,'#50e060');}}
  drawMinimap();
  if(toast.t>0){ctx.globalAlpha=Math.min(1,toast.t);ctxt(toast.s,24,toast.c,1);ctx.globalAlpha=1;}
- if(P.hp<S.maxhp*.3){ctx.fillStyle='rgba(180,0,0,'+(.12+.06*Math.sin(time*6))+')';ctx.fillRect(0,0,W,H);}
 }
 function sceneTiles(M){
  if(M.scene)return M.scene;
@@ -627,7 +627,8 @@ function sceneTiles(M){
  return M.scene={walls,liquids};
 }
 function visibleTileRows(rows,top,bottom,visit){
- const first=Math.max(0,Math.ceil((cam.y-top)/HY)),end=Math.min(rows.length-1,Math.floor((cam.y+H+bottom)/HY));
+ const view=visibleView();
+ const first=Math.max(0,Math.ceil((cam.y+view.top-top)/HY)),end=Math.min(rows.length-1,Math.floor((cam.y+view.bottom+bottom)/HY));
  for(let i=first;i<=end;i++)if(rows[i])for(const o of rows[i])visit(o);
 }
 function drawEntrance(p,X,Y){
@@ -650,9 +651,9 @@ function drawEntrance(p,X,Y){
 }
 function drawWall(o){ctx.drawImage(o.sprite,o.x-cam.x-16,o.y-cam.y-WH);}
 function drawLiquids(rows){
- const L=map.env.lc,lq0=map.env.liq;
+ const L=map.env.lc,lq0=map.env.liq,view=visibleView();
  visibleTileRows(rows,20,4,({x,y,h})=>{
-  const X=x-cam.x,Y=y-cam.y;if(X<-20||X>W+20)return;
+  const X=x-cam.x,Y=y-cam.y;if(X<view.left-20||X>view.right+20)return;
  const ph=time*(lq0===2?1.6:1.1)+h*TAU,s=Math.sin(ph);
   if(lq0===4){if(s>.96){ctx.fillStyle='#fff';ctx.fillRect(X-4+((h*9)|0),Y+6,1,1);}return;}
   ctx.fillStyle=L[2];ctx.globalAlpha=lq0===2?.55:.35;
@@ -663,7 +664,16 @@ function drawLiquids(rows){
  });
 }
 // red screen edges when hurt / low on health
-function vignette(col,a){ctx.fillStyle=col;for(let i=0;i<10;i++){ctx.globalAlpha=a*(1-i/10)*.55;ctx.fillRect(0,i*2,W,2);ctx.fillRect(0,H-2-i*2,W,2);ctx.fillRect(i*3,0,3,H);ctx.fillRect(W-3-i*3,0,3,H);}ctx.globalAlpha=1;}
+function vignette(col,a){
+ const {left,top,right,bottom}=visibleView();
+ ctx.fillStyle=col;
+ for(let i=0;i<10;i++){
+  ctx.globalAlpha=a*(1-i/10)*.55;
+  ctx.fillRect(left,top+i*2,right-left,2);ctx.fillRect(left,bottom-2-i*2,right-left,2);
+  ctx.fillRect(left+i*3,top,3,bottom-top);ctx.fillRect(right-3-i*3,top,3,bottom-top);
+ }
+ ctx.globalAlpha=1;
+}
 // boss name card with letterbox bars while the camera pans to the boss
 function drawIntro(){const el=INTRO-introT,bar=Math.round(22*Math.min(1,el/.3,introT/.3));ctx.fillStyle='#000';ctx.fillRect(0,0,W,bar);ctx.fillRect(0,H-bar,W,bar);
  if(el>.4&&introT>.3){const a=Math.min(1,(el-.4)/.3,(introT-.3)/.3);ctx.globalAlpha=a;const nm=introE.name,sc=txtW(nm,2)>W-20?1:2;
@@ -671,7 +681,8 @@ function drawIntro(){const el=INTRO-introT,bar=Math.round(22*Math.min(1,el/.3,in
   const sub=ROMAN[R.di]+'. '+DUN[R.di].name+' - GUARDIAN';txt(sub,Math.round((W-txtW(sub))/2),H/2+38,'#ccc');
   const lw=Math.round(Math.min(1,(el-.4)/.5)*120);ctx.fillStyle='#d02030';ctx.fillRect(W/2-lw,H/2+33,lw*2,1);ctx.globalAlpha=1;}}
 function renderPlay(){
- ctx.fillStyle='#07060a';ctx.fillRect(0,0,W,H);
+ const view=visibleView();
+ ctx.fillStyle='#07060a';fillVisibleView();
  // screen shake is almost gone (at most a 1px nudge on the very biggest moments); power comes from recoil, bursts and freeze-frames instead
  const sk=shake>=10&&OPT().shake?1:0,shx=sk?Math.round(rnd(-1,1)):0;
  let fcx=P.x,fcy=P.y,introDX=0,introDY=0;
@@ -695,21 +706,21 @@ function renderPlay(){
  try{
  ctx.translate(cam.x-viewX,cam.y-viewY);
  const M=mapCanvas;
- {const x0=Math.max(0,Math.floor(viewX)),y0=Math.max(0,Math.floor(viewY)),x1=Math.min(M.FW,Math.ceil(viewX+W)),y1=Math.min(M.FH,Math.ceil(viewY+H));if(x1>x0&&y1>y0)ctx.drawImage(M.floor,x0,y0,x1-x0,y1-y0,x0-cam.x,y0-cam.y,x1-x0,y1-y0);}
+ {const x0=Math.max(0,Math.floor(viewX+view.left)),y0=Math.max(0,Math.floor(viewY+view.top)),x1=Math.min(M.FW,Math.ceil(viewX+view.right)),y1=Math.min(M.FH,Math.ceil(viewY+view.bottom));if(x1>x0&&y1>y0)ctx.drawImage(M.floor,x0,y0,x1-x0,y1-y0,x0-cam.x,y0-cam.y,x1-x0,y1-y0);}
  const tiles=sceneTiles(M);
  drawLiquids(tiles.liquids);
  drawGround();
  const dr=[];
- visibleTileRows(tiles.walls,30,WH+16,o=>{if(o.x>=cam.x-32&&o.x<=cam.x+W+32)dr.push(o);});
+ visibleTileRows(tiles.walls,30,WH+16,o=>{if(o.x>=cam.x+view.left-32&&o.x<=cam.x+view.right+32)dr.push(o);});
  // draw order follows depth in the rotated view, so walls and sprites overlap correctly at every camera angle
- for(const e of enemies){if(e.dead)continue;const X=sx(e.x,e.y),Y=sy(e.x,e.y);if(X<-60||X>W+60||Y<-80||Y>H+70)continue;dr.push({d:dep(e.x,e.y),e});}
+ for(const e of enemies){if(e.dead)continue;const X=sx(e.x,e.y),Y=sy(e.x,e.y);if(X<view.left-60||X>view.right+60||Y<view.top-80||Y>view.bottom+70)continue;dr.push({d:dep(e.x,e.y),e});}
  const onScreen=(o,pad)=>{
   const x=sx(o.x,o.y),y=sy(o.x,o.y);
-  return x>=-pad&&x<=W+pad&&y>=-pad&&y<=H+pad;
+  return x>=view.left-pad&&x<=view.right+pad&&y>=view.top-pad&&y<=view.bottom+pad;
  };
  for(const k of pickups)if(!k.dead&&onScreen(k,65))dr.push({d:dep(k.x,k.y)-3,k});
  for(const p of props)if(onScreen(p,72))dr.push({d:dep(p.x,p.y),p});
- for(const o of decos){const X=sx(o.x,o.y),Y=sy(o.x,o.y);if(X<-40||X>W+40||Y<-10||Y>H+50)continue;dr.push({d:dep(o.x,o.y)-((DECOSPR[o.k].flat||o.onliq)?60:0),dc:o});}
+ for(const o of decos){const X=sx(o.x,o.y),Y=sy(o.x,o.y);if(X<view.left-40||X>view.right+40||Y<view.top-10||Y>view.bottom+50)continue;dr.push({d:dep(o.x,o.y)-((DECOSPR[o.k].flat||o.onliq)?60:0),dc:o});}
  dr.push({d:dep(P.x,P.y),pl:1});
  dr.sort((a,b)=>a.d-b.d);
  for(const o of dr){if(o.wall)drawWall(o);else if(o.e)drawEnemy(o.e);else if(o.k)drawPickup(o.k);else if(o.p)drawProp(o.p);else if(o.dc)drawDeco(o.dc);else{
@@ -724,18 +735,23 @@ function renderPlay(){
   if(a>0){const X=sx(P.x,P.y),Y=sy(P.x,P.y)-7;ctx.translate(playerDX,playerDY);ctx.globalAlpha=a;
    if(P.focus){ctx.globalAlpha=.5;circ(X,Y,12,'#cef');ctx.globalAlpha=a;}
    ctx.fillStyle='#14101a';ctx.fillRect(X-2,Y-2,5,5);ctx.fillStyle='#fff';ctx.fillRect(X-1,Y-1,3,3);ctx.fillStyle=P.focus?'#f44':'#ff8080';ctx.fillRect(X,Y,1,1);ctx.globalAlpha=1;ctx.translate(-playerDX,-playerDY);}}
- if(slowT>0||ultSlow>0){ctx.fillStyle='rgba(160,220,255,.08)';ctx.fillRect(viewX-cam.x,viewY-cam.y,W,H);}
+ if(slowT>0||ultSlow>0){ctx.fillStyle='rgba(160,220,255,.08)';ctx.fillRect(viewX-cam.x+view.left,viewY-cam.y+view.top,view.right-view.left,view.bottom-view.top);}
  for(const f of fx)drawFx(f);
  for(const q of particles){ctx.fillStyle=q.col;ctx.fillRect(sx(q.x,q.y),sy(q.x,q.y)-8,1,1);}
  drawAmbient();
  for(const t of texts){ctx.globalAlpha=Math.min(1,t.t*2);txt(t.s,sx(t.x,t.y)-Math.round(txtW(t.s,t.sc)/2),sy(t.x,t.y)-24-(t.sc>1?4:0)-(.9-t.t)*14|0,t.col,t.sc);ctx.globalAlpha=1;}
  }finally{ctx.restore();}
- if(freezeT>0){ctx.fillStyle='rgba(120,160,255,.14)';ctx.fillRect(0,0,W,H);}
- if(flashT>0&&OPT().flash){ctx.globalAlpha=Math.min(.35,flashT*3);ctx.fillStyle=flashCol;ctx.fillRect(0,0,W,H);ctx.globalAlpha=1;}
+ if(freezeT>0){ctx.fillStyle='rgba(120,160,255,.14)';fillVisibleView();}
+ if(flashT>0&&OPT().flash){ctx.globalAlpha=Math.min(.35,flashT*3);ctx.fillStyle=flashCol;fillVisibleView();ctx.globalAlpha=1;}
  {const low=P.hp<S.maxhp*.25?.18+lowPulse*.9:0,a=Math.max(hurtT*1.1,low);if(a>0)vignette('#c01010',Math.min(.6,a));}
  if(introT>0&&introE)drawIntro();
  if(P.dying>0){drawDeathOverlay();return;}
- drawRoomEvents();if(R.training)drawTraining();if(!paused)drawHUD();if(invOpen)drawInv();else if(!paused)drawTooltip();
+ drawRoomEvents();if(R.training)drawTraining();
+ if(!paused){
+  drawHUD();
+  if(P.hp<S.maxhp*.3){ctx.fillStyle='rgba(180,0,0,'+(.12+.06*Math.sin(time*6))+')';fillVisibleView();}
+ }
+ if(invOpen)drawInv();else if(!paused)drawTooltip();
  if(paused)drawPause(); // src/102-menus.js
 }
 // the shared menu backdrop: the emperor's palace on its hill under a sky turned violet by his corruption,
