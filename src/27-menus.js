@@ -412,7 +412,7 @@ function renderEnd(){
  if(Math.floor(time*2)%2===0)ctxt('PRESS ENTER: CHARACTER SELECT',171,'#fff');
 }
 function renderChoose(){
- renderPlay();ctx.fillStyle='rgba(0,0,0,.75)';ctx.fillRect(0,0,W,H);
+ renderPlay();ctx.fillStyle='rgba(0,0,0,.75)';fillVisibleView();
  ctxt('BOSS DEFEATED',12,'#fd4',2);ctxt('CHOOSE A REWARD  (CLICK OR PRESS 1 2 3)',32,'#ccc');
  // the evolution you just earned stays on screen while you pick
  if(R.evoPending)ctxt('YOUR MASTER WAITS BEYOND THE PORTAL - YOU ARE READY TO GROW',H-22,Math.floor(time*3)%2?'#ffe060':'#fff');
@@ -426,8 +426,9 @@ function renderChoose(){
   const nm=fxLabel(it.name,it.r+1);ctxt2(nm.length>22?nm.slice(0,22):nm,x,cw,y+44,fxCol(it.id));wrapTxt(relicMaxed(it.id)?'MAXED. +'+relicSurplusGold(it.id)+' GOLD':it.d,22).slice(0,2).forEach((l,j)=>ctxt2(l,x,cw,y+56+j*8,'#ddd'));ctxt2(FXNAME[fxStyle(it.id)]+' RELIC',x,cw,y+74,fxCol(it.id));ctxt2(['COMMON','UNCOMMON','RARE','LEGENDARY'][it.r],x,cw,y+82,'#777');});
 }
 function ctxt2(s,x,w,y,c){txt(s,Math.round(x+(w-txtW(s))/2),y,c);}
+const usesWorldView=()=>mode==='play'||mode==='choose'||mode==='scroll'||mode==='lootConfirm'||mode==='event';
 function render(){
- const world=mode==='play'||mode==='choose'||mode==='scroll'||mode==='lootConfirm'||mode==='event';
+ const world=usesWorldView();
  setView(world,world?WORLD_SCALE:1);
  ctx.imageSmoothingEnabled=false;
  drawInView(()=>{

@@ -94,7 +94,7 @@ function drawSpellTab(){invRows=[];ipanel(IX+4,IY+14,206,IH-16,'ABILITIES AND SC
  else{txt('POINT AT AN ABILITY,',x+5,yy+6,'#666');txt('A SCROLL OR AN ENCHANT',x+5,yy+13,'#666');}
  return '';}
 // ---- the whole screen
-drawInv=function(){IY=TOUCH?touchHudRowBottom():6;IW=W-12;IH=H-IY-10;ctx.fillStyle='rgba(4,2,8,.72)';ctx.fillRect(0,0,W,H);ctx.fillStyle='#100c16';ctx.fillRect(IX,IY,IW,IH);ctx.fillStyle='#d02030';ctx.fillRect(IX,IY,IW,1);ctx.fillRect(IX,IY+IH-1,IW,1);
+drawInv=function(){IY=TOUCH?touchHudRowBottom():6;IW=W-12;IH=H-IY-10;ctx.fillStyle='rgba(4,2,8,.72)';fillVisibleView();ctx.fillStyle='#100c16';ctx.fillRect(IX,IY,IW,IH);ctx.fillStyle='#d02030';ctx.fillRect(IX,IY,IW,1);ctx.fillRect(IX,IY+IH-1,IW,1);
  txt('INVENTORY',IX+5,IY+3,'#d02030');
  tabRects().forEach((r,i)=>{const on=i===invPage;ctx.fillStyle=on?'#3a2434':'#1a1420';ctx.fillRect(r.x,r.y,r.w,r.h);if(on){ctx.fillStyle='#d02030';ctx.fillRect(r.x,r.y+r.h-1,r.w,1);}txt(r.n,r.x+4,r.y+2,on?'#fff':'#887');});
  {const g='GOLD '+R.sen;txt(g,IX+IW-5-txtW(g),IY+3,'#ffd040');}

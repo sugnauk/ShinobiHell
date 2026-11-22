@@ -15,7 +15,14 @@ let LOWFX=0;const EDGEFX={col:'#fff',t0:-9};
 {const _ub=ultBlast;ultBlast=function(){const f0=flashT;LOWFX=2;try{return _ub.apply(this,arguments);}finally{LOWFX=0;flashT=f0;}};}
 // the glow at the screen edges
 {const _rp=renderPlay;renderPlay=function(){_rp.apply(this,arguments);const k=(time-EDGEFX.t0)/.45;if(k<0||k>1||mode!=='play')return;
- const a=.32*(1-k),d=Math.round(10+6*k);ctx.fillStyle=EDGEFX.col;for(let i=0;i<d;i++){ctx.globalAlpha=a*(1-i/d);ctx.fillRect(0,i,W,1);ctx.fillRect(0,H-1-i,W,1);ctx.fillRect(i,0,1,H);ctx.fillRect(W-1-i,0,1,H);}ctx.globalAlpha=1;};}
+ const a=.32*(1-k),d=Math.round(10+6*k),{left,top,right,bottom}=visibleView();
+ ctx.fillStyle=EDGEFX.col;
+ for(let i=0;i<d;i++){
+  ctx.globalAlpha=a*(1-i/d);
+  ctx.fillRect(left,top+i,right-left,1);ctx.fillRect(left,bottom-1-i,right-left,1);
+  ctx.fillRect(left+i,top,1,bottom-top);ctx.fillRect(right-1-i,top,1,bottom-top);
+ }
+ ctx.globalAlpha=1;};}
 // legendary motes: about a third as many, a low cap
 {const _lp=legPart;legPart=function(){if(Math.random()>.35)return;_lp.apply(this,arguments);if(LEGP.length>70)LEGP.splice(0,LEGP.length-70);};}
 // no screen flash for the next moment after an ultimate, whichever part of it asks for one (Dragon Cleave's strike,

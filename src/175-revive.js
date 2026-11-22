@@ -20,7 +20,7 @@ const REV_DUR=1.7;let REV=null;const revNow=()=>performance.now()/1000;
 {const _rp=renderPlay;renderPlay=function(){_rp.apply(this,arguments);if(!REV||mode!=='play')return;
  const k=revNow()-REV.t0,X=Math.round(sx(REV.x,REV.y)),Y=Math.round(sy(REV.x,REV.y))+3,s=heroSpr(CLS().k,P.evo||0,false),flip=REV.face<0,h=s.fh*(s.sc||1),cl=x=>Math.max(0,Math.min(1,x));
  // the world darkens
- ctx.fillStyle='#06040c';ctx.globalAlpha=.55*cl(k/.3)*(k>1.4?cl((REV_DUR-k)/.3):1);ctx.fillRect(0,0,W,H);ctx.globalAlpha=1;
+ ctx.fillStyle='#06040c';ctx.globalAlpha=.55*cl(k/.3)*(k>1.4?cl((REV_DUR-k)/.3):1);fillVisibleView();ctx.globalAlpha=1;
  // the body: falls, lies still, then rises
  const fall=k<.35?cl(k/.35):k<1.2?1:1-cl((k-1.2)/.35),ang=fall*Math.PI/2*(flip?-1:1);
  shadow(X,Y-2,7);ctx.save();ctx.translate(X,Y);ctx.rotate(ang);ctx.globalAlpha=k<1.2?.75:1;drawSpr(s,0,0,false,WIZ.idle[0],flip);ctx.restore();ctx.globalAlpha=1;

@@ -271,7 +271,7 @@ function renderLootConfirm(){
  if(!lootConfirm)return;
  const {it}=lootConfirm,ench=it.t==='ench',o=ench?ENCH.find(e=>e.k===it.k):ITEMBY[it.id];
  const title=ench?o.n:o.name,col=itemCol(it),x=Math.round(W/2-122),y=Math.round(H/2-54);
- ctx.fillStyle='rgba(4,3,8,.70)';ctx.fillRect(0,0,W,H);
+ ctx.fillStyle='rgba(4,3,8,.70)';fillVisibleView();
  ctx.fillStyle='#211824';ctx.fillRect(x,y,244,112);
  ctx.fillStyle='#110e18';ctx.fillRect(x+1,y+1,242,110);
  ctx.fillStyle=col;ctx.fillRect(x,y,244,2);
@@ -357,7 +357,7 @@ function scrollCardX(i){const n=scrollOpts.length;return Math.round((W-(n*SCARD.
 function clickScroll(){if(!scrollOpts)return;for(let i=0;i<scrollOpts.length;i++){const x=scrollCardX(i);if(mouse.x>=x&&mouse.x<=x+SCARD.w&&mouse.y>=SCARD.y&&mouse.y<=SCARD.y+SCARD.h){pickScroll(i);return;}}}
 function wrapTxt(s,n){const L=[];let c='';for(const w of s.split(' ')){if(c&&(c+' '+w).length>n){L.push(c);c=w;}else c=c?c+' '+w:w;}if(c)L.push(c);return L;}
 function renderScroll(){
- renderPlay();ctx.fillStyle='rgba(0,0,0,.8)';ctx.fillRect(0,0,W,H);
+ renderPlay();ctx.fillStyle='rgba(0,0,0,.8)';fillVisibleView();
  const regular=scrollSource?.it.regular;
  ctxt(regular?'TECHNIQUE SCROLL':'LEGENDARY SCROLL',8,regular?'#93d6de':'#ffe060',2);
  ctxt('CHOOSE ONE  (1-'+scrollOpts.length+')   ESC LEAVE',26,'#ccc');

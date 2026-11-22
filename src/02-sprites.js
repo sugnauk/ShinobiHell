@@ -501,7 +501,7 @@ function genDecos(di){const env=map.env,L=ENVDECO[env.k]||[],tot=L.reduce((a,b)=
  // koi drifting in the garden ponds
  if(env.k==='grass'||env.k==='temple'||env.k==='marble')for(const i of map.liqList)if(Math.random()<.06){const x=i%MW,y=(i/MW)|0;out.push({k:'koi',x:x*T+8,y:y*T+8,f:Math.random()<.5,ph:Math.random()*6,onliq:1});}
  return out;}
-function drawDeco(o){const s=DECOSPR[o.k],X=sx(o.x,o.y),Y=sy(o.x,o.y);if(X<-30||X>W+30||Y<-10||Y>H+40)return;
+function drawDeco(o){const s=DECOSPR[o.k],X=sx(o.x,o.y),Y=sy(o.x,o.y),view=visibleView();if(X<view.left-30||X>view.right+30||Y<view.top-10||Y>view.bottom+40)return;
  if(o.onliq){const sw=s.swim?Math.round(Math.sin(time*.5+o.ph)*6):0;
   if(s.swim&&(Math.cos(time*.5+o.ph)<0)!==o.f){ctx.save();ctx.translate(X+sw,0);ctx.scale(-1,1);ctx.drawImage(s.c,Math.round(-s.w/2),Math.round(Y-s.h/2));ctx.restore();return;}
   ctx.drawImage(s.c,Math.round(X-s.w/2+sw),Math.round(Y-s.h/2+(s.swim?0:Math.sin(time*1.5+o.ph))));return;}
@@ -520,7 +520,7 @@ function updAmbient(dt){const A=AMB[map.env.k];if(!A)return;while(ambient.length
   else if(A.k==='rise'){a.h+=14*dt;a.x+=Math.sin(time*2+a.ph)*6*dt;}else if(A.k==='fall'){a.h-=18*dt;a.x+=Math.sin(time+a.ph)*8*dt;}else if(A.k==='leaf'){a.h-=12*dt;a.x+=Math.sin(time*2+a.ph)*16*dt;}else{a.h+=Math.sin(time+a.ph)*2*dt;a.x+=3*dt;}
   if(a.h<0||a.h>110||Math.hypot(a.x-P.x,a.y-P.y)>230)a.t=0;}
  ambient=ambient.filter(a=>a.t>0);}
-function drawAmbient(){const A=AMB[map.env.k];if(!A)return;for(const a of ambient){const X=sx(a.x,a.y),Y=sy(a.x,a.y)-a.h|0;if(X<0||X>W||Y<0||Y>H)continue;ctx.globalAlpha=Math.min(1,a.t);
+function drawAmbient(){const A=AMB[map.env.k],view=visibleView();if(!A)return;for(const a of ambient){const X=sx(a.x,a.y),Y=sy(a.x,a.y)-a.h|0;if(X<view.left||X>view.right||Y<view.top||Y>view.bottom)continue;ctx.globalAlpha=Math.min(1,a.t);
   if(A.k==='fly'){const on=Math.sin(time*3+a.ph*2)>.2;if(on){ctx.globalAlpha=.25;disc(X,Y,2,A.c);ctx.globalAlpha=1;ctx.fillStyle=A.c;ctx.fillRect(X,Y,1,1);}}
   else if(A.k==='leaf'){ctx.fillStyle=Math.floor(a.ph*3)%2?A.c:(A.c2||'#f0a040');ctx.fillRect(X,Y,2,1);ctx.fillRect(X+(Math.sin(time*4+a.ph)>0?1:0),Y+1,1,1);}
   else{ctx.fillStyle=A.c;ctx.fillRect(X,Y,1,A.k==='fall'&&map.env.k==='snow'?1:1);}ctx.globalAlpha=1;}}

@@ -8,17 +8,45 @@ cv.width=W;cv.height=H;
 // the wide view (play, and the newer menus) fills the window: its height is the zoom (more pixels = zoomed further out)
 // and its width follows the window's shape, so there are no black bars. Narrow menus stay 320x180, scaled to fit.
 let VIEWWIDE=false,viewScale=1;const VIEWHS=[252,300,348],WORLD_SCALE=2;
+let safeViewRect,viewBounds,viewPadding={left:0,top:0,right:0,bottom:0},viewBleeds=false;
 function viewH(){try{return VIEWHS[(typeof meta!=='undefined'&&meta.opt&&meta.opt.zoom!=null)?meta.opt.zoom:1]||300;}catch(_){return 300;}}
 function viewArea(){return {x:0,y:0,w:innerWidth,h:innerHeight};}
+function worldBleedArea(){return null;}
 function viewDims(wide){if(!wide)return [320,180];const area=viewArea(),h=viewH(),a=area.w/Math.max(1,area.h),w=Math.round(clamp(h*a,h*1.3,h*2.4)/2)*2;return [w,h];}
-function setView(wide,scale=1){VIEWWIDE=!!wide;const [nw,nh]=viewDims(wide);if(nw===W&&nh===H&&scale===viewScale)return;W=nw;H=nh;viewScale=scale;cv.width=W*scale;cv.height=H*scale;fit();}
+function setView(wide,scale=1){
+ VIEWWIDE=!!wide;
+ const [nw,nh]=viewDims(wide),bleeds=!!worldBleedArea();
+ if(nw===W&&nh===H&&scale===viewScale&&bleeds===viewBleeds)return;
+ W=nw;H=nh;viewScale=scale;fit();
+}
 function drawInView(draw){
  ctx.save();
- try{ctx.scale(viewScale,viewScale);draw();}
+ try{ctx.translate(viewPadding.left,viewPadding.top);ctx.scale(viewScale,viewScale);draw();}
  finally{ctx.restore();}
 }
-function fit(){const area=viewArea(),s=Math.min(area.w/W,area.h/H),w=Math.round(W*s),h=Math.round(H*s);
- cv.style.width=w+'px';cv.style.height=h+'px';cv.style.left=Math.floor(area.x+(area.w-w)/2)+'px';cv.style.top=Math.floor(area.y+(area.h-h)/2)+'px';}
+const visibleView=()=>viewBounds;
+function fillVisibleView(){
+ const {left,top,right,bottom}=visibleView();
+ ctx.fillRect(left,top,right-left,bottom-top);
+}
+// The logical view stays inside the safe area. Overscan adds backing pixels outside it at the same scale.
+function fit(){const area=viewArea(),s=Math.min(area.w/W,area.h/H),w=Math.max(1,Math.round(W*s)),h=Math.max(1,Math.round(H*s));
+ const left=Math.floor(area.x+(area.w-w)/2),top=Math.floor(area.y+(area.h-h)/2);
+ safeViewRect={left,top,width:w,height:h,right:left+w,bottom:top+h};
+ const outer=worldBleedArea(),px=w/(W*viewScale),py=h/(H*viewScale);
+ const pad=(space,scale)=>Math.max(0,Math.ceil(space/scale));
+ viewBleeds=!!outer;
+ viewPadding=outer?{
+  left:pad(left-outer.x,px),top:pad(top-outer.y,py),
+  right:pad(outer.x+outer.w-safeViewRect.right,px),bottom:pad(outer.y+outer.h-safeViewRect.bottom,py)
+ }:{left:0,top:0,right:0,bottom:0};
+ viewBounds={left:-viewPadding.left/viewScale,top:-viewPadding.top/viewScale,
+  right:W+viewPadding.right/viewScale,bottom:H+viewPadding.bottom/viewScale};
+ cv.width=W*viewScale+viewPadding.left+viewPadding.right;
+ cv.height=H*viewScale+viewPadding.top+viewPadding.bottom;
+ cv.style.width=cv.width*px+'px';cv.style.height=cv.height*py+'px';
+ cv.style.left=left-viewPadding.left*px+'px';cv.style.top=top-viewPadding.top*py+'px';
+}
 function resizeView(){W=0;setView(VIEWWIDE,viewScale);}
 addEventListener('resize',()=>resizeView());fit();
 

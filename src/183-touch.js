@@ -22,7 +22,7 @@ const smallTouchScreen=()=>Math.min(innerWidth,innerHeight)<520;
 // the buttons, placed from the bottom-right corner; r is the touch radius in game pixels
 const TOUCHLAY={cx:-40,cy:-38,inR:80,outR:142,dash:24,ab:18,ult:21,small:14};
 const TOUCH_TOP={right:17,y:16,r:11,step:29,fullscreen:44,gap:6};
-const touchPixelScale=()=>parseFloat(cv.style.height)/H||1;
+const touchPixelScale=()=>safeViewRect.height/H||1;
 const touchFullscreenSize=()=>touchDisplay.hidden?0:Math.ceil(TOUCH_TOP.fullscreen/touchPixelScale());
 const touchHudRowBottom=()=>Math.max(34,2*TOUCH_TOP.gap+touchFullscreenSize());
 function touchButtons(){const L=TOUCHLAY,cx=W+L.cx,cy=H+L.cy,ring=(ang,rad)=>[cx+Math.cos(ang*Math.PI/180)*rad,cy+Math.sin(ang*Math.PI/180)*rad];
@@ -38,7 +38,7 @@ function touchButtons(){const L=TOUCHLAY,cx=W+L.cx,cy=H+L.cy,ring=(ang,rad)=>[cx
   at(224,L.outR,{id:'heal',l:'POT',r:L.small,key:()=>KB.heal,col:'#ff7070',act:'heal'}),
   at(254,L.outR,{id:'use',l:'USE',r:L.small,key:()=>KB.use,col:'#c8f0a0',act:'use'}),
   top(0,'pause','II',()=>'Escape'),top(1,'pack',invOpen?'X':'BAG',()=>KB.pack),top(2,'swap','SWAP',()=>KB.swap)];}
-const toCanvas=t=>{const r=cv.getBoundingClientRect();return {x:(t.clientX-r.left)/r.width*W,y:(t.clientY-r.top)/r.height*H};};
+const toCanvas=t=>{const r=safeViewRect;return {x:(t.clientX-r.left)/r.width*W,y:(t.clientY-r.top)/r.height*H};};
 function touchHit(p,pad){for(const b of touchButtons())if(Math.hypot(p.x-b.x,p.y-b.y)<=b.r+(b.top?3:pad||3))return b;return null;}
 function touchAimAt(point){
  const dx=point.x-P.x,dy=point.y-P.y,[x,y]=scrVec(dx,dy);
@@ -112,9 +112,9 @@ const TOUCH_BASICS={
  [SUMO_KIT.m]:()=>250*.13*(1+S.rangeM*.4)+5,
  [CLASSES.find(c=>c.k==='kagura').kit.m]:()=>P.flowBoost>R.time?44:36,
  [CLASSES.find(c=>c.k==='bellwarden').kit.m]:()=>37};
-function touchTarget(range,edge=false){let best=null,bd=Infinity;for(const e of enemies){if(!kitFoe(e))continue;
+function touchTarget(range,edge=false){let best=null,bd=Infinity;const view=visibleView();for(const e of enemies){if(!kitFoe(e))continue;
  const d=Math.hypot(e.x-P.x,e.y-P.y);if(d>=bd||d>range+(edge?e.r:0))continue;
- const x=sx(e.x,e.y),y=sy(e.x,e.y);if(x>=0&&x<W&&y>=0&&y<H&&los(P.x,P.y,e.x,e.y)){bd=d;best=e;}}return best;}
+ const x=sx(e.x,e.y),y=sy(e.x,e.y);if(x>=view.left&&x<view.right&&y>=view.top&&y<view.bottom&&los(P.x,P.y,e.x,e.y)){bd=d;best=e;}}return best;}
 {const _fire=wantFire;wantFire=function(){return TOUCH?mouse.down:_fire();};}
 {const base=castHeavy;castHeavy=function(){if(touchActive())touchAimAbility();return base.apply(this,arguments);};}
 {const _u=update;update=function(dt){if(touchActive()&&!TIPHOLD){
@@ -162,12 +162,20 @@ function readTouchInsets(){
  const style=getComputedStyle(document.documentElement);
  for(const edge in touchInsets)touchInsets[edge]=parseFloat(style.getPropertyValue('--safe-'+edge))||0;
 }
+function touchViewportArea(){
+ const viewport=window.visualViewport;
+ return {x:viewport?.offsetLeft||0,y:viewport?.offsetTop||0,w:viewport?.width||innerWidth,h:viewport?.height||innerHeight};
+}
 {const base=viewArea;viewArea=function(){
  if(!usesTouchViewport())return base();
- const viewport=window.visualViewport,{top,right,bottom,left}=touchInsets;
- return {x:(viewport?.offsetLeft||0)+left,y:(viewport?.offsetTop||0)+top,
-  w:Math.max(1,(viewport?.width||innerWidth)-left-right),h:Math.max(1,(viewport?.height||innerHeight)-top-bottom)};
+ const viewport=touchViewportArea(),{top,right,bottom,left}=touchInsets;
+ return {x:viewport.x+left,y:viewport.y+top,w:Math.max(1,viewport.w-left-right),h:Math.max(1,viewport.h-top-bottom)};
 };}
+worldBleedArea=function(){
+ if(!usesTouchViewport()||!usesWorldView())return null;
+ const area=touchViewportArea();
+ return area.w>area.h?area:null;
+};
 {const base=resizeView;resizeView=function(){if(usesTouchViewport())readTouchInsets();base();};}
 let touchDisplayMode;
 function updateTouchDisplay(){touchDisplayMode=mode;
@@ -179,7 +187,7 @@ function updateTouchDisplay(){touchDisplayMode=mode;
  fullscreenButton.setAttribute('aria-pressed',String(active));
  const area=viewArea(),landscape=area.w>=area.h;
  if(mode==='play'&&TOUCH&&landscape){
-  const bounds=cv.getBoundingClientRect(),padding=TOUCH_TOP.gap*touchPixelScale();
+  const bounds=safeViewRect,padding=TOUCH_TOP.gap*touchPixelScale();
   touchDisplay.style.setProperty('--display-top',(bounds.top+padding)+'px');
   touchDisplay.style.setProperty('--display-right',(innerWidth-bounds.right+padding)+'px');
  }else{

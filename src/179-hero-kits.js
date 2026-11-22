@@ -334,7 +334,7 @@ function chiMoon(p,dmg){const c=kitAim(p,120);for(const e of kitFoes(p.x,p.y,150
   ctx.fillStyle='#14101a';ctx.beginPath();ctx.arc(X,Y,23,0,TAU);ctx.fill();ctx.fillStyle='#b01828';ctx.beginPath();ctx.arc(X,Y,22,0,TAU);ctx.fill();ctx.fillStyle='#e03048';ctx.beginPath();ctx.arc(X-3,Y-3,18,0,TAU);ctx.fill();
   ctx.fillStyle='#901020';for(const [mx,my,mr] of [[-8,-6,5],[6,4,6],[-2,10,3],[9,-9,3]]){ctx.beginPath();ctx.arc(X+mx,Y+my,mr,0,TAU);ctx.fill();}ctx.strokeStyle=BLD2;ctx.globalAlpha=.5*fade;ctx.beginPath();ctx.arc(X,Y,22,-2.4,-.6);ctx.stroke();
   // a red tint over the world while the moon is up
-  ctx.globalAlpha=.08*fade;ctx.fillStyle='#ff0020';ctx.fillRect(0,0,W,H);}});}
+  ctx.globalAlpha=.08*fade;ctx.fillStyle='#ff0020';fillVisibleView();}});}
 {const _k=killE;killE=function(e){const sealed=e&&e.bloodSeal>R.time&&HK.moon>R.time&&kitHero()==='bloodoracle';const r=_k.apply(this,arguments);
  if(sealed){for(let i=0;i<3;i++){const tg=kitNearest(e.x,e.y,160,o=>o===e);const an=tg?angTo(e,tg)+rnd(-.5,.5):i/3*TAU;const q=kitShot(e.x,e.y,an,220,S.atk*1.4*AP()*(1+.25*S.epow),{spr:'lance',col:BLD,r:3,src:'e',home:true,life:1.1,pierce:1});}}return r;};}
 

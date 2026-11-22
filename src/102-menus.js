@@ -28,7 +28,7 @@ function pauseKey(c){const it=PAUSEITEMS();
  else if(c==='KeyK')openGuide('play');else if(c==='KeyO')openOptions('play');else if(c==='KeyQ'&&!R.training){it[4].f();}}
 function pauseClick(){const it=PAUSEITEMS();for(let i=0;i<it.length;i++)if(m2In(12,PIY(i)-3,96,13)){pauseSel=i;if(it[i].f){it[i].f();sfx('tool');}return;}}
 function drawPause(){
- ctx.fillStyle='rgba(6,3,10,.8)';ctx.fillRect(0,0,W,H);
+ ctx.fillStyle='rgba(6,3,10,.8)';fillVisibleView();
  const it=PAUSEITEMS();if(m2Moved())for(let i=0;i<it.length;i++)if(m2In(12,PIY(i)-3,96,13)&&pauseSel!==i){pauseSel=i;sfx('coin');}
  pauseSel=clamp(pauseSel,0,it.length-1);
  // left: title, where you are, the menu

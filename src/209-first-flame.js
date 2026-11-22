@@ -223,7 +223,7 @@ function kaitoLane(row){
 function kaitoFloor(e){
  const A=arenaOf(e),recovering=e.A?.stance==='recovery',dark=e.half&&!recovering;
  if(dark){
-  ctx.save();ctx.fillStyle='rgba(14,10,25,.53)';ctx.fillRect(-1,-1,W+2,H+2);ctx.restore();
+  ctx.save();ctx.fillStyle='rgba(14,10,25,.53)';fillVisibleView();ctx.restore();
  }
  const row=e.A?.row;
  for(const d of [-1,0,1]){
