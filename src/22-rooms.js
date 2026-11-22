@@ -183,7 +183,12 @@ function updRoomEvents(dt){
 }
 function drawRoomEvents(){
  for(const r of map.rooms){const ev=r.ev;if(!ev||ev.state!==1||ev.k!=='ambush')continue;const x0=r.x*T,y0=r.y*T,x1=(r.x+r.w)*T,y1=(r.y+r.h)*T,c=Math.floor(time*6)%2?'#f33':'#a11';
-  const pts=[[x0,y0],[x1,y0],[x1,y1],[x0,y1],[x0,y0]];for(let i=0;i<4;i++){const a=pts[i],b=pts[i+1];sline(sx(a[0],a[1]),sy(a[0],a[1])-1,sx(b[0],b[1]),sy(b[0],b[1])-1,c);sline(sx(a[0],a[1]),sy(a[0],a[1])-6,sx(b[0],b[1]),sy(b[0],b[1])-6,c);}}
+  const pts=[[x0,y0],[x1,y0],[x1,y1],[x0,y1],[x0,y0]].map(([x,y])=>scenePoint(sx(x,y),sy(x,y)));
+  for(let i=0;i<4;i++){
+   const [ax,ay]=pts[i],[bx,by]=pts[i+1];
+   sline(ax,ay-sceneZoom,bx,by-sceneZoom,c);sline(ax,ay-6*sceneZoom,bx,by-6*sceneZoom,c);
+  }
+ }
  const ch=map.rooms.find(r=>r.ev&&r.ev.k==='challenge'&&r.ev.state===1);if(ch){const t=Math.max(0,ch.ev.t);ctxt('CHALLENGE '+t.toFixed(1)+'S   FOES LEFT '+enemies.filter(e=>!e.dead&&e.room===ch).length,H-60,t<8&&Math.floor(time*4)%2?'#f66':'#fc4');}
 }
 function openShrine(p){const gd=GODS[p.god]||GODS.crane;

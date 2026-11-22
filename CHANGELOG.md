@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.8.16: Mobile camera and lighting
+
+- Bring the landscape phone camera 12% closer while retaining safe-area HUD and touch positions.
+- Extend dungeon lighting and cinematic effects to the screen edges so the safe-area seam disappears.
+
 ## 0.8.15: Mobile aim and Siegebreaker
 
 - Draw the dungeon edge to edge on landscape phones while keeping the HUD and touch controls inside the safe area.

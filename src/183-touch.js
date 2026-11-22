@@ -42,7 +42,7 @@ const toCanvas=t=>{const r=safeViewRect;return {x:(t.clientX-r.left)/r.width*W,y
 function touchHit(p,pad){for(const b of touchButtons())if(Math.hypot(p.x-b.x,p.y-b.y)<=b.r+(b.top?3:pad||3))return b;return null;}
 function touchAimAt(point){
  const dx=point.x-P.x,dy=point.y-P.y,[x,y]=scrVec(dx,dy);
- mouse.x=W/2+x;mouse.y=H/2+6+y;
+ mouse.x=W/2+x*sceneZoom;mouse.y=H/2+6+y*sceneZoom;
  P.aim=Math.atan2(dy,dx);
 }
 function touchAimAlongWalk(){
@@ -112,7 +112,7 @@ const TOUCH_BASICS={
  [SUMO_KIT.m]:()=>250*.13*(1+S.rangeM*.4)+5,
  [CLASSES.find(c=>c.k==='kagura').kit.m]:()=>P.flowBoost>R.time?44:36,
  [CLASSES.find(c=>c.k==='bellwarden').kit.m]:()=>37};
-function touchTarget(range,edge=false){let best=null,bd=Infinity;const view=visibleView();for(const e of enemies){if(!kitFoe(e))continue;
+function touchTarget(range,edge=false){let best=null,bd=Infinity;const view=sceneBounds;for(const e of enemies){if(!kitFoe(e))continue;
  const d=Math.hypot(e.x-P.x,e.y-P.y);if(d>=bd||d>range+(edge?e.r:0))continue;
  const x=sx(e.x,e.y),y=sy(e.x,e.y);if(x>=view.left&&x<view.right&&y>=view.top&&y<view.bottom&&los(P.x,P.y,e.x,e.y)){bd=d;best=e;}}return best;}
 {const _fire=wantFire;wantFire=function(){return TOUCH?mouse.down:_fire();};}
@@ -176,6 +176,7 @@ worldBleedArea=function(){
  const area=touchViewportArea();
  return area.w>area.h?area:null;
 };
+viewSceneZoom=()=>viewBleeds&&smallTouchScreen()?1.12:1;
 {const base=resizeView;resizeView=function(){if(usesTouchViewport())readTouchInsets();base();};}
 let touchDisplayMode;
 function updateTouchDisplay(){touchDisplayMode=mode;

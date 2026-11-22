@@ -278,7 +278,6 @@ function renderMap(th){
   const [u,v]=tileR(dx,dy);return {dx,dy,u:u-ox,v:v-oy};
  });
  const floor=mk(FW,FH,g=>{
-  g.fillStyle='#07060a';g.fillRect(0,0,FW,FH);
   for(let y=0;y<MH;y++)for(let x=0;x<MW;x++){
    if(!map.t[y*MW+x])continue;
    // place the tile by its position in the rotated grid (the camera angle)

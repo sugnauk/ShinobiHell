@@ -21,6 +21,7 @@ const REV_DUR=1.7;let REV=null;const revNow=()=>performance.now()/1000;
  const k=revNow()-REV.t0,X=Math.round(sx(REV.x,REV.y)),Y=Math.round(sy(REV.x,REV.y))+3,s=heroSpr(CLS().k,P.evo||0,false),flip=REV.face<0,h=s.fh*(s.sc||1),cl=x=>Math.max(0,Math.min(1,x));
  // the world darkens
  ctx.fillStyle='#06040c';ctx.globalAlpha=.55*cl(k/.3)*(k>1.4?cl((REV_DUR-k)/.3):1);fillVisibleView();ctx.globalAlpha=1;
+ ctx.save();scaleSceneLayer();
  // the body: falls, lies still, then rises
  const fall=k<.35?cl(k/.35):k<1.2?1:1-cl((k-1.2)/.35),ang=fall*Math.PI/2*(flip?-1:1);
  shadow(X,Y-2,7);ctx.save();ctx.translate(X,Y);ctx.rotate(ang);ctx.globalAlpha=k<1.2?.75:1;drawSpr(s,0,0,false,WIZ.idle[0],flip);ctx.restore();ctx.globalAlpha=1;
@@ -33,6 +34,8 @@ const REV_DUR=1.7;let REV=null;const revNow=()=>performance.now()/1000;
   ctx.globalAlpha=.35*fade;ctx.fillStyle='#ffd040';ctx.fillRect(X-8,top,17,len);ctx.globalAlpha=.6*fade;ctx.fillStyle='#fff6c0';ctx.fillRect(X-3,top,7,len);ctx.globalAlpha=.9*fade;ctx.fillStyle='#ffffff';ctx.fillRect(X-1,top,3,len);ctx.globalAlpha=1;
   if(d>=1){ctx.strokeStyle='#ffd040';ctx.globalAlpha=.7*fade;ctx.beginPath();ctx.ellipse(X,Y-1,10+Math.sin(k*20)*2,4,0,0,TAU);ctx.stroke();ctx.globalAlpha=1;}}
  // risen: a burst of light and the banner
- if(k>1.2){const r=cl((k-1.2)/.4);ctx.strokeStyle='#ffffff';ctx.globalAlpha=1-r;ctx.lineWidth=2;ctx.beginPath();ctx.ellipse(X,Y-h/2,8+r*60,(8+r*60)*.6,0,0,TAU);ctx.stroke();ctx.lineWidth=1;ctx.globalAlpha=1;
+ if(k>1.2){const r=cl((k-1.2)/.4);ctx.strokeStyle='#ffffff';ctx.globalAlpha=1-r;ctx.lineWidth=2;ctx.beginPath();ctx.ellipse(X,Y-h/2,8+r*60,(8+r*60)*.6,0,0,TAU);ctx.stroke();ctx.lineWidth=1;ctx.globalAlpha=1;}
+ ctx.restore();
+ if(k>1.2){
   const s2='REVIVED',sc=2,a=cl((k-1.2)/.15);ctx.globalAlpha=a;txt(s2,Math.round(W/2-txtW(s2,sc)/2),Math.round(H*.3),'#ffd040',sc);const n=P.rez-1,s3=n>0?n+' REVIVE'+(n>1?'S':'')+' LEFT':'NO REVIVES LEFT';txt(s3,Math.round(W/2-txtW(s3)/2),Math.round(H*.3)+16,n>0?'#fff6c0':'#ff8080');ctx.globalAlpha=1;}};}
 {const _ld=loadDungeon;loadDungeon=function(){REV=null;return _ld.apply(this,arguments);};}

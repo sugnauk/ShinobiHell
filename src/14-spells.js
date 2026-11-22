@@ -1,7 +1,7 @@
 'use strict';
 // HELL OF THE EMPEROR - aiming, spells (part of the former game.js; files load in numeric order, see index.html)
 // ---------- screen <-> world (isometric input) ----------
-function screenToWorldDelta(mx,my){const dx=mx-W/2,dy=(my-(H/2+6))/ISOK,w=unrot((dy+dx)/2,(dy-dx)/2);return {x:w[0],y:w[1]};}
+function screenToWorldDelta(mx,my){const dx=(mx-W/2)/sceneZoom,dy=(my-(H/2+6))/(ISOK*sceneZoom),w=unrot((dy+dx)/2,(dy-dx)/2);return {x:w[0],y:w[1]};}
 const mouseWorld=()=>{const d=screenToWorldDelta(mouse.x,mouse.y);return {x:P.x+d.x,y:P.y+d.y};};
 function moveVec(){let mx=(keys[KB.right]||keys.ArrowRight?1:0)-(keys[KB.left]||keys.ArrowLeft?1:0),my=(keys[KB.down]||keys.ArrowDown?1:0)-(keys[KB.up]||keys.ArrowUp?1:0);if(!mx&&!my)return [0,0];const l=Math.hypot(mx,my);mx/=l;my/=l;return unrot((mx+my)*.7071,(my-mx)*.7071);} // WASD stays screen-relative at any camera angle
 

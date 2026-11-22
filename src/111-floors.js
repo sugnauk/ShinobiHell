@@ -38,6 +38,18 @@ const FLOORART=[
 // ---------- mood: a soft vignette in each stage's own light, drawn under the HUD ----------
 const MOOD=[['#0a1a08',.38],['#08201c',.38],['#0a0614',.6],['#3a0800',.42],['#c8dcf0',.22],['#0a0a10',.34],['#1a0a04',.26],['#000000',.62],['#0a0a14',.32],['#2a0a1a',.2],['#06140e',.26],['#200006',.5]];
 const MOODC={};
-function moodCanvas(di){const key=di+":"+W+"x"+H;if(MOODC[key])return MOODC[key];const [c,a]=MOOD[di]||['#000',.3];return MOODC[key]=mk(W,H,g=>{const gr=g.createRadialGradient(W/2,H/2+6,Math.min(W,H)*.32,W/2,H/2+6,Math.max(W,H)*.66);
- const h=c.slice(1),n=parseInt(h,16),rgb=(n>>16)+','+((n>>8)&255)+','+(n&255);gr.addColorStop(0,'rgba('+rgb+',0)');gr.addColorStop(1,'rgba('+rgb+','+a+')');g.fillStyle=gr;g.fillRect(0,0,W,H);});}
-{const _dre=drawRoomEvents;drawRoomEvents=function(){_dre.apply(this,arguments);if(map&&!map.train&&R&&MOOD[R.di])ctx.drawImage(moodCanvas(R.di),0,0);};}
+function moodCanvas(di){
+ const {left,top,right,bottom}=visibleView(),x=Math.floor(left),y=Math.floor(top);
+ const width=Math.ceil(right)-x,height=Math.ceil(bottom)-y,key=di+':'+[W,H,x,y,width,height].join(',');
+ if(MOODC[key])return MOODC[key];
+ const [c,a]=MOOD[di],cx=W/2-x,cy=H/2+6-y;
+ return MOODC[key]=mk(width,height,g=>{
+  const gr=g.createRadialGradient(cx,cy,Math.min(W,H)*.32,cx,cy,Math.max(width,height)*.66);
+  const n=parseInt(c.slice(1),16),rgb=(n>>16)+','+((n>>8)&255)+','+(n&255);
+  gr.addColorStop(0,'rgba('+rgb+',0)');gr.addColorStop(1,'rgba('+rgb+','+a+')');
+  g.fillStyle=gr;g.fillRect(0,0,width,height);
+ });
+}
+{const _dre=drawRoomEvents;drawRoomEvents=function(){_dre.apply(this,arguments);if(map&&!map.train&&R&&MOOD[R.di]){
+ const {left,top}=visibleView();ctx.drawImage(moodCanvas(R.di),Math.floor(left),Math.floor(top));
+}};}

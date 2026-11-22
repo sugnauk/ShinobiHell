@@ -9,9 +9,11 @@ cv.width=W;cv.height=H;
 // and its width follows the window's shape, so there are no black bars. Narrow menus stay 320x180, scaled to fit.
 let VIEWWIDE=false,viewScale=1;const VIEWHS=[252,300,348],WORLD_SCALE=2;
 let safeViewRect,viewBounds,viewPadding={left:0,top:0,right:0,bottom:0},viewBleeds=false;
+let sceneZoom=1,sceneBounds;
 function viewH(){try{return VIEWHS[(typeof meta!=='undefined'&&meta.opt&&meta.opt.zoom!=null)?meta.opt.zoom:1]||300;}catch(_){return 300;}}
 function viewArea(){return {x:0,y:0,w:innerWidth,h:innerHeight};}
 function worldBleedArea(){return null;}
+function viewSceneZoom(){return 1;}
 function viewDims(wide){if(!wide)return [320,180];const area=viewArea(),h=viewH(),a=area.w/Math.max(1,area.h),w=Math.round(clamp(h*a,h*1.3,h*2.4)/2)*2;return [w,h];}
 function setView(wide,scale=1){
  VIEWWIDE=!!wide;
@@ -25,9 +27,23 @@ function drawInView(draw){
  finally{ctx.restore();}
 }
 const visibleView=()=>viewBounds;
-function fillVisibleView(){
- const {left,top,right,bottom}=visibleView();
+function fillVisibleView(view=visibleView()){
+ const {left,top,right,bottom}=view;
  ctx.fillRect(left,top,right-left,bottom-top);
+}
+function unzoomBounds(view,zoom){
+ const x=W/2,y=H/2+6;
+ return {left:x+(view.left-x)/zoom,right:x+(view.right-x)/zoom,
+  top:y+(view.top-y)/zoom,bottom:y+(view.bottom-y)/zoom};
+}
+function scaleSceneLayer(){
+ if(sceneZoom===1)return;
+ const x=W/2,y=H/2+6;
+ ctx.translate(x,y);ctx.scale(sceneZoom,sceneZoom);ctx.translate(-x,-y);
+}
+function scenePoint(x,y){
+ const cx=W/2,cy=H/2+6;
+ return [cx+(x-cx)*sceneZoom,cy+(y-cy)*sceneZoom];
 }
 // The logical view stays inside the safe area. Overscan adds backing pixels outside it at the same scale.
 function fit(){const area=viewArea(),s=Math.min(area.w/W,area.h/H),w=Math.max(1,Math.round(W*s)),h=Math.max(1,Math.round(H*s));
@@ -42,6 +58,8 @@ function fit(){const area=viewArea(),s=Math.min(area.w/W,area.h/H),w=Math.max(1,
  }:{left:0,top:0,right:0,bottom:0};
  viewBounds={left:-viewPadding.left/viewScale,top:-viewPadding.top/viewScale,
   right:W+viewPadding.right/viewScale,bottom:H+viewPadding.bottom/viewScale};
+ sceneZoom=viewSceneZoom();
+ sceneBounds=unzoomBounds(viewBounds,sceneZoom);
  cv.width=W*viewScale+viewPadding.left+viewPadding.right;
  cv.height=H*viewScale+viewPadding.top+viewPadding.bottom;
  cv.style.width=cv.width*px+'px';cv.style.height=cv.height*py+'px';
@@ -51,7 +69,7 @@ function resizeView(){W=0;setView(VIEWWIDE,viewScale);}
 addEventListener('resize',()=>resizeView());fit();
 
 // the game's version, shown on the title screen. Bump it with every change that reaches main.
-const GAME_VERSION='0.8.15';
+const GAME_VERSION='0.8.16';
 
 // ---------- utils ----------
 const rnd=(a,b)=>a+Math.random()*(b-a),ri=(a,b)=>Math.floor(rnd(a,b+1)),pick=a=>a[Math.floor(Math.random()*a.length)];
