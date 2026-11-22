@@ -482,7 +482,7 @@ function die(){
 }
 // ---- player death: time stops, you stagger and fall, your spirit rises, then the summary ----
 const DEATHT=3.2;
-function startDeath(){const p=P;p.dying=DEATHT;p.hp=0;p.dash=0;p.animT=0;p.mv=false;mouse.down=mouse.rdown=false;invOpen=false;
+function startDeath(){const p=P;p.dying=DEATHT;p.hp=0;p.dash=0;p.recoil=null;p.animT=0;p.mv=false;mouse.down=mouse.rdown=false;invOpen=false;
  sfx('hurt');tone(220,1.4,'sawtooth',.07,-180,.15);tone(110,1.8,'triangle',.08,-60,.3);
  flashT=.25;flashCol='#fff';spark(p.x,p.y,'#c22',26,120);fxRing(p.x,p.y,30,'#fff',.35);txtFx(p.x,p.y-10,'DEFEATED','#f55',2);}
 function updDeath(dt){const p=P,e0=DEATHT-p.dying;p.dying-=dt;const e1=DEATHT-p.dying;

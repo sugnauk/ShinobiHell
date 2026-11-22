@@ -5,7 +5,7 @@
 //  Q   GRAPESHOT   a cone of fire bursts from the barrel the width of the spread, and the pellets fly as hot shards
 //  E   POWDER ROLL (the roll was already real) the keg goes up in a fireball, a smoke ring and flying barrel staves
 //  F   TRIPOD GUN  set up leg by leg, then the gun drops onto it; it turns to its target, kicks and flashes on every shot
-//  R   SIEGEBREAKER a compact hand cannon braces against the shoulder and fires a single pressure front
+//  R   SIEGEBREAKER a heavy cannon locks against the shoulder, then kicks the Gunner backward
 Object.assign(ABTUNE,{slug:{flash:.09,smoke:.6},grape:{cone:.12},keg:{ball:.28,staves:8},tripod:{build:.45,kick:.08}});
 for(const n of ['HEAVY SLUG','GRAPESHOT','POWDER ROLL','TRIPOD GUN'])ABX_OWN.add(n);
 const isGun=()=>P&&CLS().k==='gunner';
@@ -52,40 +52,125 @@ function areaRing(x,y,r,col,al,dash){ctx.globalAlpha=al;ctx.strokeStyle=col;if(d
 {const _kd=CZD.gkeg;CZD.gkeg=z=>{const fl=Math.floor(time*10)%2;ctx.globalAlpha=.14+(fl?.08:0);wdisc(z.x,z.y,z.r,'#ff8030');ctx.globalAlpha=1;areaRing(z.x,z.y,z.r,'#ff8030',.8);return _kd(z);};}
 // the wizard's thunder totem (an E/F alternative) shows its reach too
 if(CZD.totem){const _tt=CZD.totem;CZD.totem=z=>{areaRing(z.x,z.y,z.r,'#ffff66',.4,true);return _tt(z);};}
-// ---- R SIEGEBREAKER: shoulder the short cannon, hold while the match catches, then kick on the shot.
+// ---- R SIEGEBREAKER: lock the cannon, light the fuse, then ride the recoil. ----
+const SIEGE_FX={charge:.36,recovery:.54,recoilTime:.22,recoilDistance:38,blast:.62};
 ULTSEQ.SIEGEBREAKER.k='siegeaim';
-AB_ANIM.SIEGEBREAKER=['siegehold',.55];
-{const _pa=abPoseAt;abPoseAt=function(H){if(!['u_siegeaim','siegehold','siegekick'].includes(H.k))return _pa.apply(this,arguments);
- const u=clamp((time-H.t0)/H.dur,0,1),raise=H.k==='u_siegeaim'?abEase(u/.7):1,
-  kick=H.k==='siegekick'?1-abEase(u/.7):0,d=H.dir;
- return {u,frame:H.k==='u_siegeaim'&&u<.4?12:kick>.15?14:13,flip:d<0,
-  dx:-Math.round((raise+3*kick)*d),sx:1+.08*kick,sy:1-.13*raise-.06*kick,skew:d*(.1*raise-.28*kick),alpha:1};};}
-function drawSiegeCarbine(X,Y,a,raise,match,kick){const [vx,vy]=scrVec(Math.cos(a),Math.sin(a)),side=vx<0?-1:1;
- ctx.save();ctx.translate(X+side*2,Y-10+(1-raise)*5);ctx.rotate(Math.atan2(vy,vx)+side*.72*(1-raise));
- if(side<0)ctx.scale(1,-1);ctx.translate(-kick*4,0);
- const rect=(x,y,w,h,c)=>{ctx.fillStyle=c;ctx.fillRect(x,y,w,h);};
- rect(-8,-3,11,6,'#14101a');rect(-7,-2,9,4,'#724a30');rect(-7,-2,8,1,'#a5784b');
- rect(-1,-4,16,7,'#14101a');rect(0,-3,14,5,'#454650');rect(0,-3,13,1,'#8a8c91');
- rect(4,-3,2,5,'#ae8342');rect(12,-4,3,7,'#14101a');rect(13,-3,1,5,'#71717a');
- rect(-2,2,3,3,'#38251f');rect(-3,-5,2,2,'#a87944');
- if(match){rect(-2,-6,2,2,'#e8803e');rect(-1,-6,1,1,'#ffe0ad');}
- ctx.restore();}
-{const _dp=drawPlayer;drawPlayer=function(){const r=_dp.apply(this,arguments),H=ABPOSE;
- if(!P||P.dying>0||!H)return r;
- const u=clamp((time-H.t0)/H.dur,0,1),z=H.k==='siegehold'?zones.find(z=>z.k==='siege'):null;
- if(H.k==='u_siegeaim')drawSiegeCarbine(sx(P.x,P.y),sy(P.x,P.y)-u,P.aim,abEase(u/.7),false,0);
- if(z)drawSiegeCarbine(sx(P.x,P.y),sy(P.x,P.y),z.a,1,z.t<.2,0);
- if(H.k==='siegekick')drawSiegeCarbine(sx(P.x,P.y),sy(P.x,P.y),H.a,1,false,1-abEase(u/.65));
- return r;};}
-function fireSiegeFx(z){const c=Math.cos(z.a),s=Math.sin(z.a),mx=P.x+c*13,my=P.y+s*13;
- if(ABPOSE?.k==='siegehold')ABPOSE={k:'siegekick',dur:.33,t0:time,dir:scrVec(c,s)[0]<0?-1:1,a:z.a};
- gunFlash(mx,my,z.a,24,.46,.12,'#ffad5f');gunSmoke(mx,my,12,32);
- topFx({dur:.32,draw(o,k){const front=z.len*abEase(k/.38),fade=1-k,
-   path=(along,offset)=>[sx(z.x+c*along-s*offset,z.y+s*along+c*offset),sy(z.x+c*along-s*offset,z.y+s*along+c*offset)-7];
-   ctx.save();ctx.globalAlpha=.6*fade;ctx.fillStyle='#86736e';ctx.beginPath();
-   for(const [i,[d,w]] of [[0,0],[front*.56,-z.r*.56],[front,-z.r*.76],[front,z.r*.76],[front*.56,z.r*.56]].entries()){
-    const [x,y]=path(d,w);if(i)ctx.lineTo(x,y);else ctx.moveTo(x,y);}
-   ctx.fill();ctx.globalAlpha=fade;
-   const [x0,y0]=path(front,-z.r*.78),[x1,y1]=path(front,z.r*.78),[xm,ym]=path(Math.min(z.len,front+6),0);
-   kLine(x0,y0,xm,ym,2,'#e99858');kLine(xm,ym,x1,y1,2,'#e99858');
-   ctx.globalAlpha=.8*fade;ctx.fillStyle='#ffe0aa';ctx.fillRect(xm-2,ym-1,5,3);ctx.restore();}});}
+AB_ANIM.SIEGEBREAKER=['siegehold',SIEGE_FX.charge+.06];
+function siegePose(h){
+ const age=time-h.t0,u=clamp(age/h.dur,0,1),raising=h.k==='u_siegeaim';
+ const brace=raising?abEase(u/.76):1-abEase((u-.48)/.52)*(h.k==='siegekick'?.62:0);
+ const kick=h.k==='siegekick'?1-abEase(age/.25):0;
+ return {u,brace,kick};
+}
+{const base=abPoseAt;abPoseAt=function(h){
+ if(h.k!=='u_siegeaim'&&h.k!=='siegehold'&&h.k!=='siegekick')return base.apply(this,arguments);
+ const {u,brace,kick}=siegePose(h),d=h.dir;
+ return {u,frame:h.k==='u_siegeaim'&&u<.38?12:kick>.05?14:13,flip:d<0,
+  dx:Math.round(-(2*brace+6*kick)*d),sx:1+.13*kick,sy:1-.19*brace+.1*kick,
+  skew:d*(.15*brace-.44*kick),rot:-d*.18*kick,alpha:1};
+};}
+function drawSiegeCannon(x,y,a,brace,kick,fuse){
+ const [vx,vy]=scrVec(Math.cos(a),Math.sin(a)),side=vx<0?-1:1;
+ ctx.save();
+ ctx.translate(x+side*(2-3*kick),y-10+(1-brace)*6+brace*2-3*kick);
+ ctx.rotate(Math.atan2(vy,vx)+side*(.68*(1-brace)-.28*kick));
+ if(side<0)ctx.scale(1,-1);
+ ctx.translate(-kick*4,0);
+ const pixel=(x,y,w,h,col)=>{ctx.fillStyle=col;ctx.fillRect(x,y,w,h);};
+ // The wood cheek rest, reinforced breech and a barrel visibly heavier than the matchlock.
+ pixel(-12,-3,15,7,'#151018');pixel(-11,-2,12,5,'#714132');
+ pixel(-10,-2,9,1,'#b27c50');pixel(-9,1,8,1,'#492837');
+ pixel(-4,-5,11,10,'#151018');pixel(-3,-4,9,8,'#4c3d48');pixel(-3,-4,8,2,'#766676');
+ pixel(4,-4,18,8,'#151018');pixel(5,-3,16,6,'#514954');
+ pixel(5,-3,15,1,'#8d7e8b');pixel(6,1,14,1,'#292631');
+ for(const x of [4,12,20]){
+  pixel(x,-5,3,10,'#241822');pixel(x,-4,2,8,'#a97544');pixel(x,-4,2,2,'#e0b275');
+ }
+ pixel(21,-4,3,8,'#25202b');pixel(22,-3,2,6,'#b48b68');pixel(23,-2,1,4,'#211720');
+ pixel(-1,-6,4,2,'#c08e5b');pixel(-2,4,3,3,'#503036');
+ if(fuse>0){
+  const bright=.65+.35*Math.sin(time*48);
+  ctx.globalAlpha=fuse;
+  pixel(21,-2,3,4,'#e7652e');pixel(23,-1,2,2,'#fff1ab');
+  ctx.globalAlpha=bright*fuse;
+  pixel(0,-7,5,2,'#d96539');pixel(1,-8,2,3,'#fff0a5');pixel(-2,-10,1,1,'#ffd174');
+ }
+ ctx.restore();
+}
+{const base=drawPlayer;drawPlayer=function(){
+ const result=base.apply(this,arguments),h=ABPOSE;
+ if(!P||P.dying>0||!h||!h.k.includes('siege'))return result;
+ const {brace,kick}=siegePose(h);
+ if(h.k==='u_siegeaim')drawSiegeCannon(sx(P.x,P.y),sy(P.x,P.y),P.aim,brace,0,0);
+ if(h.k==='siegehold'){
+  const z=zones.find(z=>z.k==='siege');
+  if(z)drawSiegeCannon(sx(P.x,P.y),sy(P.x,P.y),z.a,brace,0,abEase(1-z.t/SIEGE_FX.charge));
+ }
+ if(h.k==='siegekick')drawSiegeCannon(sx(P.x,P.y),sy(P.x,P.y),h.a,brace,kick,kick);
+ return result;
+};}
+
+// Project the same lane used by damage and bullet clearing.
+function siegePoint(z,along,side=0){
+ const c=Math.cos(z.a),s=Math.sin(z.a);
+ const x=z.x+c*along-s*side,y=z.y+s*along+c*side;
+ return [sx(x,y),sy(x,y)];
+}
+CZD.siege=z=>{
+ const charge=abEase(1-z.t/SIEGE_FX.charge),lit=z.len*charge;
+ ctx.save();
+ for(const side of [-1,1]){
+  const [x,y]=siegePoint(z,0,side*z.r),[endX,endY]=siegePoint(z,z.len,side*z.r);
+  const [sparkX,sparkY]=siegePoint(z,lit,side*z.r);
+  ctx.globalAlpha=.3;kLine(x,y,endX,endY,1,'#e09351');
+  ctx.globalAlpha=.72;kLine(x,y,sparkX,sparkY,1,'#ffc27b');
+  ctx.fillStyle='#fff1ba';ctx.fillRect(sparkX-1,sparkY-1,3,2);
+ }
+ ctx.restore();
+};
+function siegePlume(z,profile,color,alpha,lift){
+ ctx.globalAlpha=alpha;ctx.fillStyle=color;ctx.beginPath();
+ for(const [i,[along,side]] of profile.entries()){
+  const [x,y]=siegePoint(z,along,side);
+  if(i===0)ctx.moveTo(x,y-lift);else ctx.lineTo(x,y-lift);
+ }
+ ctx.fill();
+}
+function siegeBlast(z){
+ topFx({dur:SIEGE_FX.blast,draw(o,k){
+  const age=time-o.t0,front=z.len*abEase(age/.155),width=z.r*abEase(age/.095);
+  const tail=Math.max(0,front-55),fade=1-k;
+  ctx.save();
+  siegePlume(z,[[0,0],[front*.48,-width*.62],[front,-width],[front,width],[front*.48,width*.62]],'#793c38',.67*fade,0);
+  siegePlume(z,[[0,0],[front*.46,-width*.88],[front,-width*.78],[front,width*.78],[front*.46,width*.88]],'#b7623d',.46*fade,7);
+  const heat=Math.max(0,1-age/.24);
+  if(heat>0){
+   siegePlume(z,[[tail,0],[front*.83,-width*.54],[front,-width*.72],[front,width*.72],[front*.83,width*.54]],'#ffae5e',.84*heat,8);
+   siegePlume(z,[[tail,0],[front,-width*.17],[front,width*.17]],'#fff1bc',heat,8);
+  }
+  for(const [delay,color] of [[0,'#fff3c8'],[.065,'#ec9860']]){
+   const travel=age-delay;if(travel<0||travel>.26)continue;
+   const d=z.len*abEase(travel/.155),r=z.r*abEase(travel/.078);
+   const [lx,ly]=siegePoint(z,d,-r),[rx,ry]=siegePoint(z,d,r),[cx,cy]=siegePoint(z,Math.min(z.len,d+9),0);
+   ctx.globalAlpha=(1-travel/.26)*(delay?.63:1);
+   kLine(lx,ly-3,cx,cy-15,delay?1:3,color);
+   kLine(cx,cy-15,rx,ry-3,delay?1:3,color);
+  }
+  ctx.restore();
+ }});
+}
+function fireSiegeFx(z){
+ const cos=Math.cos(z.a),sin=Math.sin(z.a),duration=SIEGE_FX.recoilTime;
+ P.recoil={x:-cos*SIEGE_FX.recoilDistance,y:-sin*SIEGE_FX.recoilDistance,duration,left:duration};
+ ABPOSE={k:'siegekick',dur:SIEGE_FX.recovery,t0:time,dir:scrVec(cos,sin)[0]<0?-1:1,a:z.a};
+
+ const mx=P.x+cos*15,my=P.y+sin*15;
+ gunFlash(mx,my,z.a,42,.8,.15,'#fff0ad');
+ gunSmoke(mx,my,26,53);
+ for(let i=0;i<24;i++){
+  const a=z.a+rnd(-.65,.65),speed=rnd(60,160);
+  particles.push({x:mx,y:my,vx:Math.cos(a)*speed,vy:Math.sin(a)*speed,t:rnd(.18,.46),col:pick(['#fff1ae','#ffae57','#da5a2b'])});
+ }
+ for(const side of [-1,1])gunSmoke(P.x-sin*side*7,P.y+cos*side*7,7,36);
+ siegeBlast(z);
+}

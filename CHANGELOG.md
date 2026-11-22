@@ -1,8 +1,9 @@
 # Changelog
 
-## 0.8.15: Mobile ability aim
+## 0.8.15: Mobile aim and Siegebreaker
 
 - Touch abilities and charged heavy attacks aim along your current or last walking direction when auto-aim has no target. Ground-targeted casts aim ahead up to the first wall.
+- Give the Gunner's Siegebreaker a heavier cannon, a visible fuse, and a two-part pressure wave. The shot kicks the Gunner backward in a short slide that stops at walls.
 
 ## 0.8.14: The First Flame
 

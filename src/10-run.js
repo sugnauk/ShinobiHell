@@ -22,7 +22,7 @@ function loadDungeon(di){
  mapCanvas=map.mc[camRot]=renderMap(th);
  enemies=[];projs=[];pickups=[];fx=[];particles=[];texts=[];props=[];traps=[];hz=[];dh=[];zones=[];freezeT=0;portal=null;boss=null;
  const sr=map.startRoom;P.x=(sr.x+sr.w/2)*T;P.y=(sr.y+sr.h/2)*T;
- P.iv=1;P.stag=0;P.ward=0;P.dash=0;P.pos=0;P.storm=0;P.hot=0;P.haste=0;
+ P.iv=1;P.stag=0;P.ward=0;P.dash=0;P.recoil=null;P.pos=0;P.storm=0;P.hot=0;P.haste=0;
  P.hp=Math.min(S.maxhp,P.hp+S.maxhp*(di===R.start?0:.15)); // only a small rest between dungeons
  for(const r of map.rooms){
   if(r.k==='start')continue;

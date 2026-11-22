@@ -14,7 +14,7 @@ const ULTSEQ={
  'DRAGON CLEAVE':{pre:.38,iv:.75,k:'hover',rise:22,line:1,dashPose:1,col:'#ff6040'},
  'ARROW STORM':{pre:.3,iv:.7,k:'leap',rise:16,col:'#e8dcb0'},
  'SHADOW CLONES':{pre:.28,iv:.55,k:'smoke',col:'#9a7aff'},
- 'SIEGEBREAKER':{pre:.36,iv:.36,k:'brace',col:'#ffd060',shove:10},
+ 'SIEGEBREAKER':{pre:.36,iv:.36,k:'brace',col:'#ffd060'},
  'THOUSAND THRUSTS':{pre:.22,iv:.22,k:'twirl',col:'#c8e0ff'},
  'DRAGON SPIRIT':{pre:.3,iv:.4,k:'kneel',col:'#6cf'},
  'DRAGON DESCENT':{pre:.28,iv:.4,k:'hover',rise:6,runes:1,col:'#fd4'},
