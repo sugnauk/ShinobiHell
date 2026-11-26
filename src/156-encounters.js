@@ -32,8 +32,7 @@ const allyHas=k=>!!(R&&R.allies&&R.allies.includes(k));
 // ---------- the captive's look: a tinted hero sheet or the trader sprite ----------
 const ALLYSPR={};
 function allySpr(k){if(ALLYSPR[k])return ALLYSPR[k];const A=ALLIES[k];if(!A.cls)return ALLYSPR[k]=MERCH;
- const s=heroSpr(A.cls,0),c=document.createElement('canvas');c.width=s.c.width;c.height=s.c.height;const g=c.getContext('2d');g.filter=A.f||'none';g.drawImage(s.c,0,0);
- return ALLYSPR[k]=Object.assign({},s,{c,_av:null});}
+ return ALLYSPR[k]=tintHeroSprite(heroSpr(A.cls,0),A.f||'none');}
 const allyFrame=(k,t)=>ALLIES[k].cls?WIZ.idle[Math.floor(t*2.5)%2]:Math.floor(t*1.6)%2;
 // ---------- placing the cages ----------
 {const _ld=loadDungeon;loadDungeon=function(di){const r=_ld.apply(this,arguments);try{if(R&&!R.training&&!R.rush&&map&&!map.train)placeCaptives(di);if(allyHas('scout')&&R.scoutFrom!=null&&di>=R.scoutFrom)revealAll();spawnRonin();}catch(e){console.error(e);}return r;};}

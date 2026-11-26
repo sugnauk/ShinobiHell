@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.8.17: 16-bit hero sprites
+
+- Redraw the thirteen playable heroes with 16-bit-style sprite sheets, distinct equipment and silhouettes, and new details across all ten forms. Use the high-resolution art in combat, campfires, and large character previews.
+
 ## 0.8.16: Mobile controls and Temple balance
 
 - Bring the landscape phone camera 12% closer while retaining safe-area HUD and touch positions.

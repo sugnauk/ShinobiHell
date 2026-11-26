@@ -47,7 +47,7 @@ function detailCard(x,y,w,h,g,s){ipanel(x,y,w,h);if(!g){txt(s&&s.eq?'EMPTY '+SLO
 // ---- the GEAR tab
 function drawGearTab(){const SL=INV_SLOTS(),hv=invAt();if(hv>=0)invSel=hv;invSel=clamp(invSel,0,SL.length-1);const sel=invSel,s=SL[sel],g=slotItem(s);
  ipanel(IX+4,IY+14,106,66,'EQUIPPED');{const C=CLS(),sp=heroSpr(C.k,P.evo||0),f=WIZ.idle[Math.floor(time*2.5)%2];ctx.fillStyle='#0e0b14';ctx.fillRect(IX+36,IY+26,44,50);
-  ctx.globalAlpha=.3;ctx.fillStyle=R.eq.wpn?itemCol(R.eq.wpn):'#444';ctx.fillRect(IX+38,IY+72,40,3);ctx.globalAlpha=1;ctx.drawImage(sp.c,f*sp.fw,0,sp.fw,sp.fh,IX+58-sp.fw,IY+74-sp.fh*2,sp.fw*2,sp.fh*2);}
+  ctx.globalAlpha=.3;ctx.fillStyle=R.eq.wpn?itemCol(R.eq.wpn):'#444';ctx.fillRect(IX+38,IY+72,40,3);ctx.globalAlpha=1;drawSpr({...sp,sc:2},IX+58,IY+74,false,f,false);}
  for(const k of ['wpn','arm','ring']){const i=SL.findIndex(q=>q.eq===k),q=SL[i];slotFrame(q,R.eq[k],i===sel,i===hv);txt(SLOTNAME[k],q.x+7-Math.round(txtW(SLOTNAME[k])/2),q.y+17,'#665');}
  ipanel(IX+114,IY+14,96,66,'PACK');{const n=R.pack.length,bw=36;txt(n+'/'+PACKMAX,IX+142,IY+17,n>=PACKMAX?'#f66':'#887');ctx.fillStyle='#0a080e';ctx.fillRect(IX+168,IY+18,bw,3);ctx.fillStyle=n>=PACKMAX?'#e05a5a':'#7a6a9a';ctx.fillRect(IX+168,IY+18,Math.round(bw*n/PACKMAX),3);}
  SL.forEach((q,i)=>{if(q.pi!==undefined)slotFrame(q,R.pack[q.pi],i===sel,i===hv);});
