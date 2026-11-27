@@ -1,5 +1,29 @@
 # Changelog
 
+## 0.8.19: Akagane becomes the 8th guardian
+- **The guardian order changes.** Akagane, the Red Ox, was the first guardian after the prologue and by far the hardest early fight. He now guards stage VIII, the iron cellars, and the guardians in between each move up one stage:
+
+  | Stage | Guardian |
+  |---|---|
+  | I | Kusakari |
+  | II | Itohime |
+  | III | Lady Hotaru |
+  | IV | the Ronin Seven |
+  | V | Tetsuo |
+  | VI | the Abbot |
+  | VII | Onikuma |
+  | VIII | Akagane |
+
+- **The stages themselves don't move.** Their scenery, foes and rooms stay where they were, and so do the Moth Queen (stage IV) and the Hitobashira's lair (stage VI).
+- **The Earth Spider's lair** moves to stage II, with Itohime.
+- **Each guardian keeps** its fight, art, relic, no-hit spirit trail, arena seal and music.
+- **Onikuma's fire channels** now look like lava in the temple, instead of water.
+- **Difficulty follows the stage.** Each guardian now takes its new stage's damage, posture and base health. Its own health multiplier was then re-measured with the fight bot, so each fight lands near the target windows: early stages I–III 45–90s, mid stages IV–VIII 90–120s.
+  - The early fights are mostly fixed-length phases (for example, Hotaru's lanterns), so stages II and III still run a little long.
+- **The story is rewritten to match:** the stage tales, Master Kaito's campfire lines, and Prologue III's closing line.
+- **Saved progress follows each guardian:** beaten guardians in the guide, ranks, no-hit trails (including the equipped trail) and echo clear records are moved to the guardian's new stage, once.
+- **Fix: the prologue no longer counts as beating stage I's guardian** or awards its no-hit trail.
+
 ## 0.8.18: Faster heroes, guardian walk cycles and sealed boss arenas
 - **Faster heroes.** Every hero moves 12% faster (for example, the wizard goes from 78 to 87 px/s and the shinobi from 92 to 104). Class, relic, skill-tree and daily bonuses still apply on top. Foes and dashes keep their speed.
 - **Walk cycles that keep pace.** A hero's walk cycle now advances with the ground actually covered, so the feet don't slide at the new speed, when slowed, or when hasted.
