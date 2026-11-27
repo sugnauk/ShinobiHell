@@ -19,7 +19,7 @@ GORDER.newOf=[];GORDER.src.forEach((o,n)=>{GORDER.newOf[o]=n;});
  const seals=SCN.slice(0,N).map(s=>s.seal);SCN.slice(0,N).forEach((s,i)=>{s.seal=seals[GORDER.src[i]];});}
 // ---- each guardian's own health multiplier in its new stage, measured with the fight bot (docs/chapter2/fight-bot.js)
 // against the owner's windows: early stages I-III 45-90s, mid stages IV-VIII 90-120s.
-GORDER.TUNE=[1,1,1,1,1,1,1,1];
+GORDER.TUNE=[.45,.45,.4,.4,.66,.5,1.3,1.6];
 for(let i=0;i<GORDER.TUNE.length;i++)BOSS_HPT[i]*=GORDER.TUNE[i];
 
 // ---- the story: each stage keeps its setting and names the guardian now waiting there
