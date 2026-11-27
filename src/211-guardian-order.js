@@ -20,6 +20,11 @@ GORDER.newOf=[];GORDER.src.forEach((o,n)=>{GORDER.newOf[o]=n;});
 // ---- each guardian's own health multiplier in its new stage, measured with the fight bot (docs/chapter2/fight-bot.js)
 // against the owner's windows: early stages I-III 45-90s, mid stages IV-VIII 90-120s.
 GORDER.TUNE=[.45,.22,.18,.2,.38,.27,1.5,2.1];
+// measured (bot median of archer, samurai, sumo and wizard; a careful player takes about 1.25x as long):
+//   I Kusakari 58s   II Itohime 88s   III Hotaru 103s   IV Ronin Seven 103s   V Tetsuo 96s   VI Abbot 119s   VII Onikuma 81s
+//   VIII Akagane 71s  (before: Akagane at I took the bot 84-137s and dealt it 6-16x its health; Onikuma at VIII 121-124s)
+// II-VI sit a little above their windows: their fights are mostly fixed-length phases (lanterns, squads, bells), where
+// cutting health further barely shortens them.
 for(let i=0;i<GORDER.TUNE.length;i++)BOSS_HPT[i]*=GORDER.TUNE[i];
 
 // ---- the story: each stage keeps its setting and names the guardian now waiting there
@@ -63,6 +68,10 @@ GORDER.lava=(ENV[7]&&ENV[7].liq===2&&ENV[7].lc)||['#7a1a08','#c83a10','#ffb040']
  const res=_ob.apply(this,arguments);
  if(g){if(k0===undefined)delete g.boss0;else g.boss0=k0;}if(meta.ranks){if(r0===undefined)delete meta.ranks[0];else meta.ranks[0]=r0;}if(meta.cos){if(c0===undefined)delete meta.cos[0];else meta.cos[0]=c0;}
  saveMeta();return res;};}
+
+// (the guide's "beaten" mark is written as the guardian is killed, so that is guarded too)
+{const _k=killE;killE=function(e){if(!(e&&e.boss&&R&&R.pro&&meta.guide&&meta.guide.e))return _k.apply(this,arguments);const g=meta.guide.e,had='boss0' in g,v=g.boss0;
+ const res=_k.apply(this,arguments);if(!had)delete g.boss0;else g.boss0=v;return res;};}
 
 // ---- saved progress: records kept by stage number follow their guardian to its new stage (once)
 function gorderMigrate(){if(!meta||meta.gOrder>=1)return;const nw=GORDER.newOf,N=GORDER.src.length;
