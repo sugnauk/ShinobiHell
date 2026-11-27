@@ -27,6 +27,7 @@ function drawEnemy(e){
  // recoil: the sprite jerks back along the hit direction for a moment
  let kx=0,ky=0,settle=0;if(e.kick&&e.kick.t>0){const k=e.kick.t/(e.kick.dur||.12),v=scrVec(Math.cos(e.kick.a),Math.sin(e.kick.a));kx=Math.round(v[0]*e.kick.p*k);ky=Math.round(v[1]*e.kick.p*k);settle=Math.round((e.kick.drop||0)*k*k);}
  const s=sprOf(e),X=sx(e.x,e.y)+kx,Y=sy(e.x,e.y)+ky+enemyFootOffset(e),H0=s.fh*s.sc;let frame=Math.floor(time*4+e.wob);
+ if(s.foePoses)frame=e.act?(e.act.ph===0?3:e.act.ph===1?4:5):e.awake&&!e.stag?1+Math.abs(frame)%2:0;
  shadow(X,Y-2,Math.round(e.r*2+6));
  if(e.elite){ctx.globalAlpha=.7;wcirc(e.x,e.y,e.r+3+Math.sin(time*6),ELMOD[e.elite].c);ctx.globalAlpha=1;}
  const blink=e.tele>0&&Math.floor(time*16)%2===0;
@@ -121,105 +122,17 @@ function drawGround(){
  for(const e of enemies)if(!e.dead&&e.act&&e.act.ph===0)drawTele(e);
 }
 // Lacquered tansu chest. Pixel-rasterized faces keep the angled boards crisp on the game canvas.
-const CHEST_ART=Array.from({length:4},(_,frame)=>outlined(mk(36,31,g=>{
- const px=(x,y,w,h,c)=>{g.fillStyle=c;g.fillRect(x,y,w,h);};
- const face=(points,c)=>{
-  const xs=points.map(p=>p[0]),ys=points.map(p=>p[1]);
-  g.fillStyle=c;
-  for(let y=Math.min(...ys);y<Math.max(...ys);y++){
-   const crossings=[];
-   for(let i=0;i<points.length;i++){
-    const [x0,y0]=points[i],[x1,y1]=points[(i+1)%points.length];
-    if((y0>y+.5)!==(y1>y+.5))crossings.push(x0+(y+.5-y0)/(y1-y0)*(x1-x0));
-   }
-   crossings.sort((a,b)=>a-b);
-   for(let i=0;i+1<crossings.length;i+=2){
-    const x=Math.ceil(crossings[i]-.5),right=Math.ceil(crossings[i+1]-.5);
-    g.fillRect(x,y,right-x,1);
-   }
-  }
- };
- const amber=frame?'#ba8548':'#ecb65b',brass='#925432',shade='#641f28';
- // Feet, tapered end panel and recessed front board.
- px(7,25,4,4,'#5e3335');px(23,25,4,4,'#5e3335');px(30,20,3,4,'#492530');
- face([[26,17],[33,13],[33,23],[26,28]],shade);
- face([[4,17],[26,17],[26,28],[4,28]],'#a63538');
- px(5,19,20,1,'#d05a4a');px(6,21,18,5,'#842831');px(7,22,16,1,'#a53636');px(5,27,21,1,'#63212c');
- face([[26,25],[33,20],[33,22],[26,27]],brass);
- px(7,18,2,9,brass);px(8,18,1,8,amber);px(22,18,2,9,brass);px(22,18,1,8,amber);
- px(5,26,4,1,amber);px(22,26,4,1,amber);
- face([[4,17],[12,12],[33,12],[26,17]],'#c19359');
- face([[7,16],[13,13],[30,13],[24,16]],'#2c1822');
- if(!frame){
-  face([[4,14],[11,9],[32,9],[26,14]],'#d95547');
-  face([[26,14],[32,9],[33,13],[26,18]],'#8b3034');
-  px(4,14,22,4,'#b6403c');px(5,17,21,1,amber);
-  face([[7,14],[14,9],[16,9],[9,14]],amber);
-  face([[22,14],[29,9],[31,9],[24,14]],amber);
-  px(8,14,1,3,amber);px(22,14,1,3,amber);
-  px(13,16,5,5,brass);px(14,16,3,4,'#ffe08d');px(15,17,1,2,'#452731');
- }else{
-  const lift=[0,3,7,10][frame],rise=[0,3,5,6][frame];
-  face([[11-rise,11-lift],[31-rise,11-lift],[33,12],[12,12]],'#883038');
-  face([[12-rise,12-lift],[31-rise,12-lift],[31,11],[13,11]],'#542533');
-  px(12-rise,11-lift,19,1,amber);
-  if(frame>1){
-   face([[13-rise,13-lift],[15-rise,13-lift],[15,11],[13,11]],brass);
-   face([[27-rise,13-lift],[29-rise,13-lift],[29,11],[27,11]],brass);
-  }
-  px(13,17,5,3,brass);px(14,17,3,1,'#c49862');
- }
-})));
-function drawChest(p,X,Y){
- const age=p.openedAt==null?1:time-p.openedAt;
- const frame=p.used?Math.min(3,1+Math.floor(Math.max(0,age)/.065)):0;
- shadow(X+1,Y,28);
- ctx.drawImage(CHEST_ART[frame],Math.round(X-17),Math.round(Y-29));
- if(!p.used){
-  // A tiny glint on the clasp, timed per chest so multiple chests don't blink in sync.
-  const glint=(time+hash(Math.floor(p.x),Math.floor(p.y))*2)%3.1;
-  if(glint<.27){
-   ctx.fillStyle='#fff3bd';ctx.fillRect(Math.round(X-4),Math.round(Y-14),5,1);
-   ctx.fillRect(Math.round(X-2),Math.round(Y-16),1,5);
-  }
- }
-}
+function drawChest(p,X,Y){drawArtChest(p,X,Y);}
 function drawProp(p){
  if(p.k==='doorpost'||p.k==='entrancePlaque'){drawEntrance(p,sx(p.x,p.y),sy(p.x,p.y));return;}
  const X=sx(p.x,p.y),Y=sy(p.x,p.y);
  if(p.k==='chest')drawChest(p,X,Y);
- else if(p.k==='altar'){ // shrine: a wooden offering table with shide streamers and a violet spirit orb; curse: an obsidian block with a floating red-eyed skull
-  shadow(X,Y,20);const cu=p.curse;
-  ctx.fillStyle='#14101a';ctx.fillRect(X-10,Y-12,20,12);
-  ctx.fillStyle=cu?'#1a1418':'#5a3a20';ctx.fillRect(X-9,Y-11,18,10);ctx.fillStyle=cu?'#3a2a30':'#7a5230';ctx.fillRect(X-9,Y-11,18,2);
-  const R1=(x,y,w,h,c)=>{ctx.fillStyle=c;ctx.fillRect(X+x,Y+y,w,h);};
-  if(cu){const C=CURSES[p.ck||'frail'];R1(-1,-8,2,5,C.c);R1(-3,-6,6,1,C.c);
-   // each curse gets a carved sigil on the block's corners
-   if(p.ck==='glass'){R1(-8,-9,2,2,'#c8ecff');R1(6,-9,2,2,'#c8ecff');R1(-7,-4,1,2,'#9ad8ff');R1(6,-4,1,2,'#9ad8ff');}
-   else if(p.ck==='greed'){R1(-8,-8,3,3,'#ffd040');R1(5,-8,3,3,'#ffd040');R1(-7,-7,1,1,'#a08020');R1(6,-7,1,1,'#a08020');}
-   else if(p.ck==='fog'){R1(-9,-12,18,2,'rgba(184,176,200,.5)');R1(-6,-14,12,2,'rgba(184,176,200,.35)');}
-   else if(p.ck==='frenzy'){R1(-8,-9,1,4,'#40e0e0');R1(-7,-7,1,1,'#40e0e0');R1(7,-9,1,4,'#40e0e0');R1(6,-7,1,1,'#40e0e0');}
-   else if(p.ck==='hunted'){R1(-8,-9,3,1,'#c070ff');R1(-7,-8,1,3,'#c070ff');R1(5,-9,3,1,'#c070ff');R1(6,-8,1,3,'#c070ff');}}
-  else{const g=p.god||'crane';
-   if(g==='fox'){R1(-7,-9,14,4,'#c05020');R1(-6,-10,2,2,'#ff9040');R1(4,-10,2,2,'#ff9040');R1(-4,-8,1,1,'#fff');R1(3,-8,1,1,'#fff');R1(-1,-6,2,1,'#14101a');}
-   else if(g==='crane'){R1(-7,-9,14,4,'#f0f0e8');R1(-1,-9,2,1,'#d02030');R1(-5,-7,4,1,'#14101a');R1(1,-7,4,1,'#14101a');}
-   else if(g==='ox'){R1(-7,-9,14,4,'#701818');R1(-9,-11,3,1,'#e8e0d0');R1(6,-11,3,1,'#e8e0d0');R1(-9,-10,1,2,'#e8e0d0');R1(8,-10,1,2,'#e8e0d0');R1(-2,-7,4,1,'#ff4040');}
-   else{R1(-7,-9,14,4,'#203060');R1(-2,-9,4,4,'#e0e8ff');R1(-1,-9,3,3,'#203060');R1(3,-8,1,1,'#fff');R1(-5,-6,1,1,'#fff');}}
-  if(!p.used){const fy=Y-24+Math.round(Math.sin(time*2)*2);ctx.globalAlpha=.3+.2*Math.sin(time*4);disc(X,fy,8,p.col);ctx.globalAlpha=1;
-   if(cu){const C=CURSES[p.ck||'frail'];ctx.fillStyle='#14101a';ctx.fillRect(X-4,fy-4,9,9);ctx.fillStyle='#e8e0d0';ctx.fillRect(X-3,fy-3,7,5);ctx.fillRect(X-2,fy+2,5,2);ctx.fillStyle=Math.floor(time*4)%2?C.c:C.sk;ctx.fillRect(X-2,fy-1,2,2);ctx.fillRect(X+1,fy-1,2,2);}
-   else{disc(X,fy,3,p.col);ctx.fillStyle='#fff';ctx.fillRect(X-1,fy-1,1,1);}
-   if(Math.random()<.08)particles.push({x:p.x+rnd(-16,16),y:p.y+rnd(-12,12),vx:rnd(-3,3),vy:-16,t:.9,col:p.col});}}
- else if(p.k==='gong'){shadow(X,Y,14);ctx.fillStyle='#14101a';ctx.fillRect(X-9,Y-22,2,22);ctx.fillRect(X+7,Y-22,2,22);ctx.fillRect(X-10,Y-24,20,3);ctx.fillStyle='#8a3020';ctx.fillRect(X-9,Y-23,18,1);disc(X,Y-12,6,'#14101a');disc(X,Y-12,5,p.used?'#6a5020':'#d8a030');if(!p.used){ctx.fillStyle='#fff0a0';ctx.fillRect(X-2,Y-15,2,2);ctx.globalAlpha=.3+.2*Math.sin(time*4);disc(X,Y-12,8,'#fc4');ctx.globalAlpha=1;}}
- else if(p.k==='spring'){ // stone-rimmed healing pond: green glow and rising motes until used, then it goes still and dark
-  const R0=22;wdisc(p.x,p.y,R0+4,'#4a4a44');wdisc(p.x,p.y,R0+2,'#7a7a72');wdisc(p.x,p.y,R0,p.used?'#1e3a4a':'#2a6a8a');wdisc(p.x,p.y,R0-7,p.used?'#24485a':'#3a8aaa');
-  if(!p.used){ctx.globalAlpha=.22+.1*Math.sin(time*2);wdisc(p.x,p.y,R0-2,'#6fffb0');ctx.globalAlpha=1;
-   for(let i=0;i<6;i++){const a=time*.6+i*TAU/6,x=p.x+Math.cos(a)*R0*.55,y=p.y+Math.sin(a)*R0*.55;ctx.fillStyle='#cfffe8';ctx.fillRect(sx(x,y),sy(x,y)-((time*14+i*5)%14),1,2);}
-   if(Math.random()<.1)particles.push({x:p.x+rnd(-14,14),y:p.y+rnd(-14,14),vx:0,vy:-14,t:1,col:'#8fffc0'});}
-  const lx=p.x+9,ly=p.y-7;ctx.fillStyle='#3e8a36';ctx.fillRect(sx(lx,ly)-3,sy(lx,ly),6,2);ctx.fillStyle='#f8b0c8';ctx.fillRect(sx(lx,ly)-1,sy(lx,ly)-1,2,1);}
- else if(p.k==='merchant'){shadow(X,Y+3,18);ctx.globalAlpha=.18+.06*Math.sin(time*3);disc(X+9,Y-4,10,'#ffb040');ctx.globalAlpha=1;drawSpr(MERCH,X,Y+4,false,Math.floor(time*1.6)%2,sx(P.x,P.y)<X);if(dist(p,P)<70){const s=p.line||'WELCOME, TRAVELLER';txt(s,X-Math.round(txtW(s)/2),Y-40,'#e0c070');}}
- else if(p.k==='pedestal'){ // lacquered display stand with a red cloth; the ware floats above in a glow of its colour, with a gold price tag
-  shadow(X,Y,16);ctx.fillStyle='#14101a';ctx.fillRect(X-8,Y-8,16,8);ctx.fillStyle='#3a2414';ctx.fillRect(X-7,Y-5,14,5);ctx.fillStyle='#5a3a20';ctx.fillRect(X-7,Y-5,14,1);
-  ctx.fillStyle='#a01c18';ctx.fillRect(X-8,Y-8,16,3);ctx.fillStyle='#e0b040';ctx.fillRect(X-8,Y-6,16,1);
+ else if(p.k==='altar')drawArtShrine(p,X,Y);
+ else if(p.k==='gong')drawArtGong(p,X,Y);
+ else if(p.k==='spring')drawArtSpring(p,X,Y);
+ else if(p.k==='merchant'){shadow(X,Y+3,18);ctx.globalAlpha=.18+.06*Math.sin(time*3);disc(X+9,Y-4,10,'#ffb040');ctx.globalAlpha=1;drawSpr(finishWorldSprite(MERCH),X,Y+4,false,Math.floor(time*1.6)%2,sx(P.x,P.y)<X);if(dist(p,P)<70){const s=p.line||'WELCOME, TRAVELLER';txt(s,X-Math.round(txtW(s)/2),Y-40,'#e0c070');}}
+ else if(p.k==='pedestal'){
+  drawArtStand(X,Y);
   if(!p.sold){const bob=Math.round(Math.sin(time*3+p.x)*1.5),it=p.item?ITEMBY[p.item]:null,gc=it?fxCol(it.id):p.gear?QUAL[p.gear.q].c:p.ench?ENCH.find(x=>x.k===p.ench.k).c:p.reroll?'#ffd040':'#e33',iy=Y-23+bob;
    ctx.globalAlpha=.22+.1*Math.sin(time*3+p.x);disc(X,iy+6,9,gc);ctx.globalAlpha=1;
    if(it)relicBox(X-6,iy,it.id);else if(p.gear)drawItemIcon(p.gear,X-7,iy-1);else if(p.ench){drawItemIcon(p.ench,X-7,iy-1);}
@@ -261,55 +174,11 @@ const PSPR={
  bomb(X,Y,ux,uy,q){disc(X,Y,3,'#2a2a30');ctx.fillStyle='#6a6a70';ctx.fillRect(X-1,Y-2,1,1);ctx.fillStyle=Math.floor(time*12)%2?'#ffe060':'#ff6020';ctx.fillRect(X+2,Y-4,1,2);},
  spear(X,Y,ux,uy,q){for(let i=-6;i<=2;i++){ctx.fillStyle=i>0?'#e8eef6':'#7a5a3a';ctx.fillRect(Math.round(X+ux*i),Math.round(Y+uy*i),1,1);}ctx.fillStyle=q.col;ctx.fillRect(Math.round(X+ux*3),Math.round(Y+uy*3),1,1);},
 };
-function drawProj(q){
- const X=sx(q.x,q.y),Y=sy(q.x,q.y)-7,pad=q.st==='lance'&&q.wait>0?144:32;
- const view=sceneBounds;
- if(q.dead||X<view.left-pad||X>view.right+pad||Y<view.top-pad||Y>view.bottom+pad)return;
- ctx.fillStyle='rgba(0,0,0,.3)';ctx.fillRect(X-1,Y+7,3,1);
- if(q.spr&&PSPR[q.spr]){const [vx,vy]=q.vx||q.vy?scrVec(q.vx,q.vy):[1,0],l=Math.hypot(vx,vy)||1;
-  if(q.st==='lance'&&q.wait>0){const lv=scrVec(q.lvx,q.lvy),ll=Math.hypot(lv[0],lv[1])||1;ctx.globalAlpha=Math.floor(time*16)%2?.55:.3;ctx.fillStyle=q.col;for(let r=4;r<140;r+=3)ctx.fillRect(Math.round(X+lv[0]/ll*r),Math.round(Y+lv[1]/ll*r),1,1);ctx.globalAlpha=1;PSPR[q.spr](X,Y,lv[0]/ll,lv[1]/ll,q);return;}
-  PSPR[q.spr](X,Y,vx/l,vy/l,q);return;}
- if(q.arrow){const [vx,vy]=scrVec(q.vx,q.vy),l=Math.hypot(vx,vy)||1,ux=vx/l,uy=vy/l;sline(X-ux*5,Y-uy*5,X+ux*3,Y+uy*3,q.col);ctx.fillStyle='#fff';ctx.fillRect(Math.round(X+ux*3),Math.round(Y+uy*3),1,1);}
- else if(q.crescent){const [vx,vy]=scrVec(q.vx,q.vy),l=Math.hypot(vx,vy)||1,ux=vx/l,uy=vy/l,px=-uy,py=ux;
-  for(let i=-7;i<=7;i++){const bend=(1-(i/7)**2)*4,cx=X+px*i+ux*bend,cy=Y+py*i*.8+uy*bend;ctx.fillStyle=Math.abs(i)<5?'#fff':q.col;ctx.fillRect(Math.round(cx),Math.round(cy),2,1);ctx.fillStyle='#8cf';ctx.fillRect(Math.round(cx-ux*2),Math.round(cy-uy*2),1,1);}}
- else if(q.st&&q.from==='e'){const [vx,vy]=scrVec(q.vx,q.vy),l=Math.hypot(vx,vy)||1,ux=vx/l,uy=vy/l;
-  switch(q.st){
-   case 'accel':case 'curve':for(let i=-2;i<=2;i++){ctx.fillStyle=Math.abs(i)<2?'#fff':q.col;ctx.fillRect(Math.round(X+ux*i*1.5),Math.round(Y+uy*i*1.5),2,2);}ctx.fillStyle=q.col;ctx.fillRect(Math.round(X-ux*5),Math.round(Y-uy*5),1,1);break; // rice grain
-   case 'wave':ctx.fillStyle=q.col;ctx.fillRect(X-1,Y-3,3,7);ctx.fillRect(X-3,Y-1,7,3);ctx.fillStyle='#fff';ctx.fillRect(X,Y-1,1,3);break; // diamond
-   case 'boom':{const a=time*18;for(let i=0;i<4;i++){const c=Math.cos(a+i*Math.PI/2),s=Math.sin(a+i*Math.PI/2);sline(X,Y,X+c*4,Y+s*4,q.col);}ctx.fillStyle='#fff';ctx.fillRect(X,Y,1,1);break;} // shuriken
-   case 'split':circ(X,Y,q.r,q.col);disc(X,Y,q.r-2,'#fff');ctx.globalAlpha=.4;disc(X,Y,q.r+1,q.col);ctx.globalAlpha=1;break;
-   case 'mine':{const bl=q.fuse<.4?Math.floor(time*20)%2:Math.floor(time*6)%2;circ(X,Y+3,8-q.fuse*3|0,q.col);disc(X,Y,3,bl?'#fff':q.col);ctx.fillStyle='#14101a';ctx.fillRect(X-1,Y,3,1);ctx.fillRect(X,Y-1,1,3);break;}
-   case 'star':ctx.fillStyle=q.col;ctx.fillRect(X-2,Y,5,1);ctx.fillRect(X,Y-2,1,5);ctx.fillStyle='#fff';ctx.fillRect(X,Y,1,1);break;
-   case 'big':{const r=Math.max(3,Math.round(q.r)); // a heavy shaded orb (no glow, so it reads steady as it flies)
-    disc(X,Y,r+1,'#14101a');disc(X,Y,r,shade(q.col,.45));disc(X,Y,r-1,shade(q.col,-.28));disc(X-1,Y-1,r-2,q.col);disc(X-Math.round(r*.4),Y-Math.round(r*.4),Math.max(1,Math.round(r*.3)),shade(q.col,.55));ctx.fillStyle='#fff';ctx.fillRect(X-Math.round(r*.45),Y-Math.round(r*.55),1,1);break;}
-   // lance: while waiting it shows a thin aim line along its path, then it is a bright needle
-   case 'lance':{const lv=q.wait>0?scrVec(q.lvx,q.lvy):[vx,vy],ll=Math.hypot(lv[0],lv[1])||1,lx=lv[0]/ll,ly=lv[1]/ll;
-    if(q.wait>0){ctx.globalAlpha=Math.floor(time*16)%2?.55:.3;ctx.fillStyle=q.col;for(let r=4;r<140;r+=3)ctx.fillRect(Math.round(X+lx*r),Math.round(Y+ly*r),1,1);ctx.globalAlpha=1;}
-    for(let i=-3;i<=3;i++){ctx.fillStyle=Math.abs(i)<2?'#fff':q.col;ctx.fillRect(Math.round(X+lx*i*1.5),Math.round(Y+ly*i*1.5),1,1);}break;}
-   case 'seek':{ctx.fillStyle=q.col;ctx.fillRect(Math.round(X-ux*3)-1,Math.round(Y-uy*3)-1,3,3);ctx.fillStyle='#fff';ctx.fillRect(Math.round(X+ux*2),Math.round(Y+uy*2),1,1);ctx.fillRect(X,Y,1,1);break;} // homing arrowhead
-   case 'bounce':circ(X,Y,q.r+1,q.col);ctx.fillStyle='#fff';ctx.fillRect(X-1,Y-1,2,2);break; // hollow ring
-   case 'orbit':{const a=time*10;ctx.fillStyle=q.col;ctx.fillRect(X-2,Y-2,5,5);ctx.fillStyle='#fff';ctx.fillRect(Math.round(X+Math.cos(a)*2),Math.round(Y+Math.sin(a)*2),1,1);ctx.fillRect(X,Y,1,1);break;} // spinning orb
-   case 'zig':ctx.fillStyle=q.col;ctx.fillRect(X-1,Y-2,3,5);ctx.fillRect(X-2,Y-1,5,3);ctx.fillStyle='#fff';ctx.fillRect(X,Y,1,1);break; // crystal
-   default:disc(X,Y,q.r,q.col);}}
- else if(q.rare){ctx.globalAlpha=.35;disc(X,Y,q.r+2,q.col);ctx.globalAlpha=1;disc(X,Y,q.r,q.col);ctx.fillStyle='#fff';ctx.fillRect(X-1,Y,3,1);ctx.fillRect(X,Y-1,1,3);}
- else{disc(X,Y,q.r,q.col);ctx.fillStyle='#fff';ctx.fillRect(X,Y,1,1);}
-}
+function drawProj(q){drawShotArt(q);}
 function drawPickup(k){
  const X=sx(k.x,k.y),Y=sy(k.x,k.y),bob=Math.round(Math.sin(time*4+k.x)*1.5);
- if(k.k==='sen'){ // spinning gold coin with a square hole
-  // oval koban coin: stamped gold, spinning, with the odd glint
-  const sp=Math.abs(Math.cos(time*3+k.x)),hw=Math.round(2*sp),cy=Y-4+bob;
-  ctx.fillStyle='#14101a';ctx.fillRect(X-hw-1,cy-2,hw*2+3,5);ctx.fillRect(X-hw,cy-3,hw*2+1,7);
-  ctx.fillStyle='#c8941e';ctx.fillRect(X-hw,cy-2,hw*2+1,5);ctx.fillStyle='#f0c040';ctx.fillRect(X-hw,cy-2,hw*2+1,3);
-  if(hw>=1){ctx.fillStyle='#a0700c';ctx.fillRect(X-hw+1,cy-1,Math.max(1,hw*2-1),1);ctx.fillRect(X-hw+1,cy+1,Math.max(1,hw*2-1),1);}
-  ctx.fillStyle='#fff3a0';ctx.fillRect(X-hw,cy-2,1,2);
-  if((time*2+k.x*.37)%3<.15){ctx.fillStyle='#fff';ctx.fillRect(X+hw,cy-4,1,3);ctx.fillRect(X+hw-1,cy-3,3,1);}}
- else if(k.k==='heart'){disc(X,Y-4+bob,3,'#e33');ctx.fillStyle='#fcc';ctx.fillRect(X-1,Y-5+bob,1,1);}
- else if(k.k==='pot'){const y0=Y-9+bob; // a little red HP flask with a cork
-  ctx.fillStyle='#14101a';ctx.fillRect(X-3,y0+2,7,7);ctx.fillRect(X-2,y0,5,3);ctx.fillStyle='#c8a070';ctx.fillRect(X-1,y0,3,1);ctx.fillStyle='#ddd';ctx.fillRect(X-1,y0+1,3,2);
-  ctx.fillStyle='#e33';ctx.fillRect(X-2,y0+3,5,5);ctx.fillStyle='#ff8080';ctx.fillRect(X-2,y0+3,1,2);ctx.globalAlpha=.25+.15*Math.sin(time*4);disc(X,y0+5,5,'#f44');ctx.globalAlpha=1;}
- else if(k.k==='gourd'){disc(X,Y-4+bob,3,'#6c4');ctx.fillStyle='#240';ctx.fillRect(X,Y-8+bob,1,2);}
- else if(k.k==='bag')drawBag(k,X,Y);
+ if(drawWorldPickup(k,X,Y,bob))return;
+ if(k.k==='bag')drawBag(k,X,Y);
  else if(k.k==='item'){const it=ITEMBY[k.id];ctx.globalAlpha=.3+.2*Math.sin(time*5);wdisc(k.x,k.y,6,RCOL[it.r]);ctx.globalAlpha=1;relicBox(X-6,Y-19+bob,k.id);}
 }
 const BAGTMP=mk(24,24,()=>{});
@@ -337,7 +206,7 @@ function drawBag(k,X,Y){
  }
  // shadow shrinks as it flies
  const sw=Math.max(3,Math.round(sp.w/2-2-z/6));ctx.fillStyle='rgba(0,0,0,.35)';ctx.fillRect(X-sw,Y-1,sw*2,2);
- ctx.drawImage(sp.c,bx,by);
+ ctx.drawImage(sp.hd||sp.c,bx,by,sp.w,sp.h);
  if(rare){const sh=(T*.9)%2.2;if(sh<1){ // a shine sweep across the gold cloth (masked to the sprite)
    const g=BAGTMP.getContext('2d');g.clearRect(0,0,24,24);g.drawImage(sp.c,0,0);g.globalCompositeOperation='source-atop';g.fillStyle='rgba(255,255,255,.7)';const sx0=-4+sh*(sp.w+10);
    for(let j=0;j<sp.h;j++)g.fillRect(Math.round(sx0-j*.5),j,2,1);g.globalCompositeOperation='source-over';ctx.drawImage(BAGTMP,bx,by);}
@@ -398,25 +267,22 @@ const RELICMO={atk:'sword',aspd:'dash',range:'arrow',hp:'plant',pos:'shield',spd
  qpow:'bolt',epow:'dragon',ecd:'hourglass',vamp:'venom',glass:'shards',storm:'bolt',echo:'bell',phoenix:'flame',flare:'meteor'};
 const relicIcon=id=>motifIcon(RELICMO[id]||'orb',fxCol(id));
 function relicBox(x,y,id,size){const s=size||13;ctx.fillStyle='#000';ctx.fillRect(x-1,y-1,s+2,s+2);ctx.fillStyle=fxCol(id);ctx.fillRect(x,y,s,s);ctx.fillStyle='#14101a';ctx.fillRect(x+1,y+1,s-2,s-2);
- const ic=relicIcon(id);if(s>=13)ctx.drawImage(ic,x+1+((s-13)>>1),y+1+((s-13)>>1));else ctx.drawImage(ic,0,0,11,11,x+1,y+1,s-2,s-2);}
+ const ic=relicIcon(id);if(s>=13)drawFacetedIcon(ic,x+1+((s-13)>>1),y+1+((s-13)>>1));else drawFacetedIcon(ic,x+1,y+1,s-2,s-2);}
 // a 13x13 spell slot: coloured frame, dark well, the ability's icon (dimmed while on cooldown)
 function spellBox(x,y,sp,ready){ctx.fillStyle='#000';ctx.fillRect(x-1,y-1,15,15);ctx.fillStyle=ready?sp.c:'#555';ctx.fillRect(x,y,13,13);ctx.fillStyle='#14101a';ctx.fillRect(x+1,y+1,11,11);
- if(!ready)ctx.globalAlpha=.4;ctx.drawImage(spellIcon(sp),x+1,y+1);ctx.globalAlpha=1;}
+ if(!ready)ctx.globalAlpha=.4;drawFacetedIcon(spellIcon(sp),x+1,y+1);ctx.globalAlpha=1;}
 function iconBox(x,y,g,col){ctx.fillStyle='#000';ctx.fillRect(x-1,y-1,11,11);ctx.fillStyle=col;ctx.fillRect(x,y,9,9);ctx.fillStyle='#14101a';ctx.fillRect(x+1,y+1,7,7);const gl=FONT[g]||FONT['?'];ctx.fillStyle=col;glyph(gl,x+3,y+2,1);}
 function drawPortal(){
  // big torii gate with a swirling vortex, a light pillar and a bouncing arrow
  const p=portal;if(!p||p.pending)return;const X=sx(p.x,p.y),Y=sy(p.x,p.y),t=p.t;
  ctx.globalAlpha=.22+.1*Math.sin(t*4);wdisc(p.x,p.y,22,'#8cf');ctx.globalAlpha=1;wcirc(p.x,p.y,18+Math.sin(t*5)*2,'#8cf');wcirc(p.x,p.y,24,'#4af');
  ctx.globalAlpha=.18;ctx.fillStyle='#bdf';ctx.fillRect(X-9,0,18,Y);ctx.globalAlpha=.3;ctx.fillRect(X-4,0,8,Y);ctx.globalAlpha=1;
- const OL='#14101a',RD='#d02030',DK='#7a1020';
+ const OL='#14101a';
  // vortex inside the gate
  for(let r=11;r>0;r-=2){ctx.fillStyle=r%4===1?'#fff':r%4===3?'#8cf':'#3a6af0';ctx.globalAlpha=.85;const w=r,h=Math.round(r*17/11);ctx.fillRect(X-w,Y-17-h,w*2,h*2);} // fills the gate from the lower beam to the ground
  ctx.globalAlpha=1;
  for(let i=0;i<14;i++){const a=t*4+i*.9,rr=(i*2.3+t*14)%12;ctx.fillStyle=i%2?'#fff':'#bdf';ctx.fillRect(Math.round(X+Math.cos(a)*rr),Math.round(Y-17+Math.sin(a)*rr*1.4),1,1);}
- // pillars + beams
- ctx.fillStyle=OL;ctx.fillRect(X-16,Y-42,5,43);ctx.fillRect(X+11,Y-42,5,43);ctx.fillRect(X-22,Y-47,44,6);ctx.fillRect(X-18,Y-38,36,4);
- ctx.fillStyle=RD;ctx.fillRect(X-15,Y-41,3,41);ctx.fillRect(X+12,Y-41,3,41);ctx.fillRect(X-17,Y-37,34,2);ctx.fillStyle='#1a1a24';ctx.fillRect(X-21,Y-46,42,4);ctx.fillStyle=RD;ctx.fillRect(X-20,Y-43,40,1);
- ctx.fillStyle=DK;ctx.fillRect(X-13,Y-41,1,41);ctx.fillRect(X+14,Y-41,1,41);ctx.fillStyle='#e8c050';ctx.fillRect(X-1,Y-42,2,4);
+ drawGateFrame(X,Y,'portal');
  for(let i=0;i<26;i++){const off=(t*34+i*11)%60,x=X+Math.sin(t*3+i)*10;ctx.fillStyle=i%2?'#8cf':'#fff';ctx.fillRect(Math.round(x),Math.round(Y-off),1,2);}
  const by=Math.round(Y-62+Math.sin(t*5)*3);ctx.fillStyle=OL;ctx.fillRect(X-4,by-1,9,4);ctx.fillRect(X-2,by+3,5,3);ctx.fillStyle='#fd4';ctx.fillRect(X-3,by,7,2);ctx.fillRect(X-1,by+2,3,2);ctx.fillRect(X,by+4,1,1);
  txt('PORTAL',X-11,by-9,'#fff');
@@ -632,25 +498,8 @@ function visibleTileRows(rows,top,bottom,visit){
  const first=Math.max(0,Math.ceil((cam.y+view.top-top)/HY)),end=Math.min(rows.length-1,Math.floor((cam.y+view.bottom+bottom)/HY));
  for(let i=first;i<=end;i++)if(rows[i])for(const o of rows[i])visit(o);
 }
-function drawEntrance(p,X,Y){
- const boss=p.gate==='boss',edge=boss?'#a84843':'#578b76',glow=boss?'#f4b472':'#b8e6ad';
- const px=(x,y,w,h,c)=>{ctx.fillStyle=c;ctx.fillRect(X+x,Y+y,w,h);};
- if(p.k==='doorpost'){
-  shadow(X,Y,13);
-  px(-5,-4,10,4,'#27232b');px(-4,-5,8,2,'#72605c');
-  px(-2,-27,4,23,'#352631');px(-2,-25,1,19,edge);
-  px(-5,-27,10,3,'#2b222d');px(-7,-28,14,1,edge);
-  px(-4,-23,8,8,'#211b28');px(-3,-22,6,6,edge);
-  px(-2,-21,4,4,glow);px(-1,-20,2,2,'#fff0bd');
-  px(-1,-16,2,2,glow);
- }else{
-  shadow(X,Y,14);px(-2,-15,3,15,'#402f32');
-  px(-12,-22,24,10,'#241b27');px(-11,-21,22,8,edge);px(-10,-20,20,6,'#272330');
-  const label=boss?'BOSS':'SHOP';
-  txt(label,X-Math.round(txtW(label)/2),Y-19,glow);
- }
-}
-function drawWall(o){ctx.drawImage(o.sprite,o.x-cam.x-16,o.y-cam.y-WH);}
+function drawEntrance(p,X,Y){drawArtEntrance(p,X,Y);}
+function drawWall(o){drawFacetedIcon(o.sprite,o.x-cam.x-16,o.y-cam.y-WH);}
 function drawLiquids(rows){
  const L=map.env.lc,lq0=map.env.liq,view=sceneBounds;
  visibleTileRows(rows,20,4,({x,y,h})=>{

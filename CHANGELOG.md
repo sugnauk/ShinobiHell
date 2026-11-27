@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.8.20: 16-bit dungeon art
+
+- Redraw regular enemies, sharpen guardian sprites, and give friendly and hostile projectiles detailed forms that read against the new dungeon surfaces.
+- Rework floor materials, walls, water, dungeon dressing, loot pickups, and interactable props to match the hero art.
+
 ## 0.8.19: Akagane becomes the 8th guardian
 - **The guardian order changes.** Akagane, the Red Ox, was the first guardian after the prologue and by far the hardest early fight. He now guards stage VIII, the iron cellars, and the guardians in between each move up one stage:
 

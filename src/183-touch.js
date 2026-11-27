@@ -144,7 +144,7 @@ function touchDraw(){if(!TOUCH||mode!=='play'||!P)return;const top=paused||invOp
   if(asked){const pu=.5+.5*Math.sin(time*10);ctx.globalAlpha=.6+.4*pu;ctx.strokeStyle='#ffffff';ctx.lineWidth=2;ctx.beginPath();ctx.arc(b.x,b.y,b.r+3+2*pu,0,TAU);ctx.stroke();ctx.lineWidth=1;}
   const icon=spell?spellIcon(spell):dash?motifIcon('dash',col):heal?itemIcon({t:'hp'}):null;
   if(icon){const scale=heal?1:2,w=icon.width*scale,h=icon.height*scale;
-   ctx.globalAlpha=dim?.5:1;ctx.drawImage(icon,Math.round(b.x-w/2),Math.round(b.y-h/2),w,h);
+   ctx.globalAlpha=dim?.5:1;drawFacetedIcon(icon,Math.round(b.x-w/2),Math.round(b.y-h/2),w,h);
    ctx.globalAlpha=1;
    if(locked)padlock(Math.round(b.x+b.r*.45),Math.round(b.y+b.r*.35),'#aaa');
    else if(heal)touchBadge(b,String(R.pots));
