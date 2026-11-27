@@ -67,7 +67,7 @@ renderSelect=function(){
  const dx=Math.round(cx-sp.fw*SC/2)+slide,dy=fy-sp.fh*SC+2;
  ctx.globalAlpha=.35*ease;ctx.fillStyle='#000';for(let y=0;y<4;y++){const w=Math.round(22*Math.sqrt(1-((y-1.5)/2.2)**2));ctx.fillRect(cx-w,fy-2+y,w*2,1);}ctx.globalAlpha=ease;
  if(lk){ctx.globalAlpha=.5*ease;for(const o of [[-1,0],[1,0],[0,-1]])ctx.drawImage(sp.wc,fr*sp.fw,0,sp.fw,sp.fh,dx+o[0],dy+o[1],sp.fw*SC,sp.fh*SC);ctx.globalAlpha=ease;ctx.drawImage(silOf(sp,C.k),fr*sp.fw,0,sp.fw,sp.fh,dx,dy,sp.fw*SC,sp.fh*SC);padlock(cx-3,fy-54,'#e0c070');}
- else{ctx.drawImage(sp.c,fr*sp.fw,0,sp.fw,sp.fh,dx,dy,sp.fw*SC,sp.fh*SC);if(selLock){const fl=clamp(1-(time-selT)/.4,0,1);if(fl>0){ctx.globalAlpha=fl;ctx.drawImage(sp.wc,fr*sp.fw,0,sp.fw,sp.fh,dx,dy,sp.fw*SC,sp.fh*SC);}}}
+ else{drawSpr({...sp,sc:SC},cx+slide,fy+2,false,fr,false);if(selLock){const fl=clamp(1-(time-selT)/.4,0,1);if(fl>0){ctx.globalAlpha=fl;drawSpr({...sp,sc:SC},cx+slide,fy+2,true,fr,false);}}}
  ctx.globalAlpha=1;
  // name plate
  {const nm=lk?'? ? ?':C.n;{const sz=txtW(nm,2)>124?1:2;txt(nm,cx-Math.round(txtW(nm,sz)/2),fy+(sz===2?7:10),col,sz);}const r=I.role;txt(r,cx-Math.round(txtW(r)/2),fy+20,lk?'#666':'#bbb');}

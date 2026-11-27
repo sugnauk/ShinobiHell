@@ -1,9 +1,8 @@
 # Changelog
 
-## 0.8.17: Faster heroes, guardian walk cycles and sealed boss arenas
+## 0.8.18: Faster heroes, guardian walk cycles and sealed boss arenas
 - **Faster heroes.** Every hero moves 12% faster (for example, the wizard goes from 78 to 87 px/s and the shinobi from 92 to 104). Class, relic, skill-tree and daily bonuses still apply on top. Foes and dashes keep their speed.
 - **Walk cycles that keep pace.** A hero's walk cycle now advances with the ground actually covered, so the feet don't slide at the new speed, when slowed, or when hasted.
-- **The sumo's walk.** His feet now step in turn instead of shifting together.
 - **Guardians that had no walk now move as they travel:**
   - **Akagane** charges on his running legs.
   - **Kageyama** strides in his hakama.
@@ -15,6 +14,9 @@
   - Nothing gets out until the guardian falls: walking, shots and blinks are all stopped. A teleport or leap that lands outside is brought back in.
   - The gate sinks when the guardian dies, when the fight resets (for example, a prologue respawn), and on leaving the stage.
   - It works in the Boss Rush and Test Mode too.
+## 0.8.17: 16-bit hero sprites
+
+- Redraw the thirteen playable heroes with 16-bit-style sprite sheets, distinct equipment and silhouettes, and new details across all ten forms. Use the high-resolution art in combat, campfires, and large character previews.
 
 ## 0.8.16: Mobile controls and Temple balance
 

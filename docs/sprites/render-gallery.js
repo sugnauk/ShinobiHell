@@ -1,5 +1,5 @@
-const {chromium}=require('playwright');(async()=>{const b=await chromium.launch();const p=await b.newPage();const errs=[];p.on('pageerror',e=>errs.push(String(e)));
-await p.goto('file://'+process.cwd()+'/index.html');await p.waitForTimeout(400);
+const {chromium}=require('playwright');(async()=>{const b=await chromium.launch({executablePath:process.env.CHROMIUM_PATH});const p=await b.newPage();const errs=[];p.on('pageerror',e=>errs.push(String(e)));
+await p.goto(process.env.SHINOBI_URL||'file://'+process.cwd()+'/index.html');await p.waitForTimeout(400);
 const res=await p.evaluate(()=>{
  const roman=['I','II','III','IV','V','VI','VII','VIII','IX','X','XI','XII','XIII','XIV','XV','XVI','XVII'];
  const groups=[['PROLOGUES',PROS.map((x,i)=>[x.boss.name,'PROLOGUE '+roman[i]])],
@@ -26,7 +26,7 @@ const res=await p.evaluate(()=>{
  const hcols=7,hrows=Math.ceil(CLASSES.length/hcols),cw=3*20*HZ+30,ch=24*HZ+50;hc.width=hcols*cw+20;hc.height=40+hrows*ch;const h=hc.getContext('2d');h.imageSmoothingEnabled=false;
  h.fillStyle='#1a1820';h.fillRect(0,0,hc.width,hc.height);h.font='bold 18px monospace';h.fillStyle='#f0d8a0';h.fillText('SHINOBIDUNGEONS - EVERY HERO (FIRST | MIDDLE | FINAL FORM)',10,26);
  CLASSES.forEach((C,i)=>{const x=10+(i%hcols)*cw,yy=40+Math.floor(i/hcols)*ch;h.fillStyle='#24222c';h.fillRect(x+2,yy+2,cw-6,ch-6);
-  st.forEach((s,k)=>{let sp;try{sp=heroSpr(C.k,s,false);}catch(e){sp=null;}if(!sp)return;h.drawImage(sp.c,0,0,sp.fw,sp.fh,x+8+k*20*HZ,yy+8,sp.fw*HZ,sp.fh*HZ);});
+  st.forEach((s,k)=>{const sp=heroSpr(C.k,s,false);h.drawImage(sp.hd,0,0,sp.fw*2,sp.fh*2,x+8+k*20*HZ,yy+8,sp.fw*HZ,sp.fh*HZ);});
   h.font='bold 12px monospace';h.fillStyle='#fff';h.fillText((C.n||C.k).toUpperCase(),x+8,yy+ch-14);});
  return {bossUrl,heroUrl:hc.toDataURL(),miss};});
 const fs=require('fs');fs.writeFileSync('docs/sprites/all_guardians.png',Buffer.from(res.bossUrl.split(',')[1],'base64'));fs.writeFileSync('docs/sprites/all_heroes.png',Buffer.from(res.heroUrl.split(',')[1],'base64'));

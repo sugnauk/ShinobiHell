@@ -13,7 +13,7 @@ These are pictures of the in-game sprites, so you can see them without running t
 | `shardsmith_sheet.png` | **The Shardsmith** (stage XVII, optional Side Furnace lair). Code: `src/208-glass-roads.js` |
 | `kaito_sheet.png` | **Master Kaito, Keeper of the First Flame** (Temple of the First Flame), including palm, bow, sword and recovery poses. Code: `src/209-first-flame.js` |
 | `all_guardians.png` | Every guardian in the game, first and second form |
-| `all_heroes.png` | Every hero at first, middle and final form |
+| `all_heroes.png` | Every hero at first, middle and final form, from the 40×48 in-game sprite sheets |
 | `../chapter2/concept_sheet.png` | Concepts for the Chapter II guardians: two directions each for Nebari, Kane, Sumi and Mukuro. Code: `../chapter2/guardian-concepts.js` |
 
 **How to read a boss sheet:**
@@ -36,3 +36,5 @@ node docs/sprites/render-boss-sheet.js "MASTER KAITO, KEEPER OF THE FIRST FLAME"
 node docs/sprites/render-gallery.js
 node docs/chapter2/render-concept-sheet.js
 ```
+
+The gallery renderer also accepts `SHINOBI_URL` for a locally served game and `CHROMIUM_PATH` for a system Chromium executable.
