@@ -2,10 +2,11 @@
 // HELL OF THE EMPEROR - rendering and HUD (part of the former game.js; files load in numeric order, see index.html)
 // ---------- rendering ----------
 function drawSpr(s,x,feetY,white,frame,flip){
- const fw=s.fw,fh=s.fh,sc=s.sc,src=white?s.wc:s.c,fr=s.frames>1?(frame%s.frames):0;
- const dx=Math.round(x-fw*sc/2),dy=Math.round(feetY-fh*sc);
- if(flip){ctx.save();ctx.translate(dx+fw*sc,dy);ctx.scale(-1,1);ctx.drawImage(src,fr*fw,0,fw,fh,0,0,fw*sc,fh*sc);ctx.restore();}
- else ctx.drawImage(src,fr*fw,0,fw,fh,dx,dy,fw*sc,fh*sc);
+ const fw=s.fw,fh=s.fh,sc=s.sc,fr=s.frames>1?(frame%s.frames):0;
+ const src=s.hd?(white?s.hdWhite:s.hd):(white?s.wc:s.c),density=s.hd?2:1;
+ const sw=fw*density,sh=fh*density,dx=Math.round(x-fw*sc/2),dy=Math.round(feetY-fh*sc);
+ if(flip){ctx.save();ctx.translate(dx+fw*sc,dy);ctx.scale(-1,1);ctx.drawImage(src,fr*sw,0,sw,sh,0,0,fw*sc,fh*sc);ctx.restore();}
+ else ctx.drawImage(src,fr*sw,0,sw,sh,dx,dy,fw*sc,fh*sc);
 }
 // ---------- isometric projection ----------
 // Simulation runs in flat world coords (x,y). Drawing projects: iso.x = x-y, iso.y = (x+y)/2  (2:1 diamond tiles 32x16)
@@ -59,7 +60,7 @@ function drawPlayer(){
  const st=p.dash>0?'dash':p.animT>0?p.animK:p.mv?'walk':'idle',seq=WIZ[st];
  // attack: wind-up, strike, follow-through across the animation; idle: every few seconds the class flourish (frame 15)
  const ap=p.animD?1-p.animT/p.animD:1;
- const fr=st==='walk'?seq[Math.floor(time*10)%4]:st==='idle'?(Math.floor(time*2.5)%10>=8?15:seq[Math.floor(time*2.5)%2]):st==='atk'?seq[ap<.3?0:ap<.7?1:2]:st==='cast'?seq[Math.floor(time*14)%2]:seq[0];
+ const fr=st==='walk'?seq[Math.floor(p._wph!=null?p._wph:time*10)%4]:st==='idle'?(Math.floor(time*2.5)%10>=8?15:seq[Math.floor(time*2.5)%2]):st==='atk'?seq[ap<.3?0:ap<.7?1:2]:st==='cast'?seq[Math.floor(time*14)%2]:seq[0];
  const flip=st==='dash'?scrVec(p.dx,p.dy)[0]<0:p.face<0;
  shadow(X,Y-2,7);
  if(st==='dash'){for(let i=1;i<=3;i++){ctx.globalAlpha=.32-i*.08;const bx=sx(p.x-p.dx*i*6,p.y-p.dy*i*6),by=sy(p.x-p.dx*i*6,p.y-p.dy*i*6)+3;drawSpr(s,bx,by,true,fr,flip);}ctx.globalAlpha=1;}

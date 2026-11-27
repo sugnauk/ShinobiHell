@@ -185,3 +185,15 @@ The owner asked for complete sprite reworks of **Sazanami, Mukuro, Sumi, Nebari,
 - **The test bot:** it reads every warning and keeps attacking, so it plays like a careful player. It finishes in about 135–150s with the archer and sumo, and slower with the samurai. The spread between runs is wide.
 - **A real player** fights less efficiently than the bot, so should land in the 180–240s window.
 - **Still needed:** confirm the length in human playtests.
+
+## Guardian difficulty: how a fight's length is tuned (0.8.19)
+- **The formula:** a campaign guardian's health is `base HP for the stage × the guardian's own multiplier (BOSS_HPT) × bossHealthScale(stage)`.
+  - Damage (`1+.14×stage`) and posture follow the stage.
+  - The guardian's own multiplier carries its mechanics. For example, Hotaru's lantern shields are why hers is small.
+- **The order and tuning** live in `src/211-guardian-order.js`: `GORDER.src` (the order) and `GORDER.TUNE` (the per-stage tuning multiplier).
+- **To re-tune:**
+  1. Run the fight bot through Test Mode, with gear set for each stage: about 3 relics per stage, rare gear before stage IV and epic gear after. Use 4 heroes (archer, samurai, sumo, wizard).
+  2. Take the median fight time.
+  3. Aim it at about 0.8× the middle of the owner's window. The bot reads every warning and never stops attacking, so a real player takes longer.
+  4. Scale `TUNE` by `target/measured`, at most 0.4×–1.6× per step, and repeat.
+- **Diminishing returns:** fights with long fixed phases (events, shields, squads) respond weakly to health changes.

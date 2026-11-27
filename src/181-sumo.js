@@ -180,61 +180,6 @@ Object.assign(PSPR,{
  salt(X,Y,ux,uy){const x=Math.round(X),y=Math.round(Y);kLine(x-ux*4,y-uy*4,x,y,3,'#665567');
   kLine(x-ux*3,y-uy*3,x+ux,y+uy,2,'#f3e7d7');KR(x,y,1,0,-1,2,2,'#ffffff');}});
 
-// ---------------- the sprite ----------------
-// The original compact rikishi silhouette (broad torso, small head, fists at the sides), kept exactly, with the detail
-// it lacked: a face with both eyes, brows and a mouth; a proper topknot; belly shading, chest line and navel; knuckles
-// on the fists; a real mawashi with its knot and hanging sagari fringe. Middle forms wear an embroidered kesho-mawashi
-// apron instead of armour plates; the final form is the yokozuna: a thick white braided rope with zigzag paper shide
-// and a ginkgo-leaf topknot.
-// Draw the raised leg with a bent knee and a pointed foot, then sample it at the sheet's native resolution.
-const shikoLeg=mk(20,24,g=>{const hi=mk(80,96,h=>{h.scale(4,4);
- const shape=(col,pts)=>{h.beginPath();h.moveTo(...pts[0]);for(const p of pts.slice(1))h.lineTo(...p);h.closePath();h.fillStyle=col;h.fill();};
- shape('#e0b080',[[11,18],[14.5,15],[15.5,11.5],[17.5,10],[19,11],[19.5,14.5],[18.1,18],[15,21.5],[11,22.5],[10,21]]);
- shape('#b06e4a',[[11,20.5],[15,19],[17.5,16.4],[19,11.6],[19.5,14.5],[18.1,18],[15,21.5],[11,22.5]]);
- shape('#f0c098',[[13.7,16.5],[15.4,13],[17.3,11.2],[17.8,12.4],[16.5,15.1],[15.1,16.5]]);
- shape('#2a2236',[[16.5,11.3],[16.5,9.5],[18.5,8.5],[19.25,9.1],[19.5,12.3],[18.2,12.8]]);
- shape('#927369',[[16.7,9.6],[18.5,8.8],[18.9,9.5],[17,10.4]]);});g.imageSmoothingEnabled=false;g.drawImage(hi,0,0,20,24);});
-drawSumoFrame=function(R,frame,back,stage,skin,g){
- const mid=stage>=5&&stage<9,final=stage>=9,walk=frame>=2&&frame<=5,bob=walk&&frame%2===1?1:0,y=12+bob,lean=frame===11?1:0;
- const shiko=frame===15,raised=(frame>=8&&frame<=10)||frame===12||shiko,SH='#b06e4a',HI='#f0c098';
- if(shiko)g.drawImage(shikoLeg,0,0);
- // body: the original shape
- R(5,y,10,2,'skin');R(4,y+2,12,5,'skin');
- // belly shading: a darker right side and underside, a highlight on the left of the chest
- R(14,y+1,1,6,SH);R(15,y+2,1,4,SH);R(5,y+5,10,1,SH);R(5,y,3,1,HI);R(4,y+2,1,2,HI);
- if(!back){R(10,y+4,1,1,'#7a3a24');R(6,y+4,1,1,SH);R(13,y+3,1,2,SH);}
- else{R(10,y,1,5,SH);R(7,y+1,2,1,SH);R(12,y+1,2,1,SH);}
- // the mawashi: a wide belt with its knot, and the sagari fringe hanging down the front
- R(4,y+6,12,2,'robe');R(4,y+6,12,1,'band');R(5,y+7,10,1,'robeS');
- if(!back){R(8,y+6,4,2,'robe');R(9,y+6,2,1,'trim');for(const x of [6,8,10,12])R(x,y+8,1,2+(x%4?0:1),'robeS');}
- else{R(8,y+5,4,4,'robe');R(9,y+5,2,1,'band');R(9,y+8,2,2,'robeS');}
- // legs and feet
- const stride=walk?[0,1,2,1][frame-2]:0;
- R(5+stride,21,4,2,'skin');R(5+stride,22,4,1,SH);R(5+stride,23,4,1,'boot');
- if(!shiko){R(11+stride,21-(stride%2),4,2,'skin');R(11+stride,22-(stride%2),4,1,'boot');}
- // arms: fists at the sides, raised for the stomp and ceremony, punched out for the palm strikes
- const striking=frame===7||frame===13,leftY=raised?10:y+3,rightX=shiko?12:striking||frame===11?16:14,rightY=shiko?7:raised?9:striking?y+1:y+3;
- R(2,leftY,4,3,'skin');R(2,leftY,1,3,SH);R(3,leftY,1,1,HI);R(2,leftY+2,2,1,'#c88058');
- R(rightX,rightY,3,3,'skin');R(rightX+2,rightY,1,3,SH);R(rightX,rightY,1,1,HI);R(rightX,rightY+2,3,1,'#c88058');
- if(striking)R(Math.min(19,rightX+3),rightY,1,3,'#fff1c8');
- // head: the original block, then a face
- R(7+lean,8+bob,6,5,back?'hat':'skin');R(7+lean,7+bob,6,2,'hat');R(8+lean,5+bob,4,2,'hat');
- if(back){R(8+lean,11+bob,4,1,'hatL');R(7+lean,9+bob,6,1,'hatL');}
- else{R(12+lean,10+bob,1,3,SH);R(8+lean,10+bob,1,1,'#2a1418');R(11+lean,10+bob,1,1,'#2a1418');R(8+lean,11+bob,1,1,'#e88870');R(11+lean,11+bob,1,1,'#e88870');R(9+lean,12+bob,2,1,'#8a4a34');}
- // the topknot: a tied bun (chonmage), or the yokozuna's ginkgo-leaf oicho-mage
- if(final){R(7+lean,4+bob,6,2,'hat');R(8+lean,3+bob,4,1,'hat');R(9+lean,4+bob,2,1,'hatL');R(7+lean,4+bob,1,1,'hatL');R(12+lean,4+bob,1,1,'hatL');R(9+lean,5+bob,2,1,'#e8e0d0');}
- else{R(9+lean,3+bob,2,2,'hat');R(9+lean,3+bob,1,1,'hatL');R(9+lean,5+bob,2,1,'#e8e0d0');}
- R(9+lean,6+bob,2,1,'hatL');
- // middle forms: the embroidered kesho-mawashi apron hanging to the knees
- if(mid&&!back){R(7,y+8,6,3,'trim');R(8,y+8,4,2,'robe');R(9,y+9,2,1,'band');R(7,y+11,6,1,'#14101a');}
- // the yokozuna: a thick white braided rope with zigzag paper shide
- if(final){for(let x=3;x<17;x++)R(x,y+5,1,2,(x+(frame&1))%2?'#ffffff':'#d0d0d0');R(3,y+4,14,1,'#14101a');
-  if(!back)for(const x of [5,9,13]){R(x,y+7,1,1,'#ffffff');R(x+1,y+8,1,1,'#ffffff');R(x,y+9,1,1,'#ffffff');R(x+1,y+10,1,1,'#ffffff');}
-  else{R(7,y+2,6,3,'#ffffff');R(8,y+3,1,1,'#d0d0d0');R(11,y+3,1,1,'#d0d0d0');}}
- // mastery skins: a patterned mawashi and wrapped fists
- if(skin){for(let x=5;x<15;x+=3)R(x,y+7,1,1,'trim');R(2,leftY,4,1,'band');R(rightX,rightY,3,1,'band');if(skin===2)R(4,y+6,12,1,'trim');}};
-for(const k in HEROC)if(k.startsWith('sumo'))delete HEROC[k];
-
 // ---------------- wiring: the new kit replaces the old one ----------------
 const SUMODEF=[
  ['m','TSUPPARI',0,'RAPID PALM THRUSTS. EVERY THIRD SHOVES.',({p,a,A,bp,em})=>sumTsuppari(p,a,A,bp,em)],
