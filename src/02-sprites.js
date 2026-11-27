@@ -212,12 +212,13 @@ function genDecos(di){const env=map.env,L=ENVDECO[env.k]||[],tot=L.reduce((a,b)=
  if(env.k==='grass'||env.k==='temple'||env.k==='marble')for(const i of map.liqList)if(Math.random()<.06){const x=i%MW,y=(i/MW)|0;out.push({k:'koi',x:x*T+8,y:y*T+8,f:Math.random()<.5,ph:Math.random()*6,onliq:1});}
  return out;}
 function drawDeco(o){const s=DECOSPR[o.k],X=sx(o.x,o.y),Y=sy(o.x,o.y),view=sceneBounds;if(X<view.left-30||X>view.right+30||Y<view.top-10||Y>view.bottom+40)return;
+ const img=s.hd&&(!s.base||s.base===s.c)?s.hd:s.c;
  if(o.onliq){const sw=s.swim?Math.round(Math.sin(time*.5+o.ph)*6):0;
-  if(s.swim&&(Math.cos(time*.5+o.ph)<0)!==o.f){ctx.save();ctx.translate(X+sw,0);ctx.scale(-1,1);ctx.drawImage(s.c,Math.round(-s.w/2),Math.round(Y-s.h/2));ctx.restore();return;}
-  ctx.drawImage(s.c,Math.round(X-s.w/2+sw),Math.round(Y-s.h/2+(s.swim?0:Math.sin(time*1.5+o.ph))));return;}
+  if(s.swim&&(Math.cos(time*.5+o.ph)<0)!==o.f){ctx.save();ctx.translate(X+sw,0);ctx.scale(-1,1);ctx.drawImage(img,Math.round(-s.w/2),Math.round(Y-s.h/2),s.w,s.h);ctx.restore();return;}
+  ctx.drawImage(img,Math.round(X-s.w/2+sw),Math.round(Y-s.h/2+(s.swim?0:Math.sin(time*1.5+o.ph))),s.w,s.h);return;}
  if(!s.flat){ctx.fillStyle='rgba(0,0,0,.28)';ctx.fillRect(X-Math.round(s.w/3),Y-1,Math.round(s.w/1.5),2);}
  const sway=s.big&&(o.k==='bamboo'||o.k==='maple'||o.k==='reeds')?0:0;
- if(o.f){ctx.save();ctx.translate(X,0);ctx.scale(-1,1);ctx.drawImage(s.c,Math.round(-s.w/2),Math.round(Y-s.h+1+(s.flat?s.h/2:0)));ctx.restore();}else ctx.drawImage(s.c,Math.round(X-s.w/2+sway),Math.round(Y-s.h+1+(s.flat?s.h/2:0)));
+ if(o.f){ctx.save();ctx.translate(X,0);ctx.scale(-1,1);ctx.drawImage(img,Math.round(-s.w/2),Math.round(Y-s.h+1+(s.flat?s.h/2:0)),s.w,s.h);ctx.restore();}else ctx.drawImage(img,Math.round(X-s.w/2+sway),Math.round(Y-s.h+1+(s.flat?s.h/2:0)),s.w,s.h);
  if(s.glow){const p=s.glow.dim?.15:.22;ctx.globalAlpha=p+.08*Math.sin(time*3+o.ph);disc(X,Y+s.glow.y,s.glow.r,s.glow.c);ctx.globalAlpha=1;}
  const fl=(fx,fy,sz)=>{const f=Math.floor(time*10+o.ph)%3;ctx.fillStyle='#ff6020';ctx.fillRect(fx-sz+1,fy-sz-f%2,sz*2-1,sz+1);ctx.fillStyle='#ffd040';ctx.fillRect(fx-sz+2,fy-sz+1-f%2,Math.max(1,sz*2-3),sz-1);ctx.fillStyle='#fff';ctx.fillRect(fx,fy-1,1,1);};
  if(s.fire)fl(X,Y+s.fire.y,s.fire.s);if(s.flames)for(const [fx,fy] of s.flames)fl(X-s.w/2+fx+1,Y+fy,1);

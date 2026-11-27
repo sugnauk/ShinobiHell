@@ -65,16 +65,8 @@ const inRoomR=(r,x,y)=>x>r.x*T&&x<(r.x+r.w)*T&&y>r.y*T&&y<(r.y+r.h)*T;
 // the door: a lacquered gate across the corridor with a paper seal and an iron padlock
 {const _dp=drawProp;drawProp=function(p){if(p.k!=='lairdoor')return _dp.apply(this,arguments);if(p.used)return;
  const X=sx(p.x,p.y),Y=sy(p.x,p.y),c=p.L.col;
- shadow(X,Y,26);ctx.fillStyle='#14101a';ctx.fillRect(X-15,Y-30,30,31);
- ctx.fillStyle='#4a1a14';ctx.fillRect(X-14,Y-29,28,29);ctx.fillStyle='#6a2a1c';ctx.fillRect(X-14,Y-29,28,2);
- for(let i=-12;i<=10;i+=6){ctx.fillStyle='#2a0e0a';ctx.fillRect(X+i,Y-27,1,27);}
- ctx.fillStyle='#14101a';ctx.fillRect(X-17,Y-33,34,4);ctx.fillStyle='#8a2a1c';ctx.fillRect(X-16,Y-32,32,2);
- for(const yy of [-22,-8]){ctx.fillStyle='#3a3a44';ctx.fillRect(X-14,Y+yy,28,2);ctx.fillStyle='#7a7a88';ctx.fillRect(X-14,Y+yy,28,1);}
- // the paper seal with the beast's sign, and a padlock that glints
- ctx.fillStyle='#14101a';ctx.fillRect(X-5,Y-25,10,15);ctx.fillStyle='#f0e8d0';ctx.fillRect(X-4,Y-24,8,13);ctx.fillStyle=c;ctx.fillRect(X-2,Y-21,4,1);ctx.fillRect(X-1,Y-22,2,6);ctx.fillRect(X-3,Y-17,6,1);
- ctx.fillStyle='#14101a';ctx.fillRect(X-4,Y-10,8,8);ctx.fillStyle='#a07020';ctx.fillRect(X-3,Y-9,6,6);ctx.fillStyle='#e0b040';ctx.fillRect(X-3,Y-9,6,1);ctx.fillStyle='#14101a';ctx.fillRect(X-1,Y-7,2,3);
- ctx.strokeStyle='#a07020';ctx.beginPath();ctx.arc(X+.5,Y-11,2.5,Math.PI,0);ctx.stroke();
- if(Math.floor(time*2)%3===0){ctx.fillStyle='#fff';ctx.fillRect(X+2,Y-9,1,1);}
+ shadow(X,Y,26);drawGateFrame(X,Y,'lair');
+ if(Math.floor(time*2)%3===0)twinkle(X+2,Y-9,1,'#f1cb8a');
  const gl=.25+.15*Math.sin(time*3);ctx.globalAlpha=gl;ctx.fillStyle=c;ctx.fillRect(X-15,Y-34,30,1);ctx.globalAlpha=1;};}
 // G at the door: unlock it with a key, or be told where to get one
 {const _in=interact;interact=function(){const p=nearProp();if(p&&p.k==='lairdoor'){

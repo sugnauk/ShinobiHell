@@ -70,7 +70,7 @@ function paintOutside(F,th,S){
  const front=(tu,tv)=>{for(let a=0;a<=5;a++)for(let b=0;b<=5;b++)if((a||b)&&floorAtR(tu-a,tv-b))return true;return false;};
  for(const [,tu,tv,x,y,d] of L){
   const X=(tu-tv+RMH)*16,Y=(tu+tv)*HY,ci=(x+y)&1,h=hash(x*7+3,y*11+5),h2=hash(x+91,y+17);
-  for(let j=0;j<TILEH;j++){const half=dHalf(j);SP(g,S.gr[ci],X-half,Y+j,half*2,1);}
+  paintOutsideTile(g,S.out,X,Y,x,y,S.gr[ci]);
   const gx=X+((h*9)|0)-4,gy=Y+HY+((h2*5)|0)-2,fr=d<=1||front(tu,tv),far=d>1;
   outsideDeco(g,S.out,X,Y,gx,gy,h,h2,fr,far,x,y);
   // fade into the dark the farther it is from the play area
@@ -172,7 +172,7 @@ function paintWall(g,st,faces,tall,v){
    (by)=>roofCap(g,by,'#8a6420','#b08a34','#e0b040'));}break;
   case 'throne':{const h=tall?18:5;block(g,faces,h,()=>'#1a1014',(x,k,H)=>x%8===0?'#e0b040':k===2||k===H-1?'#c09030':'#1e1216',(x,k,H)=>x%8===0?'#a07020':k===2||k===H-1?'#806020':'#140a0e',
    (by,fy)=>{roofCap(g,by,'#1a1418','#3a2a2e','#e0b040');if(tall&&v===2)for(let x=18;x<26;x++){const j=fy(x);SP(g,'#8a1018',8+x,by+j+3,1,h-5);}});}break;
-  default:block(g,faces,tall?12:5,()=>'#555',()=>'#444',()=>'#333');
+  default:paintWallCladding(g,faces,tall,v);
  }}
 {const _rm=renderMap;renderMap=function(th){const M=_rm.apply(this,arguments);const S=scn();if(!S)return M;for(const k in WSPR)delete WSPR[k];try{paintOutside(M.floor,th,S);}catch(e){console.error(e);}return M;};}
 // walls: the renderer draws a prebuilt list (sceneTiles); here each entry gets this stage's sprite, placed so the default

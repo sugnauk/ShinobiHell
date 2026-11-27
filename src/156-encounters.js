@@ -84,10 +84,7 @@ function freeAlly(p){
  if(up<1){const s=allySpr(p.ally);ctx.globalAlpha=p.used?Math.max(0,1-(time-p.freedAt-2.4)/.8):1;if(ctx.globalAlpha>0)drawSpr(s,X,Y+(p.used?2:6),false,allyFrame(p.ally,time),sx(P.x,P.y)<X);ctx.globalAlpha=1;}
  else if(time-p.freedAt<3.2){const s=allySpr(p.ally);ctx.globalAlpha=Math.max(0,1-(time-p.freedAt-2.4)/.8);drawSpr(s,X,Y+2,false,allyFrame(p.ally,time),sx(P.x,P.y)<X);ctx.globalAlpha=1;}
  // the cage: a wooden frame and bars, bound with rope; once broken, the bars lie scattered
- if(!p.used){ctx.fillStyle=O;ctx.fillRect(X-13,Y-34,27,3);ctx.fillRect(X-13,Y+2,27,3);
-  for(let i=0;i<6;i++){const x=X-12+i*5;ctx.fillStyle=O;ctx.fillRect(x-1,Y-32,3,35);ctx.fillStyle=i%2?'#6a4428':'#7e5432';ctx.fillRect(x,Y-32,1,35);}
-  ctx.fillStyle='#8a5a34';ctx.fillRect(X-12,Y-33,25,1);ctx.fillRect(X-12,Y+3,25,1);ctx.fillStyle='#c8a868';ctx.fillRect(X-12,Y-14,25,1);
-  ctx.fillStyle=O;ctx.fillRect(X-2,Y-17,5,7);ctx.fillStyle='#f4ecd0';ctx.fillRect(X-1,Y-16,3,5);ctx.fillStyle=Math.floor(time*3)%2?'#ff3030':'#c01010';ctx.fillRect(X,Y-15,1,3);}
+ if(!p.used)drawCageFrame(X,Y);
  else for(let i=0;i<6;i++){const a=hash(i,p.x|0)*TAU,d=10+hash(i,7)*10,x=Math.round(X+Math.cos(a)*d),y=Math.round(Y+Math.sin(a)*d*.5);ctx.fillStyle=O;ctx.fillRect(x-4,y-1,9,3);ctx.fillStyle='#6a4428';ctx.fillRect(x-3,y,7,1);}
  // their words
  if(!p.used&&dist(p,P)<90){const s=cageLocked(p)?'HELP! THEY HOLD ME HERE!':'PLEASE... BREAK THE LOCK!';txt(s,X-Math.round(txtW(s)/2),Y-46,A.c);}

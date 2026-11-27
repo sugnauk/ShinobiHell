@@ -15,9 +15,9 @@ const res=await p.evaluate(()=>{
  let y=TOP;const miss=[];
  for(const [title,L] of groups){g.font='bold 14px monospace';g.fillStyle='#c8a0ff';g.fillText(title,10,y+18);y+=HDR;
   L.forEach(([n,tag],i)=>{const x=10+(i%COLS)*CW,yy=y+Math.floor(i/COLS)*CH;g.fillStyle='#24222c';g.fillRect(x+2,yy+2,CW-6,CH-6);
-   const S=[0,1].map(h=>{ARTHURT=!!h;try{return bossArt(n);}catch(e){return null;}finally{ARTHURT=false;}});
+   const S=[0,1].map(h=>{ARTHURT=!!h;try{return finishWorldSprite(bossArt(n));}catch(e){return null;}finally{ARTHURT=false;}});
    if(!S[0]){miss.push(n);return;}
-   const s0=S[0],sc=Math.min(Z,(CW/2-8)/s0.fw,(CH-44)/s0.fh);S.forEach((s,k)=>{if(!s)return;const w=s.fw*sc,h=s.fh*sc;g.drawImage(s.c,0,0,s.fw,s.fh,x+6+k*(CW/2-2)+(CW/2-8-w)/2,yy+CH-38-h,w,h);});
+   const s0=S[0],sc=Math.min(Z,(CW/2-8)/s0.fw,(CH-44)/s0.fh);S.forEach((s,k)=>{if(!s)return;const w=s.fw*sc,h=s.fh*sc;g.drawImage(s.hd||s.c,0,0,s.fw*(s.hd?2:1),s.fh*(s.hd?2:1),x+6+k*(CW/2-2)+(CW/2-8-w)/2,yy+CH-38-h,w,h);});
    g.font='10px monospace';g.fillStyle='#8a86a0';g.fillText(tag,x+8,yy+16);g.fillStyle='#fff';const nm=n.split(',');g.font='bold 11px monospace';g.fillText(nm[0].slice(0,26),x+8,yy+CH-22);if(nm[1]){g.font='10px monospace';g.fillStyle='#bbb';g.fillText(nm[1].trim().slice(0,28),x+8,yy+CH-10);}});
   y+=Math.ceil(L.length/COLS)*CH;}
  const bossUrl=c.toDataURL();
