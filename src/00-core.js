@@ -69,7 +69,7 @@ function resizeView(){W=0;setView(VIEWWIDE,viewScale);}
 addEventListener('resize',()=>resizeView());fit();
 
 // the game's version, shown on the title screen. Bump it with every change that reaches main.
-const GAME_VERSION='0.8.16';
+const GAME_VERSION='0.8.17';
 
 // ---------- utils ----------
 const rnd=(a,b)=>a+Math.random()*(b-a),ri=(a,b)=>Math.floor(rnd(a,b+1)),pick=a=>a[Math.floor(Math.random()*a.length)];

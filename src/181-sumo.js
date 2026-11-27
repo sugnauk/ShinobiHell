@@ -209,9 +209,10 @@ drawSumoFrame=function(R,frame,back,stage,skin,g){
  if(!back){R(8,y+6,4,2,'robe');R(9,y+6,2,1,'trim');for(const x of [6,8,10,12])R(x,y+8,1,2+(x%4?0:1),'robeS');}
  else{R(8,y+5,4,4,'robe');R(9,y+5,2,1,'band');R(9,y+8,2,2,'robeS');}
  // legs and feet
- const stride=walk?[0,1,2,1][frame-2]:0;
- R(5+stride,21,4,2,'skin');R(5+stride,22,4,1,SH);R(5+stride,23,4,1,'boot');
- if(!shiko){R(11+stride,21-(stride%2),4,2,'skin');R(11+stride,22-(stride%2),4,1,'boot');}
+ // the feet step in turn: one forward as the other goes back, the passing foot lifted
+ const wi=walk?frame-2:-1,st=walk?[2,0,-2,0][wi]:0,lf=wi===1?1:0,ln=wi===3?1:0;
+ R(5+st,21-lf,4,2,'skin');R(5+st,22-lf,4,1,SH);R(5+st,23-lf,4,1,'boot');
+ if(!shiko){R(11-st,21-ln,4,2,'skin');R(11-st,22-ln,4,1,'boot');}
  // arms: fists at the sides, raised for the stomp and ceremony, punched out for the palm strikes
  const striking=frame===7||frame===13,leftY=raised?10:y+3,rightX=shiko?12:striking||frame===11?16:14,rightY=shiko?7:raised?9:striking?y+1:y+3;
  R(2,leftY,4,3,'skin');R(2,leftY,1,3,SH);R(3,leftY,1,1,HI);R(2,leftY+2,2,1,'#c88058');

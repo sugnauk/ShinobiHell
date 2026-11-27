@@ -59,7 +59,7 @@ function drawPlayer(){
  const st=p.dash>0?'dash':p.animT>0?p.animK:p.mv?'walk':'idle',seq=WIZ[st];
  // attack: wind-up, strike, follow-through across the animation; idle: every few seconds the class flourish (frame 15)
  const ap=p.animD?1-p.animT/p.animD:1;
- const fr=st==='walk'?seq[Math.floor(time*10)%4]:st==='idle'?(Math.floor(time*2.5)%10>=8?15:seq[Math.floor(time*2.5)%2]):st==='atk'?seq[ap<.3?0:ap<.7?1:2]:st==='cast'?seq[Math.floor(time*14)%2]:seq[0];
+ const fr=st==='walk'?seq[Math.floor(p._wph!=null?p._wph:time*10)%4]:st==='idle'?(Math.floor(time*2.5)%10>=8?15:seq[Math.floor(time*2.5)%2]):st==='atk'?seq[ap<.3?0:ap<.7?1:2]:st==='cast'?seq[Math.floor(time*14)%2]:seq[0];
  const flip=st==='dash'?scrVec(p.dx,p.dy)[0]<0:p.face<0;
  shadow(X,Y-2,7);
  if(st==='dash'){for(let i=1;i<=3;i++){ctx.globalAlpha=.32-i*.08;const bx=sx(p.x-p.dx*i*6,p.y-p.dy*i*6),by=sy(p.x-p.dx*i*6,p.y-p.dy*i*6)+3;drawSpr(s,bx,by,true,fr,flip);}ctx.globalAlpha=1;}

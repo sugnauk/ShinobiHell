@@ -332,7 +332,7 @@ function drawGlassWarden(p,Q,heated=false){
  for(const side of [-1,1]){
   const x=49+side*(half?26:19);
   shard(x,y+15,side*(13+swing*8),-33+swing*17,7);
-  shard(x,y+15,side*(14+swing*10),31,8);
+  shard(x,y+15,side*(14+swing*10)+(Q.step||0)*4,31-(side*(Q.step||0)>0?5:0),8);
   shard(49+side*10,66-b,side*(half?19:9),22,5);
   if(half){shard(49+side*27,48-b,side*13,17,4);glint(49+side*34,32-b,a);}
  }

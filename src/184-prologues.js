@@ -98,7 +98,7 @@ function kagDraw2(p,Q){const K=HUM(p,Q),{R,E,L,seg,trap,arm,leg,face,lt,dk,by}=K
   if(two){for(let x=0;x<10;x+=3)R(px+2+x,top+3+fh,2,2+(x%2),FL);}else{R(px+5,top+8,4,9,TL);R(px+4,top+8,6,2,TL);R(px+6,top+6,2,2,TL);R(px+4,top+16,6,1,TL);}}
  // wide black hakama flaring to the ankles
  const lgHk=(hx,hy,kx,ky,fx,fy)=>{seg(hx,hy+by,kx,ky,8,HK);seg(kx,ky,fx,fy-3,9,HK);L(kx,ky,fx-2,fy-4,HK2,1);R(fx-6,fy-3,12,2,OUTC);R(fx-5,fy-3,10,1,HK2);R(fx-3,fy-1,6,2,OUTC);R(fx-2,fy-1,5,1,ST2);};
- if(lg==='stand'){lgHk(32,49,29,60,27,73);lgHk(40,49,43,60,45,73);}else{lgHk(32,49,25,59,20,72);lgHk(40,49,47,59,51,73);}
+ if(lg==='stand'){const s=Q.stride||0;lgHk(32,49,29-s*2,60-(s>0?1:0),27-s*4,73-(s>0?2:0));lgHk(40,49,43+s*2,60-(s<0?1:0),45+s*4,73-(s<0?2:0));}else{lgHk(32,49,25,59,20,72);lgHk(40,49,47,59,51,73);}
  // the quiver at the hip, white fletchings up
  R(cx-15,38+by,6,16,OUTC);R(cx-14,39+by,4,14,'#5a3a1e');R(cx-14,39+by,4,2,'#8a5a2a');for(let i=0;i<(two?1:3);i++){R(cx-14+i,34+by-(i%2),1,5,'#d8c8a8');R(cx-15+i,32+by-(i%2),3,3,'#f4f4f8');}
  // torso: a white kimono, the drawing arm bare out of its sleeve, a dark teal jacket over it, a black sash
