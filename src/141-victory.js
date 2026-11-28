@@ -40,7 +40,7 @@ function renderVictory(){const d=deadInfo;if(!d||!VIC){renderEnd();return;}
   glowDisc(cx,fy-36,52,C.col,1);ctx.fillStyle='#2a1e28';for(let y=0;y<8;y++){const w=Math.round(34*Math.sqrt(1-((y-3.5)/4.2)**2));ctx.fillRect(cx-w,fy-3+y,w*2,1);}
   ctx.fillStyle='#e0b040';for(let i=0;i<20;i++){const a=i/20*TAU+t;ctx.fillRect(Math.round(cx+Math.cos(a)*30),Math.round(fy+Math.sin(a)*3),1,1);}
   const sp=heroSpr(C.k,9),SC=4,ph=t%2.4,fr=ph<1.6?(WIZ.cast||WIZ.idle)[Math.floor(time*6)%2]:ph<2?(WIZ.ult||WIZ.idle)[0]:WIZ.idle[Math.floor(time*2.5)%2];
-  drawSpr({...sp,sc:SC},cx,fy+2-bounce+rise,false,fr,false);
+  ctx.drawImage(sp.c,fr*sp.fw,0,sp.fw,sp.fh,Math.round(cx-sp.fw*SC/2),fy-sp.fh*SC+2-bounce+rise,sp.fw*SC,sp.fh*SC);
   if(!VIC.landed&&e>=1){VIC.landed=1;vicBurst(cx,fy-40,C.col,40);}}
  // ---- VICTORY, letter by letter
  {const s='VICTORY',SC=5,w=txtW(s,SC);let x=Math.round((W-w)/2);for(let i=0;i<s.length;i++){const ch=s[i],lt=t-VSEQ.title-i*.08;if(lt<0)break;

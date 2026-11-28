@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.8.21: Restore the classic art
+
+- Restore the original hero sprites, animations, and portraits from before the 0.8.17 art pass.
+- Roll back the 0.8.20 treatment of enemies, projectiles, dungeon surfaces, props, pickups, and interface icons. The guardian order, balance tuning, walk cycles, and arena seals carry forward.
+
 ## 0.8.20: 16-bit dungeon art
 
 - Redraw regular enemies, sharpen guardian sprites, and give friendly and hostile projectiles detailed forms that read against the new dungeon surfaces.

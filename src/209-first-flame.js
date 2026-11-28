@@ -100,7 +100,7 @@ hiPoses(KAITO.name,kaitoArms);
 }
 let kaitoCampSheet;
 function drawKaito(x,y,scale,flip=false){
- if(!kaitoCampSheet)kaitoCampSheet=finishWorldSprite(bossArt(KAITO.name));
+ if(!kaitoCampSheet)kaitoCampSheet=bossArt(KAITO.name);
  drawSpr({...kaitoCampSheet,sc:.46*scale},x,y,false,Math.floor(time*2.5)%2,flip);
 }
 

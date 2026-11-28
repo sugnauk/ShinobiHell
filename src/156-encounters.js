@@ -32,7 +32,8 @@ const allyHas=k=>!!(R&&R.allies&&R.allies.includes(k));
 // ---------- the captive's look: a tinted hero sheet or the trader sprite ----------
 const ALLYSPR={};
 function allySpr(k){if(ALLYSPR[k])return ALLYSPR[k];const A=ALLIES[k];if(!A.cls)return ALLYSPR[k]=MERCH;
- return ALLYSPR[k]=tintHeroSprite(heroSpr(A.cls,0),A.f||'none');}
+ const s=heroSpr(A.cls,0),c=document.createElement('canvas');c.width=s.c.width;c.height=s.c.height;const g=c.getContext('2d');g.filter=A.f||'none';g.drawImage(s.c,0,0);
+ return ALLYSPR[k]=Object.assign({},s,{c,_av:null});}
 const allyFrame=(k,t)=>ALLIES[k].cls?WIZ.idle[Math.floor(t*2.5)%2]:Math.floor(t*1.6)%2;
 // ---------- placing the cages ----------
 {const _ld=loadDungeon;loadDungeon=function(di){const r=_ld.apply(this,arguments);try{if(R&&!R.training&&!R.rush&&map&&!map.train)placeCaptives(di);if(allyHas('scout')&&R.scoutFrom!=null&&di>=R.scoutFrom)revealAll();spawnRonin();}catch(e){console.error(e);}return r;};}
@@ -84,7 +85,10 @@ function freeAlly(p){
  if(up<1){const s=allySpr(p.ally);ctx.globalAlpha=p.used?Math.max(0,1-(time-p.freedAt-2.4)/.8):1;if(ctx.globalAlpha>0)drawSpr(s,X,Y+(p.used?2:6),false,allyFrame(p.ally,time),sx(P.x,P.y)<X);ctx.globalAlpha=1;}
  else if(time-p.freedAt<3.2){const s=allySpr(p.ally);ctx.globalAlpha=Math.max(0,1-(time-p.freedAt-2.4)/.8);drawSpr(s,X,Y+2,false,allyFrame(p.ally,time),sx(P.x,P.y)<X);ctx.globalAlpha=1;}
  // the cage: a wooden frame and bars, bound with rope; once broken, the bars lie scattered
- if(!p.used)drawCageFrame(X,Y);
+ if(!p.used){ctx.fillStyle=O;ctx.fillRect(X-13,Y-34,27,3);ctx.fillRect(X-13,Y+2,27,3);
+  for(let i=0;i<6;i++){const x=X-12+i*5;ctx.fillStyle=O;ctx.fillRect(x-1,Y-32,3,35);ctx.fillStyle=i%2?'#6a4428':'#7e5432';ctx.fillRect(x,Y-32,1,35);}
+  ctx.fillStyle='#8a5a34';ctx.fillRect(X-12,Y-33,25,1);ctx.fillRect(X-12,Y+3,25,1);ctx.fillStyle='#c8a868';ctx.fillRect(X-12,Y-14,25,1);
+  ctx.fillStyle=O;ctx.fillRect(X-2,Y-17,5,7);ctx.fillStyle='#f4ecd0';ctx.fillRect(X-1,Y-16,3,5);ctx.fillStyle=Math.floor(time*3)%2?'#ff3030':'#c01010';ctx.fillRect(X,Y-15,1,3);}
  else for(let i=0;i<6;i++){const a=hash(i,p.x|0)*TAU,d=10+hash(i,7)*10,x=Math.round(X+Math.cos(a)*d),y=Math.round(Y+Math.sin(a)*d*.5);ctx.fillStyle=O;ctx.fillRect(x-4,y-1,9,3);ctx.fillStyle='#6a4428';ctx.fillRect(x-3,y,7,1);}
  // their words
  if(!p.used&&dist(p,P)<90){const s=cageLocked(p)?'HELP! THEY HOLD ME HERE!':'PLEASE... BREAK THE LOCK!';txt(s,X-Math.round(txtW(s)/2),Y-46,A.c);}

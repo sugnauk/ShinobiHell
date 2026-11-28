@@ -78,10 +78,9 @@ function heroEV(cls,st){if(cls==='wizard')return WIZEVO[st];const t=st/9,n=EVONA
  if(cls==='shinobi')return {n,hat:'mask',beard:0,wpn:'shadowKatana',C:{hat:mixC('#2a3147','#1a1628',t),hatL:'#5a5a6a',band:st>=2?mixC('#802020','#e02040',t):'#ac5462',robe:mixC('#38435b','#1e1a30',t),robeS:mixC('#32323a','#100c1c',t),trim:st>=4?'#9a7aff':'#2a2a32'}};
  return {n,hat:st<2?'hood':'eboshi',beard:st>=7?1:0,wpn:'gohei',C:{hat:st<2?'#a8a090':'#1a1a1a',hatL:st<2?'#c8c0b0':'#3a3a3a',band:st>=5?'#8a3ac8':'#a8a090',robe:mixC('#c8c0b0','#f4f4fc',t),robeS:mixC('#a8a090','#c8c8e0',t),trim:st>=3?mixC('#c03030','#8a3ac8',t):'#a8a090',beard:'#2a2a2a',beardS:'#1a1a1a'}};}
 const HEROC={};
-function heroSpr(cls,st,back){
- const k=cls+st+(back?'b':'');
- return HEROC[k]||(HEROC[k]=buildHero16(cls,st,back));
-}
+function heroSpr(cls,st,back){const k=cls+st+(back?'b':'');if(HEROC[k])return HEROC[k];
+ if(cls==='wizard')return HEROC[k]=back?buildWiz(st,true):WIZSPR[st];
+ return HEROC[k]=buildHero({...heroEV(cls,st),detail:cls,awakened:cls!=='archer'&&st>=5&&st<9,rosterFinal:cls!=='archer'&&st>=9},false,back);}
 const evoName=st=>heroEV(CLS().k,st).n;
 // class ability helpers
 const EMP=k=>(P?.emp?.[k]?1.6:1)*(R?.addon?.[k]?.focus?1.1:1)*(P?.asc?.[k]?1.3:1); // asc: a legendary spell learned from a scroll

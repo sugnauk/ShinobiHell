@@ -141,7 +141,68 @@ function genMap(di){
 // ---- environment texturing (baked into the floor canvas) ----
 const P1=(g,c,x,y,w,h)=>{g.fillStyle=c;g.fillRect(x,y,w||1,h||1);};
 function isoLn(g,c,x,y,n,dx){g.fillStyle=c;for(let i=0;i<n;i++)g.fillRect(x+i*2*dx,y+Math.round(i*2*ISOK),2,1);} // a line along an iso axis (follows the camera pitch)
-function drawLiquidTile(g,X,Y,x,y,lq,h,tu,tv){paintLiquidSurface(g,X,Y,lq,h,tu,tv);}
+function drawLiquidTile(g,X,Y,x0,y0,lq,h,tu,tv){
+ // neighbour checks run in the rotated grid so banks sit on the correct screen edges at every camera angle
+ const L=map.env.lc,at=(i,j)=>{const [a,b]=tileW(i,j);return a>=0&&b>=0&&a<MW&&b<MH&&map.liq[b*MW+a];},x=tu,y=tv;
+ // flat liquid fill so neighbouring tiles merge into one pool, with soft wave bands
+ for(let j=0;j<TILEH;j++){const half=dHalf(j);P1(g,L[1],X-half,Y+j,half*2,1);}
+ for(let k=0;k<3;k++){const wy=Y+3+k*4+((h*5)|0)%2,wx=X-8+((hash(x+k,y)*12)|0);P1(g,L[0],wx,wy,6+k*2,1);}
+ if(h>.3&&h<.5){P1(g,L[2],X-2+((h*30)|0)%6,Y+5,3,1);P1(g,L[2],X-1+((h*30)|0)%6,Y+6,1,1);}
+ // banks where the pool meets ground
+ const bank=lq===2?'#3a1a10':lq===4?'#c8e0f0':'#2a2418';
+ if(!at(x-1,y)){isoLn(g,bank,X-2,Y,8,-1);isoLn(g,bank,X-2,Y+1,8,-1);}
+ if(!at(x,y-1)){isoLn(g,bank,X,Y,8,1);isoLn(g,bank,X,Y+1,8,1);}
+ if(!at(x+1,y))isoLn(g,L[2],X+14,Y+HY,8,-1);
+ if(!at(x,y+1))isoLn(g,L[2],X-16,Y+HY,8,1);
+ if(lq===1||lq===5){if(h>.55&&h<.62)P1(g,L[2],X-4,Y+6,4,1);if(h<.12)P1(g,L[2],X+3,Y+9,3,1);}
+ if(lq===2){if(h<.4)P1(g,'#ffd060',X-3+((h*40)|0)%6,Y+7,2,1);if(h>.85)P1(g,'#ff8020',X-6,Y+5,5,2);}
+ if(lq===3&&h>.8){P1(g,L[2],X-2,Y+6,2,2);}
+ if(lq===4){isoLn(g,'#ffffff',X-6,Y+5,3,1);if(h>.6)isoLn(g,'#e0f0ff',X+2,Y+8,3,-1);}
+ // lily pads in the swamp
+ if(map.env.k==='swamp'&&lq===1&&h>.78){const ox=((h*91)|0)%10-5;P1(g,'#14101a',X+ox-3,Y+6,7,4);P1(g,'#4a8a3a',X+ox-2,Y+7,5,2);P1(g,'#6aaa4a',X+ox-1,Y+7,2,1);if(h>.95)P1(g,'#f8a0c0',X+ox,Y+6,2,1);}
+}
+function floorDeco(g,X,Y,x,y,h,th){
+ const k=map.env.k,h2=hash(x+57,y+13),cx=X-6+((h*997)|0)%12,cy=Y+5+((h*571)|0)%6;
+ const nearLiq=map.liq[(y)*MW+x+1]||map.liq[(y+1)*MW+x]||map.liq[y*MW+x-1]||map.liq[(y-1)*MW+x];
+ const tuft=(c,c2)=>{P1(g,c,cx,cy,1,2);P1(g,c,cx+2,cy-1,1,3);P1(g,c2||c,cx+4,cy,1,2);};
+ const reeds=()=>{for(let i=0;i<3;i++){const rx=X-5+i*4+((h2*7)|0)%3,hh=4+((h*13+i*5)|0)%4;P1(g,'#5a7a2a',rx,Y+10-hh,1,hh);P1(g,'#7a4a20',rx,Y+9-hh,1,2);}};
+ switch(k){
+  case 'grass':
+   if(h<.5)tuft('#5a7a34','#6a8a40');if(h>.93)P1(g,pick(['#f0e070','#f0f0f0','#e05050','#c080f0']),cx,cy,2,1);
+   if(h2<.06){P1(g,'#14101a',X-3,Y+6,7,4);P1(g,'#7a7a6a',X-2,Y+6,5,3);P1(g,'#9a9a88',X-1,Y+6,2,1);}
+   if(nearLiq&&h2>.5)reeds();break;
+  case 'swamp':
+   if(h<.35)P1(g,'#2a3420',cx-2,cy,6,2);if(h>.4&&h<.7)tuft('#4a6a2a','#5a7a30');
+   if(nearLiq&&h2>.35)reeds();if(h2<.05){P1(g,'#3a2a1a',X-4,Y+7,8,2);P1(g,'#5a4a30',X-3,Y+7,6,1);}
+   if(h>.96){P1(g,'#d8d0a0',cx,cy-2,1,2);P1(g,'#c84040',cx-1,cy-3,3,1);}break;
+  case 'stone':
+   isoLn(g,shade(th.fl[0],-.25),X-8,Y+4,8,1);if(h<.25)isoLn(g,shade(th.fl[0],-.25),X+6,Y+5,4,-1);
+   if(h>.9)P1(g,'#14101a',cx,cy,3,1),P1(g,'#14101a',cx+2,cy+1,2,1);
+   if(h2<.1)P1(g,'#3a4a2a',cx-1,cy,4,1);break;
+  case 'temple': // raked gravel garden (karesansui), the odd fallen maple leaf and a few garden stones
+   for(let i=1;i<4;i++)isoLn(g,shade(th.fl[0],-.14),X-16+4*i,Y+HY-Math.round(4*i*ISOK),8,1);
+   if(h2<.25)P1(g,pick(['#e07020','#c03020','#f0a030']),cx,cy,2,1);
+   if(h>.97){P1(g,'#14101a',X-4,Y+5,9,5);P1(g,'#5a5a62',X-3,Y+5,7,4);P1(g,'#7a7a82',X-2,Y+5,3,1);P1(g,'#3e6a32',X-3,Y+8,3,1);}break;
+  case 'planks': // tatami: straw weave inside dark cloth borders, mats two tiles long
+   for(let i=1;i<4;i++)isoLn(g,shade(th.fl[0],.07),X-16+4*i,Y+HY-Math.round(4*i*ISOK),8,1);
+   isoLn(g,'#2e3a1e',X-16,Y+HY,8,1);if(x%2===0)isoLn(g,'#2e3a1e',X,Y,8,1);
+   if(h>.96)P1(g,'#5a5a30',cx,cy,2,1);break;
+  case 'ember':
+   if(h<.35)P1(g,'#2a1410',cx-2,cy,6,2);if(h>.9){isoLn(g,'#f06020',cx-4,cy,3,1);P1(g,'#ffc040',cx,cy+1,1,1);}
+   if(h2<.04){P1(g,'#14101a',X-4,Y+6,8,3);P1(g,'#3a2418',X-3,Y+6,6,2);}break;
+  case 'snow':
+   if(h<.4)P1(g,'#ffffff',cx,cy,2,1);if(h2<.15)P1(g,'#b8c8e0',cx-3,cy+2,3,1);
+   if(h2>.96){P1(g,'#14101a',X-3,Y+6,7,4);P1(g,'#6a7a90',X-2,Y+6,5,3);P1(g,'#ffffff',X-2,Y+5,5,1);}break;
+  case 'marble': // jade tiles with a gold lattice every other tile, sakura petals
+   if(x%2===0)isoLn(g,'#c8a040',X-16,Y+HY,8,1);if(y%2===0)isoLn(g,'#c8a040',X,Y,8,1);
+   if(h<.2)isoLn(g,shade(th.fl[0],.2),cx-4,cy,3,1);if(h2<.14)P1(g,'#f8b8d0',cx,cy,2,1);break;
+  case 'cave':
+   if(h<.4)P1(g,th.sp,cx,cy,2,1);
+   if(h2>.94){const c=pick(['#c040e0','#e04060','#40c0a0']);P1(g,'#14101a',cx-2,cy-3,5,5);P1(g,'#d8d0c0',cx,cy-1,1,3);P1(g,c,cx-1,cy-2,3,1);P1(g,shade(c,.4),cx,cy-2,1,1);}break;
+  case 'blood':
+   if(h<.3)P1(g,'#3a0a10',cx-2,cy,5,2);if(h2>.95){P1(g,'#e8e0d0',cx,cy,4,1);P1(g,'#e8e0d0',cx,cy-1,1,1);P1(g,'#e8e0d0',cx+3,cy+1,1,1);}break;
+ }
+}
 // ---- special-room floors: each event room is tiled in its own style ----
 function diaIn(g,X,Y,ins,col){g.fillStyle=col;for(let j=ins;j<TILEH-ins;j++){const half=dHalf(j)-ins*2;if(half>0)g.fillRect(X-half,Y+j,half*2,1);}}
 const SPECFLOOR={
@@ -224,8 +285,8 @@ function renderMap(th){
    if(lq){drawLiquidTile(g,X,Y,x,y,lq,h,tu,tv);continue;}
    const ri=map.roomOf?.[y*MW+x]??-1,rm=map.rooms[ri],SF=rm&&SPECFLOOR[rm.type];
    const {fl,edge:ed}=profiles[ri+1];
-   paintMaterialTile(g,X,Y,x,y,rm,fl[ci],ed[ci]);
-   if(SF)SF.deco(g,X,Y,x,y,h,rm);else paintFloorDetail(g,X,Y,x,y,h,th);
+   for(let j=0;j<TILEH;j++){const half=dHalf(j);g.fillStyle=ed[ci];g.fillRect(X-half,Y+j,half*2,1);if(j>0&&j<TILEH-1&&half>2){g.fillStyle=fl[ci];g.fillRect(X-half+2,Y+j,half*2-4,1);}}
+   if(SF)SF.deco(g,X,Y,x,y,h,rm);else floorDeco(g,X,Y,x,y,h,th);
    if(map.roomOf&&!map.train)drawRoomSill(g,X,Y,x,y,ri,profiles,neighbors);
    g.fillStyle='rgba(0,0,0,.3)';
    if(!floorAtR(tu-1,tv))for(let j=0;j<HY;j++)g.fillRect(X-Math.round((j+1)/ISOK),Y+j,6,2);
@@ -277,7 +338,6 @@ function renderMap(th){
     roof('#8a6420','#b08a34');
    }
   }
-  finishWallMaterial(g,mask,v,faceY,top);
  }));
  return {floor,walls,FW,FH};
 }
