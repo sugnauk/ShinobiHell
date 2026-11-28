@@ -135,7 +135,7 @@ selConfirm=function(){if(selLock)return;if(isLocked(selIdx)){sfx('block');return
  const sp=heroSpr(C.k,lk||keys.KeyV?0:keys.KeyB?5:9),SC=4,slide=Math.round((1-ease)*14),fr=selLock?(WIZ.atk||WIZ.idle)[Math.min((WIZ.atk||[0]).length-1,Math.floor((time-selT)/.1))]:heroPose(selIdx,time);
  const dx=Math.round(cx-sp.fw*SC/2)+slide,dy=fy-sp.fh*SC+2;ctx.globalAlpha=ease;
  if(lk){ctx.drawImage(silOf(sp,C.k),fr*sp.fw,0,sp.fw,sp.fh,dx,dy,sp.fw*SC,sp.fh*SC);padlock(cx-3,fy-54,'#e0c070');}
- else{drawSpr({...sp,sc:SC},cx+slide,fy+2,false,fr,false);if(selLock){const fl=clamp(1-(time-selT)/.4,0,1);if(fl>0){ctx.globalAlpha=fl;drawSpr({...sp,sc:SC},cx+slide,fy+2,true,fr,false);}}}
+ else{ctx.drawImage(sp.c,fr*sp.fw,0,sp.fw,sp.fh,dx,dy,sp.fw*SC,sp.fh*SC);if(selLock){const fl=clamp(1-(time-selT)/.4,0,1);if(fl>0){ctx.globalAlpha=fl;ctx.drawImage(sp.wc,fr*sp.fw,0,sp.fw,sp.fh,dx,dy,sp.fw*SC,sp.fh*SC);}}}
  ctx.globalAlpha=1;
  {const nm=lk?'? ? ?':C.n,sz=txtW(nm,2)>96?1:2;txt(nm,cx-Math.round(txtW(nm,sz)/2),fy+8,col,sz);txt(I.role,cx-Math.round(txtW(I.role)/2),fy+(sz===2?24:18),lk?'#666':'#bbb');if(!lk)txt('V BASE / B AWAKENED',cx-38,fy+32,'#aaa');}
  // the details

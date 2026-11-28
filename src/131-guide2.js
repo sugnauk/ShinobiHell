@@ -16,9 +16,7 @@ function gArt(e){const s=e.art?e.art():e.spr?e.spr():null;return s&&s.c?s:null;}
 function gFrame(s,anim){const n=Math.max(1,Math.min(s.frames||1,Math.floor((s.c.width||s.fw)/s.fw)));return anim?Math.floor(time*3)%n:0;}
 // draw a sprite's frame scaled to fit a box, integer scale where it can, centred on the box's floor
 function gDraw(s,e,bx,by,bw,bh,anim,known){const sc0=Math.min(bw/s.fw,bh/s.fh),sc=sc0>=1?Math.min(3,Math.floor(sc0)):sc0,w=Math.round(s.fw*sc),h=Math.round(s.fh*sc),x=Math.round(bx+(bw-w)/2),y=Math.round(by+bh-h);
- const detail=known&&finishWorldSprite(s).hd,density=detail?2:1;
- const src=known?detail||s.c:silhouette(s.c,e.akey||e.n),fw=s.fw*density,fh=s.fh*density;
- ctx.imageSmoothingEnabled=false;ctx.drawImage(src,gFrame(s,anim)*fw,0,fw,fh,x,y,w,h);return {x,y,w,h};}
+ const src=known?s.c:silhouette(s.c,e.akey||e.n);ctx.imageSmoothingEnabled=false;ctx.drawImage(src,gFrame(s,anim)*s.fw,0,s.fw,s.fh,x,y,w,h);return {x,y,w,h};}
 
 guideClick=function(){for(let i=0;i<GTABS.length;i++){const x=guideTabX(i),w=txtW(GTABS[i])+8;if(m2In(x,4,w,11)){guideTab=i;guideSel=0;guideTop=0;sfx('coin');return;}}
  const L=guideEntries(guideTab);for(let j=0;j<gRows();j++){const i=guideTop+j;if(i>=L.length)break;if(m2In(GG.LX,GG.LY+4+j*GG.RH,GG.LW,GG.RH)){guideSel=i;sfx('coin');}}};

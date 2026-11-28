@@ -107,7 +107,7 @@ function drawItemIcon(it,x,y,frame){const q=it&&it.t==='gear'?(it.rare?4:(it.q||
   ctx.fillStyle=q>=4?'#2a2010':q>=3?'#221630':'#1e1828';ctx.fillRect(x,y,14,14);
   // legendary: a sparkle runs around the frame
   if(q>=4){const k=Math.floor(time*20)%60,side=Math.floor(k/15),o=k%15,P2=[[x-1+o,y-1],[x+14,y-1+o],[x+14-o,y+14],[x-1,y+14-o]][side];ctx.fillStyle='#fff';ctx.fillRect(P2[0],P2[1],1,1);}}
- if(it)drawFacetedIcon(itemIcon(it),x+1,y+1);}
+ if(it)ctx.drawImage(itemIcon(it),x+1,y+1);}
 // 12x12 weapon icons per type (see the palette in itemIcon)
 const WICON={
  STAFF:['........ggg.','.......gwgg.','.......gggm.','......mM....','.....m......','....mM......','...m........','..mM........','.m..........','m...........','............','............'],

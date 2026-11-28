@@ -25,8 +25,11 @@ const masteryLook=k=>{
   if(!look.f||!original?.c)return original;
   const cached=PALC.get(original);
   if(cached?.has(look))return cached.get(look);
-  const source=look.skin?buildHero16(cls,st,back,look.skin):original;
-  const sprite=tintHeroSprite(source,look.f);
+  const source=look.skin?buildHero({...heroEV(cls,st),detail:cls,awakened:cls!=='archer'&&st>=5&&st<9,rosterFinal:cls!=='archer'&&st>=9,masterySkin:look.skin},cls==='wizard'&&st>=9,back):original;
+  const c=mk(source.c.width,source.c.height,g=>{
+   g.filter=look.f;g.imageSmoothingEnabled=false;g.drawImage(source.c,0,0);
+  });
+  const sprite={...source,c,_av:null};
   if(cached)cached.set(look,sprite);else PALC.set(original,new Map([[look,sprite]]));
   return sprite;
  };
