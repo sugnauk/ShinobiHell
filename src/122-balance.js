@@ -4,16 +4,22 @@
 //    attack still lands), and its value = single-target DPS, plus a little credit for hitting a pack (a weapon that hits all
 //    five packed foes counts 1.32x). Target value: 260 at melee reach (50) falling to ~150 at bow range (160): 260*(50/reach)^0.48.
 // 2. CLASSES: compare full attack rotations and moving guardian fights. Close-range kits have a modest edge
-//    when they stay on target. Tune signature basics separately when they account for most of the gap.
+//    when they stay on target. Class tuning applies to abilities, while basic attacks use weapon tuning.
 const WTUNE={"KATANA":0.89,"ODACHI":1.21,"SUZU BELL":2.57,"WAR FAN":2.21,"NAGINATA":1.18,"KUSARIGAMA":1.28,"STAFF":1.38,"HANKYU":1.11,"YARI":0.60,"YUMI":0.76,"CENSER":1.46,"REPEATER":0.82,"KUNAI":0.57,"SHURIKEN":0.91,"OFUDA":1.16,"SPIRIT MIRROR":0.94,"TANEGASHIMA":1.25,
  "SHADOW KATANA":.80,"HAND WRAPS":.60};
 const CTUNE={
  wizard:.88,archer:1.72,samurai:1.02,shinobi:.67,onmyoji:.80,gunner:1.25,lancer:.61,
  sumo:.63,marionettist:1.48,tengu:1.04,kagura:1.10,bloodoracle:1.42,bellwarden:1.06
 };
-{const _h=hurtE;hurtE=function(e,dmg,pd,o){if(e&&e!==P&&!(o&&o.foe)&&R){const src=o&&o.src!==undefined?o.src:castSrc;
-  if(src==='m'&&R.eq&&R.eq.wpn){const t=WTUNE[wtName(R.eq.wpn)];if(t)dmg*=t;}
-  if(src||castSrc)dmg*=CTUNE[CLS().k]||1;}
+function basicAttackPower(){
+ const weapon=R.eq?.wpn;
+ // Apply weapon tuning at the cast so switching weapons cannot change a shot already in flight.
+ return S.weaponAtk*(weapon?(WTUNE[wtName(weapon)]??1):1);
+}
+{const _h=hurtE;hurtE=function(e,dmg,pd,o){if(e&&e!==P&&!o?.foe&&R){
+  const src=o?.src!==undefined?o.src:castSrc;
+  const tuned=src||castSrc;
+  if(tuned&&tuned!=='m')dmg*=CTUNE[CLS().k]||1;}
  return _h.call(this,e,dmg,pd,o);};}
 
 // 3. BOSS HEALTH: keep each encounter's authored HP tuning, including route variants and Abyss remixes.

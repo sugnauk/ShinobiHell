@@ -45,12 +45,12 @@ const slotCd=k=>k==='m'?P.atkCd:k==='w'?P.ab.rmb:P.ab[k];
 
 // LMB - main spell
 function castBolt(){
- const p=P,a=p.aim,v=p.lo.m,mik=(p.mik>0?1.6:1)*BP();p.mik=0;
+ const p=P,a=p.aim,v=p.lo.m,power=basicAttackPower(),mik=(p.mik>0?1.6:1)*BP();p.mik=0;
  const fire=a2=>{
-  if(v===0){const n=1+S.wave,dm=S.atk*mik*(n>1?.8:1);for(let i=0;i<n;i++){const off=n===1?0:(i-(n-1)/2)*.24;projs.push(mkProj('p',p.x+Math.cos(a2)*6,p.y+Math.sin(a2)*6,a2+off,215,dm,{r:3,pd:8+S.atk*.3,life:.55*(1+S.rangeM),col:'#ff8a30',pierce:S.pierce,main:true}));}}
-  else if(v===1){const n=4+S.wave*2;for(let i=0;i<n;i++){const off=(i/(n-1)-.5)*.75+rnd(-.05,.05);projs.push(mkProj('p',p.x,p.y,a2+off,rnd(210,250),S.atk*.45*mik,{r:2,pd:4+S.atk*.15,life:.3*(1+S.rangeM),col:'#c8f',pierce:S.pierce,main:true}));}}
-  else if(v===3){const n=3+S.wave;for(let i=0;i<n;i++){const off=(i-(n-1)/2)*.32;projs.push(mkProj('p',p.x+Math.cos(a2)*6,p.y+Math.sin(a2)*6,a2+off,200,S.atk*.9*mik,{r:3,pd:9+S.atk*.3,life:.9*(1+S.rangeM),col:'#ffe060',pierce:2+S.pierce,main:true,home:true,rare:1}));}}
-  else{const n=1+S.wave;for(let i=0;i<n;i++){const off=n===1?0:(i-(n-1)/2)*.5;projs.push(mkProj('p',p.x,p.y,a2+off,125,S.atk*1.15*mik,{r:3,pd:10+S.atk*.3,life:1.5*(1+S.rangeM),col:'#8fc',pierce:S.pierce,main:true,home:true}));}}
+  if(v===0){const n=1+S.wave,dm=power*mik*(n>1?.8:1);for(let i=0;i<n;i++){const off=n===1?0:(i-(n-1)/2)*.24;projs.push(mkProj('p',p.x+Math.cos(a2)*6,p.y+Math.sin(a2)*6,a2+off,215,dm,{r:3,pd:8+power*.3,life:.55*(1+S.rangeM),col:'#ff8a30',pierce:S.pierce,main:true}));}}
+  else if(v===1){const n=4+S.wave*2;for(let i=0;i<n;i++){const off=(i/(n-1)-.5)*.75+rnd(-.05,.05);projs.push(mkProj('p',p.x,p.y,a2+off,rnd(210,250),power*.45*mik,{r:2,pd:4+power*.15,life:.3*(1+S.rangeM),col:'#c8f',pierce:S.pierce,main:true}));}}
+  else if(v===3){const n=3+S.wave;for(let i=0;i<n;i++){const off=(i-(n-1)/2)*.32;projs.push(mkProj('p',p.x+Math.cos(a2)*6,p.y+Math.sin(a2)*6,a2+off,200,power*.9*mik,{r:3,pd:9+power*.3,life:.9*(1+S.rangeM),col:'#ffe060',pierce:2+S.pierce,main:true,home:true,rare:1}));}}
+  else{const n=1+S.wave;for(let i=0;i<n;i++){const off=n===1?0:(i-(n-1)/2)*.5;projs.push(mkProj('p',p.x,p.y,a2+off,125,power*1.15*mik,{r:3,pd:10+power*.3,life:1.5*(1+S.rangeM),col:'#8fc',pierce:S.pierce,main:true,home:true}));}}
  };
  fire(a);if(S.echo&&Math.random()<.15*S.echo)fire(a+.12);
  p.atkCd=(v===0?.3:v===3?.38:.5)/S.aspd;sfx('shoot');spark(p.x+Math.cos(a)*8,p.y+Math.sin(a)*8,SPELLS.m[v].c,3,40);

@@ -45,7 +45,7 @@ function rollQ(di,bias){const w=[Math.max(12,60-6*di),28,8+2.5*di,2+2*di];let r=
 const tierFor=(di,b)=>clamp(Math.floor(di*1.35)+ri(0,1)+(b||0),0,TMAX);
 function gearVals(g){const t=g.tier,m=QUAL[g.q||0].m;return g.slot==='wpn'?{atk:Math.round((2+t*.9)*m)}:g.slot==='arm'?{hp:Math.round((6+t*4)*m),def:Math.round((1+t*.4)*m)}:{sv:Math.round((2+t*.5)*m)};}
 function gearLines(g){const v=gearVals(g),L=['T'+(g.tier+1)+' '+QUAL[g.q||0].n+' '+(g.slot==='wpn'?wtName(g):SLOTNAME[g.slot])];
- if(g.slot==='wpn'){const v=wpnLMB(g),sp=SPELLS.m[v];L.push('LMB: '+sp.n+(g.rare&&v!==3?' (EMPOWERED)':'')+(isSig(g)?' SIGNATURE +25%':''));}
+ if(g.slot==='wpn'){const v=wpnLMB(g),sp=SPELLS.m[v];L.push('LMB: '+sp.n+(g.rare&&v!==3?' (EMPOWERED)':''));}
  if(v.atk)L.push('+'+v.atk+' POWER');if(v.hp)L.push('+'+v.hp+' HP  +'+v.def+' DEF');if(v.sv)L.push('+'+v.sv+' '+STATS.find(s=>s.k===g.stat).n);
  if(g.rd)L.push(g.rd);for(const a of g.aff||[])L.push(AFX.find(x=>x.k===a).d);for(const e of g.ench||[]){const E=ENCH.find(x=>x.k===e);L.push('ENCH '+E.n+': '+E.d);}
  const st=setOf(g);if(st)L.push(st+' SET PIECE');return L;}

@@ -51,7 +51,7 @@ function startDaily(){const D=dailyToday();meta.cls=D.cls;saveMeta();DPEND={k:D.
  if(dHas('moon')&&map&&map.expl)for(let i=0;i<map.expl.length;i++)if(map.t[i])map.expl[i]=1;return r;};}
 // ---- your numbers
 {const _cs=calcStats;calcStats=function(){const s=_cs.apply(this,arguments);const D=DAILY();if(D&&s){const f=dailyFx(D);
- s.atk*=f.deal;s.maxhp=Math.max(1,Math.round(s.maxhp*f.maxhp));s.spd*=f.spd;s.cdr*=f.cdr;s.dashCd*=f.dash;}return s;};}
+ scalePower(s,f.deal);s.maxhp=Math.max(1,Math.round(s.maxhp*f.maxhp));s.spd*=f.spd;s.cdr*=f.cdr;s.dashCd*=f.dash;}return s;};}
 {const _hp=hitPlayer;hitPlayer=function(raw){const D=DAILY();if(D&&!(R&&R.training)){const a=[...arguments];a[0]=raw*dailyFx(D).taken;return _hp.apply(this,a);}return _hp.apply(this,arguments);};}
 // ---- the foes
 {const _mk=mkEnemy;mkEnemy=function(){const e=_mk.apply(this,arguments);const D=DAILY();if(D&&e){const f=dailyFx(D);e.hp*=f.foeHp;e.maxhp*=f.foeHp;e.spd*=f.foeSpd;}return e;};}

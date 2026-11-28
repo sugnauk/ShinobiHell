@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.8.22: Weapon damage across heroes
+
+- Give the same weapon the same basic-attack damage across all heroes with equivalent equipment and upgrades. Legendary staves use Kami Seekers for every wielder.
+
 ## 0.8.21: Restore the classic art
 
 - Restore the original hero sprites, animations, and portraits from before the 0.8.17 art pass.

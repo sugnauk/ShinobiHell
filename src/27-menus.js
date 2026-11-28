@@ -140,7 +140,7 @@ function renderSelect(){
  txt(C.d,16,py+14,'#ddd');
  const ST=[['HEALTH',(C.hp-.7)/.7],['SPEED',(C.spd-.9)/.3],['DASH',(1.3-C.dash)/.7],['DEFENSE',(C.def+.5)/4],['POWER',((C.pw||1)-.8)/.5]];
  ST.forEach(([n,f],i)=>{const y=py+26+i*9;txt(n,16,y,'#aaa');bar(56,y,62,4,f,C.col,'#2a2030');});
- txt('STARTS WITH T0 '+WSIG[C.k]+'  SIGNATURE: +25% LMB',16,py+70,'#e0b040');
+ txt('STARTS WITH T0 '+WSIG[C.k],16,py+70,'#e0b040');
  txt('STARTING KIT',132,py+24,'#d02030');
  [...SLOTS].forEach((k,i)=>{const s=SPELLS[k][C.kit[k]],y=py+33+i*7;txt(SLOTKEY[k],132,y,'#777');txt(s.n,150,y,s.c);});
  // the fully evolved form, so you can see where the class ends up
@@ -295,7 +295,7 @@ const TERMS=[['FOCUS (SHIFT)','HOLD SHIFT TO MOVE SLOWLY. YOUR HITBOX SHRINKS','
  ['RED CIRCLES','TELEGRAPHED STRIKES. THEY CANNOT BE WARDED.','GET OUT BEFORE THEY BURST'],
  ['CURSE','TAKE +25% DAMAGE, DEAL +30%, PER CURSE, ALL RUN.','YOUR NEXT KILL DROPS A RARE BAG'],
  ['EMPOWERED','+60% POWER AND -'+cdPct(COOLDOWN.empowered)+' COOLDOWN FOR ONE SLOT'],
- ['SIGNATURE WEAPON','YOUR CLASS WEAPON TYPE: +25% LMB DAMAGE'],
+ ['WEAPON DAMAGE','THE EQUIPPED WEAPON AND RUN UPGRADES SET BASIC ATTACK DAMAGE FOR EVERY HERO'],
  ['EFFECT COLOURS','RED DAMAGE, GREEN HEAL, ORANGE FIRE, ICE FROST,','YELLOW STORM, LIME POISON, CYAN SPEED, STEEL GUARD'],
  ['STRENGTH I - IV','I IS A CHANCE OR SMALL. IV IS HUGE'],
  ['CAMERA',', AND . ROTATE THE VIEW 90 DEGREES'],
@@ -348,7 +348,7 @@ function guideEntries(tab){const g=meta.guide||{},has=(c,k)=>!!(g[c]&&g[c][k]);
  if(tab===1)return BOSS.map((b,i)=>{const u=has('e','boss'+i),S2=BSTYLE[i]||BSTYLE[0];const K=BKIT[b.name];if(K&&K.guide)return {n:b.name,u,col:(K.style&&K.style.c)||S2.c,L:u?['GUARDIAN OF '+ROMAN[i]+'. '+DUN[i].name].concat(K.guide):['DEFEAT THIS GUARDIAN TO LEARN ABOUT IT']}; // the scripted fights (bosses.js) describe themselves
   return {n:b.name,u,col:S2.c,L:u?['GUARDIAN OF '+ROMAN[i]+'. '+DUN[i].name,'PHASES: '+S2.t.join(' > '),'EACH NEW PHASE OPENS WITH A SURVIVAL PHASE','ATTACKS: '+[...new Set((b.k1||[]).concat(b.k2||[]).map(atkWords))].slice(0,4).join(', ')]:['DEFEAT THIS GUARDIAN TO LEARN ABOUT IT']};});
  if(tab===2)return ITEMS.map(it=>{const u=has('r',it.id);return {n:it.name,u,col:fxCol(it.id),relic:it.id,L:u?[FXNAME[fxStyle(it.id)]+' RELIC, STRENGTH '+ROM[it.r],it.d,'RELICS ARE RULES FOR THE WHOLE RUN']:['FIND THIS RELIC TO LEARN ABOUT IT']};});
- if(tab===3)return [...Object.keys(WTYPES).map(w=>{const u=has('w',w),sp=SPELLS.m[WTYPES[w]],sig=Object.keys(WSIG).filter(c=>WSIG[c]===w).join(', ');return {n:w,u,col:'#e8eef6',L:u?['WEAPON. YOUR LMB BECOMES: '+sp.n,sp.d,'SIGNATURE FOR: '+(sig||'NO CLASS')]:['WIELD ONE TO LEARN ABOUT IT']};}),
+ if(tab===3)return [...Object.keys(WTYPES).map(w=>{const u=has('w',w),sp=SPELLS.m[WTYPES[w]],sig=Object.keys(WSIG).filter(c=>WSIG[c]===w).join(', ');return {n:w,u,col:'#e8eef6',L:u?['WEAPON. YOUR LMB BECOMES: '+sp.n,sp.d,'STARTING WEAPON FOR: '+(sig||'NO HERO')]:['WIELD ONE TO LEARN ABOUT IT']};}),
   ...BAGN.map((nm,t)=>{const u=has('b',t);return {n:nm,u,col:BAGCOL[t],bag:t,L:u?[BAGDESC[t]||'']:['OPEN ONE TO LEARN WHAT IT HOLDS']};})];
  if(tab===4)return [...ENCH.map(E=>{const u=has('n',E.k);return {n:'ENCHANT '+E.n,u,col:E.c,L:u?[E.d,'A CHANCE ON EVERY ABILITY HIT (RMB Q E F R)','BOUND TO YOUR WEAPON: SWAP WEAPONS AND THEY STAY','ON THE OLD ONE. STACKS (II, III...), UP TO 5']:['FIND THIS ENCHANT TO LEARN ABOUT IT']};}),
   {n:'TECHNIQUE SCROLL',u:has('s','technique'),col:'#93d6de',L:has('s','technique')?['ADD A SMALL POWER, COOLDOWN OR CRIT BONUS','TO ONE ABILITY FOR THE REST OF THE RUN']:['FIND A TECHNIQUE SCROLL TO LEARN MORE']},

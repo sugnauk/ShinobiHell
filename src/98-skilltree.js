@@ -110,7 +110,7 @@ function templeLootQuality(quality,maxQuality){
 // ---------------------------------------------------------------- effects
 {const _cs=calcStats;calcStats=function(){const s=_cs(),t=stTot();
   const K=TEMPLE_KEYSTONE;
-  s.atk*=1+(t.pow||0);s.crit+=t.crit||0;s.aspd*=1+(t.aspd||0);s.cdr*=Math.max(.4,1-(t.cdr||0));s.spd*=1+(t.spd||0);s.dashCd*=Math.max(.4,1-(t.dash||0));s.rangeM+=t.range||0;s.maxhp=Math.round(s.maxhp*(1+(t.hp||0)));s.def+=t.def||0;s.dodge=(s.dodge||0)+(t.dodge||0);s.sen*=1+(t.gold||0);
+  scalePower(s,1+(t.pow||0));s.crit+=t.crit||0;s.aspd*=1+(t.aspd||0);s.cdr*=Math.max(.4,1-(t.cdr||0));s.spd*=1+(t.spd||0);s.dashCd*=Math.max(.4,1-(t.dash||0));s.rangeM+=t.range||0;s.maxhp=Math.round(s.maxhp*(1+(t.hp||0)));s.def+=t.def||0;s.dodge=(s.dodge||0)+(t.dodge||0);s.sen*=1+(t.gold||0);
   if(KS('COLOSSUS')){s.maxhp=Math.round(s.maxhp*(1+K.colossus));s.spd*=1-K.colossusSpeed;}
   if(KS('TIME WEAVER')){s.cdr*=1-COOLDOWN.timeWeaver;s.dashCd*=1+K.timeDash;}
   if(KS('GHOST STEP')){s.dodge+=K.ghostDodge;s.dashCd*=1-COOLDOWN.ghostStep;}

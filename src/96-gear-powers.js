@@ -75,10 +75,12 @@ const GPS={hits:0,meteorT:0,lastHit:-9,novaT:0,guardT:0,trailT:0,orbA:0,orbs:[],
 // on hit
 {const _he=hurtE;hurtE=function(e,dmg,pd,o){const alive=e&&!e.dead,h0=e?e.hp:0;const r=_he(e,dmg,pd,o);o=o||{};
   if(!R||!P||!alive||o.gp||e.prop||e.hp>=h0)return r;GPS.hits++;
-  const ch=PWL('chain');if(ch&&R.time-GPS.lastChain>.12){GPS.lastChain=R.time;let n=0;for(const f of enemies){if(n>=2)break;if(f===e||f.dead||f.air||f.prop||Math.hypot(f.x-e.x,f.y-e.y)>80)continue;n++;fx.push({k:'bolt',pts:[{x:e.x,y:e.y},{x:f.x,y:f.y}],t:.15,dur:.15});hurtE(f,dmg*.25*ch,5,{gp:1,nost:true,el:'shock'});}}
+  const basic=(o.src??castSrc)==='m',power=basic?S.weaponAtk:S.atk;
+  const effect={gp:1,nost:true,el:'shock',src:basic?'m':undefined};
+  const ch=PWL('chain');if(ch&&R.time-GPS.lastChain>.12){GPS.lastChain=R.time;let n=0;for(const f of enemies){if(n>=2)break;if(f===e||f.dead||f.air||f.prop||Math.hypot(f.x-e.x,f.y-e.y)>80)continue;n++;fx.push({k:'bolt',pts:[{x:e.x,y:e.y},{x:f.x,y:f.y}],t:.15,dur:.15});hurtE(f,dmg*.25*ch,5,effect);}}
   const ec=PWL('echo');if(ec&&Math.random()<.2*ec)GPS.echoQ.push({e,dmg:dmg*.5,t:.14});
-  const st=PWL('storm');if(st&&GPS.hits%4===0){fx.push({k:'bolt',pts:[{x:e.x,y:e.y-60},{x:e.x,y:e.y}],t:.2,dur:.2});hurtE(e,S.atk*1.6*st,20,{gp:1,nost:true,el:'shock'});sfx('shoot');}
-  const mt=PWL('meteor');if(mt&&GPS.meteorT<=0){GPS.meteorT=6;fx.push({k:'ult',x:e.x,y:e.y,wait:.35,t:.35,dur:.35,r:30+12*mt,col:'#ff8030',dm:S.atk*4*mt,met:1,done:false});txtFx(e.x,e.y-14,'METEOR','#ff8030');}
+  const st=PWL('storm');if(st&&GPS.hits%4===0){fx.push({k:'bolt',pts:[{x:e.x,y:e.y-60},{x:e.x,y:e.y}],t:.2,dur:.2});hurtE(e,power*1.6*st,20,effect);sfx('shoot');}
+  const mt=PWL('meteor');if(mt&&GPS.meteorT<=0){GPS.meteorT=6;fx.push({k:'ult',x:e.x,y:e.y,wait:.35,t:.35,dur:.35,r:30+12*mt,col:'#ff8030',dm:power*4*mt,met:1,done:false});txtFx(e.x,e.y-14,'METEOR','#ff8030');}
   return r;};}
 // on kill
 {const _k=killE;killE=function(e){const was=e&&!e.dead;_k(e);if(!was||!e.dead||e.prop||!R||!P)return;

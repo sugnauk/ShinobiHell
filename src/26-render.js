@@ -455,12 +455,12 @@ function hoverSlot(){if(mode!=='play'||!P)return null;for(let i=0;i<6;i++){const
 // tooltip lines: live numbers from current stats, items and spell rank
 function spellInfo(k){
  const v=P.lo[k],r=Math.round,ap=AP(),bp=BP(),qm=(1+.3*S.qpow)*ap,ep=(1+.25*S.epow),cd=k==='m'?null:spellCd(k)/(k==='h'?S.aspd:1),L=[];
- const A=S.atk;
+ const A=k==='m'?basicAttackPower():S.atk;
  if(v>=4){const sp=SPELLS[k][v],em=EMP(k),base=sp.db==='b'?bp:sp.db==='q'?qm:sp.db==='e'?ep*ap*(1+.06*RK()):ap;
   if(em>1)L.push('EMPOWERED: +60% POWER, -'+cdPct(COOLDOWN.empowered)+' COOLDOWN');if(sp.dm)L.push('DAMAGE '+r(A*sp.dm*base*em)+(sp.dx||''));if(sp.x)L.push(sp.x);if(k==='h')L.push('HOLD RMB 0.6S FOR A FULL CHARGE');
   if(sp.dm)L.push('FORMULA  POWER '+r(A)+' X '+sp.dm+' X '+(base*em).toFixed(2));if(k==='m')L.push((1/((LMBRATE[v]||.3)/S.aspd)).toFixed(1)+' CASTS/S');
   L.push((cd?'COOLDOWN '+cd.toFixed(1)+'S   ':'')+'CRIT '+r(S.crit*100)+'%');return L;}
- if(v===3)L.push('RARE SCROLL - LASTS THIS RUN');
+ if(v===3&&k!=='m')L.push('RARE SCROLL - LASTS THIS RUN');
  if(k==='m'&&v===3){const rate=(1/(.38/S.aspd)).toFixed(1);L.push('DAMAGE '+r(A*.9*bp)+' X '+(3+S.wave)+' SEEKERS, PIERCE '+(2+S.pierce),rate+' CASTS/S','FORMULA  POWER '+r(A)+' X 0.9 X RANK '+bp.toFixed(2));}
  else if(k==='h'&&v===3)L.push('SLASH '+r(A*2.2*bp)+' + WAVE '+r(A*1.6*bp)+' PIERCES ALL','BOTH CUT ENEMY SHOTS');
  else if(k==='q'&&v===3)L.push('SMITES '+(5+Math.floor(RK()/4))+' FOES FOR '+r(A*3.6*qm)+' EACH','SPLASH 50%. STUNS 1S. SHOCKS','FORMULA  POWER '+r(A)+' X 3.6 X '+qm.toFixed(2));

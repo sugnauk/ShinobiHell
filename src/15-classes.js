@@ -39,24 +39,30 @@ SPELLS.m.push(
  {n:'SUZU PULSE',g:'o',c:'#ffe080',d:'BELL RING HITS ALL FOES AROUND YOU',dm:.9,db:'b'},
  {n:'SPIRIT MIRROR',g:'|',c:'#e0f0ff',d:'PIERCING BEAM OF LIGHT',dm:1.3,db:'b'});
 // every weapon type and the LMB attack it gives. Any class can wield any type;
-// each class mostly finds its own family and gets +25% LMB damage with its SIGNATURE type.
+// each class mostly finds its own weapon family.
 const WTYPES={STAFF:0,'WAR FAN':1,CENSER:2,KATANA:4,'SHADOW KATANA':4,NAGINATA:8,ODACHI:9,YUMI:5,HANKYU:10,REPEATER:11,KUNAI:6,SHURIKEN:12,KUSARIGAMA:13,OFUDA:7,'SUZU BELL':14,'SPIRIT MIRROR':15};
 const WFAM={wizard:['STAFF','WAR FAN','CENSER'],samurai:['KATANA','NAGINATA','ODACHI'],archer:['YUMI','HANKYU','REPEATER'],
  shinobi:['SHADOW KATANA','KUNAI','SHURIKEN','KUSARIGAMA'],onmyoji:['OFUDA','SUZU BELL','SPIRIT MIRROR']};
-const WSIG={wizard:'STAFF',samurai:'KATANA',archer:'YUMI',shinobi:'SHADOW KATANA',onmyoji:'OFUDA'},SIGBONUS=1.25;
+const WSIG={wizard:'STAFF',samurai:'KATANA',archer:'YUMI',shinobi:'SHADOW KATANA',onmyoji:'OFUDA'};
 const LMBRATE={0:.3,1:.5,2:.5,3:.38,4:.3,5:.22,6:.2,7:.3,8:.4,9:.75,10:.3,11:.11,12:.28,13:.38,14:.45,15:.42};
 const wfam=()=>WFAM[CLS().k];
 function rollWT(){return Math.random()<.75?pick(wfam()):pick(Object.keys(WTYPES));}
-const wtName=g=>(g&&typeof g.wt==='string')?g.wt:WSIG[CLS().k];
-// Old Shinobi saves and the legendary katana retain the same signature bonus.
-const isSig=g=>{const k=CLS().k,w=wtName(g);return w===WSIG[k]||k==='shinobi'&&w==='KATANA';};
-// legendary weapons: a wizard's legendary staff fires Kami Seekers; every other legendary empowers its attack
-function wpnLMB(g){if(!g)return WTYPES[WSIG[CLS().k]];if(g.rare&&CLS().k==='wizard'&&wtName(g)==='STAFF')return 3;return WTYPES[wtName(g)];}
+function wtName(g){
+ if(!g)return WSIG[CLS().k];
+ if(typeof g.wt==='string'&&Object.hasOwn(WTYPES,g.wt))return g.wt;
+ // Older items may have a display name without a saved weapon type.
+ const named=g.rare&&RARE.find(r=>r.n===g.name)?.wt;
+ if(named)return named;
+ const name=g.name||'';
+ return Object.keys(WTYPES).sort((a,b)=>b.length-a.length).find(w=>name===w||name.endsWith(' '+w))||'STAFF';
+}
+// Legendary staves fire Kami Seekers. Other legendary weapons empower their usual attack.
+function wpnLMB(g){const w=wtName(g);return g?.rare&&w==='STAFF'?3:WTYPES[w];}
 function syncLMB(){if(!P||!R||!R.eq)return;const g=R.eq.wpn;
  // enchants live ON the equipped weapon: R.ench is that weapon's list (swap weapons and its enchants come with it)
- R.ench=g?(g.ench=g.ench||[]):[];G('w',wtName(g));if(R.eq.ring&&R.eq.ring.stat)G('t',R.eq.ring.stat);P.lo.m=wpnLMB(g);P.emp=P.emp||{};P.emp.m=g&&g.rare&&P.lo.m!==3?1:0;P.sig=isSig(g);}
+ R.ench=g?(g.ench=g.ench||[]):[];G('w',wtName(g));if(R.eq.ring&&R.eq.ring.stat)G('t',R.eq.ring.stat);P.lo.m=wpnLMB(g);P.emp=P.emp||{};P.emp.m=g&&g.rare&&P.lo.m!==3?1:0;}
 const CLASSES=[
- {k:'wizard',n:'WIZARD',col:'#c8f',d:'RANGED SPELLS, ELEMENTAL COMBOS. +20% POWER.',pw:1.2,hp:1,spd:1,dash:1,def:0,kit:{m:0,h:1,q:0,w:0,f:0,e:0}},
+ {k:'wizard',n:'WIZARD',col:'#c8f',d:'RANGED SPELLS, ELEMENTAL COMBOS. +20% ABILITY POWER.',pw:1.2,hp:1,spd:1,dash:1,def:0,kit:{m:0,h:1,q:0,w:0,f:0,e:0}},
  {k:'archer',n:'ARCHER',col:'#8f8',d:'LONG RANGE, TRAPS AND A HAWK. FAST.',hp:.9,spd:1.08,dash:.9,def:0,kit:{m:5,h:5,q:5,w:5,f:5,e:5}},
  {k:'samurai',n:'SAMURAI',col:'#f55',d:'TOUGH AGAINST BULLETS. GUARD COUNTERS. +35% HP, +3 DEF.',hp:1.35,spd:.97,dash:1.1,def:3,kit:{m:4,h:4,q:4,w:4,f:4,e:4}},
  {k:'shinobi',n:'SHINOBI',col:'#9a7aff',d:'BLINKS AND POISON. TOUGH AGAINST BULLETS. SWIFT.',hp:.82,spd:1.15,dash:.65,def:0,kit:{m:4,h:6,q:6,w:6,f:6,e:6}},
@@ -65,7 +71,7 @@ const CLS=()=>CLASSES[(R&&R.testCls!=null)?R.testCls:((meta&&meta.cls)||0)]; // 
 // class stat modifiers + the deathblow item effect, layered on top of the base stat calculation
 {const cs0=calcStats;calcStats=function(){const s=cs0(),c=CLS();s.maxhp=Math.round(s.maxhp*c.hp);s.atk*=c.pw||1;s.spd*=c.spd;s.dashCd*=c.dash;s.def+=c.def;
  // skill tree nodes (temple)
- s.crit+=TEMPLE_LEGACY.crit*upLv('crit');s.atk*=1+TEMPLE_LEGACY.wrath*upLv('wrath');s.def+=TEMPLE_LEGACY.iron*upLv('iron');s.spd*=1+TEMPLE_LEGACY.swift*upLv('swift');s.dashCd*=Math.pow(1-COOLDOWN.dashRank,upLv('dashm'));s.dblow=relicPower('dblow')+(R&&R.eq?(gearStats().fx.dblow||0):0);return s;};}
+ s.crit+=TEMPLE_LEGACY.crit*upLv('crit');scalePower(s,1+TEMPLE_LEGACY.wrath*upLv('wrath'));s.def+=TEMPLE_LEGACY.iron*upLv('iron');s.spd*=1+TEMPLE_LEGACY.swift*upLv('swift');s.dashCd*=Math.pow(1-COOLDOWN.dashRank,upLv('dashm'));s.dblow=relicPower('dblow')+(R&&R.eq?(gearStats().fx.dblow||0):0);return s;};}
 // ten evolution names and looks per class
 const EVONAMES={samurai:['RONIN','FOOTMAN','ASHIGARU','SWORDSMAN','HATAMOTO','SAMURAI','KENSHI','WARLORD','SHOGUN BLADE','KENSEI'],
  archer:['HUNTER','SCOUT','BOWMAN','MARKSMAN','RANGER','SHARPSHOOTER','HAWKEYE','WINDSTRIDER','STORM ARCHER','MASTER ARCHER'],
@@ -88,7 +94,7 @@ function setCd(k){if(k==='m')return;if(k==='h')P.ab.h=spellCd('h')/S.aspd;else i
 function lineHit(x,y,a,len,wid,fn){for(const e of enemies){if(e.dead||e.air)continue;const dx=e.x-x,dy=e.y-y,al=dx*Math.cos(a)+dy*Math.sin(a),pe=Math.abs(-dx*Math.sin(a)+dy*Math.cos(a));if(al>-6&&al<len+e.r&&pe<wid+e.r&&los(x,y,e.x,e.y))fn(e);}}
 function nearestFoe(x,y,r){let best=null,bd=r;for(const e of enemies){if(e.dead||e.air||e.type==='turret')continue;const d=Math.hypot(e.x-x,e.y-y);if(d<bd&&los(x,y,e.x,e.y)){bd=d;best=e;}}return best;}
 const pShot=(x,y,a,sp,dmg,o)=>projs.push(mkProj('p',x,y,a,sp,dmg,Object.assign({main:true,pierce:S.pierce,pd:8,life:.6*(1+S.rangeM)},o||{})));
-function classCast(k){const p=P,v=p.lo[k],a=p.aim,em=EMP(k),A=S.atk,bp=BP()*(p.mik>0&&(k==='m'||k==='h')?1.6:1)*(k==='h'&&p.hFull?1.5:1),ap=AP(),qm=(1+.3*S.qpow)*ap,ep=(1+.25*S.epow)*(1+.06*RK())*ap,rage=1;
+function classCast(k){const p=P,v=p.lo[k],a=p.aim,em=EMP(k),A=k==='m'?basicAttackPower():S.atk,bp=BP()*(p.mik>0&&(k==='m'||k==='h')?1.6:1)*(k==='h'&&p.hFull?1.5:1),ap=AP(),qm=(1+.3*S.qpow)*ap,ep=(1+.25*S.epow)*(1+.06*RK())*ap,rage=1;
  if(p.stag>0)return;if(k==='m'&&p.atkCd>0)return;if(k==='h'&&p.ab.h>0)return;if(k==='w'&&p.ab.rmb>0)return;if('qfe'.includes(k)&&p.ab[k]>0)return;
  if(k==='m'||k==='h')p.mik=0;
  const mw=mouseWorld(),clampT=(d)=>{d*=1.4;let tx=mw.x,ty=mw.y;const dd=Math.hypot(tx-p.x,ty-p.y);if(dd>d){tx=p.x+(tx-p.x)/dd*d;ty=p.y+(ty-p.y)/dd*d;}return {x:tx,y:ty};};

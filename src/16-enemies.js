@@ -1,26 +1,26 @@
 'use strict';
 // HELL OF THE EMPEROR - status effects, elites, extra foes, bullet patterns (part of the former game.js; files load in numeric order, see index.html)
 // ---------- status effects & reactions ----------
-function applyStatus(e,k){
- if(e.dead)return;const st=e.st||(e.st={});
- if(k==='burn'&&(st.chillT>0||st.frozen>0))return react(e,'steam');
- if(k==='chill'&&st.burn>0)return react(e,'steam');
- if(k==='chill'&&st.shock>0)return react(e,'supercon');
- if(k==='shock'&&(st.chillT>0||st.frozen>0))return react(e,'supercon');
- if(k==='burn'){if(st.shock>0)return react(e,'overload');st.burn=3;st.bdps=Math.max(st.bdps||0,3+S.atk*.25);}
- else if(k==='poison'){st.poison=4;st.pdps=Math.min(4+S.atk*1.2,(st.pdps||0)+1.5+S.atk*.12);}
- else if(k==='shock'){if(st.burn>0)return react(e,'overload');st.shock=2;}
+function applyStatus(e,k,src=castSrc){
+ if(e.dead)return;const st=e.st||(e.st={}),power=src==='m'?S.weaponAtk:S.atk;
+ if(k==='burn'&&(st.chillT>0||st.frozen>0))return react(e,'steam',src);
+ if(k==='chill'&&st.burn>0)return react(e,'steam',src);
+ if(k==='chill'&&st.shock>0)return react(e,'supercon',src);
+ if(k==='shock'&&(st.chillT>0||st.frozen>0))return react(e,'supercon',src);
+ if(k==='burn'){if(st.shock>0)return react(e,'overload',src);st.burn=3;st.bdps=Math.max(st.bdps||0,3+power*.25);}
+ else if(k==='poison'){st.poison=4;st.pdps=Math.min(4+power*1.2,(st.pdps||0)+1.5+power*.12);}
+ else if(k==='shock'){if(st.burn>0)return react(e,'overload',src);st.shock=2;}
  else if(k==='chill'){if(st.frozen>0)return;st.chillT=3;st.chillS=(st.chillS||0)+1;if(st.chillS>=3){st.chillS=0;st.chillT=0;st.frozen=e.boss?.9:1.8;e.act=null;e.tele=0;txtFx(e.x,e.y,'FROZEN','#8cf');sfx('block');}}
 }
-function react(e,k){
- const st=e.st;
+function react(e,k,src=castSrc){
+ const st=e.st,power=src==='m'?S.weaponAtk:S.atk,hit={nost:true,src:src==='m'?'m':undefined};
  if(k==='steam'){st.burn=0;st.chillT=0;st.chillS=0;if((e.rcd||0)>0)return;e.rcd=.8;txtFx(e.x,e.y,'STEAM','#dde');fxRing(e.x,e.y,44,'#dde',.4);sfx('dash');
   for(let i=0;i<24;i++){const a=Math.random()*TAU,s=rnd(20,70);particles.push({x:e.x,y:e.y,vx:Math.cos(a)*s,vy:Math.sin(a)*s,t:rnd(.5,1),col:pick(['#fff','#dde','#aab'])});}
-  for(const o of enemies){if(o.dead||o.air)continue;if(los(e.x,e.y,o.x,o.y)&&Math.hypot(o.x-e.x,o.y-e.y)<44+o.r){hurtE(o,S.atk*1.3,15,{nost:true});if(!o.dead&&!o.boss){o.act=null;o.tele=0;o.stun=Math.max(o.stun||0,1.4);}if(!o.dead)o.blind=2.5;}}return;}
+  for(const o of enemies){if(o.dead||o.air)continue;if(los(e.x,e.y,o.x,o.y)&&Math.hypot(o.x-e.x,o.y-e.y)<44+o.r){hurtE(o,power*1.3,15,hit);if(!o.dead&&!o.boss){o.act=null;o.tele=0;o.stun=Math.max(o.stun||0,1.4);}if(!o.dead)o.blind=2.5;}}return;}
  if(k==='supercon'){st.shock=0;st.chillT=0;st.chillS=0;if((e.rcd||0)>0)return;e.rcd=.8;txtFx(e.x,e.y,'SUPERCONDUCT','#8ef');fxRing(e.x,e.y,38,'#8ef',.35);spark(e.x,e.y,'#8ef',18,100);impact(e.x,e.y,'#8ef',3);
-  for(const o of enemies){if(o.dead||o.air)continue;if(los(e.x,e.y,o.x,o.y)&&Math.hypot(o.x-e.x,o.y-e.y)<38+o.r){hurtE(o,S.atk*1.1,60+S.atk,{nost:true});if(!o.dead){o.zs=.4;checkBreak(o);}}}return;}
+  for(const o of enemies){if(o.dead||o.air)continue;if(los(e.x,e.y,o.x,o.y)&&Math.hypot(o.x-e.x,o.y-e.y)<38+o.r){hurtE(o,power*1.1,60+power,hit);if(!o.dead){o.zs=.4;checkBreak(o);}}}return;}
  if(k==='overload'){st.burn=0;st.shock=0;if((e.rcd||0)>0)return;e.rcd=.8;txtFx(e.x,e.y,'OVERLOAD','#fd4');fxRing(e.x,e.y,40,'#fd4',.3);spark(e.x,e.y,'#fd4',16,110);shake=Math.max(shake,3);sfx('break');
-  for(const o of enemies){if(o.dead||o.air)continue;if(los(e.x,e.y,o.x,o.y)&&Math.hypot(o.x-e.x,o.y-e.y)<40+o.r)hurtE(o,S.atk*1.6,25,{nost:true});}}
+  for(const o of enemies){if(o.dead||o.air)continue;if(los(e.x,e.y,o.x,o.y)&&Math.hypot(o.x-e.x,o.y-e.y)<40+o.r)hurtE(o,power*1.6,25,hit);}}
 }
 
 // ---------- elites ----------

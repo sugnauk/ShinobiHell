@@ -59,7 +59,7 @@ const NEWCAST={
 };
 {const _cc=classCast;classCast=function(k){const p=P;if(!p)return;const v=p.lo[k],code=v*10+'mhqwfe'.indexOf(k),fn=NEWCAST[code];if(!fn)return _cc(k);
   if(p.stag>0)return;if(k==='m'&&p.atkCd>0)return;if(k==='h'&&p.ab.h>0)return;if(k==='w'&&p.ab.rmb>0)return;if('qfe'.includes(k)&&p.ab[k]>0)return;
-  const em=EMP(k),A=S.atk,bp=BP()*(k==='h'&&p.hFull?1.5:1),ap=AP(),qm=(1+.3*S.qpow)*ap,ep=(1+.25*S.epow)*(1+.06*RK())*ap;
+  const em=EMP(k),A=k==='m'?basicAttackPower():S.atk,bp=BP()*(k==='h'&&p.hFull?1.5:1),ap=AP(),qm=(1+.3*S.qpow)*ap,ep=(1+.25*S.epow)*(1+.06*RK())*ap;
   const mik=p.mik;
   if(k==='m'||k==='h')p.mik=0;
   if(fn({p,a:p.aim,A,bp,em,ap,qm,ep,mik})!==false)setCd(k);};}

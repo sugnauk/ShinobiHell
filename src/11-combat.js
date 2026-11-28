@@ -62,7 +62,7 @@ function hurtE(e,dmg,pd,o){
  o=o||{};
  // which slot did this hit come from? abilities (not LMB) also carry enchants + scroll add-ons
  const src=o.src!==undefined?o.src:castSrc,AF=src&&src!=='m'&&!o.chain&&R?abFx(src):null;
- if(src==='m'&&!o.chain&&P&&P.sig)dmg*=SIGBONUS; // signature weapon bonus
+ const power=src==='m'?S.weaponAtk:S.atk;
  const finishing=e.stag>0&&o.slash&&S.dblow;
  if(finishing&&!bossDeathblowTarget(e)){deathblow(e);return;}
  if(e.stag>0)dmg*=1.5;
@@ -82,20 +82,20 @@ function hurtE(e,dmg,pd,o){
  e.hp-=dmg;
  // run stats: damage per source slot (m h q w f e), everything else (relics, procs, reflects) is 'x'
  if(R){R.dmg=R.dmg||{};const sk=src&&'mhqwfe'.includes(src)?src:'x';R.dmg[sk]=(R.dmg[sk]||0)+Math.max(0,dmg);}e.posture+=pd;e.pdelay=1.8;e.flash=.12;wake(e);
- const big=dmg>=S.atk*1.8;
+ const big=dmg>=power*1.8;
  if(o.kb!=null&&!e.boss){const km=(e.elite==='armored'?.3:1)*(o.kbm||(big?1.6:1));e.kx+=Math.cos(o.kb)*90*km;e.ky+=Math.sin(o.kb)*90*km;}
  if(big){e.flash=.18;spark(e.x,e.y,crit?'#ff4':'#fff',8,90);}
  // feel of power without screen shake: the foe recoils from the hit, big hits and crits burst, and hits build a combo
- {const ka=o.kb!=null?o.kb:(P?Math.atan2(e.y-P.y,e.x-P.x):0),kp=Math.min(5,1.5+dmg/Math.max(1,S.atk)*1.2);e.kick={a:ka,p:kp,t:.12};}
+ {const ka=o.kb!=null?o.kb:(P?Math.atan2(e.y-P.y,e.x-P.x):0),kp=Math.min(5,1.5+dmg/Math.max(1,power)*1.2);e.kick={a:ka,p:kp,t:.12};}
  if(big||crit)fx.push({k:'burst',x:e.x,y:e.y,t:.16,dur:.16,r:crit?26:18,n:crit?10:7,a0:Math.random(),col:crit?'#ff4':'#fff'});
  if(R&&!o.chain){R.combo=(time-(R.comboAt||-9)<2?(R.combo||0):0)+1;R.comboAt=time;R.bestCombo=Math.max(R.bestCombo||0,R.combo);if(R.combo%25===0){txtFx(P.x,P.y-14,R.combo+' HIT COMBO!','#ffd040',2);fx.push({k:'burst',x:P.x,y:P.y,t:.25,dur:.25,r:34,n:14,a0:0,col:'#ffd040'});}}
- txtFx(e.x,e.y,Math.round(dmg),crit?'#ff4':big?'#ffd080':'#fff',big&&dmg>=S.atk*3?2:1);if(!o.impactCue)sfx('hit');spark(e.x,e.y,crit?'#ff4':'#fff',4,50);
+ txtFx(e.x,e.y,Math.round(dmg),crit?'#ff4':big?'#ffd080':'#fff',big&&dmg>=power*3?2:1);if(!o.impactCue)sfx('hit');spark(e.x,e.y,crit?'#ff4':'#fff',4,50);
  if(o.slash&&!o.nost){
-  if(o.el)applyStatus(e,o.el);
-  if(S.burn&&Math.random()<.35+.15*S.burn)applyStatus(e,'burn');
-  if(S.poison)applyStatus(e,'poison');
-  if(S.frost&&Math.random()<.3+.15*S.frost)applyStatus(e,'chill');
-  if(S.shock&&Math.random()<.18*S.shock){applyStatus(e,'shock');let nx=null,nd=70;for(const o2 of enemies){if(o2===e||o2.dead||o2.air||!los(e.x,e.y,o2.x,o2.y))continue;const d=dist(o2,e);if(d<nd){nd=d;nx=o2;}}if(nx){fx.push({k:'bolt',pts:[{x:e.x,y:e.y},{x:nx.x,y:nx.y}],t:.15,dur:.15});hurtE(nx,S.atk*.7,8,{nost:true,chain:true});}}
+  if(o.el)applyStatus(e,o.el,src);
+  if(S.burn&&Math.random()<.35+.15*S.burn)applyStatus(e,'burn',src);
+  if(S.poison)applyStatus(e,'poison',src);
+  if(S.frost&&Math.random()<.3+.15*S.frost)applyStatus(e,'chill',src);
+  if(S.shock&&Math.random()<.18*S.shock){applyStatus(e,'shock',src);let nx=null,nd=70;for(const o2 of enemies){if(o2===e||o2.dead||o2.air||!los(e.x,e.y,o2.x,o2.y))continue;const d=dist(o2,e);if(d<nd){nd=d;nx=o2;}}if(nx){fx.push({k:'bolt',pts:[{x:e.x,y:e.y},{x:nx.x,y:nx.y}],t:.15,dur:.15});hurtE(nx,power*.7,8,{nost:true,chain:true});}}
   if(S.vamp)P.hp=Math.min(S.maxhp,P.hp+dmg*.02*S.vamp);
   if(crit&&S.flare){fxRing(e.x,e.y,30,'#fd4',.25);for(const o2 of enemies){if(o2===e||o2.dead||o2.air)continue;if(dist(o2,e)<30+o2.r&&los(e.x,e.y,o2.x,o2.y))hurtE(o2,preIronDamage*.5,10,{nost:true,chain:true});}}
  }
